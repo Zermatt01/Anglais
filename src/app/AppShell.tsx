@@ -6,6 +6,7 @@ import { PATHS } from '../features/paths.ts';
 import { SettingsPage } from '../features/settings/SettingsPage.tsx';
 import { useSettings } from '../features/settings/use-settings.ts';
 import { BottomNav } from './BottomNav.tsx';
+import { UpdatePrompt } from './UpdatePrompt.tsx';
 import { useApplyTheme } from './use-apply-theme.ts';
 
 /** Layout shared by every screen: content, then the bottom navigation. */
@@ -24,6 +25,7 @@ function AppShell() {
       <main className="shell__main">
         <Outlet />
       </main>
+      <UpdatePrompt />
       <BottomNav />
     </>
   );

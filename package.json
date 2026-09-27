@@ -19,7 +19,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "check:secrets": "node scripts/check-secrets.ts",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test && npm run check:secrets"
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test && npm run check:secrets",
+    "generate:icons": "node scripts/generate-icons.ts"
   },
   "dependencies": {
     "dexie": "^4.4.6",
