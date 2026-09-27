@@ -340,7 +340,7 @@ Détails :
 
 ## 9. Sécurité
 
-- **Clé Anthropic** (SEC-01) : uniquement dans les secrets de l'Edge Function (`ANTHROPIC_API_KEY`), jamais journalisée. La règle ESLint et `npm run check:secrets` (en CI) interdisent tout accès direct à Anthropic depuis `src/` et toute clé dans le dépôt.
+- **Clé Anthropic** (SEC-01) : uniquement dans les secrets de l'Edge Function (`ANTHROPIC_API_KEY`), jamais journalisée. La règle ESLint et `npm run check:secrets` (contenu indexé, copie de travail et nouveaux fichiers) interdisent tout accès direct à Anthropic depuis `src/` et toute clé dans le dépôt. En CI, gitleaks analyse en plus **tout l'historique Git** (DECISIONS D-033).
 - **Clés Supabase côté client** : la clé publique est publique par conception, et la protection repose sur la RLS. La clé de service n'existe que dans l'environnement de l'Edge Function. Le nom exact des variables (clé « anon » ou « publishable ») sera vérifié en phase 2 (DECISIONS D-031).
 - **Authentification** (DECISIONS D-013) :
   - un code à usage unique envoyé par e-mail ;
@@ -450,4 +450,4 @@ L'écran le dit clairement.
 | Parcours                | Playwright (Pixel 7)     | Parcours principaux sur le build de production : installation PWA, hors ligne, séance du jour, révision d'une carte. **Le modèle est simulé** : aucun test automatique n'appelle Anthropic.                  |
 | Qualité des corrections | Banc d'essai (MOD-13)    | Lancé **manuellement**, depuis l'écran développeur, avec le coût affiché avant lancement. Il ne fait jamais partie de la CI.                                                                                 |
 
-La CI (`.github/workflows/ci.yml`) exécute : vérification des types, lint, format, tests unitaires, scan de secrets, build et tests e2e. Une phase n'est terminée que si tout passe (PROC-05).
+La CI (`.github/workflows/ci.yml`) exécute : vérification des types, lint, format, tests unitaires, scan de secrets, build, scan gitleaks de tout l'historique et tests e2e. Une phase n'est terminée que si tout passe (PROC-05).

@@ -18,7 +18,8 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 - [x] Intégration continue GitHub Actions
 - [x] `docs/SPEC.md`, `docs/PEDAGOGY.md`, `docs/ARCHITECTURE.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md`
 - [x] `CLAUDE.md` et `AGENTS.md`
-- [ ] Dépôt GitHub créé et poussé ; CI verte sur GitHub (action de l'utilisateur)
+- [x] Dépôt GitHub créé et poussé ; CI verte sur GitHub (confirmé par l'utilisateur)
+- [x] Revue de Codex traitée (DECISIONS D-032 à D-035)
 
 ## Phase 1 — Cœur local
 

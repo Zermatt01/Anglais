@@ -39,6 +39,10 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-029 | Mise en pause des projets Supabase gratuits            | Serveur     | À vérifier (P2) |
 | D-030 | Code partagé entre le client et l'Edge Function        | Serveur     | À vérifier (P2) |
 | D-031 | Nom des clés Supabase côté client                      | Serveur     | À vérifier (P2) |
+| D-032 | Profil générique renforcé, historique conservé         | Sécurité    | Actée           |
+| D-033 | Scan de l'index Git et gitleaks sur tout l'historique  | Sécurité    | Actée           |
+| D-034 | Serveur e2e dédié, jamais réutilisé                    | Outillage   | Actée           |
+| D-035 | Critère décisif : erreur ou non                        | Pédagogie   | Actée           |
 
 ---
 
@@ -257,3 +261,37 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 ### D-031 — Nom des clés Supabase côté client (2026-09-27, à vérifier en phase 2)
 
 - **Décision.** Le nom et le format de la clé publique Supabase (« anon » ou « publishable ») seront vérifiés dans la documentation au moment de la phase 2. Aucun `.env.example` n'est publié avant.
+
+### D-032 — Profil générique renforcé, historique conservé (2026-09-27, complète D-020)
+
+- **Contexte.** La revue de la phase 0 (Codex) signale que le profil de USR-01 restait assez précis pour être relié au nom de l'auteur des commits.
+- **Décision.**
+  - USR-01 est réduit à ce qui sert au produit ; les domaines restent en USR-05 et l'échéance en USR-02.
+  - L'identité d'auteur Git est conservée, et l'historique n'est pas réécrit : pas de push forcé. L'ancienne formulation reste visible dans le commit `76d071b`.
+- **Raison.** C'est le choix de l'utilisateur. Le dépôt est privé, signer ses commits de son nom est l'usage normal, et une réécriture de l'historique publié est irréversible.
+
+### D-033 — Scan de l'index Git et gitleaks sur tout l'historique (2026-09-27, complète D-008)
+
+- **Contexte.** La revue de la phase 0 signale deux trous : le scan ne lisait que les fichiers sur le disque (une clé indexée puis retirée du fichier y échappait), et il ne reconnaissait que peu de formats.
+- **Décision.**
+  - `check:secrets` scanne le **contenu indexé** de chaque fichier suivi (`git ls-files --stage` et `git cat-file --batch`), la copie de travail quand elle diffère, et les fichiers non suivis non ignorés.
+  - Il reconnaît davantage de formats : OpenAI, GitHub, AWS, Google, Stripe, Slack, Supabase, JWT, clés privées, et les affectations génériques de secrets à valeur d'allure aléatoire.
+  - Il refuse tout fichier `.env*` (sauf `.env.example`) ou de clé privée suivi par Git.
+  - Un test d'intégration reproduit le scénario de la revue dans un dépôt Git temporaire.
+  - En CI, une tâche **gitleaks** (`gitleaks/gitleaks-action@v3`, historique complet, sans commentaire de PR ; aucune licence n'est requise pour un compte personnel) couvre des centaines de formats et **tous les commits**, y compris une clé ajoutée puis retirée dans le même push.
+- **Raison.** Défense en profondeur. gitleaks est la référence pour l'historique, et un contrôle positif local a confirmé qu'il détecte une fausse clé Anthropic. Le script maison reste la barrière locale rapide et porte les règles propres au projet, comme l'accès à Anthropic depuis `src/`.
+- **Alternatives écartées.** gitleaks seul : il n'est pas installé sur le poste et ne connaît pas les règles du projet. Un hook pre-commit : il ajouterait une dépendance, et pourra être reconsidéré plus tard.
+
+### D-034 — Serveur e2e dédié, jamais réutilisé (2026-09-27, complète D-007)
+
+- **Contexte.** La revue de la phase 0 signale qu'en local Playwright réutilisait un serveur déjà présent sur le port 4173 : un ancien build pouvait être testé à la place du code courant.
+- **Décision.** Les tests e2e utilisent un port dédié (4193), avec `reuseExistingServer: false` et `--strictPort`. Playwright reconstruit et démarre toujours son propre serveur ; un port occupé fait échouer les tests explicitement (vérifié).
+
+### D-035 — Critère décisif : erreur ou non (2026-09-27, complète D-021)
+
+- **Contexte.** La revue de la phase 0 signale que _I am working in finance every day_ était présenté comme faux, alors que le présent continu est juste pour une situation temporaire. La relecture qui a suivi a trouvé d'autres exemples fautifs seulement selon le contexte (_married with_, _when I will have the results_, _The inflation is rising_…).
+- **Décision.**
+  - Une forme n'est une erreur que si elle est incorrecte **dans toutes les interprétations plausibles**, compte tenu de la consigne, de la phrase française ou de l'intention. En cas de doute, ce n'est pas une erreur (PEDAGOGY §7.3).
+  - Un calque ou une collocation n'est une erreur que s'il est agrammatical, s'il change le sens ou s'il serait jugé faux ; sinon, c'est une tournure non naturelle.
+  - Tous les exemples de PEDAGOGY ont été rendus univoques ou contextualisés.
+- **Raison.** NO-05 est une exigence absolue. Ce critère sera repris tel quel dans les prompts de correction (AI-05) et mesuré par le banc d'essai (MOD-13).
