@@ -1,0 +1,155 @@
+import type { SettingsPatch } from '../../data/repositories/settings-repository.ts';
+import type { SettingsValues } from '../../domain/settings.ts';
+import { CheckboxGroup, ChoiceGroup, SelectField, SwitchField } from '../../ui/fields.tsx';
+import { Notice } from '../../ui/Notice.tsx';
+import { Page, Sheet } from '../../ui/Page.tsx';
+import { DataSection } from '../data-transfer/DataSection.tsx';
+import { usePageTitle } from '../use-page-title.ts';
+import { CorrectionMarksPreview } from './CorrectionMarksPreview.tsx';
+import { DOMAIN_CHOICES, THEME_CHOICES, VARIANT_CHOICES } from './choices.ts';
+import { ProfileRemarksEditor } from './ProfileRemarksEditor.tsx';
+import { useSettings, useUpdateSettings } from './use-settings.ts';
+
+const minutes = (values: readonly number[]) =>
+  values.map((value) => ({ value, label: `${String(value)} minutes` }));
+const perDay = (values: readonly number[]) =>
+  values.map((value) => ({ value, label: String(value) }));
+
+const EMAIL_FREQUENCIES = [
+  { value: 0, label: 'Jamais' },
+  { value: 1, label: 'Une fois par semaine' },
+  { value: 2, label: 'Deux fois par semaine' },
+  { value: 3, label: 'Trois fois par semaine' },
+];
+
+/** Settings screen (MOD-12). Each choice is saved as soon as it is made. */
+export function SettingsPage() {
+  usePageTitle('Réglages');
+  const loaded = useSettings();
+  const { update, failed } = useUpdateSettings();
+
+  if (loaded === undefined) {
+    return (
+      <Page title="Réglages">
+        <p role="status">Chargement des réglages…</p>
+      </Page>
+    );
+  }
+
+  const values: SettingsValues = loaded.values;
+  const change = (patch: SettingsPatch) => {
+    void update(patch);
+  };
+
+  return (
+    <Page title="Réglages">
+      {loaded.stored === 'invalid' ? (
+        <Notice tone="error" title="Réglages illisibles">
+          <p>
+            Les réglages enregistrés n’ont pas pu être lus : les valeurs par défaut sont affichées.
+            Exporte tes données avant de modifier un réglage, car le prochain changement les
+            remplacera.
+          </p>
+        </Notice>
+      ) : null}
+      {failed ? (
+        <Notice tone="error" title="Réglage non enregistré">
+          <p>Réessaie. Si le problème continue, exporte tes données puis recharge l’application.</p>
+        </Notice>
+      ) : null}
+
+      <Sheet title="Anglais">
+        <ChoiceGroup
+          legend="Variante d’anglais"
+          value={values.englishVariant}
+          choices={VARIANT_CHOICES}
+          onChange={(englishVariant) => {
+            change({ englishVariant });
+          }}
+        />
+        <p className="muted">
+          Les orthographes britannique et américaine sont toujours acceptées dans tes réponses.
+        </p>
+      </Sheet>
+
+      <Sheet title="Apparence">
+        <ChoiceGroup
+          legend="Thème"
+          value={values.theme}
+          choices={THEME_CHOICES}
+          onChange={(theme) => {
+            change({ theme });
+          }}
+        />
+        <CorrectionMarksPreview />
+      </Sheet>
+
+      <Sheet title="Séance">
+        <SelectField
+          label="Objectif quotidien"
+          hint="La séance du jour dure 20 à 25 minutes ; chaque module peut aussi se faire seul."
+          value={values.dailyGoalMinutes}
+          options={minutes([10, 15, 20, 25, 30])}
+          onChange={(dailyGoalMinutes) => {
+            change({ dailyGoalMinutes });
+          }}
+        />
+        <SelectField
+          label="Nouvelles cartes par jour"
+          value={values.newCardsPerDay}
+          options={perDay([0, 5, 10, 15, 20, 30])}
+          onChange={(newCardsPerDay) => {
+            change({ newCardsPerDay });
+          }}
+        />
+        <SelectField
+          label="Révisions par jour (au plus)"
+          value={values.reviewsPerDay}
+          options={perDay([20, 40, 60, 80, 100, 150, 200])}
+          onChange={(reviewsPerDay) => {
+            change({ reviewsPerDay });
+          }}
+        />
+        <SwitchField
+          label="Me corriger moi-même d’abord"
+          description="Les erreurs sont signalées avec un indice avant la correction. Tu peux toujours passer cette étape."
+          checked={values.selfCorrection}
+          onChange={(selfCorrection) => {
+            change({ selfCorrection });
+          }}
+        />
+        <SelectField
+          label="E-mail guidé"
+          hint="Remplace le Journal dans la séance du jour."
+          value={values.emailSessionsPerWeek}
+          options={EMAIL_FREQUENCIES}
+          onChange={(emailSessionsPerWeek) => {
+            change({ emailSessionsPerWeek });
+          }}
+        />
+      </Sheet>
+
+      <Sheet title="Profil d’apprenant">
+        <p className="muted">
+          Enregistré uniquement sur ce téléphone. Plus tard, ces informations accompagneront tes
+          demandes de correction pour adapter les exemples.
+        </p>
+        <CheckboxGroup
+          legend="Domaines qui t’intéressent"
+          hint="Les exemples et les exercices viendront de préférence de ces domaines."
+          values={values.learnerProfile.domains}
+          choices={DOMAIN_CHOICES}
+          onChange={(domains) => {
+            change({ learnerProfile: { domains } });
+          }}
+        />
+        <ProfileRemarksEditor
+          savedRemarks={values.learnerProfile.remarks}
+          onSave={(remarks) => update({ learnerProfile: { remarks } })}
+        />
+      </Sheet>
+
+      <DataSection />
+    </Page>
+  );
+}
