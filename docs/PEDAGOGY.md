@@ -202,7 +202,7 @@ Par exemple, dans _It's been three years that I work here_, la catégorie est `c
 - _I have seen him yesterday_ → _I saw him yesterday_.
 - _He buyed shares_ → _He bought shares_.
 - _When I will arrive, I'll call you_ → _When I arrive, I'll call you_.
-- _I wish I would have more time_ → _I wish I had more time_.
+- Regret sur la situation présente (« j'aimerais avoir plus de temps ») : _I wish I would have more time_ → _I wish I had more time_.
 - **Frontières** :
   - le _-s_ de la 3e personne → `accord_sujet_verbe` ;
   - _do/does/did_ dans les questions et négations → `auxiliaires_questions_negations` ;
@@ -213,7 +213,7 @@ Par exemple, dans _It's been three years that I work here_, la catégorie est `c
 - _She work in a bank_ → _She works in a bank_.
 - _Everyone have finished_ → _Everyone has finished_.
 - _There is many risks_ → _There are many risks_.
-- _Anna called his mother_ (la mère d'Anna) → _Anna called her mother_.
+- _Anna called his mother_ (Anna, qui utilise _she/her_, appelle sa propre mère) → _Anna called her mother_.
 - **Frontières** :
   - le verbe est bien accordé mais au mauvais temps → `temps_verbaux` ;
   - l'erreur est dans la forme construite avec un auxiliaire (_Does she works?_) → `auxiliaires_questions_negations`.
@@ -243,7 +243,7 @@ Par exemple, dans _It's been three years that I work here_, la catégorie est `c
 - noms indénombrables mis au pluriel ou précédés de _a/an_ (_informations, advices, feedbacks, researches, equipments_) ;
 - quantifieurs (_much/many, few/little, less/fewer_) ;
 - adjectifs accordés à tort ;
-- noms composés avec un nombre ;
+- noms composés, avec ou sans nombre (_a bus driver_, _a three-year plan_) ;
 - pluriels irréguliers.
 
 Exemples :
@@ -260,7 +260,7 @@ Exemples :
 - _arrive to Zurich_ → _arrive in Zurich_.
 - _discuss about the results_ → _discuss the results_.
 - _Can you explain me the model?_ → _Can you explain the model to me?_
-- _Can you pick me at the station?_ → _Can you pick me up at the station?_
+- « Peux-tu venir me chercher à la gare ? » : _Can you pick me at the station?_ → _Can you pick me up at the station?_
 - **Frontières** :
   - _for/since/ago_ → `temps_verbaux` ;
   - le verbe lui-même est mal choisi → `choix_lexical_collocations` ;
@@ -423,7 +423,7 @@ Les identifiants de notions (colonne de droite) sont ceux du programme (CUR-02),
 | Présent simple ou continu            | Verbe d'état au continu : _This report is belonging to the CFO_ → _This report belongs to the CFO_ (en revanche, _I am working in finance this year_ est juste : situation temporaire) | `temps_verbaux`                   | `tense-present-simple-vs-continuous`       |
 | Futur après _when/if_                | _I'll call you when I will have the results_ → _… when I have the results_                                                                                                             | `temps_verbaux`                   | `tense-future`                             |
 | Accord de la 3e personne             | _The model predict prices well_ → _The model predicts prices well_                                                                                                                     | `accord_sujet_verbe`              | `tense-present-simple`                     |
-| Possessifs                           | _Anna called his mother_ (la mère d'Anna) → _Anna called her mother_                                                                                                                   | `accord_sujet_verbe`              | `nouns-pronouns-possessives`               |
+| Possessifs                           | _Anna called his mother_ (Anna, qui utilise _she/her_, appelle sa propre mère) → _Anna called her mother_                                                                              | `accord_sujet_verbe`              | `nouns-pronouns-possessives`               |
 | Auxiliaire _do_                      | _Why you chose finance?_ → _Why did you choose finance?_                                                                                                                               | `auxiliaires_questions_negations` | `questions-do-negations`                   |
 | Indénombrables                       | _informations, advices, feedbacks, researches, equipments_                                                                                                                             | `indenombrables_pluriels`         | `nouns-countable-uncountable`              |
 | Articles                             | _The data science is…_ → _Data science is…_                                                                                                                                            | `articles`                        | `nouns-articles`                           |
@@ -524,17 +524,17 @@ Cette section est la **source unique** pour l'ordre des pistes et des notions, l
 
 ### 11.1 Pistes
 
-| Ordre | Piste                                   | Identifiant    | Phase           |
-| ----- | --------------------------------------- | -------------- | --------------- |
-| 1     | Temps verbaux                           | `tenses`       | P3 (13), P8 (3) |
-| 2     | Passif, modaux et discours indirect     | `verbs`        | P8              |
-| 3     | Questions et auxiliaires                | `questions`    | P8              |
-| 4     | Verbe + _-ing_ ou _to_                  | `patterns`     | P8              |
-| 5     | Noms, pronoms et déterminants           | `nouns`        | P8              |
-| 6     | Adjectifs, adverbes et ordre des mots   | `adjectives`   | P8              |
-| 7     | Prépositions et _phrasal verbs_         | `prepositions` | P8              |
-| 8     | Phrases complexes                       | `clauses`      | P8              |
-| 9     | Vocabulaire professionnel (hors Murphy) | `vocabulary`   | P8              |
+| Ordre | Piste                                   | Identifiant    | Préfixe des notions | Phase           |
+| ----- | --------------------------------------- | -------------- | ------------------- | --------------- |
+| 1     | Temps verbaux                           | `tenses`       | `tense-`            | P3 (13), P8 (3) |
+| 2     | Passif, modaux et discours indirect     | `verbs`        | `verbs-`            | P8              |
+| 3     | Questions et auxiliaires                | `questions`    | `questions-`        | P8              |
+| 4     | Verbe + _-ing_ ou _to_                  | `patterns`     | `patterns-`         | P8              |
+| 5     | Noms, pronoms et déterminants           | `nouns`        | `nouns-`            | P8              |
+| 6     | Adjectifs, adverbes et ordre des mots   | `adjectives`   | `adj-`              | P8              |
+| 7     | Prépositions et _phrasal verbs_         | `prepositions` | `prep-`             | P8              |
+| 8     | Phrases complexes                       | `clauses`      | `clauses-`          | P8              |
+| 9     | Vocabulaire professionnel (hors Murphy) | `vocabulary`   | `vocab-`            | P8              |
 
 ### 11.2 Notions
 
@@ -594,7 +594,7 @@ Les colonnes « Livre rouge » et « Livre bleu » donnent les numéros d'unité
 | --- | ---------------------------------------------------------- | ----------------------------- | ----- | ---------------------- | ------------------------------ |
 | 1   | Pronoms et possessifs (_I/me_, _my/mine_, _myself_, _-'s_) | `nouns-pronouns-possessives`  | P8    | 58, 59, 60, 61, 62, 63 | 81, 82, 83                     |
 | 2   | Articles (_a/an_, _the_, article zéro)                     | `nouns-articles`              | P8    | 64, 68, 69, 70, 71, 72 | 71, 72, 73, 74, 75, 76, 77, 78 |
-| 3   | Dénombrables, indénombrables et pluriels                   | `nouns-countable-uncountable` | P8    | 65, 66, 67             | 69, 70, 79, 80                 |
+| 3   | Dénombrables, indénombrables, pluriels et noms composés    | `nouns-countable-uncountable` | P8    | 65, 66, 67             | 69, 70, 79, 80                 |
 | 4   | _Some_, _any_, _no_ et leurs composés                      | `nouns-some-any-no`           | P8    | 75, 76, 77, 78         | 85, 86                         |
 | 5   | _All_, _every_, _each_, _both_, _either_, _neither_        | `nouns-all-both-each`         | P8    | 79, 80, 81             | 88, 89, 90, 91                 |
 | 6   | _Much_, _many_, _a lot_, _few_, _little_                   | `nouns-quantity`              | P8    | 82, 83                 | 87                             |

@@ -232,7 +232,7 @@ src/content/
 
 Chaque exercice porte un identifiant stable (`<notion-id>/s<étape>/<nn>`). Il porte aussi deux marques de relecture (`review: { first, second }`), exigées par le test du socle (CUR-06, CUR-11).
 
-**Identifiants de notions.** La liste ordonnée des pistes et des notions, avec leurs identifiants, leur phase et leurs références, est dans [PEDAGOGY.md §11](PEDAGOGY.md#11-programme--pistes-notions-et-références), **source unique**. Les identifiants sont en anglais, en kebab-case, préfixés par leur piste, et **stables une fois livrés**. Ceux des notions hors phase 3 ont été renommés le 2026-09-27, avant toute implémentation (DECISIONS D-036). Ces identifiants forment la liste fermée transmise au modèle (AI-03) : toute sortie IA qui cite un autre identifiant est rejetée.
+**Identifiants de notions.** La liste ordonnée des pistes et des notions, avec leurs identifiants, leur phase et leurs références, est dans [PEDAGOGY.md §11](PEDAGOGY.md#11-programme--pistes-notions-et-références), **source unique**. Les identifiants sont en anglais, en kebab-case, et **stables une fois livrés**. Ils commencent par le préfixe de leur piste, parfois abrégé (`tense-`, `adj-`, `prep-`, `vocab-`…) : la correspondance piste → préfixe est la colonne « Préfixe des notions » de PEDAGOGY §11.1. Ceux des notions hors phase 3 ont été renommés le 2026-09-27, avant toute implémentation (DECISIONS D-036). Ces identifiants forment la liste fermée transmise au modèle (AI-03) : toute sortie IA qui cite un autre identifiant est rejetée.
 
 **Références « Pour aller plus loin »** (CUR-14, DECISIONS D-038, livrées en phase 3) :
 

@@ -179,7 +179,7 @@ Exigence de premier rang, pas une optimisation facultative.
   2. **Passif, modaux et discours indirect** [P8] : passif ; modaux ; demandes polies et offres ; say ou tell ; discours indirect.
   3. **Questions et auxiliaires** [P8] : questions et négations avec do, does et did ; there is / there are, et it ; réponses courtes, so/neither et question tags ; questions indirectes.
   4. **Verbe + -ing ou to** [P8] : verbe + -ing ou to ; exprimer le but ; make ou do.
-  5. **Noms, pronoms et déterminants** [P8] : pronoms et possessifs ; articles ; dénombrables, indénombrables et pluriels ; some, any, no et leurs composés ; all, every, each, both, either, neither ; much, many, a lot, few, little.
+  5. **Noms, pronoms et déterminants** [P8] : pronoms et possessifs ; articles ; dénombrables, indénombrables, pluriels et noms composés ; some, any, no et leurs composés ; all, every, each, both, either, neither ; much, many, a lot, few, little.
   6. **Adjectifs, adverbes et ordre des mots** [P8] : adjectifs et adverbes ; comparatifs et superlatifs ; too, enough, so, such ; ordre des mots.
   7. **Prépositions et phrasal verbs** [P8] : prépositions de temps ; prépositions de lieu et de mouvement ; prépositions après un nom, un adjectif ou un verbe ; phrasal verbs (sens et construction) ; phrasal verbs courants.
   8. **Phrases complexes** [P8] : connecteurs ; conditionnels ; relatives ; wish.
