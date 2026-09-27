@@ -4,7 +4,7 @@ Le travail avance par phases. À la fin de chaque phase, on **s'arrête** et on 
 
 Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes les vérifications passent (PROC-05).
 
-**Phase en cours : Phase 0, terminée, en attente de validation.**
+**Phase en cours : aucune. La phase 0 est close ; la phase 1 attend l'accord de l'utilisateur.**
 
 ---
 
@@ -20,6 +20,10 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 - [x] `CLAUDE.md` et `AGENTS.md`
 - [x] Dépôt GitHub créé et poussé ; CI verte sur GitHub (confirmé par l'utilisateur)
 - [x] Revue de Codex traitée (DECISIONS D-032 à D-035)
+
+## Mises à jour entre les phases
+
+- [x] Programme aligné sur les livres de Murphy, en 9 pistes ; notions ajoutées en phase 8 ; références « Pour aller plus loin » ; contenu original (documentation uniquement, DECISIONS D-036 à D-041)
 
 ## Phase 1 — Cœur local
 
@@ -50,7 +54,8 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 - [ ] Moteur des cinq étapes, critères de passage et de retour
 - [ ] Test de positionnement par piste
 - [ ] Frises chronologiques SVG
-- [ ] Piste « Temps verbaux » complète, dont « just, already, yet et still » (socle ≥ 10 exercices par étape, doublement relu)
+- [ ] Les 13 notions de phase 3 de la piste « Temps verbaux », dans l'ordre de PEDAGOGY §11, dont « just, already, yet et still » (socle ≥ 10 exercices par étape, doublement relu)
+- [ ] Références « Pour aller plus loin » : schéma, affichage sous la leçon, test des unités contre `docs/references/murphy-contents.md` et PEDAGOGY §11, rempli pour les 13 notions (CUR-14)
 - [ ] Génération d'exercices par l'IA sur demande, validée et conservée
 - [ ] Test automatique du socle (bien formé, résoluble, ≥ 1 réponse attendue, relectures)
 - [ ] Relecture séparée de tout le contenu pédagogique
@@ -93,5 +98,16 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 ## Phase 8 — Programme complet
 
-- [ ] Pistes « Structure de la phrase », « Mots pièges » et « Communication professionnelle », avec la même exigence de qualité et le même test du socle
+Toutes les notions marquées P8 dans PEDAGOGY §11, avec la même exigence de qualité, le même test du socle et leurs références Murphy :
+
+- [ ] Temps verbaux, notions de phase 8 : _have_ et _have got_ ; _used to_ ; futur continu et futur antérieur
+- [ ] Passif, modaux et discours indirect
+- [ ] Questions et auxiliaires
+- [ ] Verbe + _-ing_ ou _to_
+- [ ] Noms, pronoms et déterminants
+- [ ] Adjectifs, adverbes et ordre des mots
+- [ ] Prépositions et _phrasal verbs_
+- [ ] Phrases complexes
+- [ ] Vocabulaire professionnel
+- [ ] Unités Murphy sans notion (PEDAGOGY §11.3) : rattachées ou exclues avec leur raison ; test de couverture complète
 - [ ] **Arrêt**

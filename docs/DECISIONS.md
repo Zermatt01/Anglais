@@ -6,43 +6,49 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 
 ## Index
 
-| ID    | Sujet                                                  | Thème       | Statut          |
-| ----- | ------------------------------------------------------ | ----------- | --------------- |
-| D-001 | Langues du projet                                      | Outillage   | Actée           |
-| D-002 | npm et Node 24                                         | Outillage   | Actée           |
-| D-003 | TypeScript 6.0.x plutôt que 7                          | Outillage   | Actée           |
-| D-004 | ESLint plutôt qu'oxlint, fork d'accessibilité          | Outillage   | Actée           |
-| D-005 | Vitest 5 et jsdom 29                                   | Outillage   | Actée           |
-| D-006 | Options TypeScript                                     | Outillage   | Actée           |
-| D-007 | Playwright sur le build de production                  | Outillage   | Actée           |
-| D-008 | Scan de secrets en plus d'ESLint                       | Sécurité    | Actée           |
-| D-009 | Identifiants de modèles et prix                        | IA et coûts | Actée           |
-| D-010 | Sortie JSON garantie                                   | IA et coûts | Actée           |
-| D-011 | Cache de prompts                                       | IA et coûts | Actée           |
-| D-012 | Réflexion de Sonnet 5 réglée par tâche                 | IA et coûts | À calibrer (P5) |
-| D-013 | Authentification par code à usage unique               | Serveur     | À vérifier (P2) |
-| D-014 | Magasin de documents générique côté serveur            | Serveur     | Actée           |
-| D-015 | Résolution des conflits                                | Données     | Actée           |
-| D-016 | Réservation budgétaire et nouvelle tentative           | IA et coûts | Actée           |
-| D-017 | Prompts uniquement côté serveur                        | IA et coûts | Actée           |
-| D-018 | Mise à jour du service worker sur demande              | PWA         | Actée           |
-| D-019 | Stockage persistant et migrations sûres                | Données     | Actée           |
-| D-020 | Aucune donnée personnelle identifiante dans le dépôt   | Sécurité    | Actée           |
-| D-021 | Taxonomie à deux dimensions et règles de départage     | Pédagogie   | Actée           |
-| D-022 | Notion « à consolider »                                | Pédagogie   | Actée           |
-| D-023 | Notions admises dans le Thème                          | Pédagogie   | Actée           |
-| D-024 | Seules les erreurs qualifiantes déclenchent une lacune | Pédagogie   | Actée           |
-| D-025 | Erreur sur une notion non étudiée                      | Pédagogie   | Actée           |
-| D-026 | Autocorrection vérifiée localement                     | Pédagogie   | Actée           |
-| D-027 | Critères de passage par défaut                         | Pédagogie   | À ajuster (P3)  |
-| D-028 | Limites de la reconnaissance vocale                    | Parole      | À revoir (P6)   |
-| D-029 | Mise en pause des projets Supabase gratuits            | Serveur     | À vérifier (P2) |
-| D-030 | Code partagé entre le client et l'Edge Function        | Serveur     | À vérifier (P2) |
-| D-031 | Nom des clés Supabase côté client                      | Serveur     | À vérifier (P2) |
-| D-032 | Profil générique renforcé, historique conservé         | Sécurité    | Actée           |
-| D-033 | Scan de l'index Git et gitleaks sur tout l'historique  | Sécurité    | Actée           |
-| D-034 | Serveur e2e dédié, jamais réutilisé                    | Outillage   | Actée           |
-| D-035 | Critère décisif : erreur ou non                        | Pédagogie   | Actée           |
+| ID    | Sujet                                                   | Thème       | Statut          |
+| ----- | ------------------------------------------------------- | ----------- | --------------- |
+| D-001 | Langues du projet                                       | Outillage   | Actée           |
+| D-002 | npm et Node 24                                          | Outillage   | Actée           |
+| D-003 | TypeScript 6.0.x plutôt que 7                           | Outillage   | Actée           |
+| D-004 | ESLint plutôt qu'oxlint, fork d'accessibilité           | Outillage   | Actée           |
+| D-005 | Vitest 5 et jsdom 29                                    | Outillage   | Actée           |
+| D-006 | Options TypeScript                                      | Outillage   | Actée           |
+| D-007 | Playwright sur le build de production                   | Outillage   | Actée           |
+| D-008 | Scan de secrets en plus d'ESLint                        | Sécurité    | Actée           |
+| D-009 | Identifiants de modèles et prix                         | IA et coûts | Actée           |
+| D-010 | Sortie JSON garantie                                    | IA et coûts | Actée           |
+| D-011 | Cache de prompts                                        | IA et coûts | Actée           |
+| D-012 | Réflexion de Sonnet 5 réglée par tâche                  | IA et coûts | À calibrer (P5) |
+| D-013 | Authentification par code à usage unique                | Serveur     | À vérifier (P2) |
+| D-014 | Magasin de documents générique côté serveur             | Serveur     | Actée           |
+| D-015 | Résolution des conflits                                 | Données     | Actée           |
+| D-016 | Réservation budgétaire et nouvelle tentative            | IA et coûts | Actée           |
+| D-017 | Prompts uniquement côté serveur                         | IA et coûts | Actée           |
+| D-018 | Mise à jour du service worker sur demande               | PWA         | Actée           |
+| D-019 | Stockage persistant et migrations sûres                 | Données     | Actée           |
+| D-020 | Aucune donnée personnelle identifiante dans le dépôt    | Sécurité    | Actée           |
+| D-021 | Taxonomie à deux dimensions et règles de départage      | Pédagogie   | Actée           |
+| D-022 | Notion « à consolider »                                 | Pédagogie   | Actée           |
+| D-023 | Notions admises dans le Thème                           | Pédagogie   | Actée           |
+| D-024 | Seules les erreurs qualifiantes déclenchent une lacune  | Pédagogie   | Actée           |
+| D-025 | Erreur sur une notion non étudiée                       | Pédagogie   | Actée           |
+| D-026 | Autocorrection vérifiée localement                      | Pédagogie   | Actée           |
+| D-027 | Critères de passage par défaut                          | Pédagogie   | À ajuster (P3)  |
+| D-028 | Limites de la reconnaissance vocale                     | Parole      | À revoir (P6)   |
+| D-029 | Mise en pause des projets Supabase gratuits             | Serveur     | À vérifier (P2) |
+| D-030 | Code partagé entre le client et l'Edge Function         | Serveur     | À vérifier (P2) |
+| D-031 | Nom des clés Supabase côté client                       | Serveur     | À vérifier (P2) |
+| D-032 | Profil générique renforcé, historique conservé          | Sécurité    | Actée           |
+| D-033 | Scan de l'index Git et gitleaks sur tout l'historique   | Sécurité    | Actée           |
+| D-034 | Serveur e2e dédié, jamais réutilisé                     | Outillage   | Actée           |
+| D-035 | Critère décisif : erreur ou non                         | Pédagogie   | Actée           |
+| D-036 | Programme aligné sur Murphy, en 9 pistes                | Pédagogie   | Actée           |
+| D-037 | Ajouts de phase 8 dans la piste Temps verbaux           | Pédagogie   | Actée           |
+| D-038 | Références « Pour aller plus loin », livrées en phase 3 | Pédagogie   | Actée           |
+| D-039 | Libellés des livres : rouge et bleu                     | Pédagogie   | Actée           |
+| D-040 | Taxonomie : définitions élargies aux nouvelles notions  | Pédagogie   | Actée           |
+| D-041 | Contenu original, sans reprise des livres               | Pédagogie   | Actée           |
 
 ---
 
@@ -295,3 +301,61 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - Un calque ou une collocation n'est une erreur que s'il est agrammatical, s'il change le sens ou s'il serait jugé faux ; sinon, c'est une tournure non naturelle.
   - Tous les exemples de PEDAGOGY ont été rendus univoques ou contextualisés.
 - **Raison.** NO-05 est une exigence absolue. Ce critère sera repris tel quel dans les prompts de correction (AI-05) et mesuré par le banc d'essai (MOD-13).
+
+### D-036 — Programme aligné sur Murphy, en 9 pistes (2026-09-27, remplace l'organisation initiale de CUR-02)
+
+- **Contexte.** L'utilisateur étudie en parallèle avec deux livres de Raymond Murphy (USR-07) et demande d'aligner l'ordre des pistes et des notions sur leur progression : le livre élémentaire d'abord, puis son approfondissement intermédiaire. Les anciennes pistes « Structure de la phrase », « Mots pièges » et « Communication professionnelle » mélangeaient des unités du début et de la fin des livres : aucun simple réordonnancement ne pouvait suivre Murphy. Le conflit a été signalé et l'utilisateur a tranché.
+- **Décision.**
+  - Neuf pistes calquées sur les blocs du livre rouge : Temps verbaux ; Passif, modaux et discours indirect ; Questions et auxiliaires ; Verbe + -ing ou to ; Noms, pronoms et déterminants ; Adjectifs, adverbes et ordre des mots ; Prépositions et phrasal verbs ; Phrases complexes ; Vocabulaire professionnel (hors Murphy, en dernier).
+  - Dans une piste, les notions sont classées selon la première unité du livre rouge qu'elles citent, puis viennent les notions propres au livre bleu.
+  - « Conditionnels et politesse » est scindée en « Conditionnels » (Phrases complexes) et « Demandes polies et offres » (Passif, modaux…), comme dans Murphy.
+  - Notions ajoutées, toutes en phase 8 :
+    - demandées par l'utilisateur : _used to_, _have got_, _there is/there are_, verbe + -ing ou to, _some/any/no_, _much/many/few/little_, comparatifs et superlatifs, adjectifs et adverbes, question tags et réponses courtes, prépositions de lieu et de mouvement, phrasal verbs, _wish_ ;
+    - ajoutées pour couvrir les livres : futur continu et futur antérieur, exprimer le but, pronoms et possessifs, _all/every/each/both_, _too/enough/so/such_ ; les phrasal verbs sont scindés en deux notions.
+  - Le programme compte désormais 50 notions, dont 13 en phase 3. PEDAGOGY §11 est la **source unique** (ordre, identifiants, phases, références) ; un script a vérifié que chaque unité des deux livres est soit rattachée, soit listée en §11.3 avec sa raison.
+  - Les identifiants des notions hors phase 3 sont renommés avec le préfixe de leur nouvelle piste (`traps-articles` → `nouns-articles`, etc.). Aucune donnée ni aucun code ne les utilise encore ; les identifiants de phase 3 (`tense-*`) sont inchangés.
+- **Raison.** C'est le choix de l'utilisateur. Suivre la même progression que ses livres rend l'étude parallèle cohérente, et les renvois d'unités ont du sens.
+- **Alternatives écartées.** Garder les 4 pistes et réordonner seulement à l'intérieur : l'ordre global n'aurait suivi Murphy qu'approximativement.
+
+### D-037 — Ajouts de phase 8 dans la piste Temps verbaux (2026-09-27)
+
+- **Contexte.** Suivre Murphy place _have got_, _used to_ et le futur continu/futur antérieur dans la piste Temps verbaux, entre des notions de phase 3. Or la phase 3 doit livrer la piste « complète », sans changer de contenu. Le conflit a été signalé et l'utilisateur a tranché.
+- **Décision.** Ces trois notions gardent leur place Murphy dans la piste, mais ne sont livrées qu'en phase 8. La phase 3 livre exactement ses 13 notions d'origine. CUR-10 et la feuille de route parlent désormais des « 13 notions de phase 3 de la piste Temps verbaux ». L'ordre interne de la piste suit Murphy : le présent continu passe avant le présent simple, le passé continu avant le present perfect, et _just/already/yet/still_ avant _for/since/ago_.
+- **Raison.** L'alignement sur Murphy est respecté sans alourdir la phase 3. Le moteur de parcours traite chaque notion indépendamment : une notion livrée plus tard apparaîtra simplement comme « non commencée ».
+- **Alternatives écartées.** Une piste séparée « Autres formes verbales » : elle aurait gardé la piste strictement identique, mais au prix d'un écart à l'ordre Murphy.
+
+### D-038 — Références « Pour aller plus loin », livrées en phase 3 (2026-09-27)
+
+- **Contexte.** Le champ de référence fait partie de la structure des notions, construite en phase 3. Le conflit avec « le contenu de la phase 3 ne change pas » a été signalé et l'utilisateur a tranché.
+- **Décision.**
+  - Champ facultatif `references?: { book, units[] }[]`, avec au plus une entrée par livre, validé par Zod.
+  - Affichage sous la leçon : « Pour aller plus loin : livre rouge, unité 16 ».
+  - Les unités sont renseignées **uniquement** à partir de `docs/references/murphy-contents.md`. Un test de phase 3 vérifie que chaque unité existe dans ce fichier et que le code reprend exactement PEDAGOGY §11.
+  - Livré en phase 3 et rempli pour ses 13 notions. Les leçons et les exercices de la phase 3 ne changent pas ; seul ce petit élément s'ajoute.
+  - Les unités sans notion (PEDAGOGY §11.3) seront réexaminées en phase 8.
+- **Raison.** Ajouter le champ plus tard aurait obligé à migrer le schéma, et l'exemple de l'utilisateur (just, already, yet) concerne justement une notion de phase 3.
+
+### D-039 — Libellés des livres : rouge et bleu (2026-09-27)
+
+- **Contexte.** Le fichier de référence fourni appelait _Essential Grammar in Use_ « livre bleu » et _English Grammar in Use_ « livre rouge ». Ce point a été signalé comme possiblement inversé, sans certitude.
+- **Décision.** Sur choix de l'utilisateur : _Essential Grammar in Use_ = **livre rouge**, _English Grammar in Use_ = **livre bleu**. Le fichier `docs/references/murphy-contents.md` a été corrigé en conséquence ; seuls les libellés ont changé, pas les unités. L'exemple de la demande, « livre bleu, unité 16 » (just/already/yet dans le livre élémentaire), s'affiche donc « livre rouge, unité 16 ».
+- **Raison.** Les libellés doivent correspondre aux couvertures des exemplaires de l'utilisateur. Ils ne sont définis qu'à un seul endroit (`books.ts`, en phase 3), ce qui les rend faciles à corriger.
+
+### D-040 — Taxonomie : définitions élargies aux nouvelles notions (2026-09-27, complète D-021)
+
+- **Contexte.** La taxonomie est fixe (TAX-01). Plusieurs nouvelles notions n'avaient pas de catégorie évidente : possessifs, déterminants, verbe + -ing ou to, formes des adjectifs et adverbes, particules des phrasal verbs.
+- **Décision.** Les 15 catégories restent inchangées ; seules leurs définitions sont élargies (PEDAGOGY §7.2 et §7.4) :
+  - `accord_sujet_verbe` couvre l'accord des pronoms et possessifs avec leur référent (_his/her_) ;
+  - `articles` couvre les autres déterminants (_some/any/no_, _each/every_, _both/either/neither_) ;
+  - `choix_lexical_collocations` couvre les constructions régies par un mot (verbe + -ing ou to, but exprimé par _to_) et le choix entre formes voisines (_good/well_, _bored/boring_, comparatifs) ;
+  - `prepositions` couvre les particules des phrasal verbs, et `ordre_des_mots` la place de leur complément ;
+  - `temps_verbaux` couvre _used to_, _have got_ et le temps après _wish_ ou dans une phrase en _if_.
+
+  Une nouvelle règle de départage n° 3 classe la forme d'un verbe complément. Les exemples ajoutés respectent le critère décisif (D-035).
+
+- **Raison.** C'est le seul moyen d'accueillir les notions ajoutées sans toucher à la taxonomie fixe.
+
+### D-041 — Contenu original, sans reprise des livres (2026-09-27)
+
+- **Décision.** Explications, exemples et exercices de l'app sont entièrement originaux (CUR-15). Aucun texte ni aucun exercice des livres de Murphy n'est reproduit, ni dans l'app ni dans le code. Le fichier `docs/references/murphy-contents.md` ne contient que des titres d'unités, et l'app n'affiche que le libellé du livre et les numéros d'unités. La revue vérifie ce point (AGENTS.md).
+- **Raison.** C'est une exigence de l'utilisateur, et le respect du droit d'auteur. Les livres restent une lecture complémentaire, pas une source.
