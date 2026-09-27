@@ -28,16 +28,16 @@ Ce document reprend **toutes les exigences** du cahier des charges initial, réo
 
 ## 1. Apprenant et objectif (USR)
 
-Le dépôt ne contient aucune donnée personnelle identifiante (SEC-03). Le profil ci-dessous est volontairement générique ; le profil réel de l'apprenant vit dans les réglages de l'application.
+Le dépôt ne contient aucune donnée personnelle identifiante (SEC-03, DECISIONS D-020 et D-032). Seul ce qui sert au produit est décrit ici ; le profil réel de l'apprenant vit dans les réglages de l'application.
 
-- **USR-01** — Utilisateur unique : adulte francophone, profil finance, data science et IA, qui enseigne l'économie et le droit à des apprentis. Il commence un stage en finance/data en **février 2027** et vise une carrière à l'étranger.
+- **USR-01** — Utilisateur unique : adulte francophone qui doit travailler en anglais dans un environnement professionnel (voir les domaines en USR-05).
 - **USR-02** — Objectif : devenir réellement bilingue en anglais professionnel. Critère concret : **tenir un entretien d'embauche et rédiger des e-mails professionnels correctement en anglais, sans traduction mentale, d'ici février 2027**.
 - **USR-03** — Niveau de départ :
   - bonne compréhension écrite ;
   - production orale et écrite très faibles ;
   - traduit facilement de l'anglais vers le français, mais peine énormément dans l'autre sens ;
   - a oublié l'essentiel de la grammaire, en particulier les temps verbaux et les mots comme _yet_, _already_, _still_.
-- **USR-04** — Appareil : smartphone Samsung (Android, Chrome), usage surtout mobile, en sessions courtes. Le développement se fait sous Windows avec VS Code.
+- **USR-04** — Appareil : smartphone Android avec Chrome, usage surtout mobile, en sessions courtes. Le développement se fait sous Windows avec VS Code.
 - **USR-05** — Domaines de contenu : finance (marchés, banque, banques centrales, analyse financière), data science et IA, enseignement, entretiens d'embauche, e-mails et réunions professionnels, vie quotidienne.
 - **USR-06** — Le code est relu par un second agent (Codex). Il doit donc être lisible, documenté aux endroits non évidents, avec des commits clairs.
 
