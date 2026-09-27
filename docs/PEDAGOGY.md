@@ -200,7 +200,7 @@ Par exemple, dans _It's been three years that I work here_, la catégorie est `c
 - _I work here since 2020_ → _I have worked here since 2020_.
 - _I have seen him yesterday_ → _I saw him yesterday_.
 - _He buyed shares_ → _He bought shares_.
-- _When I will arrive, I call you_ → _When I arrive, I'll call you_.
+- _When I will arrive, I'll call you_ → _When I arrive, I'll call you_.
 - **Frontières** :
   - le _-s_ de la 3e personne → `accord_sujet_verbe` ;
   - _do/does/did_ dans les questions et négations → `auxiliaires_questions_negations` ;
@@ -226,7 +226,7 @@ Par exemple, dans _It's been three years that I work here_, la catégorie est `c
 
 **`articles`** — Présence, absence ou choix de _a/an/the_ et de l'article zéro. Couvre aussi la forme _a/an_ selon le son qui suit.
 
-- _The inflation is rising_ → _Inflation is rising_.
+- _I studied the economics at university_ → _I studied economics at university_.
 - _I am engineer_ → _I am an engineer_.
 - _an university_ → _a university_.
 - **Frontière** : l'article est faux **parce que le nom est indénombrable** (_an advice_) → `indenombrables_pluriels`.
@@ -249,10 +249,10 @@ Exemples :
 **`prepositions`** — Choix, présence ou absence d'une préposition, y compris après un verbe (_depend on_), un nom ou un adjectif, et les prépositions de temps et de lieu (_in/on/at_). La catégorie s'applique **même si l'erreur vient d'un calque**, dès que la préposition est le seul problème.
 
 - _It depends of the market_ → _It depends on the market_.
-- _married with_ → _married to_.
+- _She is married with a banker_ → _She is married to a banker_ (_married with children_ est correct : « marié et avec des enfants »).
 - _arrive to Zurich_ → _arrive in Zurich_.
 - _discuss about the results_ → _discuss the results_.
-- _explain me_ → _explain to me_.
+- _Can you explain me the model?_ → _Can you explain the model to me?_
 - **Frontières** :
   - _for/since/ago_ → `temps_verbaux` ;
   - le verbe lui-même est mal choisi → `choix_lexical_collocations` ;
@@ -284,32 +284,31 @@ Exemples :
   - le mot a le bon sens mais ne s'associe pas avec son voisin → `choix_lexical_collocations` ;
   - l'erreur porte sur une structure de plusieurs mots → `calques_du_francais`.
 
-**`calques_du_francais`** — **Structure ou expression de plusieurs mots** transposée littéralement du français, agrammaticale ou non idiomatique en anglais. L'origine française est identifiable.
+**`calques_du_francais`** — **Structure ou expression de plusieurs mots** transposée littéralement du français, qui devient **agrammaticale** en anglais, ou qui **change ou brouille le sens**. L'origine française est identifiable. Une transposition grammaticale et compréhensible mais peu idiomatique n'est pas une erreur : c'est une tournure non naturelle (§7.3).
 
 - _I am agree_ → _I agree_.
 - _I have 25 years_ → _I am 25_.
 - _It's been three years that I work here_ → _I have been working here for three years_.
-- _According to me_ → _In my opinion_.
-- _How do you call this?_ → _What do you call this?_
+- _We are Monday today_ → _It's Monday today_.
 - **Frontières** :
   - un seul mot à sens trompeur → `faux_amis` ;
   - une association verbe + nom ou adjectif + nom bien construite, dont seul un mot est mal choisi → `choix_lexical_collocations` ;
   - une seule préposition en cause → `prepositions`.
 
-**`choix_lexical_collocations`** — Mot existant, de sens voisin, mais pas celui qu'un anglophone emploierait dans cette association ou ce contexte. Couvre aussi les paires confondues (_make/do, say/tell, rise/raise, lend/borrow, win/earn_) et les mots inexistants.
+**`choix_lexical_collocations`** — Mot existant, de sens voisin, que l'association ou le contexte rend **incorrect** : un anglophone le jugerait faux, pas seulement inhabituel (sinon, c'est une tournure non naturelle, §7.3). Couvre aussi les paires confondues (_make/do, say/tell, rise/raise, lend/borrow, win/earn_) et les mots inexistants.
 
 - _do a mistake_ → _make a mistake_.
 - _He said me_ → _He told me_.
 - _The central bank rose rates_ → _The central bank raised rates_.
 - _Can you borrow me your laptop?_ → _Can you lend me your laptop?_
-- _strong rain_ → _heavy rain_.
+- _I win 6,000 francs a month_ (salaire) → _I earn 6,000 francs a month_.
 - **Frontières** : voir `faux_amis` et `calques_du_francais`. Règle de départage : **un mot** mal choisi dans une association (collocation) ; **un mot** trompeur par sa forme (faux ami) ; **une structure** transposée (calque).
 
 **`registre_ton`** — Formulation correcte et naturelle **dans un autre contexte**, mais inadaptée au destinataire ou à la situation (e-mail professionnel, entretien) : trop familière, trop directe, trop sèche, ou trop pompeuse.
 
 - _Hi guys_ (à un recruteur) → _Dear Ms Smith_ / _Hello Ms Smith_.
-- _I want a meeting_ → _I would like to schedule a meeting_.
-- _Send me the file._ → _Could you send me the file?_
+- _I want a meeting_ (e-mail à un client) → _I would like to schedule a meeting_.
+- _Send me the file._ (à un supérieur ou à un client) → _Could you send me the file?_
 - _wanna_ → _want to_.
 - **Frontière** : une tournure qui n'est naturelle **dans aucun contexte** relève d'une autre catégorie (calque, collocation) ou d'une « tournure non naturelle » (§7.3). Le registre dépend **toujours** du contexte.
 
@@ -373,9 +372,19 @@ Une tournure grammaticalement correcte, compréhensible, mais qu'un anglophone n
 - Elle ne compte **jamais** dans le taux d'erreurs, les critères d'étape ni la règle lapsus ou lacune.
 - Elle peut alimenter « Mon lexique » si l'apprenant l'accepte.
 
+Exemple : _According to me, rates will fall_ → _In my opinion, rates will fall_. C'est un calque grammatical et compréhensible, mais peu idiomatique.
+
 Une formulation correcte et naturelle, mais **différente du modèle**, n'est ni une erreur ni une tournure non naturelle (NO-05).
 
+**Critère décisif (erreur ou non).** Une forme n'est une erreur que si elle est incorrecte **dans toutes les interprétations plausibles**, compte tenu de la consigne, de la phrase française d'origine ou de l'intention exprimée.
+
+- Si une interprétation plausible la rend correcte, ce n'est pas une erreur. Par exemple, _I am working in finance every day_ est juste pour une situation temporaire (« ces temps-ci, je travaille dans la finance tous les jours »).
+- Si la consigne fixe le sens (par exemple « emploi permanent »), la même forme devient fautive. L'explication doit alors citer l'information qui tranche.
+- En cas de doute, ce n'est pas une erreur : au plus une tournure non naturelle, avec une confiance faible (AI-05).
+
 ### 7.4 Règles de départage (dans l'ordre)
+
+Ces règles ne servent qu'à **classer** une erreur avérée ; le critère décisif du §7.3 s'applique d'abord.
 
 1. **Une erreur = un segment minimal.** Deux problèmes indépendants dans une phrase font deux erreurs. En revanche, un même problème répété dans une production ne compte qu'une fois pour la règle lapsus ou lacune (§4.2).
 2. _for, since, ago, just, already, yet, still_ (choix et position) → `temps_verbaux`.
@@ -389,35 +398,35 @@ Une formulation correcte et naturelle, mais **différente du modèle**, n'est ni
 
 Les identifiants de notions (colonne de droite) sont ceux du programme (CUR-02). Ils sont définis dans [ARCHITECTURE.md §5](ARCHITECTURE.md#5-programme-et-contenu).
 
-| Erreur typique                       | Exemple fautif → correct                                                                                                      | Catégorie                         | Notion                                               |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------- | ---------------------------------------------------- |
-| Present perfect ou prétérit          | _I have finished the report yesterday_ → _I finished the report yesterday_                                                    | `temps_verbaux`                   | `tense-present-perfect-vs-past-simple`               |
-| Présent au lieu du present perfect   | _I know him since 2019_ → _I have known him since 2019_                                                                       | `temps_verbaux`                   | `tense-for-since-ago`                                |
-| _since_ au lieu de _for_             | _since three years_ → _for three years_                                                                                       | `temps_verbaux`                   | `tense-for-since-ago`                                |
-| Place et sens de _yet/already/still_ | _I have finished already not_ → _I haven't finished yet_                                                                      | `temps_verbaux`                   | `tense-just-already-yet-still`                       |
-| Présent simple ou continu            | _I am working in finance every day_ → _I work in finance_                                                                     | `temps_verbaux`                   | `tense-present-simple-vs-continuous`                 |
-| Futur après _when/if_                | _when I will have the results_ → _when I have the results_                                                                    | `temps_verbaux`                   | `tense-future`                                       |
-| Accord de la 3e personne             | _The model predict_ → _The model predicts_                                                                                    | `accord_sujet_verbe`              | `tense-present-simple`                               |
-| Auxiliaire _do_                      | _Why you chose finance?_ → _Why did you choose finance?_                                                                      | `auxiliaires_questions_negations` | `structure-do-questions-negations`                   |
-| Indénombrables                       | _informations, advices, feedbacks, researches, equipments_                                                                    | `indenombrables_pluriels`         | `traps-uncountables`                                 |
-| Articles                             | _The data science is…_ → _Data science is…_                                                                                   | `articles`                        | `traps-articles`                                     |
-| Prépositions après un verbe          | _depend of, married with, arrive to_                                                                                          | `prepositions`                    | `traps-dependent-prepositions`                       |
-| Prépositions de temps                | _in Monday, at the morning_ → _on Monday, in the morning_                                                                     | `prepositions`                    | `traps-time-prepositions`                            |
-| Questions indirectes                 | _Could you tell me what is the deadline?_ → _… what the deadline is?_                                                         | `ordre_des_mots`                  | `structure-indirect-questions`                       |
-| Adverbe mal placé                    | _I read often reports_ → _I often read reports_                                                                               | `ordre_des_mots`                  | `structure-word-order`                               |
-| Faux amis professionnels             | _actually, eventually, library, sensible, assist, attend, demand, formation, control_                                         | `faux_amis`                       | `traps-false-friends`                                |
-| Calques                              | _I am agree ; it's been three years that ; I have 25 years_                                                                   | `calques_du_francais`             | — (ou la notion du temps concerné)                   |
-| _make_ ou _do_                       | _do a mistake, make a research_ → _make a mistake, do research_                                                               | `choix_lexical_collocations`      | `traps-make-do`                                      |
-| _say_ ou _tell_                      | _She said me that…_ → _She told me that…_                                                                                     | `choix_lexical_collocations`      | `traps-say-tell`                                     |
-| _lend_ ou _borrow_                   | _Can you borrow me…_ → _Can you lend me…_                                                                                     | `choix_lexical_collocations`      | `traps-lend-borrow`                                  |
-| _rise_ ou _raise_                    | _The ECB rose rates_ → _The ECB raised rates_                                                                                 | `choix_lexical_collocations`      | `traps-rise-raise`                                   |
-| Registre des e-mails                 | _I want to know…_ → _I would like to know…_ ; _Hi guys_ → _Dear…_                                                             | `registre_ton`                    | `pro-conditionals-politeness`                        |
-| Connecteurs et relatives             | _despite + proposition_ ; _the thing what_                                                                                    | `connecteurs_structure`           | `structure-connectors`, `structure-relative-clauses` |
-| Prononciation : _th_                 | _think_ prononcé _sink_ ou _fink_                                                                                             | `prononciation`                   | — (son `th`)                                         |
-| Prononciation : _h_ aspiré           | _hotel_ prononcé sans _h_, ou _h_ ajouté devant _economy_                                                                     | `prononciation`                   | — (son `h_aspire`)                                   |
-| Voyelles longues et courtes          | _ship/sheep, live/leave_                                                                                                      | `prononciation`                   | — (son `voyelles_longues_courtes`)                   |
-| Terminaisons _-ed_ et _-s_           | _worked_ prononcé en deux syllabes ; _-s_ final muet                                                                          | `prononciation`                   | — (sons `terminaison_ed`, `terminaison_s`)           |
-| Accent tonique et schwa              | _develop_ accentué sur la dernière syllabe (_deveLOP_) au lieu de la deuxième (_deVELop_) ; voyelles pleines au lieu du schwa | `prononciation`                   | — (sons `accent_tonique`, `schwa`)                   |
+| Erreur typique                       | Exemple fautif → correct                                                                                                                                                               | Catégorie                         | Notion                                               |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- | ---------------------------------------------------- |
+| Present perfect ou prétérit          | _I have finished the report yesterday_ → _I finished the report yesterday_                                                                                                             | `temps_verbaux`                   | `tense-present-perfect-vs-past-simple`               |
+| Présent au lieu du present perfect   | _I know him since 2019_ → _I have known him since 2019_                                                                                                                                | `temps_verbaux`                   | `tense-for-since-ago`                                |
+| _since_ au lieu de _for_             | _since three years_ → _for three years_                                                                                                                                                | `temps_verbaux`                   | `tense-for-since-ago`                                |
+| Place et sens de _yet/already/still_ | _I have finished already not_ → _I haven't finished yet_                                                                                                                               | `temps_verbaux`                   | `tense-just-already-yet-still`                       |
+| Présent simple ou continu            | Verbe d'état au continu : _This report is belonging to the CFO_ → _This report belongs to the CFO_ (en revanche, _I am working in finance this year_ est juste : situation temporaire) | `temps_verbaux`                   | `tense-present-simple-vs-continuous`                 |
+| Futur après _when/if_                | _I'll call you when I will have the results_ → _… when I have the results_                                                                                                             | `temps_verbaux`                   | `tense-future`                                       |
+| Accord de la 3e personne             | _The model predict prices well_ → _The model predicts prices well_                                                                                                                     | `accord_sujet_verbe`              | `tense-present-simple`                               |
+| Auxiliaire _do_                      | _Why you chose finance?_ → _Why did you choose finance?_                                                                                                                               | `auxiliaires_questions_negations` | `structure-do-questions-negations`                   |
+| Indénombrables                       | _informations, advices, feedbacks, researches, equipments_                                                                                                                             | `indenombrables_pluriels`         | `traps-uncountables`                                 |
+| Articles                             | _The data science is…_ → _Data science is…_                                                                                                                                            | `articles`                        | `traps-articles`                                     |
+| Prépositions après un verbe          | _depend of_ → _depend on_ ; _married with a banker_ → _married to a banker_ ; _arrive to Zurich_ → _arrive in Zurich_                                                                  | `prepositions`                    | `traps-dependent-prepositions`                       |
+| Prépositions de temps                | _in Monday, at the morning_ → _on Monday, in the morning_                                                                                                                              | `prepositions`                    | `traps-time-prepositions`                            |
+| Questions indirectes                 | _Do you know when does the meeting start?_ → _Do you know when the meeting starts?_                                                                                                    | `ordre_des_mots`                  | `structure-indirect-questions`                       |
+| Adverbe mal placé                    | _I read often reports_ → _I often read reports_                                                                                                                                        | `ordre_des_mots`                  | `structure-word-order`                               |
+| Faux amis professionnels             | _actually, eventually, library, sensible, assist, attend, demand, formation, control_                                                                                                  | `faux_amis`                       | `traps-false-friends`                                |
+| Calques                              | _I am agree ; it's been three years that ; I have 25 years_                                                                                                                            | `calques_du_francais`             | — (ou la notion du temps concerné)                   |
+| _make_ ou _do_                       | _do a mistake, make a research_ → _make a mistake, do research_                                                                                                                        | `choix_lexical_collocations`      | `traps-make-do`                                      |
+| _say_ ou _tell_                      | _She said me that…_ → _She told me that…_                                                                                                                                              | `choix_lexical_collocations`      | `traps-say-tell`                                     |
+| _lend_ ou _borrow_                   | _Can you borrow me…_ → _Can you lend me…_                                                                                                                                              | `choix_lexical_collocations`      | `traps-lend-borrow`                                  |
+| _rise_ ou _raise_                    | _The ECB rose rates_ → _The ECB raised rates_                                                                                                                                          | `choix_lexical_collocations`      | `traps-rise-raise`                                   |
+| Registre des e-mails                 | Dans un e-mail à un recruteur : _I want to know…_ → _I would like to know…_ ; _Hi guys_ → _Dear Ms Smith_                                                                              | `registre_ton`                    | `pro-conditionals-politeness`                        |
+| Connecteurs et relatives             | _despite + proposition_ ; _the thing what_                                                                                                                                             | `connecteurs_structure`           | `structure-connectors`, `structure-relative-clauses` |
+| Prononciation : _th_                 | _think_ prononcé _sink_ ou _fink_                                                                                                                                                      | `prononciation`                   | — (son `th`)                                         |
+| Prononciation : _h_ aspiré           | _hotel_ prononcé sans _h_, ou _h_ ajouté devant _economy_                                                                                                                              | `prononciation`                   | — (son `h_aspire`)                                   |
+| Voyelles longues et courtes          | _ship/sheep, live/leave_                                                                                                                                                               | `prononciation`                   | — (son `voyelles_longues_courtes`)                   |
+| Terminaisons _-ed_ et _-s_           | _worked_ prononcé en deux syllabes ; _-s_ final muet                                                                                                                                   | `prononciation`                   | — (sons `terminaison_ed`, `terminaison_s`)           |
+| Accent tonique et schwa              | _develop_ accentué sur la dernière syllabe (_deveLOP_) au lieu de la deuxième (_deVELop_) ; voyelles pleines au lieu du schwa                                                          | `prononciation`                   | — (sons `accent_tonique`, `schwa`)                   |
 
 ## 9. Consignes du Thème et niveau
 
