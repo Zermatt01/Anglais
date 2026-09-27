@@ -14,6 +14,7 @@ Ce document traduit les principes pédagogiques de [SPEC.md](SPEC.md) (PED, CUR,
 8. [Erreurs typiques des francophones](#8-erreurs-typiques-des-francophones)
 9. [Consignes du Thème et niveau](#9-consignes-du-thème-et-niveau)
 10. [Séance du jour et motivation](#10-séance-du-jour-et-motivation)
+11. [Programme : pistes, notions et références](#11-programme--pistes-notions-et-références)
 
 ---
 
@@ -195,21 +196,24 @@ Par exemple, dans _It's been three years that I work here_, la catégorie est `c
 
 ### 7.2 Définitions et frontières
 
-**`temps_verbaux`** — Choix ou formation du temps et de l'aspect verbal : présent simple ou continu, prétérit, present perfect (simple et continu), past perfect, futurs, formes du passé des verbes irréguliers. S'y ajoutent **par convention** les marqueurs temporels liés aux temps : _for, since, ago, just, already, yet, still_, y compris leur **choix et leur position**.
+**`temps_verbaux`** — Choix ou formation du temps et de l'aspect verbal : présent simple ou continu, prétérit, present perfect (simple et continu), past perfect, futurs, formes du passé des verbes irréguliers. S'y ajoutent **par convention** les marqueurs temporels liés aux temps : _for, since, ago, just, already, yet, still_, y compris leur **choix et leur position**. Couvre aussi _used to_, _have got_ et le temps employé après _wish_ ou dans une phrase en _if_.
 
 - _I work here since 2020_ → _I have worked here since 2020_.
 - _I have seen him yesterday_ → _I saw him yesterday_.
 - _He buyed shares_ → _He bought shares_.
 - _When I will arrive, I'll call you_ → _When I arrive, I'll call you_.
+- _I wish I would have more time_ → _I wish I had more time_.
 - **Frontières** :
   - le _-s_ de la 3e personne → `accord_sujet_verbe` ;
   - _do/does/did_ dans les questions et négations → `auxiliaires_questions_negations` ;
   - _since three years_ (au lieu de _for_) → ici, par la convention sur _for/since/ago_.
 
-**`accord_sujet_verbe`** — Accord en personne et en nombre entre le sujet et le verbe conjugué : _-s_ de la 3e personne du singulier au présent, _is/are_, _was/were_, _has/have_, sujets collectifs ou indéfinis.
+**`accord_sujet_verbe`** — Accord en personne et en nombre entre le sujet et le verbe conjugué : _-s_ de la 3e personne du singulier au présent, _is/are_, _was/were_, _has/have_, sujets collectifs ou indéfinis. Couvre aussi l'accord des **pronoms et possessifs** avec leur référent : _his/her/its/their_ s'accordent avec le possesseur, pas avec l'objet possédé.
 
 - _She work in a bank_ → _She works in a bank_.
 - _Everyone have finished_ → _Everyone has finished_.
+- _There is many risks_ → _There are many risks_.
+- _Anna called his mother_ (la mère d'Anna) → _Anna called her mother_.
 - **Frontières** :
   - le verbe est bien accordé mais au mauvais temps → `temps_verbaux` ;
   - l'erreur est dans la forme construite avec un auxiliaire (_Does she works?_) → `auxiliaires_questions_negations`.
@@ -224,12 +228,15 @@ Par exemple, dans _It's been three years that I work here_, la catégorie est `c
   - ordre sujet/verbe dans une question **indirecte** → `ordre_des_mots` ;
   - modal correct mais trop direct pour le contexte (_Can you send me…_ adressé à un recruteur) → `registre_ton`.
 
-**`articles`** — Présence, absence ou choix de _a/an/the_ et de l'article zéro. Couvre aussi la forme _a/an_ selon le son qui suit.
+**`articles`** — Présence, absence ou choix de _a/an/the_ et de l'article zéro. Couvre aussi la forme _a/an_ selon le son qui suit, et les autres **déterminants** : _some/any/no_ et leurs composés, _each/every/all_, _both/either/neither_, démonstratifs.
 
 - _I studied the economics at university_ → _I studied economics at university_.
 - _I am engineer_ → _I am an engineer_.
 - _an university_ → _a university_.
-- **Frontière** : l'article est faux **parce que le nom est indénombrable** (_an advice_) → `indenombrables_pluriels`.
+- _both of candidates_ → _both candidates_ / _both of the candidates_.
+- **Frontières** :
+  - l'article est faux **parce que le nom est indénombrable** (_an advice_) → `indenombrables_pluriels` ;
+  - quantifieurs (_much/many, few/little_) → `indenombrables_pluriels`.
 
 **`indenombrables_pluriels`** — Nombre dans le groupe nominal :
 
@@ -246,16 +253,18 @@ Exemples :
 - _a three-years plan_ → _a three-year plan_.
 - **Frontière** : nom dénombrable, et seul l'article est en cause → `articles`.
 
-**`prepositions`** — Choix, présence ou absence d'une préposition, y compris après un verbe (_depend on_), un nom ou un adjectif, et les prépositions de temps et de lieu (_in/on/at_). La catégorie s'applique **même si l'erreur vient d'un calque**, dès que la préposition est le seul problème.
+**`prepositions`** — Choix, présence ou absence d'une préposition, y compris après un verbe (_depend on_), un nom ou un adjectif, et les prépositions de temps et de lieu (_in/on/at_). Couvre aussi la **particule** des _phrasal verbs_ (_pick up_, _find out_). La catégorie s'applique **même si l'erreur vient d'un calque**, dès que la préposition est le seul problème.
 
 - _It depends of the market_ → _It depends on the market_.
 - _She is married with a banker_ → _She is married to a banker_ (_married with children_ est correct : « marié et avec des enfants »).
 - _arrive to Zurich_ → _arrive in Zurich_.
 - _discuss about the results_ → _discuss the results_.
 - _Can you explain me the model?_ → _Can you explain the model to me?_
+- _Can you pick me at the station?_ → _Can you pick me up at the station?_
 - **Frontières** :
   - _for/since/ago_ → `temps_verbaux` ;
   - le verbe lui-même est mal choisi → `choix_lexical_collocations` ;
+  - place du complément d'un _phrasal verb_ → `ordre_des_mots` ;
   - toute une structure transposée → `calques_du_francais`.
 
 **`ordre_des_mots`** — Position des mots et des groupes :
@@ -264,12 +273,14 @@ Exemples :
 - adverbe de fréquence (avant le verbe principal, après _be_) ;
 - pas d'adverbe entre le verbe et son complément d'objet ;
 - ordre sujet-verbe dans les questions indirectes ;
-- position de _enough_ et de _also_.
+- position de _enough_ et de _also_ ;
+- place du complément d'un _phrasal verb_ (_put it off_, et non _put off it_).
 
 Exemples :
 
 - _I like very much this job_ → _I like this job very much_.
 - _Can you tell me where is the office?_ → _Can you tell me where the office is?_
+- _Let's put off it until Monday_ → _Let's put it off until Monday_.
 - **Frontière** : position de _just/already/yet/still_ → `temps_verbaux` (convention ci-dessus).
 
 **`faux_amis`** — **Un seul mot** anglais, qui existe, employé avec le sens d'un mot français de forme proche.
@@ -290,18 +301,22 @@ Exemples :
 - _I have 25 years_ → _I am 25_.
 - _It's been three years that I work here_ → _I have been working here for three years_.
 - _We are Monday today_ → _It's Monday today_.
+- « Il y a beaucoup de banques à Zurich » : _It has many banks in Zurich_ → _There are many banks in Zurich_.
 - **Frontières** :
   - un seul mot à sens trompeur → `faux_amis` ;
   - une association verbe + nom ou adjectif + nom bien construite, dont seul un mot est mal choisi → `choix_lexical_collocations` ;
   - une seule préposition en cause → `prepositions`.
 
-**`choix_lexical_collocations`** — Mot existant, de sens voisin, que l'association ou le contexte rend **incorrect** : un anglophone le jugerait faux, pas seulement inhabituel (sinon, c'est une tournure non naturelle, §7.3). Couvre aussi les paires confondues (_make/do, say/tell, rise/raise, lend/borrow, win/earn_) et les mots inexistants.
+**`choix_lexical_collocations`** — Mot existant, de sens voisin, que l'association ou le contexte rend **incorrect** : un anglophone le jugerait faux, pas seulement inhabituel (sinon, c'est une tournure non naturelle, §7.3). Couvre aussi les paires confondues (_make/do, say/tell, rise/raise, lend/borrow, win/earn_), les mots inexistants, les **constructions régies par un mot** (verbe ou adjectif + _-ing_ ou _to_, préposition + _-ing_, but exprimé par _to_) et le choix entre **formes voisines d'un même mot** : adjectif ou adverbe (_good/well_, _bored/boring_), comparatif et superlatif.
 
 - _do a mistake_ → _make a mistake_.
 - _He said me_ → _He told me_.
 - _The central bank rose rates_ → _The central bank raised rates_.
 - _Can you borrow me your laptop?_ → _Can you lend me your laptop?_
 - _I win 6,000 francs a month_ (salaire) → _I earn 6,000 francs a month_.
+- _I look forward to hear from you_ → _I look forward to hearing from you_.
+- _He speaks English very good_ → _He speaks English very well_.
+- _This option is more better_ → _This option is better_.
 - **Frontières** : voir `faux_amis` et `calques_du_francais`. Règle de départage : **un mot** mal choisi dans une association (collocation) ; **un mot** trompeur par sa forme (faux ami) ; **une structure** transposée (calque).
 
 **`registre_ton`** — Formulation correcte et naturelle **dans un autre contexte**, mais inadaptée au destinataire ou à la situation (e-mail professionnel, entretien) : trop familière, trop directe, trop sèche, ou trop pompeuse.
@@ -388,45 +403,51 @@ Ces règles ne servent qu'à **classer** une erreur avérée ; le critère déci
 
 1. **Une erreur = un segment minimal.** Deux problèmes indépendants dans une phrase font deux erreurs. En revanche, un même problème répété dans une production ne compte qu'une fois pour la règle lapsus ou lacune (§4.2).
 2. _for, since, ago, just, already, yet, still_ (choix et position) → `temps_verbaux`.
-3. **Une seule préposition** en cause → `prepositions`.
-4. **Un seul mot** trompeur par sa ressemblance avec le français → `faux_amis`. **Un seul mot** mal associé → `choix_lexical_collocations`. **Une structure** de plusieurs mots transposée → `calques_du_francais`.
-5. **Juste dans un autre contexte** → `registre_ton`. **Juste partout mais peu idiomatique** → tournure non naturelle (§7.3), pas une erreur.
-6. **Forme d'un mot** : verbe → `temps_verbaux`, `accord_sujet_verbe` ou `auxiliaires_questions_negations` ; nom → `indenombrables_pluriels` ; graphie seule → `orthographe`.
-7. **En cas de doute** entre deux catégories : choisir la plus spécifique et abaisser la confiance.
+3. **Forme d'un verbe qui en complète un autre** (_-ing_, _to_ + base verbale, base verbale) après un verbe, un adjectif ou une préposition, y compris pour exprimer le but (_for learn_ → _to learn_) → `choix_lexical_collocations`.
+4. **Une seule préposition** (ou particule de _phrasal verb_) en cause → `prepositions`.
+5. **Un seul mot** trompeur par sa ressemblance avec le français → `faux_amis`. **Un seul mot** mal associé → `choix_lexical_collocations`. **Une structure** de plusieurs mots transposée → `calques_du_francais`.
+6. **Juste dans un autre contexte** → `registre_ton`. **Juste partout mais peu idiomatique** → tournure non naturelle (§7.3), pas une erreur.
+7. **Forme d'un mot** : verbe → `temps_verbaux`, `accord_sujet_verbe` ou `auxiliaires_questions_negations` ; nom → `indenombrables_pluriels` ; adjectif ou adverbe (forme, comparatif, superlatif) → `choix_lexical_collocations` ; pronom ou possessif → `accord_sujet_verbe` ; graphie seule → `orthographe`.
+8. **En cas de doute** entre deux catégories : choisir la plus spécifique et abaisser la confiance.
 
 ## 8. Erreurs typiques des francophones
 
-Les identifiants de notions (colonne de droite) sont ceux du programme (CUR-02). Ils sont définis dans [ARCHITECTURE.md §5](ARCHITECTURE.md#5-programme-et-contenu).
+Les identifiants de notions (colonne de droite) sont ceux du programme (CUR-02), listés au [§11](#11-programme--pistes-notions-et-références).
 
-| Erreur typique                       | Exemple fautif → correct                                                                                                                                                               | Catégorie                         | Notion                                               |
-| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- | ---------------------------------------------------- |
-| Present perfect ou prétérit          | _I have finished the report yesterday_ → _I finished the report yesterday_                                                                                                             | `temps_verbaux`                   | `tense-present-perfect-vs-past-simple`               |
-| Présent au lieu du present perfect   | _I know him since 2019_ → _I have known him since 2019_                                                                                                                                | `temps_verbaux`                   | `tense-for-since-ago`                                |
-| _since_ au lieu de _for_             | _since three years_ → _for three years_                                                                                                                                                | `temps_verbaux`                   | `tense-for-since-ago`                                |
-| Place et sens de _yet/already/still_ | _I have finished already not_ → _I haven't finished yet_                                                                                                                               | `temps_verbaux`                   | `tense-just-already-yet-still`                       |
-| Présent simple ou continu            | Verbe d'état au continu : _This report is belonging to the CFO_ → _This report belongs to the CFO_ (en revanche, _I am working in finance this year_ est juste : situation temporaire) | `temps_verbaux`                   | `tense-present-simple-vs-continuous`                 |
-| Futur après _when/if_                | _I'll call you when I will have the results_ → _… when I have the results_                                                                                                             | `temps_verbaux`                   | `tense-future`                                       |
-| Accord de la 3e personne             | _The model predict prices well_ → _The model predicts prices well_                                                                                                                     | `accord_sujet_verbe`              | `tense-present-simple`                               |
-| Auxiliaire _do_                      | _Why you chose finance?_ → _Why did you choose finance?_                                                                                                                               | `auxiliaires_questions_negations` | `structure-do-questions-negations`                   |
-| Indénombrables                       | _informations, advices, feedbacks, researches, equipments_                                                                                                                             | `indenombrables_pluriels`         | `traps-uncountables`                                 |
-| Articles                             | _The data science is…_ → _Data science is…_                                                                                                                                            | `articles`                        | `traps-articles`                                     |
-| Prépositions après un verbe          | _depend of_ → _depend on_ ; _married with a banker_ → _married to a banker_ ; _arrive to Zurich_ → _arrive in Zurich_                                                                  | `prepositions`                    | `traps-dependent-prepositions`                       |
-| Prépositions de temps                | _in Monday, at the morning_ → _on Monday, in the morning_                                                                                                                              | `prepositions`                    | `traps-time-prepositions`                            |
-| Questions indirectes                 | _Do you know when does the meeting start?_ → _Do you know when the meeting starts?_                                                                                                    | `ordre_des_mots`                  | `structure-indirect-questions`                       |
-| Adverbe mal placé                    | _I read often reports_ → _I often read reports_                                                                                                                                        | `ordre_des_mots`                  | `structure-word-order`                               |
-| Faux amis professionnels             | _actually, eventually, library, sensible, assist, attend, demand, formation, control_                                                                                                  | `faux_amis`                       | `traps-false-friends`                                |
-| Calques                              | _I am agree ; it's been three years that ; I have 25 years_                                                                                                                            | `calques_du_francais`             | — (ou la notion du temps concerné)                   |
-| _make_ ou _do_                       | _do a mistake, make a research_ → _make a mistake, do research_                                                                                                                        | `choix_lexical_collocations`      | `traps-make-do`                                      |
-| _say_ ou _tell_                      | _She said me that…_ → _She told me that…_                                                                                                                                              | `choix_lexical_collocations`      | `traps-say-tell`                                     |
-| _lend_ ou _borrow_                   | _Can you borrow me…_ → _Can you lend me…_                                                                                                                                              | `choix_lexical_collocations`      | `traps-lend-borrow`                                  |
-| _rise_ ou _raise_                    | _The ECB rose rates_ → _The ECB raised rates_                                                                                                                                          | `choix_lexical_collocations`      | `traps-rise-raise`                                   |
-| Registre des e-mails                 | Dans un e-mail à un recruteur : _I want to know…_ → _I would like to know…_ ; _Hi guys_ → _Dear Ms Smith_                                                                              | `registre_ton`                    | `pro-conditionals-politeness`                        |
-| Connecteurs et relatives             | _despite + proposition_ ; _the thing what_                                                                                                                                             | `connecteurs_structure`           | `structure-connectors`, `structure-relative-clauses` |
-| Prononciation : _th_                 | _think_ prononcé _sink_ ou _fink_                                                                                                                                                      | `prononciation`                   | — (son `th`)                                         |
-| Prononciation : _h_ aspiré           | _hotel_ prononcé sans _h_, ou _h_ ajouté devant _economy_                                                                                                                              | `prononciation`                   | — (son `h_aspire`)                                   |
-| Voyelles longues et courtes          | _ship/sheep, live/leave_                                                                                                                                                               | `prononciation`                   | — (son `voyelles_longues_courtes`)                   |
-| Terminaisons _-ed_ et _-s_           | _worked_ prononcé en deux syllabes ; _-s_ final muet                                                                                                                                   | `prononciation`                   | — (sons `terminaison_ed`, `terminaison_s`)           |
-| Accent tonique et schwa              | _develop_ accentué sur la dernière syllabe (_deveLOP_) au lieu de la deuxième (_deVELop_) ; voyelles pleines au lieu du schwa                                                          | `prononciation`                   | — (sons `accent_tonique`, `schwa`)                   |
+| Erreur typique                       | Exemple fautif → correct                                                                                                                                                               | Catégorie                         | Notion                                     |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- | ------------------------------------------ |
+| Present perfect ou prétérit          | _I have finished the report yesterday_ → _I finished the report yesterday_                                                                                                             | `temps_verbaux`                   | `tense-present-perfect-vs-past-simple`     |
+| Présent au lieu du present perfect   | _I know him since 2019_ → _I have known him since 2019_                                                                                                                                | `temps_verbaux`                   | `tense-for-since-ago`                      |
+| _since_ au lieu de _for_             | _since three years_ → _for three years_                                                                                                                                                | `temps_verbaux`                   | `tense-for-since-ago`                      |
+| Place et sens de _yet/already/still_ | _I have finished already not_ → _I haven't finished yet_                                                                                                                               | `temps_verbaux`                   | `tense-just-already-yet-still`             |
+| Présent simple ou continu            | Verbe d'état au continu : _This report is belonging to the CFO_ → _This report belongs to the CFO_ (en revanche, _I am working in finance this year_ est juste : situation temporaire) | `temps_verbaux`                   | `tense-present-simple-vs-continuous`       |
+| Futur après _when/if_                | _I'll call you when I will have the results_ → _… when I have the results_                                                                                                             | `temps_verbaux`                   | `tense-future`                             |
+| Accord de la 3e personne             | _The model predict prices well_ → _The model predicts prices well_                                                                                                                     | `accord_sujet_verbe`              | `tense-present-simple`                     |
+| Possessifs                           | _Anna called his mother_ (la mère d'Anna) → _Anna called her mother_                                                                                                                   | `accord_sujet_verbe`              | `nouns-pronouns-possessives`               |
+| Auxiliaire _do_                      | _Why you chose finance?_ → _Why did you choose finance?_                                                                                                                               | `auxiliaires_questions_negations` | `questions-do-negations`                   |
+| Indénombrables                       | _informations, advices, feedbacks, researches, equipments_                                                                                                                             | `indenombrables_pluriels`         | `nouns-countable-uncountable`              |
+| Articles                             | _The data science is…_ → _Data science is…_                                                                                                                                            | `articles`                        | `nouns-articles`                           |
+| « Il y a »                           | « Il y a beaucoup de banques ici » : _It has many banks here_ → _There are many banks here_                                                                                            | `calques_du_francais`             | `questions-there-is-it`                    |
+| Prépositions après un verbe          | _depend of_ → _depend on_ ; _married with a banker_ → _married to a banker_ ; _arrive to Zurich_ → _arrive in Zurich_                                                                  | `prepositions`                    | `prep-dependent`                           |
+| Prépositions de temps                | _in Monday, at the morning_ → _on Monday, in the morning_                                                                                                                              | `prepositions`                    | `prep-time`                                |
+| Questions indirectes                 | _Do you know when does the meeting start?_ → _Do you know when the meeting starts?_                                                                                                    | `ordre_des_mots`                  | `questions-indirect`                       |
+| Adverbe mal placé                    | _I read often reports_ → _I often read reports_                                                                                                                                        | `ordre_des_mots`                  | `adj-word-order`                           |
+| Faux amis professionnels             | _actually, eventually, library, sensible, assist, attend, demand, formation, control_                                                                                                  | `faux_amis`                       | `vocab-false-friends`                      |
+| Calques                              | _I am agree ; it's been three years that ; I have 25 years_                                                                                                                            | `calques_du_francais`             | — (ou la notion du temps concerné)         |
+| _make_ ou _do_                       | _do a mistake, make a research_ → _make a mistake, do research_                                                                                                                        | `choix_lexical_collocations`      | `patterns-make-do`                         |
+| _say_ ou _tell_                      | _She said me that…_ → _She told me that…_                                                                                                                                              | `choix_lexical_collocations`      | `verbs-say-tell`                           |
+| _lend_ ou _borrow_                   | _Can you borrow me…_ → _Can you lend me…_                                                                                                                                              | `choix_lexical_collocations`      | `vocab-lend-borrow`                        |
+| _rise_ ou _raise_                    | _The ECB rose rates_ → _The ECB raised rates_                                                                                                                                          | `choix_lexical_collocations`      | `vocab-rise-raise`                         |
+| Verbe + _-ing_ ou _to_               | _I look forward to hear from you_ → _I look forward to hearing from you_ ; _I suggest you to call_ → _I suggest that you call_                                                         | `choix_lexical_collocations`      | `patterns-ing-or-to`                       |
+| But exprimé par _for_                | _I came for learn English_ → _I came to learn English_                                                                                                                                 | `choix_lexical_collocations`      | `patterns-purpose`                         |
+| Adjectifs en _-ing_ ou _-ed_         | « Je m'ennuie en réunion » : _I am boring in meetings_ → _I am bored in meetings_                                                                                                      | `choix_lexical_collocations`      | `adj-adjectives-adverbs`                   |
+| Registre des e-mails                 | Dans un e-mail à un recruteur : _I want to know…_ → _I would like to know…_ ; _Hi guys_ → _Dear Ms Smith_                                                                              | `registre_ton`                    | `verbs-polite-requests`                    |
+| Connecteurs et relatives             | _despite + proposition_ ; _the thing what_                                                                                                                                             | `connecteurs_structure`           | `clauses-connectors`, `clauses-relative`   |
+| Prononciation : _th_                 | _think_ prononcé _sink_ ou _fink_                                                                                                                                                      | `prononciation`                   | — (son `th`)                               |
+| Prononciation : _h_ aspiré           | _hotel_ prononcé sans _h_, ou _h_ ajouté devant _economy_                                                                                                                              | `prononciation`                   | — (son `h_aspire`)                         |
+| Voyelles longues et courtes          | _ship/sheep, live/leave_                                                                                                                                                               | `prononciation`                   | — (son `voyelles_longues_courtes`)         |
+| Terminaisons _-ed_ et _-s_           | _worked_ prononcé en deux syllabes ; _-s_ final muet                                                                                                                                   | `prononciation`                   | — (sons `terminaison_ed`, `terminaison_s`) |
+| Accent tonique et schwa              | _develop_ accentué sur la dernière syllabe (_deveLOP_) au lieu de la deuxième (_deVELop_) ; voyelles pleines au lieu du schwa                                                          | `prononciation`                   | — (sons `accent_tonique`, `schwa`)         |
 
 ## 9. Consignes du Thème et niveau
 
@@ -478,3 +499,152 @@ Chaque module est aussi accessible seul, en 2 à 5 minutes. Une séance interrom
 - **Joker hebdomadaire** : un jour manqué par semaine calendaire (du lundi au dimanche) ne casse pas la série. Le joker est appliqué automatiquement, sans message.
 - **Progression visible** : notions acquises, cartes maîtrisées, niveau dans le temps.
 - **Interdits** : aucun message culpabilisant (« Tu as perdu ta série ! »), aucun point, badge, classement ni notification insistante. Après une interruption, le ton est neutre et tourné vers l'action : « On reprend avec 10 minutes aujourd'hui ? »
+
+## 11. Programme : pistes, notions et références
+
+Cette section est la **source unique** pour l'ordre des pistes et des notions, leurs identifiants, leur phase de livraison et leurs références aux livres de Raymond Murphy (CUR-02, CUR-14, DECISIONS D-036 à D-039).
+
+**Livres de référence** (libellés affichés dans l'app, D-039) :
+
+- **livre rouge** : _Essential Grammar in Use_, 2e édition (niveau élémentaire), 114 unités ;
+- **livre bleu** : _English Grammar in Use_, 5e édition (niveau intermédiaire), 145 unités.
+
+**Règles d'ordre :**
+
+- Les pistes suivent l'ordre des blocs du livre rouge ; la piste « Vocabulaire professionnel », hors Murphy, vient en dernier.
+- Dans une piste, les notions sont classées selon la première unité du livre rouge qu'elles citent. Viennent ensuite les notions propres au livre bleu (approfondissement), selon leur première unité dans ce livre. À égalité, la notion la plus élémentaire vient d'abord.
+- La piste « Temps verbaux » reste la première et prioritaire (CUR-10). Ses notions de phase 8 s'intercalent à leur place Murphy sans rien changer à la phase 3 (D-037).
+
+**Règles des références** (CUR-14) :
+
+- Elles proviennent **uniquement** de [docs/references/murphy-contents.md](references/murphy-contents.md), jamais de mémoire. Un test le vérifie dès la phase 3.
+- Une notion a au plus une référence par livre ; une référence peut citer plusieurs unités. Deux notions peuvent citer la même unité.
+- Affichage sous la leçon : « Pour aller plus loin : livre rouge, unité 16 ». Format détaillé : [ARCHITECTURE.md §5](ARCHITECTURE.md#5-programme-et-contenu).
+- Une référence est un renvoi de lecture, jamais une source de texte ou d'exercices : tout le contenu de l'app reste original (CUR-15).
+
+### 11.1 Pistes
+
+| Ordre | Piste                                   | Identifiant    | Phase           |
+| ----- | --------------------------------------- | -------------- | --------------- |
+| 1     | Temps verbaux                           | `tenses`       | P3 (13), P8 (3) |
+| 2     | Passif, modaux et discours indirect     | `verbs`        | P8              |
+| 3     | Questions et auxiliaires                | `questions`    | P8              |
+| 4     | Verbe + _-ing_ ou _to_                  | `patterns`     | P8              |
+| 5     | Noms, pronoms et déterminants           | `nouns`        | P8              |
+| 6     | Adjectifs, adverbes et ordre des mots   | `adjectives`   | P8              |
+| 7     | Prépositions et _phrasal verbs_         | `prepositions` | P8              |
+| 8     | Phrases complexes                       | `clauses`      | P8              |
+| 9     | Vocabulaire professionnel (hors Murphy) | `vocabulary`   | P8              |
+
+### 11.2 Notions
+
+Les colonnes « Livre rouge » et « Livre bleu » donnent les numéros d'unités ; « — » signifie aucune référence dans ce livre.
+
+**1. Temps verbaux (`tenses`)**
+
+| #   | Notion                                        | Identifiant                            | Phase | Livre rouge    | Livre bleu             |
+| --- | --------------------------------------------- | -------------------------------------- | ----- | -------------- | ---------------------- |
+| 1   | Présent continu                               | `tense-present-continuous`             | P3    | 3, 4           | 1                      |
+| 2   | Présent simple                                | `tense-present-simple`                 | P3    | 5, 6, 7        | 2                      |
+| 3   | Présent simple ou continu                     | `tense-present-simple-vs-continuous`   | P3    | 8              | 3, 4                   |
+| 4   | _Have_ et _have got_                          | `tense-have-got`                       | P8    | 9              | 17                     |
+| 5   | Prétérit (réguliers et irréguliers fréquents) | `tense-past-simple`                    | P3    | 10, 11, 12, 24 | 5                      |
+| 6   | Passé continu                                 | `tense-past-continuous`                | P3    | 13, 14         | 6                      |
+| 7   | Present perfect (expérience et résultat)      | `tense-present-perfect`                | P3    | 15, 17         | 7, 8                   |
+| 8   | _Just_, _already_, _yet_ et _still_           | `tense-just-already-yet-still`         | P3    | 16, 94         | 111                    |
+| 9   | _For_, _since_ et _ago_                       | `tense-for-since-ago`                  | P3    | 18, 19         | 11, 12                 |
+| 10  | Present perfect ou prétérit                   | `tense-present-perfect-vs-past-simple` | P3    | 20             | 13, 14                 |
+| 11  | _Used to_ (et _be used to_)                   | `tense-used-to`                        | P8    | 25             | 18, 61                 |
+| 12  | Futur (_will_, _going to_, présent continu)   | `tense-future`                         | P3    | 26, 27, 28, 29 | 19, 20, 21, 22, 23, 25 |
+| 13  | Present perfect continu                       | `tense-present-perfect-continuous`     | P3    | —              | 9, 10                  |
+| 14  | Past perfect                                  | `tense-past-perfect`                   | P3    | —              | 15, 16                 |
+| 15  | Futur continu et futur antérieur              | `tense-future-continuous-perfect`      | P8    | —              | 24                     |
+| 16  | Récapitulatif                                 | `tense-review`                         | P3    | —              | —                      |
+
+**2. Passif, modaux et discours indirect (`verbs`)**
+
+| #   | Notion                                                         | Identifiant             | Phase | Livre rouge        | Livre bleu                                 |
+| --- | -------------------------------------------------------------- | ----------------------- | ----- | ------------------ | ------------------------------------------ |
+| 1   | Passif                                                         | `verbs-passive`         | P8    | 21, 22             | 42, 43, 44, 45, 46                         |
+| 2   | Modaux (_can_, _could_, _might_, _must_, _should_, _have to_…) | `verbs-modals`          | P8    | 30, 31, 32, 33, 34 | 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36 |
+| 3   | Demandes polies et offres                                      | `verbs-polite-requests` | P8    | 35                 | 37                                         |
+| 4   | _Say_ ou _tell_                                                | `verbs-say-tell`        | P8    | 49                 | —                                          |
+| 5   | Discours indirect                                              | `verbs-reported-speech` | P8    | 49                 | 47, 48                                     |
+
+**3. Questions et auxiliaires (`questions`)**
+
+| #   | Notion                                              | Identifiant                    | Phase | Livre rouge                          | Livre bleu |
+| --- | --------------------------------------------------- | ------------------------------ | ----- | ------------------------------------ | ---------- |
+| 1   | Questions et négations avec _do_, _does_, _did_     | `questions-do-negations`       | P8    | 6, 7, 12, 23, 42, 43, 44, 45, 46, 47 | 49         |
+| 2   | _There is_ / _there are_, et _it_                   | `questions-there-is-it`        | P8    | 36, 37, 38                           | 84         |
+| 3   | Réponses courtes, _so_/_neither_ et _question tags_ | `questions-short-answers-tags` | P8    | 39, 40, 41                           | 51, 52     |
+| 4   | Questions indirectes                                | `questions-indirect`           | P8    | 48                                   | 50         |
+
+**4. Verbe + _-ing_ ou _to_ (`patterns`)**
+
+| #   | Notion                                           | Identifiant          | Phase | Livre rouge | Livre bleu                                         |
+| --- | ------------------------------------------------ | -------------------- | ----- | ----------- | -------------------------------------------------- |
+| 1   | Verbe + _-ing_ ou _to_                           | `patterns-ing-or-to` | P8    | 50, 51, 52  | 53, 54, 55, 56, 57, 58, 59, 60, 62, 63, 65, 66, 67 |
+| 2   | Exprimer le but (_to_, _in order to_, _so that_) | `patterns-purpose`   | P8    | 53          | 64                                                 |
+| 3   | _Make_ ou _do_                                   | `patterns-make-do`   | P8    | 56          | —                                                  |
+
+**5. Noms, pronoms et déterminants (`nouns`)**
+
+| #   | Notion                                                     | Identifiant                   | Phase | Livre rouge            | Livre bleu                     |
+| --- | ---------------------------------------------------------- | ----------------------------- | ----- | ---------------------- | ------------------------------ |
+| 1   | Pronoms et possessifs (_I/me_, _my/mine_, _myself_, _-'s_) | `nouns-pronouns-possessives`  | P8    | 58, 59, 60, 61, 62, 63 | 81, 82, 83                     |
+| 2   | Articles (_a/an_, _the_, article zéro)                     | `nouns-articles`              | P8    | 64, 68, 69, 70, 71, 72 | 71, 72, 73, 74, 75, 76, 77, 78 |
+| 3   | Dénombrables, indénombrables et pluriels                   | `nouns-countable-uncountable` | P8    | 65, 66, 67             | 69, 70, 79, 80                 |
+| 4   | _Some_, _any_, _no_ et leurs composés                      | `nouns-some-any-no`           | P8    | 75, 76, 77, 78         | 85, 86                         |
+| 5   | _All_, _every_, _each_, _both_, _either_, _neither_        | `nouns-all-both-each`         | P8    | 79, 80, 81             | 88, 89, 90, 91                 |
+| 6   | _Much_, _many_, _a lot_, _few_, _little_                   | `nouns-quantity`              | P8    | 82, 83                 | 87                             |
+
+**6. Adjectifs, adverbes et ordre des mots (`adjectives`)**
+
+| #   | Notion                                                               | Identifiant              | Phase | Livre rouge    | Livre bleu         |
+| --- | -------------------------------------------------------------------- | ------------------------ | ----- | -------------- | ------------------ |
+| 1   | Adjectifs et adverbes (_quick/quickly_, _good/well_, _bored/boring_) | `adj-adjectives-adverbs` | P8    | 84, 85         | 98, 99, 100, 101   |
+| 2   | Comparatifs et superlatifs                                           | `adj-comparison`         | P8    | 86, 87, 88, 89 | 105, 106, 107, 108 |
+| 3   | _Too_, _enough_, _so_, _such_, _quite_, _rather_                     | `adj-too-enough-so-such` | P8    | 90, 91         | 102, 103, 104      |
+| 4   | Ordre des mots                                                       | `adj-word-order`         | P8    | 92, 93, 95     | 109, 110           |
+
+**7. Prépositions et _phrasal verbs_ (`prepositions`)**
+
+| #   | Notion                                             | Identifiant                 | Phase | Livre rouge            | Livre bleu                             |
+| --- | -------------------------------------------------- | --------------------------- | ----- | ---------------------- | -------------------------------------- |
+| 1   | Prépositions de temps                              | `prep-time`                 | P8    | 96, 97, 98             | 119, 120, 121, 122                     |
+| 2   | Prépositions de lieu et de mouvement               | `prep-place-movement`       | P8    | 99, 100, 101, 102, 103 | 123, 124, 125, 126                     |
+| 3   | Prépositions après un nom, un adjectif ou un verbe | `prep-dependent`            | P8    | 105, 106               | 129, 130, 131, 132, 133, 134, 135, 136 |
+| 4   | _Phrasal verbs_ : sens et construction             | `prep-phrasal-verbs-basics` | P8    | 107, 108               | 137                                    |
+| 5   | _Phrasal verbs_ courants                           | `prep-phrasal-verbs-common` | P8    | —                      | 138, 139, 140, 141, 142, 143, 144, 145 |
+
+**8. Phrases complexes (`clauses`)**
+
+| #   | Notion                                                    | Identifiant            | Phase | Livre rouge | Livre bleu                   |
+| --- | --------------------------------------------------------- | ---------------------- | ----- | ----------- | ---------------------------- |
+| 1   | Connecteurs (_because_, _although_, _unless_, _in case_…) | `clauses-connectors`   | P8    | 109, 110    | 113, 114, 115, 116, 117, 118 |
+| 2   | Conditionnels (_if_)                                      | `clauses-conditionals` | P8    | 111, 112    | 38, 39, 40                   |
+| 3   | Relatives                                                 | `clauses-relative`     | P8    | 113, 114    | 92, 93, 94, 95, 96, 97       |
+| 4   | _Wish_                                                    | `clauses-wish`         | P8    | —           | 39, 40, 41                   |
+
+**9. Vocabulaire professionnel (`vocabulary`, hors Murphy)**
+
+| #   | Notion                   | Identifiant           | Phase | Livre rouge | Livre bleu |
+| --- | ------------------------ | --------------------- | ----- | ----------- | ---------- |
+| 1   | _Rise_ ou _raise_        | `vocab-rise-raise`    | P8    | —           | —          |
+| 2   | _Lend_ ou _borrow_       | `vocab-lend-borrow`   | P8    | —           | —          |
+| 3   | Faux amis professionnels | `vocab-false-friends` | P8    | —           | —          |
+
+### 11.3 Unités sans notion dédiée
+
+Ces unités ne sont rattachées à aucune notion pour l'instant. Elles seront réexaminées en phase 8 : soit rattachées à une notion existante, soit exclues avec leur raison.
+
+| Livre       | Unités     | Raison                                                                                    |
+| ----------- | ---------- | ----------------------------------------------------------------------------------------- |
+| Livre rouge | 1, 2       | Verbe _be_ au présent : prérequis supposé acquis.                                         |
+| Livre rouge | 54, 55, 57 | Emplois lexicaux de _go_, _get_ et _have_ : relèvent du vocabulaire plus que d'une règle. |
+| Livre rouge | 73, 74     | Démonstratifs et _one/ones_ : prérequis élémentaires.                                     |
+| Livre rouge | 104        | Emplois variés de plusieurs prépositions, sans règle commune.                             |
+| Livre bleu  | 68         | Propositions en _-ing_ : pourront rejoindre les connecteurs.                              |
+| Livre bleu  | 112        | _Even_ : point isolé.                                                                     |
+| Livre bleu  | 127, 128   | Autres emplois de _in/on/at_ et de _by_ : pourront rejoindre les prépositions.            |

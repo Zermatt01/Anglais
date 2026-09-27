@@ -40,6 +40,11 @@ Le dépôt ne contient aucune donnée personnelle identifiante (SEC-03, DECISION
 - **USR-04** — Appareil : smartphone Android avec Chrome, usage surtout mobile, en sessions courtes. Le développement se fait sous Windows avec VS Code.
 - **USR-05** — Domaines de contenu : finance (marchés, banque, banques centrales, analyse financière), data science et IA, enseignement, entretiens d'embauche, e-mails et réunions professionnels, vie quotidienne.
 - **USR-06** — Le code est relu par un second agent (Codex). Il doit donc être lisible, documenté aux endroits non évidents, avec des commits clairs.
+- **USR-07** — L'apprenant étudie en parallèle avec deux livres de Raymond Murphy (Cambridge) :
+  - le **livre rouge**, _Essential Grammar in Use_, 2e édition, niveau élémentaire ;
+  - le **livre bleu**, _English Grammar in Use_, 5e édition, niveau intermédiaire.
+
+  Leurs tables des matières (titres des unités seulement) sont dans [docs/references/murphy-contents.md](references/murphy-contents.md). Le programme suit leur progression (CUR-02) et y renvoie (CUR-14).
 
 ## 2. Leçons de la première version (LES)
 
@@ -160,28 +165,33 @@ Exigence de premier rang, pas une optimisation facultative.
 ## 8. Programme des notions (CUR)
 
 - **CUR-01** [P3] — **Programme = données.** Le programme est rédigé dans le code sous forme de données (TypeScript ou JSON validés par Zod), jamais généré à la volée. Ajouter une notion ne demande **aucune** modification de la logique.
-- **CUR-02** [P3, P8] — **Pistes minimales, dans cet ordre pédagogique :**
-  1. **Temps verbaux** :
-     - présent simple ; présent continu ; présent simple ou continu ;
-     - prétérit (réguliers et irréguliers fréquents) ;
-     - present perfect (expérience et résultat) ; present perfect ou prétérit ;
-     - for, since et ago ; just, already, yet et still ;
-     - passé continu ; past perfect ;
-     - futur (will, going to, présent continu) ; present perfect continu ;
+- **CUR-02** [P3, P8] — **Pistes et notions, dans l'ordre de la progression des livres de Raymond Murphy** (USR-07, DECISIONS D-036) :
+  - Les pistes suivent l'ordre des blocs du livre rouge (élémentaire). Dans chaque piste, les notions présentes dans le livre rouge viennent d'abord, puis leur approfondissement propre au livre bleu (intermédiaire).
+  - La piste « Temps verbaux » reste la première et prioritaire (CUR-10).
+  - Identifiants, phases et références de chaque notion : [PEDAGOGY.md §11](PEDAGOGY.md#11-programme--pistes-notions-et-références), qui fait foi.
+  1. **Temps verbaux** — phase 3, sauf les trois notions marquées [P8] (D-037) :
+     - présent continu ; présent simple ; présent simple ou continu ; _have_ et _have got_ [P8] ;
+     - prétérit (réguliers et irréguliers fréquents) ; passé continu ;
+     - present perfect (expérience et résultat) ; just, already, yet et still ; for, since et ago ; present perfect ou prétérit ;
+     - _used to_ [P8] ; futur (will, going to, présent continu) ;
+     - present perfect continu ; past perfect ; futur continu et futur antérieur [P8] ;
      - récapitulatif.
-  2. **Structure de la phrase** : questions et négations avec do, does et did ; ordre des mots ; questions indirectes ; relatives ; connecteurs.
-  3. **Mots pièges** :
-     - articles ; indénombrables ;
-     - make ou do ; say ou tell ; rise ou raise ; lend ou borrow ;
-     - prépositions de temps ; verbes à préposition ;
-     - faux amis professionnels.
-  4. **Communication professionnelle** : conditionnels et politesse ; modaux ; passif ; discours indirect.
+  2. **Passif, modaux et discours indirect** [P8] : passif ; modaux ; demandes polies et offres ; say ou tell ; discours indirect.
+  3. **Questions et auxiliaires** [P8] : questions et négations avec do, does et did ; there is / there are, et it ; réponses courtes, so/neither et question tags ; questions indirectes.
+  4. **Verbe + -ing ou to** [P8] : verbe + -ing ou to ; exprimer le but ; make ou do.
+  5. **Noms, pronoms et déterminants** [P8] : pronoms et possessifs ; articles ; dénombrables, indénombrables et pluriels ; some, any, no et leurs composés ; all, every, each, both, either, neither ; much, many, a lot, few, little.
+  6. **Adjectifs, adverbes et ordre des mots** [P8] : adjectifs et adverbes ; comparatifs et superlatifs ; too, enough, so, such ; ordre des mots.
+  7. **Prépositions et phrasal verbs** [P8] : prépositions de temps ; prépositions de lieu et de mouvement ; prépositions après un nom, un adjectif ou un verbe ; phrasal verbs (sens et construction) ; phrasal verbs courants.
+  8. **Phrases complexes** [P8] : connecteurs ; conditionnels ; relatives ; wish.
+  9. **Vocabulaire professionnel** (hors Murphy) [P8] : rise ou raise ; lend ou borrow ; faux amis professionnels.
+
 - **CUR-03** [P3] — **Cinq étapes par notion :**
   1. **Comprendre** : une leçon en français, lisible en 2 à 3 minutes, qui contient :
      - l'usage et la forme en tableau ;
      - le contraste avec la notion voisine et les pièges des francophones ;
      - quatre à six exemples tirés des domaines USR-05, avec lecture audio des exemples ;
-     - pour les temps verbaux, une frise chronologique en SVG.
+     - pour les temps verbaux, une frise chronologique en SVG ;
+     - sous la leçon, les références « Pour aller plus loin », si la notion en a (CUR-14).
   2. **Reconnaître** : choix avec justification (choisir la forme, puis la raison).
   3. **Pratiquer** : compléter avec la forme d'un verbe donné à l'infinitif, transformer, placer un mot au bon endroit.
   4. **Traduire** : phrases du français vers l'anglais ciblant uniquement cette notion, de difficulté croissante, avec un indice sur demande.
@@ -192,10 +202,16 @@ Exigence de premier rang, pas une optimisation facultative.
 - **CUR-07** [P3] — Au-delà du socle, l'IA génère des exercices sur demande. Ils sont validés et conservés (COST-09).
 - **CUR-08** [P3] — **Test de positionnement** par piste : trois à cinq questions par notion, corrigées localement. Une notion réussie passe « à consolider » et démarre à l'étape 4.
 - **CUR-09** [P3] — Une notion terminée entre en répétition espacée et devient disponible dans le Thème.
-- **CUR-10** [P3] — **Priorité de rédaction** : la piste « Temps verbaux » complète, y compris la notion « just, already, yet et still », de qualité irréprochable, avant les autres pistes.
+- **CUR-10** [P3] — **Priorité de rédaction** : les 13 notions de phase 3 de la piste « Temps verbaux », y compris la notion « just, already, yet et still », de qualité irréprochable, avant toutes les autres notions.
 - **CUR-11** [P3] — Un test automatique parcourt tout le socle d'exercices et vérifie que chaque exercice est bien formé, résoluble et possède au moins une réponse attendue.
 - **CUR-12** [P3] — **États d'une notion** : non commencée, en cours (avec l'étape), à consolider, acquise.
 - **CUR-13** [P3] — Tout le contenu pédagogique fait l'objet d'une relecture séparée.
+- **CUR-14** [P3] — **Références « Pour aller plus loin ».**
+  - Chaque notion peut porter un champ facultatif de références aux livres de Murphy : au plus une référence par livre, chacune avec un ou plusieurs numéros d'unités.
+  - Elles s'affichent sous la leçon, par exemple « Pour aller plus loin : livre rouge, unité 16 ».
+  - Elles sont renseignées **uniquement** à partir de [docs/references/murphy-contents.md](references/murphy-contents.md), jamais de mémoire. Un test vérifie que chaque unité citée existe dans ce fichier.
+  - Le champ est livré en phase 3, rempli pour les 13 notions de cette phase (D-038).
+- **CUR-15** [tout] — **Contenu original.** Explications, exemples et exercices de l'app sont originaux : aucun texte ni aucun exercice des livres de référence n'est reproduit. Seuls le libellé du livre et les numéros d'unités apparaissent (D-041).
 
 ## 9. Cartes (CARD)
 

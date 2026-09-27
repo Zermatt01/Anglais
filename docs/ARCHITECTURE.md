@@ -209,9 +209,11 @@ Le programme est **du contenu versionné dans le code** (CUR-01), relu par un hu
 
 ```
 src/content/
-  schema.ts                 Schémas Zod : Track, Notion, Lesson, Exercise (union discriminée)
-  tracks.ts                 Pistes et ordre des notions
+  schema.ts                 Schémas Zod : Book, Track, Notion, NotionReference, Lesson, Exercise
+  books.ts                  Livres de référence : identifiant, titre, édition, libellé affiché, nombre d'unités
+  tracks.ts                 Pistes et ordre des notions (PEDAGOGY §11)
   notions/<notion-id>/
+    meta.ts                 Titre, piste, phase, références « Pour aller plus loin » (CUR-14)
     lesson.ts               Étape 1 : usage, tableau de forme, contraste, pièges, exemples, frise
     exercises.ts            Socle des étapes 2 à 4 (≥ 10 exercices par étape, CUR-06)
     placement.ts            3 à 5 questions de positionnement (CUR-08)
@@ -230,16 +232,35 @@ src/content/
 
 Chaque exercice porte un identifiant stable (`<notion-id>/s<étape>/<nn>`). Il porte aussi deux marques de relecture (`review: { first, second }`), exigées par le test du socle (CUR-06, CUR-11).
 
-**Identifiants de notions** (stables, en anglais, kebab-case) :
+**Identifiants de notions.** La liste ordonnée des pistes et des notions, avec leurs identifiants, leur phase et leurs références, est dans [PEDAGOGY.md §11](PEDAGOGY.md#11-programme--pistes-notions-et-références), **source unique**. Les identifiants sont en anglais, en kebab-case, préfixés par leur piste, et **stables une fois livrés**. Ceux des notions hors phase 3 ont été renommés le 2026-09-27, avant toute implémentation (DECISIONS D-036). Ces identifiants forment la liste fermée transmise au modèle (AI-03) : toute sortie IA qui cite un autre identifiant est rejetée.
 
-| Piste                                 | Identifiants (dans l'ordre pédagogique)                                                                                                                                                                                                                                                                                                                  |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tenses` — Temps verbaux              | `tense-present-simple`, `tense-present-continuous`, `tense-present-simple-vs-continuous`, `tense-past-simple`, `tense-present-perfect`, `tense-present-perfect-vs-past-simple`, `tense-for-since-ago`, `tense-just-already-yet-still`, `tense-past-continuous`, `tense-past-perfect`, `tense-future`, `tense-present-perfect-continuous`, `tense-review` |
-| `structure` — Structure de la phrase  | `structure-do-questions-negations`, `structure-word-order`, `structure-indirect-questions`, `structure-relative-clauses`, `structure-connectors`                                                                                                                                                                                                         |
-| `traps` — Mots pièges                 | `traps-articles`, `traps-uncountables`, `traps-make-do`, `traps-say-tell`, `traps-rise-raise`, `traps-lend-borrow`, `traps-time-prepositions`, `traps-dependent-prepositions`, `traps-false-friends`                                                                                                                                                     |
-| `pro` — Communication professionnelle | `pro-conditionals-politeness`, `pro-modals`, `pro-passive`, `pro-reported-speech`                                                                                                                                                                                                                                                                        |
+**Références « Pour aller plus loin »** (CUR-14, DECISIONS D-038, livrées en phase 3) :
 
-Ces identifiants sont la liste fermée transmise au modèle (AI-03). Toute sortie IA qui cite un autre identifiant est rejetée.
+```ts
+type BookId = 'essential' | 'grammar-in-use'; // libellés : « livre rouge », « livre bleu » (D-039)
+
+interface NotionReference {
+  book: BookId;
+  units: number[]; // numéros d'unités, triés, sans doublon
+}
+
+// Dans Notion : references?: NotionReference[]  (au plus une entrée par livre)
+```
+
+- **Validation Zod** : chaque unité est un entier compris entre 1 et le nombre d'unités du livre, triée et sans doublon ; au plus une entrée par livre.
+- **Test du contenu** (Vitest, phase 3). Il lit [docs/references/murphy-contents.md](references/murphy-contents.md) et vérifie trois points :
+  - chaque unité citée existe dans la section du bon livre ;
+  - les libellés et les nombres d'unités de `books.ts` correspondent à l'en-tête de ce fichier ;
+  - les références du code sont identiques à celles de PEDAGOGY §11.
+
+  En phase 8, il vérifiera aussi que chaque unité est rattachée à une notion ou listée dans PEDAGOGY §11.3.
+
+- **Affichage** sous la leçon, par une fonction pure `formatReferences` testée :
+  - « Pour aller plus loin : » suivi des références, livre rouge d'abord, séparées par « ; » ;
+  - une unité : « livre rouge, unité 16 » ; deux unités : « unités 15 et 17 » ;
+  - trois unités consécutives ou plus forment une plage : « unités 26 à 29 » ;
+  - exemple complet : « Pour aller plus loin : livre rouge, unités 26 à 29 ; livre bleu, unités 19 à 23 et 25 ».
+- **Aucun texte des livres** n'est affiché ni stocké : ni titre d'unité, ni extrait, ni exercice (CUR-15).
 
 ## 6. Correction locale
 
@@ -441,13 +462,13 @@ L'écran le dit clairement.
 
 ## 13. Stratégie de tests
 
-| Niveau                  | Outil                    | Portée                                                                                                                                                                                                       |
-| ----------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Logique pure            | Vitest                   | Tout `src/domain`, les contrats de `shared/ai` (schémas, prix, calcul de coût et de budget), le scan de secrets. Horloge injectée, aucun réseau.                                                             |
-| Données                 | Vitest + fake-indexeddb  | Dépôts, transactions document + file de synchro, migrations (jeux de données des versions précédentes), export et import.                                                                                    |
-| Contenu                 | Vitest                   | **Test du socle** (CUR-11) : chaque exercice est conforme au schéma, résoluble, avec au moins une réponse attendue, deux marques de relecture et un identifiant de notion valide ; ≥ 10 exercices par étape. |
-| Composants              | Vitest + Testing Library | Comportements clés de l'interface (brouillons, correction en deux temps).                                                                                                                                    |
-| Parcours                | Playwright (Pixel 7)     | Parcours principaux sur le build de production : installation PWA, hors ligne, séance du jour, révision d'une carte. **Le modèle est simulé** : aucun test automatique n'appelle Anthropic.                  |
-| Qualité des corrections | Banc d'essai (MOD-13)    | Lancé **manuellement**, depuis l'écran développeur, avec le coût affiché avant lancement. Il ne fait jamais partie de la CI.                                                                                 |
+| Niveau                  | Outil                    | Portée                                                                                                                                                                                                                                                                                                                                    |
+| ----------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Logique pure            | Vitest                   | Tout `src/domain`, les contrats de `shared/ai` (schémas, prix, calcul de coût et de budget), le scan de secrets. Horloge injectée, aucun réseau.                                                                                                                                                                                          |
+| Données                 | Vitest + fake-indexeddb  | Dépôts, transactions document + file de synchro, migrations (jeux de données des versions précédentes), export et import.                                                                                                                                                                                                                 |
+| Contenu                 | Vitest                   | **Test du socle** (CUR-11) : chaque exercice est conforme au schéma, résoluble, avec au moins une réponse attendue, deux marques de relecture et un identifiant de notion valide ; ≥ 10 exercices par étape. **Test des références** (CUR-14) : unités existantes dans `docs/references/murphy-contents.md` et identiques à PEDAGOGY §11. |
+| Composants              | Vitest + Testing Library | Comportements clés de l'interface (brouillons, correction en deux temps).                                                                                                                                                                                                                                                                 |
+| Parcours                | Playwright (Pixel 7)     | Parcours principaux sur le build de production : installation PWA, hors ligne, séance du jour, révision d'une carte. **Le modèle est simulé** : aucun test automatique n'appelle Anthropic.                                                                                                                                               |
+| Qualité des corrections | Banc d'essai (MOD-13)    | Lancé **manuellement**, depuis l'écran développeur, avec le coût affiché avant lancement. Il ne fait jamais partie de la CI.                                                                                                                                                                                                              |
 
 La CI (`.github/workflows/ci.yml`) exécute : vérification des types, lint, format, tests unitaires, scan de secrets, build, scan gitleaks de tout l'historique et tests e2e. Une phase n'est terminée que si tout passe (PROC-05).
