@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+dev-dist/
+*.tsbuildinfo
+
+# Test output
+coverage/
+playwright-report/
+blob-report/
+test-results/
+playwright/.cache/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Environment files and secrets: never commit keys.
+# Only the documented template is tracked.
+.env
+.env.*
+!.env.example
+*.local
+
+# Personal data exported from the previous app (see docs/SPEC.md, MOD-14).
+import-samples/
+
+# Deployment and backend tooling state
+.vercel/
+supabase/.temp/
+supabase/.branches/
+
+# Editors and OS
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+*.sw?
