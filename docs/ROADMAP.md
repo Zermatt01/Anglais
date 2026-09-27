@@ -24,6 +24,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 ## Mises à jour entre les phases
 
 - [x] Programme aligné sur les livres de Murphy, en 9 pistes ; notions ajoutées en phase 8 ; références « Pour aller plus loin » ; contenu original (documentation uniquement, DECISIONS D-036 à D-041)
+- [x] Revue de Codex de cette mise à jour traitée (DECISIONS D-042)
 
 ## Phase 1 — Cœur local
 

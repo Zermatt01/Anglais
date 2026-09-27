@@ -49,6 +49,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-039 | Libellés des livres : rouge et bleu                     | Pédagogie   | Actée           |
 | D-040 | Taxonomie : définitions élargies aux nouvelles notions  | Pédagogie   | Actée           |
 | D-041 | Contenu original, sans reprise des livres               | Pédagogie   | Actée           |
+| D-042 | Revue de la mise à jour Murphy                          | Pédagogie   | Actée           |
 
 ---
 
@@ -359,3 +360,12 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 
 - **Décision.** Explications, exemples et exercices de l'app sont entièrement originaux (CUR-15). Aucun texte ni aucun exercice des livres de Murphy n'est reproduit, ni dans l'app ni dans le code. Le fichier `docs/references/murphy-contents.md` ne contient que des titres d'unités, et l'app n'affiche que le libellé du livre et les numéros d'unités. La revue vérifie ce point (AGENTS.md).
 - **Raison.** C'est une exigence de l'utilisateur, et le respect du droit d'auteur. Les livres restent une lecture complémentaire, pas une source.
+
+### D-042 — Revue de la mise à jour Murphy (2026-09-27, complète D-035, D-036 et D-038)
+
+- **Contexte.** La revue de Codex (commits `f41379b` à `b447cb4`) relève trois exemples dont l'intention n'était pas fixée (D-035), le rattachement de l'unité bleue 80 (« Noun + noun ») à une notion dont l'intitulé ne couvrait pas les noms composés, et des préfixes d'identifiants abrégés non documentés.
+- **Décision.**
+  - Exemples contextualisés dans PEDAGOGY : le regret porte sur la situation présente (_I wish I had more time_) ; Anna utilise _she/her_ et parle de sa propre mère ; _pick me up_ signifie « venir me chercher ».
+  - L'unité bleue 80 reste rattachée à `nouns-countable-uncountable` (identifiant inchangé). La notion devient « Dénombrables, indénombrables, pluriels et noms composés », et la catégorie `indenombrables_pluriels` couvre explicitement les noms composés, avec ou sans nombre (_a bus driver_, _a three-year plan_).
+  - Le préfixe des identifiants de chaque piste est documenté dans une colonne de PEDAGOGY §11.1 (`tense-`, `adj-`, `prep-`, `vocab-`…), et ARCHITECTURE §5 y renvoie. Un contrôle par script a vérifié les 50 identifiants.
+- **Raison.** Les noms composés posent un vrai problème de nombre aux francophones (_a documents list_ → _a document list_) : les rattacher à cette notion est plus utile que de laisser l'unité sans notion.
