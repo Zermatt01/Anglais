@@ -1,44 +1,85 @@
 /**
  * CLI for the repository secret scan. Run with `npm run check:secrets`
  * (Node executes this TypeScript file directly through type stripping).
- * Exits with code 1 and lists `path:line [rule]` when something is found.
+ *
+ * Scans, from the current directory's Git repository:
+ * 1. the staged content of every tracked file (exactly what will be committed,
+ *    even if the file on disk was edited or deleted since `git add`);
+ * 2. the working copy when it differs from the index;
+ * 3. untracked files that are not ignored.
+ *
+ * Exits with code 1 and lists `path:line [rule] (source)` when something is found.
  */
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { findViolations, type ScannedFile } from './secret-scan.ts';
+import { GITLINK_MODE, parseCatFileBatch, parseLsFilesStage } from './git-objects.ts';
+import { findViolations, type FileSource, type ScannedFile } from './secret-scan.ts';
 
 const MAX_FILE_BYTES = 1_000_000;
+const SOURCE_LABELS: Record<FileSource, string> = {
+  index: 'staged content',
+  worktree: 'working tree',
+};
 
-/** Tracked files plus untracked, non-ignored ones: catches a secret before it is committed. */
-function listRepositoryFiles(): string[] {
-  const gitArgs = ['ls-files', '--cached', '--others', '--exclude-standard', '-z'];
-  const output = execFileSync('git', gitArgs, { encoding: 'utf8' });
-  return output.split('\0').filter((path) => path.length > 0);
+function git(args: string[], input?: string): Buffer {
+  return execFileSync('git', args, { input, maxBuffer: 512 * 1024 * 1024 });
 }
 
-function readTextFile(path: string): ScannedFile | null {
-  let buffer: Buffer;
+function readFromDisk(path: string): Buffer | null {
   try {
-    buffer = readFileSync(path);
+    return readFileSync(path);
   } catch {
-    // Deleted in the working tree but still in the index.
+    // Deleted in the working tree but still staged: the index copy is scanned.
     return null;
   }
-  const isBinary = buffer.includes(0);
-  if (isBinary || buffer.length > MAX_FILE_BYTES) return null;
-  return { path, content: buffer.toString('utf8') };
 }
 
-const files = listRepositoryFiles()
-  .map(readTextFile)
-  .filter((file): file is ScannedFile => file !== null);
+function toScannedFile(path: string, bytes: Buffer, source: FileSource): ScannedFile {
+  const isScannable = bytes.length <= MAX_FILE_BYTES && !bytes.includes(0);
+  return { path, content: isScannable ? bytes.toString('utf8') : null, source };
+}
+
+function collectFiles(): ScannedFile[] {
+  const entries = parseLsFilesStage(git(['ls-files', '--stage', '-z']).toString('utf8')).filter(
+    (entry) => entry.mode !== GITLINK_MODE,
+  );
+  const stagedBlobs =
+    entries.length > 0
+      ? parseCatFileBatch(
+          git(['cat-file', '--batch'], `${entries.map((e) => e.objectId).join('\n')}\n`),
+        )
+      : new Map<string, Buffer>();
+
+  const files: ScannedFile[] = [];
+  for (const entry of entries) {
+    const staged = stagedBlobs.get(entry.objectId);
+    if (staged) files.push(toScannedFile(entry.path, staged, 'index'));
+    const onDisk = readFromDisk(entry.path);
+    if (onDisk && !(staged && onDisk.equals(staged))) {
+      files.push(toScannedFile(entry.path, onDisk, 'worktree'));
+    }
+  }
+
+  const untracked = git(['ls-files', '--others', '--exclude-standard', '-z'])
+    .toString('utf8')
+    .split('\0')
+    .filter((path) => path.length > 0);
+  for (const path of untracked) {
+    const onDisk = readFromDisk(path);
+    if (onDisk) files.push(toScannedFile(path, onDisk, 'worktree'));
+  }
+  return files;
+}
+
+const files = collectFiles();
 const violations = findViolations(files);
 
 if (violations.length > 0) {
   console.error('Secret scan failed:');
   for (const violation of violations) {
-    console.error(`  ${violation.path}:${String(violation.line)}  [${violation.rule}]`);
+    const location = `${violation.path}:${String(violation.line)}`;
+    console.error(`  ${location}  [${violation.rule}] (${SOURCE_LABELS[violation.source]})`);
   }
   process.exit(1);
 }
-console.log(`Secret scan passed (${String(files.length)} files checked).`);
+console.log(`Secret scan passed (${String(files.length)} file versions checked).`);
