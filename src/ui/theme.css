@@ -1,0 +1,131 @@
+/*
+ * Visual direction (UI-02): a corrected school notebook. Warm paper, blue ink
+ * for actions, correction marks coloured by severity, dotted marks for what is
+ * correct but not natural. Each colour is defined once with light-dark(): the
+ * active scheme follows the phone, unless the settings force one (data-theme).
+ * Contrast ratios are checked by theme.test.ts (UI-04).
+ */
+:root {
+  color-scheme: light dark;
+
+  /* Paper and ink */
+  --paper: light-dark(#fbf8f1, #16181d);
+  --paper-raised: light-dark(#fffdf8, #1f2229);
+  --ink: light-dark(#1f2430, #ece9e2);
+  --ink-muted: light-dark(#545b6b, #a9adb8);
+  --line: light-dark(#ddd5c4, #3a3f4b);
+  --rule: light-dark(#d6e0f0, #283044);
+  --margin: light-dark(#e4a3a0, #6a3434);
+
+  /* Actions: fountain-pen blue */
+  --action: light-dark(#1f4bb3, #8fb0ff);
+  --action-strong: light-dark(#183b8c, #b5ccff);
+  --on-action: light-dark(#ffffff, #0f1a33);
+  --action-soft: light-dark(#e6edfb, #1f2a44);
+
+  /* Correction marks, by severity (docs/PEDAGOGY.md §5.1) */
+  --mark-minor: light-dark(#9a6500, #e3b04b);
+  --mark-medium: light-dark(#b8520f, #f08a4b);
+  --mark-major: light-dark(#c42b2b, #ff7b72);
+  --mark-unnatural: light-dark(#5b6477, #a6acbd);
+
+  /* Status */
+  --success: light-dark(#1e7a46, #5cc98a);
+  --danger: light-dark(#b42318, #ff8a80);
+
+  /* Fonts: interface in French, content in English (UI-02) */
+  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
+  --font-content: 'Iowan Old Style', 'Palatino Linotype', Charter, 'Noto Serif', Georgia, serif;
+
+  /* Layout */
+  --nav-height: 4rem;
+  --gutter: 1rem;
+  --radius: 0.75rem;
+  --target: 2.75rem; /* 44 px minimum touch target (UI-01) */
+
+  font-family: var(--font-ui);
+  font-size: 100%;
+  line-height: 1.5;
+  color: var(--ink);
+  background-color: var(--paper);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* Scrolling to a focused field keeps it above the bottom navigation. */
+  scroll-padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 1rem);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background-color: var(--paper);
+}
+
+/* English content gets its own typeface. */
+:lang(en) {
+  font-family: var(--font-content);
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+  margin: 0;
+}
+
+h1 {
+  font-size: 1.625rem;
+}
+
+h2 {
+  font-size: 1.1875rem;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--action);
+  text-underline-offset: 0.2em;
+}
+
+:focus-visible {
+  outline: 3px solid var(--action);
+  outline-offset: 2px;
+}
+
+/* Hidden visually, still read by screen readers. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
