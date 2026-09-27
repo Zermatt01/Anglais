@@ -31,6 +31,24 @@ jobs:
       - run: npm run check:secrets
       - run: npm run build
 
+  secrets-history:
+    # check:secrets (above) only sees the current tree; gitleaks also covers every
+    # past commit, e.g. a key committed and then removed in the same push.
+    name: Secret scan of the full Git history (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: false
+
   e2e:
     name: End-to-end tests (Playwright, mobile emulation)
     runs-on: ubuntu-latest
