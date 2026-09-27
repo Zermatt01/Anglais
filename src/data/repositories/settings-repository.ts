@@ -25,11 +25,19 @@ export interface LoadedSettings {
   readonly stored: StoredSettingsState;
 }
 
-export type SettingsPatch = Partial<SettingsValues>;
+/**
+ * Partial change. Nested groups are partial too and merged field by field, so
+ * that two changes of the same group made in quick succession (a domain, then
+ * the remarks) never overwrite each other.
+ */
+export type SettingsPatch = Partial<Omit<SettingsValues, 'speech' | 'learnerProfile'>> & {
+  readonly speech?: Partial<SettingsValues['speech']>;
+  readonly learnerProfile?: Partial<SettingsValues['learnerProfile']>;
+};
 
 export interface SettingsRepository {
   load(): Promise<LoadedSettings>;
-  /** Applies a partial change and returns the new settings. */
+  /** Applies a partial change to the stored settings and returns the new settings. */
   update(patch: SettingsPatch): Promise<SettingsValues>;
 }
 
@@ -66,7 +74,13 @@ export function createSettingsRepository(db: AppDatabase, clock: Clock): Setting
       return db.dexie.transaction('rw', table, async () => {
         const raw = await table.get(SETTINGS_ID);
         const { loaded, document } = loadFrom(raw);
-        const values = settingsValuesSchema.parse({ ...loaded.values, ...patch });
+        const current = loaded.values;
+        const values = settingsValuesSchema.parse({
+          ...current,
+          ...patch,
+          speech: { ...current.speech, ...patch.speech },
+          learnerProfile: { ...current.learnerProfile, ...patch.learnerProfile },
+        });
         const now = clock.now();
         await writeRecord(db, 'settings', {
           ...values,

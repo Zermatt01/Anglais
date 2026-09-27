@@ -49,6 +49,19 @@ describe('settings repository', () => {
     });
   });
 
+  it('merges nested groups, so that quick successive changes keep each other', async () => {
+    const { repository } = await setup();
+    await Promise.all([
+      repository.update({ learnerProfile: { domains: ['finance'] } }),
+      repository.update({ learnerProfile: { remarks: 'Stage en finance' } }),
+      repository.update({ speech: { rate: 0.8 } }),
+    ]);
+    expect((await repository.load()).values).toMatchObject({
+      learnerProfile: { domains: ['finance'], remarks: 'Stage en finance' },
+      speech: { voiceUri: null, rate: 0.8 },
+    });
+  });
+
   it('refuses an invalid change and keeps the stored settings', async () => {
     const { repository } = await setup();
     await repository.update({ newCardsPerDay: 15 });
