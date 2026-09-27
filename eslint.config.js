@@ -6,18 +6,9 @@ import { reactRefresh } from 'eslint-plugin-react-refresh';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
-
-// Security rule: the Anthropic API key lives only in the Supabase Edge Function.
-// The front-end must never talk to Anthropic directly (docs/ARCHITECTURE.md).
-// The pattern also matches '@anthropic-ai/sdk' itself.
-const noAnthropicSdkInClient = {
-  patterns: [
-    {
-      group: ['@anthropic-ai/*'],
-      message: 'AI calls go through the Supabase Edge Function proxy, never from the client.',
-    },
-  ],
-};
+// Layer dependency rules, including the ban on the Anthropic SDK in the client
+// (the API key lives only in the Supabase Edge Function).
+import { layerConfigs } from './eslint.layers.ts';
 
 export default defineConfig(
   globalIgnores(['dist', 'dev-dist', 'coverage', 'playwright-report', 'test-results']),
@@ -49,12 +40,10 @@ export default defineConfig(
       jsxA11y.configs.recommended,
     ],
     languageOptions: { globals: globals.browser },
-    rules: {
-      'no-restricted-imports': ['error', noAnthropicSdkInClient],
-    },
   },
+  ...layerConfigs,
   {
-    files: ['*.config.ts', 'scripts/**/*.ts', 'e2e/**/*.ts'],
+    files: ['*.config.ts', 'eslint.layers.ts', 'scripts/**/*.ts', 'e2e/**/*.ts'],
     languageOptions: { globals: globals.node },
   },
   // Must stay last: turns off stylistic rules that conflict with Prettier.

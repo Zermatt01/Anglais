@@ -27,6 +27,7 @@
     "vite.config.ts",
     "vitest.config.ts",
     "playwright.config.ts",
+    "eslint.layers.ts",
     "e2e/**/*.ts",
     "scripts/**/*.ts"
   ]
