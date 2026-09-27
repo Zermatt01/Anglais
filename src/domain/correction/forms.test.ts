@@ -1,0 +1,73 @@
+import { describe, expect, it } from 'vitest';
+import { answerForms, areEquivalent, containsPhrase, readingsOf } from './forms.ts';
+
+describe('areEquivalent', () => {
+  it.each([
+    ["I haven't finished yet", 'I have not finished yet'],
+    ["I'm working on it", 'I am working on it'],
+    ["He's already left", 'He has already left'],
+    ["It's raining", 'It is raining'],
+    ["I'd rather stay", 'I would rather stay'],
+    ["I'd already left", 'I had already left'],
+    ["We can't come", 'We cannot come'],
+    ["We can't come", 'We can not come'],
+    ['We cannot come', 'We can not come'],
+    ["They won't sign", 'They will not sign'],
+    ["Let's start", 'Let us start'],
+    ['I’ve got two meetings', "I've got 2 meetings"],
+    ['I have worked here for three years.', 'i have worked here for 3 years'],
+    ['We analysed the data', 'We analyzed the data'],
+    ['The colour of the logo', 'The color of the logo'],
+    ['I learnt English at school', 'I learned English at school'],
+  ])('%s = %s', (a, b) => {
+    expect(areEquivalent(a, b)).toBe(true);
+    expect(areEquivalent(b, a)).toBe(true);
+  });
+
+  it.each([
+    ['I have seen him yesterday', 'I saw him yesterday'],
+    ['She work in a bank', 'She works in a bank'],
+    ["The company's results", 'The company is results'],
+    ['I work here since 2020', 'I have worked here since 2020'],
+    ['Its a good idea', "It's a good idea"],
+    ['for three years', 'for four years'],
+    ['He is gone', 'He has gone'],
+  ])('%s ≠ %s', (a, b) => {
+    expect(areEquivalent(a, b)).toBe(false);
+  });
+
+  it("matches an ambiguous 's through the right reading only", () => {
+    // "He's gone" may be "He is gone" or "He has gone": both are accepted readings.
+    expect(areEquivalent("He's gone", 'He has gone')).toBe(true);
+    expect(areEquivalent("He's gone", 'He is gone')).toBe(true);
+  });
+});
+
+describe('readingsOf', () => {
+  it('bounds the number of readings of a heavily contracted answer', () => {
+    const answer = Array.from({ length: 10 }, () => "he's").join(' ');
+    expect(readingsOf(answer).length).toBeLessThanOrEqual(64);
+    expect(answerForms(answer).size).toBeGreaterThan(1);
+  });
+
+  it('gives one empty reading for an empty text', () => {
+    expect(readingsOf('')).toEqual([[]]);
+  });
+});
+
+describe('containsPhrase', () => {
+  it('finds a whole-word phrase through contractions', () => {
+    expect(containsPhrase("Use 'haven't' here", 'have not')).toBe(true);
+    expect(containsPhrase('Pense à « yet » en fin de phrase', 'yet')).toBe(true);
+  });
+
+  it('does not match part of a word', () => {
+    expect(containsPhrase('Pense au temps de la phrase', 'the')).toBe(false);
+    expect(containsPhrase("Qu'on utilise avec un jour", 'on')).toBe(false);
+  });
+
+  it('never contains an empty phrase', () => {
+    expect(containsPhrase('anything', '')).toBe(false);
+    expect(containsPhrase('anything', ' ?! ')).toBe(false);
+  });
+});
