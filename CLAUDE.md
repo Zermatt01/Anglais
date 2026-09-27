@@ -2,7 +2,7 @@
 
 PWA mobile **local-first** pour qu'un francophone devienne opérationnel en anglais professionnel (entretien d'embauche et e-mails, sans traduction mentale) d'ici février 2027. Interface en français, contenu en anglais.
 
-Référence : [docs/SPEC.md](docs/SPEC.md) (exigences numérotées), [docs/PEDAGOGY.md](docs/PEDAGOGY.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/ROADMAP.md](docs/ROADMAP.md), [docs/DECISIONS.md](docs/DECISIONS.md).
+Référence : [docs/SPEC.md](docs/SPEC.md) (exigences numérotées), [docs/PEDAGOGY.md](docs/PEDAGOGY.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/ROADMAP.md](docs/ROADMAP.md), [docs/DECISIONS.md](docs/DECISIONS.md), [docs/references/murphy-contents.md](docs/references/murphy-contents.md) (tables des matières des deux livres de Murphy qui servent de référence).
 
 ## Commandes
 
@@ -45,7 +45,7 @@ Détail : `typecheck` (`tsc -b`), `lint` (`eslint . --max-warnings=0`), `test` (
 1. **Coûts** : aucun appel au modèle sans action explicite de l'utilisateur (jamais au chargement, en arrière-plan, en boucle ou pendant une synchronisation). Tout ce qui peut être corrigé localement l'est. `max_tokens` adapté à chaque tâche ; résultats IA enregistrés et jamais redemandés.
 2. **Clé API** : uniquement dans les secrets de l'Edge Function. Jamais dans `src/` ni dans le dépôt : ESLint et `check:secrets` le vérifient. Le client n'envoie jamais de prompt.
 3. **Cartes** : toute création passe par `isCardSolvable`. Aucune carte non résoluble n'est présentée.
-4. **Programme** : rédigé et relu dans le code, jamais généré à la volée. Une réponse attendue fausse est le pire défaut possible : chaque réponse et chaque variante sont relues deux fois.
+4. **Programme** : rédigé et relu dans le code, jamais généré à la volée. Une réponse attendue fausse est le pire défaut possible : chaque réponse et chaque variante sont relues deux fois. Ordre, identifiants et références des notions : docs/PEDAGOGY.md §11 uniquement. Contenu **original** : rien n'est repris des livres de Murphy, et leurs numéros d'unités ne viennent que de docs/references/murphy-contents.md, jamais de mémoire (CUR-14, CUR-15).
 5. **Corrections** : une formulation correcte n'est jamais signalée comme une erreur.
 6. **Données** : aucune perte de saisie ni de données (brouillons, migrations Dexie additives, mises à jour du service worker sur demande). RLS sur toutes les tables.
 7. **Vérifications** : ne jamais désactiver un test, une règle de lint ou une vérification de types. Une phase n'est pas terminée tant que `npm run check`, le build et `npm run test:e2e` ne passent pas.

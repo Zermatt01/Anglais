@@ -31,7 +31,7 @@ npm run test:e2e   # nécessite : npx playwright install chromium
 1. **Aucun appel au modèle sans action explicite de l'utilisateur** (NO-01, COST-01) : pas d'appel dans un `useEffect`, un minuteur, la synchronisation, ni de nouvelle tentative en boucle.
 2. **Aucune clé API côté client ni dans le dépôt** (NO-02). Le client n'importe pas le SDK Anthropic et n'envoie jamais de prompt, seulement `{ task, input, requestId }`.
 3. **Aucune carte non résoluble** (NO-03) : toute création de carte passe par `isCardSolvable`.
-4. **Programme** relu, jamais généré à la volée (NO-04). Les exercices générés par l'IA sont validés et conservés.
+4. **Programme** relu, jamais généré à la volée (NO-04). Les exercices générés par l'IA sont validés et conservés. Le contenu est **original** : aucun texte ni exercice des livres de Murphy n'est repris (CUR-15).
 5. **Aucune formulation correcte signalée comme erreur** (NO-05). La correction locale accepte les variantes, les contractions et les graphies britannique et américaine.
 6. **Aucune perte de données** (NO-06) :
    - brouillons enregistrés à chaque pause de frappe ;
@@ -44,7 +44,7 @@ npm run test:e2e   # nécessite : npx playwright install chromium
 
 ## Priorités de revue (dans l'ordre)
 
-1. **Exactitude du contenu pédagogique** : chaque réponse attendue et chaque variante acceptable du socle (`src/content`) sont-elles justes, idiomatiques, et les seules à ne pas être rejetées à tort ? Une réponse attendue fausse est le pire défaut possible. Vérifier aussi que l'anglais des exemples est irréprochable et que le français de l'interface est sans faute.
+1. **Exactitude du contenu pédagogique** : chaque réponse attendue et chaque variante acceptable du socle (`src/content`) sont-elles justes, idiomatiques, et les seules à ne pas être rejetées à tort ? Une réponse attendue fausse est le pire défaut possible. Vérifier aussi que l'anglais des exemples est irréprochable, que le français de l'interface est sans faute, que rien n'est repris des livres de Murphy, et que chaque référence « Pour aller plus loin » est identique à PEDAGOGY §11 et à `docs/references/murphy-contents.md` (CUR-14).
 2. **Résolubilité des cartes** : chaque carte contient-elle le sens en français, un indice qui ne donne pas la réponse, et assez de contexte pour quelqu'un qui a tout oublié (CARD-01, CARD-02) ?
 3. **Coûts** :
    - aucun chemin qui appelle l'IA sans geste de l'utilisateur ;
