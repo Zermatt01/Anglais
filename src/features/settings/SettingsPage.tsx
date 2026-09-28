@@ -1,5 +1,4 @@
-import type { SettingsPatch } from '../../data/repositories/settings-repository.ts';
-import type { SettingsValues } from '../../domain/settings.ts';
+import type { LoadedSettings } from '../../data/repositories/settings-repository.ts';
 import { CheckboxGroup, ChoiceGroup, SelectField, SwitchField } from '../../ui/fields.tsx';
 import { Notice } from '../../ui/Notice.tsx';
 import { Page, Sheet } from '../../ui/Page.tsx';
@@ -8,7 +7,7 @@ import { usePageTitle } from '../use-page-title.ts';
 import { CorrectionMarksPreview } from './CorrectionMarksPreview.tsx';
 import { DOMAIN_CHOICES, THEME_CHOICES, VARIANT_CHOICES } from './choices.ts';
 import { ProfileRemarksEditor } from './ProfileRemarksEditor.tsx';
-import { useSettings, useUpdateSettings } from './use-settings.ts';
+import { useSettings, useShownSettings } from './use-settings.ts';
 
 const minutes = (values: readonly number[]) =>
   values.map((value) => ({ value, label: `${String(value)} minutes` }));
@@ -26,7 +25,6 @@ const EMAIL_FREQUENCIES = [
 export function SettingsPage() {
   usePageTitle('Réglages');
   const loaded = useSettings();
-  const { update, failed } = useUpdateSettings();
 
   if (loaded === undefined) {
     return (
@@ -35,11 +33,12 @@ export function SettingsPage() {
       </Page>
     );
   }
+  return <SettingsForm loaded={loaded} />;
+}
 
-  const values: SettingsValues = loaded.values;
-  const change = (patch: SettingsPatch) => {
-    void update(patch);
-  };
+function SettingsForm({ loaded }: { readonly loaded: LoadedSettings }) {
+  // `values` shows each choice at once; `loaded.values` is what is stored.
+  const { shown: values, change, update, failed } = useShownSettings(loaded.values);
 
   return (
     <Page title="Réglages">
@@ -144,7 +143,7 @@ export function SettingsPage() {
           }}
         />
         <ProfileRemarksEditor
-          savedRemarks={values.learnerProfile.remarks}
+          savedRemarks={loaded.values.learnerProfile.remarks}
           onSave={(remarks) => update({ learnerProfile: { remarks } })}
         />
       </Sheet>

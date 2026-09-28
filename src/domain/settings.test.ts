@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_SETTINGS, settingsValuesSchema } from './settings.ts';
+import { applySettingsPatch, DEFAULT_SETTINGS, settingsValuesSchema } from './settings.ts';
 
 describe('settings', () => {
   it('has valid defaults matching PEDAGOGY', () => {
@@ -22,6 +22,19 @@ describe('settings', () => {
     expect(
       settingsValuesSchema.safeParse({ ...DEFAULT_SETTINGS, newCardsPerDay: -1 }).success,
     ).toBe(false);
+  });
+
+  it('applies a partial change, merging nested groups field by field', () => {
+    const changed = applySettingsPatch(DEFAULT_SETTINGS, {
+      theme: 'dark',
+      learnerProfile: { remarks: 'Stage' },
+    });
+    expect(changed).toEqual({
+      ...DEFAULT_SETTINGS,
+      theme: 'dark',
+      learnerProfile: { ...DEFAULT_SETTINGS.learnerProfile, remarks: 'Stage' },
+    });
+    expect(applySettingsPatch(DEFAULT_SETTINGS, {})).toEqual(DEFAULT_SETTINGS);
   });
 
   it('rejects unknown fields', () => {

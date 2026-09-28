@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_SETTINGS } from '../../domain/settings.ts';
-import { renderApp } from '../../test/render.tsx';
+import { createTestServices, renderApp } from '../../test/render.tsx';
 import { PROFILE_REMARKS_DRAFT_KEY } from './ProfileRemarksEditor.tsx';
 
 async function openSettings() {
@@ -118,6 +118,25 @@ describe('settings screen', () => {
     await waitFor(async () => {
       expect(await services.drafts.get(PROFILE_REMARKS_DRAFT_KEY)).toBeNull();
     });
+  });
+
+  it('shows a choice at once, and rolls it back if it cannot be saved', async () => {
+    const services = await createTestServices();
+    const failing = {
+      ...services,
+      settings: {
+        load: () => services.settings.load(),
+        update: () => Promise.reject(new Error('QuotaExceededError')),
+      },
+    };
+    await renderApp('/reglages', failing);
+    const dark = await screen.findByRole('radio', { name: 'Sombre' });
+
+    fireEvent.click(dark);
+    expect(dark).toBeChecked();
+    expect(await screen.findByText('Réglage non enregistré')).toBeInTheDocument();
+    expect(dark).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: /Automatique/ })).toBeChecked();
   });
 
   it('warns when the stored settings cannot be read', async () => {

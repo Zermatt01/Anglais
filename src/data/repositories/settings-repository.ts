@@ -9,8 +9,10 @@
 import { z } from 'zod';
 import { nextUpdatedAt, type Clock } from '../../domain/primitives.ts';
 import {
+  applySettingsPatch,
   DEFAULT_SETTINGS,
   settingsValuesSchema,
+  type SettingsPatch,
   type SettingsValues,
 } from '../../domain/settings.ts';
 import type { AppDatabase } from '../database.ts';
@@ -24,16 +26,6 @@ export interface LoadedSettings {
   readonly values: SettingsValues;
   readonly stored: StoredSettingsState;
 }
-
-/**
- * Partial change. Nested groups are partial too and merged field by field, so
- * that two changes of the same group made in quick succession (a domain, then
- * the remarks) never overwrite each other.
- */
-export type SettingsPatch = Partial<Omit<SettingsValues, 'speech' | 'learnerProfile'>> & {
-  readonly speech?: Partial<SettingsValues['speech']>;
-  readonly learnerProfile?: Partial<SettingsValues['learnerProfile']>;
-};
 
 export interface SettingsRepository {
   load(): Promise<LoadedSettings>;
@@ -74,13 +66,8 @@ export function createSettingsRepository(db: AppDatabase, clock: Clock): Setting
       return db.dexie.transaction('rw', table, async () => {
         const raw = await table.get(SETTINGS_ID);
         const { loaded, document } = loadFrom(raw);
-        const current = loaded.values;
-        const values = settingsValuesSchema.parse({
-          ...current,
-          ...patch,
-          speech: { ...current.speech, ...patch.speech },
-          learnerProfile: { ...current.learnerProfile, ...patch.learnerProfile },
-        });
+        // Merged inside the transaction, on the stored values (applySettingsPatch).
+        const values = settingsValuesSchema.parse(applySettingsPatch(loaded.values, patch));
         const now = clock.now();
         await writeRecord(db, 'settings', {
           ...values,

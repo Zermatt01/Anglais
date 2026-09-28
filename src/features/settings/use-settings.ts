@@ -1,6 +1,11 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useCallback, useState } from 'react';
-import type { LoadedSettings, SettingsPatch } from '../../data/repositories/settings-repository.ts';
+import type { LoadedSettings } from '../../data/repositories/settings-repository.ts';
+import {
+  applySettingsPatch,
+  type SettingsPatch,
+  type SettingsValues,
+} from '../../domain/settings.ts';
 import { useAppServices } from '../app-services.ts';
 
 /** Current settings, kept up to date; `undefined` while loading. */
@@ -30,4 +35,36 @@ export function useUpdateSettings(): {
     [settings],
   );
   return { update, failed };
+}
+
+/**
+ * Settings as shown on screen: a choice appears at once, without waiting for
+ * the database round trip, and is rolled back if it could not be saved. Every
+ * new stored version (this device, an import) replaces what is shown.
+ */
+export function useShownSettings(stored: SettingsValues): {
+  shown: SettingsValues;
+  change: (patch: SettingsPatch) => void;
+  update: (patch: SettingsPatch) => Promise<boolean>;
+  failed: boolean;
+} {
+  const { update, failed } = useUpdateSettings();
+  const [shown, setShown] = useState(stored);
+  const [source, setSource] = useState(stored);
+  if (stored !== source) {
+    setSource(stored);
+    setShown(stored);
+  }
+
+  const change = useCallback(
+    (patch: SettingsPatch) => {
+      setShown((current) => applySettingsPatch(current, patch));
+      void update(patch).then((saved) => {
+        if (!saved) setShown(stored);
+      });
+    },
+    [stored, update],
+  );
+
+  return { shown, change, update, failed };
 }

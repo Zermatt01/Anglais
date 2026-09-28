@@ -66,3 +66,23 @@ export const DEFAULT_SETTINGS: SettingsValues = {
   theme: 'system',
   learnerProfile: { domains: [...LEARNER_DOMAINS], remarks: '' },
 };
+
+/**
+ * Partial change. Nested groups are partial too and merged field by field, so
+ * that two changes of the same group made in quick succession (a domain, then
+ * the remarks) never overwrite each other.
+ */
+export type SettingsPatch = Partial<Omit<SettingsValues, 'speech' | 'learnerProfile'>> & {
+  readonly speech?: Partial<SettingsValues['speech']>;
+  readonly learnerProfile?: Partial<SettingsValues['learnerProfile']>;
+};
+
+/** Settings after a change (not validated: the caller validates before storing). */
+export function applySettingsPatch(values: SettingsValues, patch: SettingsPatch): SettingsValues {
+  return {
+    ...values,
+    ...patch,
+    speech: { ...values.speech, ...patch.speech },
+    learnerProfile: { ...values.learnerProfile, ...patch.learnerProfile },
+  };
+}
