@@ -113,6 +113,31 @@ describe('isCardSolvable', () => {
     expect(isCardSolvable(clozeCard({ hint: 'Pense à finir au passé.' })).solvable).toBe(true);
   });
 
+  it('rejects a hint that gives the answer in another form (review of phase 1)', () => {
+    const meeting = clozeCard({
+      meaningFr: 'Je vais à une réunion tous les lundis.',
+      text: 'I go to a ___ every Monday.',
+      infinitive: null,
+      hint: 'We discuss meetings every Monday.',
+      answers: { canonical: 'meeting', variants: [] },
+    });
+    expect(isCardSolvable(meeting).issues).toEqual(['hint-reveals-answer']);
+    // The verb belongs in the infinitive field, not in the hint.
+    expect(isCardSolvable(clozeCard({ hint: 'Verbe « finish » au prétérit.' })).issues).toEqual([
+      'hint-reveals-answer',
+    ]);
+    expect(
+      isCardSolvable(
+        clozeCard({
+          text: 'I ___ to the bank yesterday.',
+          meaningFr: 'Je suis allé à la banque hier.',
+          hint: 'Pense au verbe go.',
+          answers: { canonical: 'went', variants: [] },
+        }),
+      ).issues,
+    ).toEqual(['hint-reveals-answer']);
+  });
+
   it('rejects an error card whose previous attempt is missing', () => {
     expect(isCardSolvable(errorCard({ previousAttempt: '', highlights: [] })).issues).toEqual([
       'missing-previous-attempt',

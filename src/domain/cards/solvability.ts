@@ -11,8 +11,9 @@
  * rejected card is never lost; it is stored suspended with the reason
  * `unsolvable` when it comes from an import, or not created at all otherwise.
  */
-import { areEquivalent, containsPhrase } from '../correction/forms.ts';
 import { evaluateAnswer } from '../correction/evaluate.ts';
+import { areEquivalent } from '../correction/forms.ts';
+import { containsInflectedPhrase } from '../correction/inflections.ts';
 import { countGaps, type CardAnswers, type CardContent, type CardStatus } from './content.ts';
 
 export type SolvabilityIssue =
@@ -64,7 +65,10 @@ function meaningIssues(meaningFr: string, answers: CardAnswers): SolvabilityIssu
 function hintIssues(hint: string | null, answers: CardAnswers): SolvabilityIssue[] {
   if (hint === null) return [];
   const accepted = acceptedAnswers(answers).filter((answer) => !isBlank(answer));
-  return accepted.some((answer) => containsPhrase(hint, answer)) ? ['hint-reveals-answer'] : [];
+  // Inflected forms count too: "meetings" gives away "meeting" (review of phase 1).
+  return accepted.some((answer) => containsInflectedPhrase(hint, answer))
+    ? ['hint-reveals-answer']
+    : [];
 }
 
 function gapIssues(textWithGap: string): SolvabilityIssue[] {

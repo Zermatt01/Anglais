@@ -77,18 +77,3 @@ export function areEquivalent(a: string, b: string): boolean {
   }
   return false;
 }
-
-/**
- * True when one reading of `phrase` appears as a whole-word sequence inside one
- * reading of `text`. Used to check that a hint does not give the answer away.
- * An empty phrase is never contained.
- */
-export function containsPhrase(text: string, phrase: string): boolean {
-  const phraseForms = [...answerForms(phrase)].filter((form) => form.length > 0);
-  if (phraseForms.length === 0) return false;
-  for (const textForm of answerForms(text)) {
-    const padded = ` ${textForm} `;
-    if (phraseForms.some((form) => padded.includes(` ${form} `))) return true;
-  }
-  return false;
-}

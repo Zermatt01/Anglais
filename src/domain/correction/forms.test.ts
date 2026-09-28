@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { answerForms, areEquivalent, containsPhrase, readingsOf } from './forms.ts';
+import { answerForms, areEquivalent, readingsOf } from './forms.ts';
 
 describe('areEquivalent', () => {
   it.each([
@@ -65,22 +65,5 @@ describe('readingsOf', () => {
 
   it('gives one empty reading for an empty text', () => {
     expect(readingsOf('')).toEqual([[]]);
-  });
-});
-
-describe('containsPhrase', () => {
-  it('finds a whole-word phrase through contractions', () => {
-    expect(containsPhrase("Use 'haven't' here", 'have not')).toBe(true);
-    expect(containsPhrase('Pense à « yet » en fin de phrase', 'yet')).toBe(true);
-  });
-
-  it('does not match part of a word', () => {
-    expect(containsPhrase('Pense au temps de la phrase', 'the')).toBe(false);
-    expect(containsPhrase("Qu'on utilise avec un jour", 'on')).toBe(false);
-  });
-
-  it('never contains an empty phrase', () => {
-    expect(containsPhrase('anything', '')).toBe(false);
-    expect(containsPhrase('anything', ' ?! ')).toBe(false);
   });
 });
