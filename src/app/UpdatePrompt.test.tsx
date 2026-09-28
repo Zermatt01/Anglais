@@ -74,11 +74,9 @@ describe('UpdatePrompt (D-018)', () => {
     expect(pwa.updateServiceWorker).not.toHaveBeenCalled();
   });
 
-  it('announces once that the app works offline', () => {
+  it('never covers the page just to say that the app works offline (UI-01)', () => {
     pwa.offlineReady = true;
-    render(<UpdatePrompt />);
-    expect(screen.getByText('L’application est prête à fonctionner sans connexion.')).toBeVisible();
-    fireEvent.click(screen.getByRole('button', { name: 'OK' }));
-    expect(pwa.setOfflineReady).toHaveBeenCalledWith(false);
+    const { container } = render(<UpdatePrompt />);
+    expect(container).toBeEmptyDOMElement();
   });
 });
