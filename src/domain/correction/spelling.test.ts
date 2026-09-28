@@ -1,17 +1,22 @@
 import { describe, expect, it } from 'vitest';
-import { canonicalSpelling } from './spelling.ts';
+import { CONTEXT_DEPENDENT_SPELLINGS, canonicalSpelling } from './spelling.ts';
 
 describe('canonicalSpelling', () => {
   it.each([
     ['organise', 'organize'],
     ['organised', 'organized'],
+    ['organises', 'organizes'],
     ['organising', 'organizing'],
+    ['organiser', 'organizer'],
     ['organisation', 'organization'],
     ['organisations', 'organizations'],
     ['organisational', 'organizational'],
     ['prioritise', 'prioritize'],
     ['realised', 'realized'],
+    ['recognise', 'recognize'],
     ['apologise', 'apologize'],
+    ['criticised', 'criticized'],
+    ['optimisation', 'optimization'],
     ['analyse', 'analyze'],
     ['analysed', 'analyzed'],
     ['analysing', 'analyzing'],
@@ -19,6 +24,7 @@ describe('canonicalSpelling', () => {
     ['colours', 'colors'],
     ['favourite', 'favorite'],
     ['behaviour', 'behavior'],
+    ['behavioural', 'behavioral'],
     ['neighbourhood', 'neighborhood'],
     ['labourer', 'laborer'],
     ['honourable', 'honorable'],
@@ -30,8 +36,7 @@ describe('canonicalSpelling', () => {
     ['enrolment', 'enrollment'],
     ['fulfil', 'fulfill'],
     ['defence', 'defense'],
-    ['licence', 'license'],
-    ['practise', 'practice'],
+    ['practised', 'practiced'],
     ['programme', 'program'],
     ['catalogue', 'catalog'],
     ['judgement', 'judgment'],
@@ -44,27 +49,39 @@ describe('canonicalSpelling', () => {
     expect(canonicalSpelling(canonical)).toBe(canonical);
   });
 
-  it('never merges two different short words', () => {
-    // Pairs that differ by one letter but are different words.
-    expect(canonicalSpelling('four')).toBe('four');
-    expect(canonicalSpelling('our')).toBe('our');
-    expect(canonicalSpelling('hour')).toBe('hour');
-    expect(canonicalSpelling('your')).toBe('your');
-    expect(canonicalSpelling('prise')).not.toBe(canonicalSpelling('prize'));
-    expect(canonicalSpelling('rise')).toBe('rise');
-    expect(canonicalSpelling('raise')).toBe('raise');
-    expect(canonicalSpelling('arise')).toBe('arise');
-    expect(canonicalSpelling('wise')).toBe('wise');
+  it.each([
+    // Spelt "-ise" in both varieties: the "-ize" form is a misspelling.
+    ['exercise', 'exercize'],
+    ['surprise', 'surprize'],
+    ['advertise', 'advertize'],
+    ['advise', 'advize'],
+    ['compromise', 'compromize'],
+    ['promise', 'promize'],
+    ['supervise', 'supervize'],
+    ['revise', 'revize'],
+    // Different words.
+    ['prise', 'prize'],
+    ['four', 'for'],
+    ['our', 'or'],
+    // British English drops the "u" here too: these are misspellings.
+    ['humourous', 'humorous'],
+    ['vigourous', 'vigorous'],
+    ['honourary', 'honorary'],
+  ])('never merges %s with %s', (word, other) => {
+    expect(canonicalSpelling(word)).not.toBe(canonicalSpelling(other));
   });
 
-  it('rewrites other -ise words identically on both sides, which is harmless', () => {
-    expect(canonicalSpelling('promise')).toBe(canonicalSpelling('promise'));
-    expect(canonicalSpelling('exercise')).toBe('exercize');
+  it('never merges spellings that depend on the grammatical role', () => {
+    for (const [british, american] of CONTEXT_DEPENDENT_SPELLINGS) {
+      expect(canonicalSpelling(british)).not.toBe(canonicalSpelling(american));
+    }
+    // "analyses" is also the plural of "analysis".
+    expect(canonicalSpelling('analyses')).toBe('analyses');
   });
 
   it('leaves unrelated words unchanged', () => {
-    expect(canonicalSpelling('market')).toBe('market');
-    expect(canonicalSpelling('analysis')).toBe('analysis');
-    expect(canonicalSpelling('size')).toBe('size');
+    for (const word of ['market', 'analysis', 'size', 'rise', 'raise', 'wise', 'exercise']) {
+      expect(canonicalSpelling(word)).toBe(word);
+    }
   });
 });

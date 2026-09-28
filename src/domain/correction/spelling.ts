@@ -4,12 +4,13 @@
  * (the American one), on both sides of a comparison, so "organise" matches
  * "organize" and "colour" matches "color".
  *
- * The mapping is applied symmetrically, so a rule that also rewrites an
- * unrelated word ("promise" → "promize") is harmless: that word is rewritten
- * identically in the expected answer and in the learner's answer. A rule is only
- * dangerous if it merges two different real words; the generic rules below are
- * restricted to avoid that, and pairs such as "four"/"for" or "prise"/"prize"
- * are deliberately left out.
+ * Only attested pairs are merged: two spellings of the same word. No generic
+ * rule may rewrite other words, since a rewrite would also accept misspellings
+ * ("exercize", "surprize"). Spellings that depend on grammar are never merged
+ * either: British "practise" is a verb only, and "analyses" is both a verb and
+ * the plural noun of "analysis". These are listed in
+ * `CONTEXT_DEPENDENT_SPELLINGS`: an answer key using them must list both
+ * spellings as variants, otherwise the other one is "unknown", never "incorrect".
  */
 
 /** Stems ending in "-our" whose American spelling ends in "-or". */
@@ -37,19 +38,113 @@ const OUR_STEMS = [
   'vigour',
 ] as const;
 
-/** Endings allowed after an "-our" stem ("favourite", "neighbourhood"…). */
+/**
+ * Endings after which both spellings keep the "-our"/"-or" difference
+ * ("favourite", "neighbourhood", "behavioural"). Endings where British English
+ * drops the "u" too ("humorous", "vigorous", "honorary") are excluded, so that
+ * "humourous" stays a misspelling.
+ */
 const OUR_SUFFIX =
-  /^(?:|s|ed|ing|er|ers|ite|ites|able|ably|ful|fully|less|hood|hoods|ism|ist|ists|y)$/;
+  /^(?:|s|ed|ing|er|ers|ite|ites|able|ably|al|ally|ful|fully|less|hood|hoods|ism|ist|ists|y)$/;
 
 /**
- * "-ise" verbs and their family ("organise", "organised", "organisation"…).
- * The stem must have at least three letters, which leaves out short words such
- * as "rise", "wise", "raise" and "prise".
+ * Words spelt "-ise" in British English and "-ize" in American English. Words
+ * spelt "-ise" in both varieties (advertise, advise, comprise, compromise,
+ * devise, exercise, franchise, improvise, merchandise, premise, promise,
+ * revise, supervise, surprise, televise…) are deliberately absent.
  */
-const ISE_FAMILY = /^(\p{L}{3,})is(e|es|ed|ing|er|ers|ation|ations|ational)$/u;
+const ISE_STEMS = [
+  'apolog',
+  'author',
+  'capital',
+  'categor',
+  'central',
+  'character',
+  'civil',
+  'critic',
+  'custom',
+  'digit',
+  'econom',
+  'emphas',
+  'energ',
+  'familiar',
+  'final',
+  'formal',
+  'general',
+  'global',
+  'harmon',
+  'hospital',
+  'ideal',
+  'industrial',
+  'item',
+  'jeopard',
+  'legal',
+  'local',
+  'marginal',
+  'maxim',
+  'memor',
+  'minim',
+  'mobil',
+  'modern',
+  'monet',
+  'neutral',
+  'normal',
+  'optim',
+  'organ',
+  'patron',
+  'penal',
+  'personal',
+  'polar',
+  'popular',
+  'priorit',
+  'privat',
+  'public',
+  'rational',
+  'real',
+  'recogn',
+  'revital',
+  'scrutin',
+  'special',
+  'stabil',
+  'standard',
+  'subsid',
+  'summar',
+  'symbol',
+  'sympath',
+  'synchron',
+  'theor',
+  'util',
+  'visual',
+] as const;
 
-/** "-yse" verbs: "analyse", "paralyse", "catalyse". */
-const YSE_FAMILY = /^(\p{L}+)ys(e|es|ed|ing|er|ers)$/u;
+const ISE_ENDINGS = [
+  'ise',
+  'ises',
+  'ised',
+  'ising',
+  'iser',
+  'isers',
+  'isation',
+  'isations',
+  'isational',
+] as const;
+
+/**
+ * Pairs whose spelling depends on the grammatical role, never merged (see the
+ * module comment). Content tests can use this list to require both variants.
+ */
+export const CONTEXT_DEPENDENT_SPELLINGS: readonly (readonly [
+  british: string,
+  american: string,
+])[] = [
+  ['practise', 'practice'],
+  ['practises', 'practices'],
+  ['licence', 'license'],
+  ['licences', 'licenses'],
+  ['analyses', 'analyzes'],
+  ['paralyses', 'paralyzes'],
+  ['catalyses', 'catalyzes'],
+];
 
 /** Whole-word pairs, British (or variant) spelling → canonical spelling. */
 const WORD_PAIRS: Readonly<Record<string, string>> = {
@@ -80,6 +175,18 @@ const WORD_PAIRS: Readonly<Record<string, string>> = {
   manoeuvre: 'maneuver',
   manoeuvres: 'maneuvers',
   manoeuvred: 'maneuvered',
+  // -yse → -yze, verb forms only ("analyses" is also a plural noun)
+  analyse: 'analyze',
+  analysed: 'analyzed',
+  analysing: 'analyzing',
+  analyser: 'analyzer',
+  analysers: 'analyzers',
+  paralyse: 'paralyze',
+  paralysed: 'paralyzed',
+  paralysing: 'paralyzing',
+  catalyse: 'catalyze',
+  catalysed: 'catalyzed',
+  catalysing: 'catalyzing',
   // Doubled consonant before a suffix
   travelled: 'traveled',
   travelling: 'traveling',
@@ -121,17 +228,13 @@ const WORD_PAIRS: Readonly<Record<string, string>> = {
   instalment: 'installment',
   instalments: 'installments',
   distil: 'distill',
-  // -ence → -ense
+  // -ence → -ense (nouns in both varieties)
   defence: 'defense',
   defences: 'defenses',
   offence: 'offense',
   offences: 'offenses',
-  licence: 'license',
-  licences: 'licenses',
   pretence: 'pretense',
-  // practise (British verb) → practice
-  practise: 'practice',
-  practises: 'practices',
+  // Verb forms of British "practise" (not "practise"/"practises", see above)
   practised: 'practiced',
   practising: 'practicing',
   // -ogue → -og
@@ -173,6 +276,12 @@ const WORD_PAIRS: Readonly<Record<string, string>> = {
   // Both forms are correct in both varieties
   towards: 'toward',
   afterwards: 'afterward',
+  // -ise → -ize, generated from the attested stems
+  ...Object.fromEntries(
+    ISE_STEMS.flatMap((stem) =>
+      ISE_ENDINGS.map((ending) => [`${stem}${ending}`, `${stem}iz${ending.slice(2)}`]),
+    ),
+  ),
 };
 
 /** Canonical spelling of one normalized (lowercase) token. */
@@ -185,12 +294,5 @@ export function canonicalSpelling(token: string): string {
       return `${stem.slice(0, -2)}r${token.slice(stem.length)}`;
     }
   }
-
-  const ise = ISE_FAMILY.exec(token);
-  if (ise) return `${ise[1] ?? ''}iz${ise[2] ?? ''}`;
-
-  const yse = YSE_FAMILY.exec(token);
-  if (yse) return `${yse[1] ?? ''}yz${yse[2] ?? ''}`;
-
   return token;
 }

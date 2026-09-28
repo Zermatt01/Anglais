@@ -19,6 +19,9 @@ describe('areEquivalent', () => {
     ['We analysed the data', 'We analyzed the data'],
     ['The colour of the logo', 'The color of the logo'],
     ['I learnt English at school', 'I learned English at school'],
+    ["My manager's in the office", 'My manager is in the office'],
+    ["Anna's not here yet", 'Anna is not here yet'],
+    ["The report's already been sent", 'The report has already been sent'],
   ])('%s = %s', (a, b) => {
     expect(areEquivalent(a, b)).toBe(true);
     expect(areEquivalent(b, a)).toBe(true);
@@ -32,6 +35,16 @@ describe('areEquivalent', () => {
     ['Its a good idea', "It's a good idea"],
     ['for three years', 'for four years'],
     ['He is gone', 'He has gone'],
+    // Misspellings are not regional variants (review of phase 1).
+    ['I exercize daily', 'I exercise daily'],
+    ['What a nice surprize', 'What a nice surprise'],
+    // The plural noun "analyses" is not the verb "analyzes".
+    ['The analyzes are complete', 'The analyses are complete'],
+    ['She has a medical practise', 'She has a medical practice'],
+    // A possessive followed by a noun never becomes a verb.
+    ["The manager's meeting", 'The manager is meeting'],
+    // "one" is also a pronoun.
+    ['I prefer the blue one', 'I prefer the blue 1'],
   ])('%s ≠ %s', (a, b) => {
     expect(areEquivalent(a, b)).toBe(false);
   });

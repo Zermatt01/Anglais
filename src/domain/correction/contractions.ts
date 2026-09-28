@@ -4,9 +4,40 @@
  * Each normalized token is expanded into the list of full forms it may stand
  * for. Ambiguous contractions give several candidates ("he's" → "he is" or
  * "he has"; "I'd" → "I would" or "I had"): two answers are then equivalent when
- * at least one of their expansions coincide. A possessive "'s" after a noun is
- * never expanded ("the company's results" stays as it is).
+ * at least one of their expansions coincide.
+ *
+ * After a noun, "'s" is usually possessive ("the company's results") and stays
+ * as it is. It is also read as "is"/"has" only when the next word rules the
+ * possessive out ("my manager's in the office", "Anna's not here"). Words that
+ * allow both readings ("the manager's meeting", "the manager's gone report")
+ * keep the possessive reading only: a verb reading there could accept an answer
+ * with another meaning.
  */
+
+/**
+ * Words that cannot follow a possessive "'s" directly, but can follow a verbal
+ * one: prepositions, "not", articles and a few adverbs. Words that can also be
+ * adjectives after a possessive ("just", "still", "away") are left out.
+ */
+const VERBAL_S_FOLLOWERS = new Set([
+  'not',
+  'a',
+  'an',
+  'the',
+  'been',
+  'in',
+  'at',
+  'on',
+  'into',
+  'from',
+  'with',
+  'about',
+  'here',
+  'there',
+  'always',
+  'never',
+  'already',
+]);
 
 /**
  * Negative forms whose stem is not simply the word before "n't". "cannot" is
@@ -61,8 +92,9 @@ const WH_WORDS = new Set(['what', 'where', 'who', 'how', 'when', 'why']);
 /**
  * Returns every full-form reading of one normalized token, each reading being a
  * list of tokens. A token that is not a contraction has a single reading: itself.
+ * `next` is the following token, used to tell a verbal "'s" after a noun.
  */
-export function expandContraction(token: string): string[][] {
+export function expandContraction(token: string, next?: string): string[][] {
   const irregular = IRREGULAR_NEGATIVES[token];
   if (irregular) return irregular.map((reading) => [...reading]);
 
@@ -101,7 +133,7 @@ export function expandContraction(token: string): string[][] {
           [host, 'has'],
         ];
       }
-      if (AMBIGUOUS_S_HOSTS.has(host)) {
+      if (AMBIGUOUS_S_HOSTS.has(host) || (next !== undefined && VERBAL_S_FOLLOWERS.has(next))) {
         return [[token], [host, 'is'], [host, 'has']];
       }
       return [[token]];

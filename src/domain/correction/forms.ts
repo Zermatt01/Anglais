@@ -10,12 +10,11 @@ import { canonicalSpelling } from './spelling.ts';
 
 /**
  * Small numbers written in words or in digits are the same answer
- * ("for three years" = "for 3 years"). The mapping is symmetric, so "one" as a
- * pronoun ("the blue one") is rewritten identically on both sides.
+ * ("for three years" = "for 3 years"). "one" is left out: it is also a pronoun
+ * ("the blue one", "no one"), which must never match the digit 1.
  */
 const NUMBER_WORDS: Readonly<Record<string, string>> = {
   zero: '0',
-  one: '1',
   two: '2',
   three: '3',
   four: '4',
@@ -53,8 +52,11 @@ function canonicalToken(token: string): string {
 /** All normalized readings of a text, each as a list of canonical tokens. */
 export function readingsOf(text: string): string[][] {
   let readings: string[][] = [[]];
-  for (const token of tokenize(text)) {
-    const expansions = expandContraction(token).map((reading) => reading.map(canonicalToken));
+  const tokens = tokenize(text);
+  for (const [index, token] of tokens.entries()) {
+    const expansions = expandContraction(token, tokens[index + 1]).map((reading) =>
+      reading.map(canonicalToken),
+    );
     const usable =
       readings.length * expansions.length <= MAX_READINGS ? expansions : expansions.slice(0, 1);
     readings = readings.flatMap((prefix) => usable.map((expansion) => [...prefix, ...expansion]));

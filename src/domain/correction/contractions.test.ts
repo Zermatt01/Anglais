@@ -64,9 +64,27 @@ describe('expandContraction', () => {
     ]);
   });
 
-  it("never expands a possessive 's after a noun", () => {
+  it("keeps only the possessive reading of 's after a noun by default", () => {
     expect(expandContraction("company's")).toEqual([["company's"]]);
     expect(expandContraction("anna's")).toEqual([["anna's"]]);
+    expect(expandContraction("company's", 'results')).toEqual([["company's"]]);
+  });
+
+  it("adds the verb readings of 's after a noun when the next word rules out a possessive", () => {
+    expect(expandContraction("manager's", 'in')).toEqual([
+      ["manager's"],
+      ['manager', 'is'],
+      ['manager', 'has'],
+    ]);
+    expect(expandContraction("anna's", 'not')).toHaveLength(3);
+    expect(expandContraction("report's", 'already')).toHaveLength(3);
+  });
+
+  it('keeps a possessive-only reading when the next word allows both', () => {
+    // "the manager's meeting", "the court's just decision", "the team's away game"
+    for (const next of ['meeting', 'gone', 'just', 'still', 'away', 'new']) {
+      expect(expandContraction("manager's", next)).toEqual([["manager's"]]);
+    }
   });
 
   it("does not expand 'm after anything but I", () => {
