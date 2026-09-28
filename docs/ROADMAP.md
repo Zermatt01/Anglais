@@ -57,6 +57,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 - [ ] Moteur des cinq étapes, critères de passage et de retour
 - [ ] Schéma des exercices dans `src/domain/curriculum`, partagé par le socle et `generatedExercises` (D-043)
 - [ ] Lecture audio des exemples, et choix de la voix et de la vitesse dans les Réglages (D-052)
+- [ ] Taille du bundle, à traiter si besoin : à la fin de la phase 1, Vite signale un fichier JavaScript de 502,75 kB (157,5 kB compressé), au-delà de son seuil d'avertissement de 500 kB. Le programme va l'alourdir : découper le code par écran (`React.lazy`) plutôt que relever le seuil (D-057)
 - [ ] Test de positionnement par piste
 - [ ] Frises chronologiques SVG
 - [ ] Les 13 notions de phase 3 de la piste « Temps verbaux », dans l'ordre de PEDAGOGY §11, dont « just, already, yet et still » (socle ≥ 10 exercices par étape, doublement relu)
