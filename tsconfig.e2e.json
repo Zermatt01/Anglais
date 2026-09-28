@@ -1,8 +1,10 @@
 {
+  // End-to-end tests run in Node, but part of their code runs in the page
+  // (page.evaluate): both the Node and the DOM types are needed.
   "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.e2e.tsbuildinfo",
     "target": "es2023",
-    "lib": ["ES2023"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "types": ["node"],
     "skipLibCheck": true,
 
@@ -23,11 +25,5 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true
   },
-  "include": [
-    "vite.config.ts",
-    "vitest.config.ts",
-    "playwright.config.ts",
-    "eslint.layers.ts",
-    "scripts/**/*.ts"
-  ]
+  "include": ["e2e/**/*.ts"]
 }
