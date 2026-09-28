@@ -116,6 +116,15 @@ describe('layer rules (docs/ARCHITECTURE.md §3)', () => {
       'export const load = () => import(`../../data/database.ts`);',
     ],
     ['type-level imports', "export type T = typeof import('../../data/database.ts');"],
+    // Counter-review of phase 1.
+    [
+      'type import-require',
+      "import type database = require('../../data/database.ts');\nexport type T = typeof database;",
+    ],
+    [
+      'import-require',
+      "import database = require('../../features/home/HomePage.tsx');\nexport const x = database;",
+    ],
   ])('check %s too (review of phase 1)', async (_kind, code) => {
     expect(await violations('src/domain/cards/probe.ts', code)).toEqual([LAYER_RULE]);
   });
@@ -141,6 +150,12 @@ describe('layer rules (docs/ARCHITECTURE.md §3)', () => {
     ['src/app/probe.tsx', '/src/data/database.ts'],
   ])('allow in %s an import of %s', async (filePath, source) => {
     expect(await violations(filePath, importOf(source))).toEqual([]);
+  });
+
+  it('allow import-require within the rules', async () => {
+    const code =
+      "import type database = require('../../data/database.ts');\nexport type T = typeof database;";
+    expect(await violations('src/features/home/probe.ts', code)).toEqual([]);
   });
 
   it('allow dynamic imports within the rules', async () => {

@@ -9,7 +9,7 @@
 // deciding which layer it enters, so no spelling of a path escapes it
 // ("../.././features/x", "../../domain/../data/x", "/src/data/x"). It checks
 // static imports, `export … from`, dynamic `import()` (a computed path is
-// refused) and type-level `typeof import()`. Layer directory names are
+// refused), type-level `typeof import()` and `import x = require()`. Layer directory names are
 // reserved: no subfolder may reuse them.
 //
 // This file is TypeScript so that tests can import it with types; Node loads it
@@ -143,6 +143,20 @@ const layerImportsRule: Rule.RuleModule = {
             ? argument.literal
             : argument;
         checkLiteral(node, literal);
+      },
+      // `import foo = require('…')` and `import type foo = require('…')`
+      // (typescript-eslint node). `import foo = A.B` names no module: ignored.
+      TSImportEqualsDeclaration: (node: Rule.Node) => {
+        const reference: unknown = Reflect.get(node, 'moduleReference');
+        if (
+          typeof reference === 'object' &&
+          reference !== null &&
+          'type' in reference &&
+          reference.type === 'TSExternalModuleReference' &&
+          'expression' in reference
+        ) {
+          checkLiteral(node, reference.expression);
+        }
       },
     };
   },
