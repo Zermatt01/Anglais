@@ -46,8 +46,8 @@ function SettingsForm({ loaded }: { readonly loaded: LoadedSettings }) {
         <Notice tone="error" title="Réglages illisibles">
           <p>
             Les réglages enregistrés n’ont pas pu être lus : les valeurs par défaut sont affichées.
-            Exporte tes données avant de modifier un réglage, car le prochain changement les
-            remplacera.
+            Au prochain changement, l’ancienne version sera conservée à part ; elle reste incluse
+            dans l’export de tes données.
           </p>
         </Notice>
       ) : null}

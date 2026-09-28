@@ -29,6 +29,14 @@ export function ProfileRemarksEditor({ savedRemarks, onSave }: ProfileRemarksEdi
 
   return (
     <div className="field">
+      {draft.unreadable ? (
+        <Notice tone="error" title="Ancien brouillon illisible">
+          <p>
+            Un brouillon précédent de ce champ n’a pas pu être lu. Il est conservé à part et reste
+            inclus dans l’export de tes données.
+          </p>
+        </Notice>
+      ) : null}
       {draft.restored && changed ? (
         <Notice title="Brouillon restauré">
           <p>Ces modifications n’ont pas encore été enregistrées dans ton profil.</p>

@@ -23,6 +23,7 @@ export const TABLE_LABELS: Readonly<Record<TableName, string>> = {
   syncOutbox: 'File de synchronisation',
   syncMeta: 'État de la synchronisation',
   usageSnapshot: 'Consommation',
+  quarantine: 'Éléments illisibles mis de côté',
 };
 
 export const ENVELOPE_ERRORS: Readonly<Record<EnvelopeError, string>> = {

@@ -3,7 +3,24 @@
  * The synchronization tables are filled from phase 2.
  */
 import { z } from 'zod';
-import { epochMsSchema } from '../../domain/primitives.ts';
+import { epochMsSchema, uuidSchema } from '../../domain/primitives.ts';
+
+/**
+ * `quarantine` (P1, version 2): records that could not be read, copied here
+ * exactly as they were stored before anything replaces or deletes them
+ * (NO-06). Exported, never synchronized, never read back by the app.
+ */
+export const quarantineEntrySchema = z.strictObject({
+  id: uuidSchema,
+  /** Table and key the record came from. */
+  table: z.string().min(1).max(100),
+  key: z.string().min(1).max(200),
+  /** The record as it was stored. */
+  record: z.unknown(),
+  reason: z.string().max(2_000),
+  quarantinedAt: epochMsSchema,
+});
+export type QuarantineEntry = z.infer<typeof quarantineEntrySchema>;
 
 /** Longest text kept as a draft. */
 export const MAX_DRAFT_TEXT = 20_000;

@@ -15,6 +15,7 @@ import { levelEstimateSchema } from './schemas/level-estimates.ts';
 import { lexiconDocumentSchema } from './schemas/lexicon.ts';
 import {
   draftSchema,
+  quarantineEntrySchema,
   syncMetaSchema,
   syncOutboxEntrySchema,
   usageSnapshotSchema,
@@ -108,6 +109,8 @@ export const TABLES = {
   syncOutbox: localTable('seq', syncOutboxEntrySchema, false),
   syncMeta: localTable('key', syncMetaSchema, false),
   usageSnapshot: localTable('id', usageSnapshotSchema, false),
+  // Unreadable records set aside before being replaced: exported so that they can be recovered.
+  quarantine: localTable('id', quarantineEntrySchema, true),
 } satisfies Record<string, TableDefinition>;
 
 export type TableName = keyof typeof TABLES;

@@ -228,4 +228,12 @@ export const VALID_RECORDS: { readonly [Name in TableName]: RecordOf<Name> } = {
     monthlyBudgetUsd: 10,
     byTask: { 'correct-production': 1.1 },
   },
+  quarantine: {
+    id: FIXTURE_IDS.other,
+    table: 'drafts',
+    key: 'settings:profile-remarks',
+    record: { key: 'settings:profile-remarks', text: 42, updatedAt: T0 },
+    reason: 'text: expected string',
+    quarantinedAt: T0,
+  },
 };

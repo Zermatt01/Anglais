@@ -81,9 +81,10 @@ describe('settings screen', () => {
     fireEvent.change(remarks, { target: { value: 'Stage en finance de marché' } });
 
     await waitFor(async () => {
-      expect(await services.drafts.get(PROFILE_REMARKS_DRAFT_KEY)).toBe(
-        'Stage en finance de marché',
-      );
+      expect(await services.drafts.get(PROFILE_REMARKS_DRAFT_KEY)).toEqual({
+        state: 'present',
+        text: 'Stage en finance de marché',
+      });
     });
     expect(screen.getByText('Brouillon enregistré sur ce téléphone.')).toBeInTheDocument();
     expect((await services.settings.load()).values.learnerProfile.remarks).toBe('');
@@ -102,7 +103,7 @@ describe('settings screen', () => {
       'Stage en finance de marché',
     );
     await waitFor(async () => {
-      expect(await services.drafts.get(PROFILE_REMARKS_DRAFT_KEY)).toBeNull();
+      expect(await services.drafts.get(PROFILE_REMARKS_DRAFT_KEY)).toEqual({ state: 'absent' });
     });
   });
 
@@ -116,8 +117,32 @@ describe('settings screen', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Annuler les modifications' }));
     expect(remarks).toHaveValue('Déjà enregistré');
     await waitFor(async () => {
-      expect(await services.drafts.get(PROFILE_REMARKS_DRAFT_KEY)).toBeNull();
+      expect(await services.drafts.get(PROFILE_REMARKS_DRAFT_KEY)).toEqual({ state: 'absent' });
     });
+  });
+
+  it('warns about an unreadable draft and sets it aside before replacing it (NO-06)', async () => {
+    const services = await createTestServices();
+    const unreadable = { key: PROFILE_REMARKS_DRAFT_KEY, text: 42, updatedAt: 0 };
+    await services.db.table('drafts').put(unreadable);
+    await renderApp('/reglages', services);
+
+    expect(await screen.findByText('Ancien brouillon illisible')).toBeInTheDocument();
+    const remarks = screen.getByRole('textbox', { name: 'Remarques libres' });
+    await waitFor(() => {
+      expect(remarks).toBeEnabled();
+    });
+    fireEvent.change(remarks, { target: { value: 'Nouveau texte' } });
+
+    await waitFor(async () => {
+      expect(await services.drafts.get(PROFILE_REMARKS_DRAFT_KEY)).toEqual({
+        state: 'present',
+        text: 'Nouveau texte',
+      });
+    });
+    expect(await services.db.table('quarantine').toArray()).toEqual([
+      expect.objectContaining({ table: 'drafts', record: unreadable }),
+    ]);
   });
 
   it('shows a choice at once, and rolls it back if it cannot be saved', async () => {

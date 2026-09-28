@@ -74,10 +74,24 @@ describe('settings repository', () => {
     await db.table('settings').put({ ...VALID_RECORDS.settings, theme: 'purple', updatedAt: 9e12 });
     expect(await repository.load()).toEqual({ values: DEFAULT_SETTINGS, stored: 'invalid' });
 
-    // A later change replaces them, with an updatedAt that still increases.
+    // A later change replaces them, with an updatedAt that still increases,
+    // after setting the unreadable version aside (NO-06).
     await repository.update({ theme: 'light' });
     const stored = await readRecord(db, 'settings', 'settings');
     expect(stored?.ok && stored.value.updatedAt).toBe(9e12 + 1);
+    const [setAside] = await db.table('quarantine').toArray();
+    expect(setAside).toMatchObject({
+      table: 'settings',
+      key: 'settings',
+      record: { theme: 'purple', updatedAt: 9e12 },
+    });
+  });
+
+  it('sets nothing aside when the stored settings are readable', async () => {
+    const { db, repository } = await setup();
+    await repository.update({ theme: 'dark' });
+    await repository.update({ theme: 'light' });
+    expect(await db.table('quarantine').count()).toBe(0);
   });
 
   it('treats logically deleted settings as absent', async () => {

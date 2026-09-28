@@ -57,7 +57,10 @@ describe('useDraft', () => {
     await typeInto('I have been working');
     expect(screen.getByTestId('state')).toHaveTextContent('pending');
     await waitFor(async () => {
-      expect(await services.drafts.get(KEY)).toBe('I have been working');
+      expect(await services.drafts.get(KEY)).toEqual({
+        state: 'present',
+        text: 'I have been working',
+      });
     });
     expect(screen.getByTestId('state')).toHaveTextContent('saved');
   });
@@ -88,7 +91,10 @@ describe('useDraft', () => {
     await typeInto('Typed just before leaving');
     unmount();
     await waitFor(async () => {
-      expect(await services.drafts.get(KEY)).toBe('Typed just before leaving');
+      expect(await services.drafts.get(KEY)).toEqual({
+        state: 'present',
+        text: 'Typed just before leaving',
+      });
     });
   });
 
@@ -97,7 +103,10 @@ describe('useDraft', () => {
     renderField(services, '', 60_000);
     await typeInto('Typed before the update');
     await act(() => flushAllDrafts());
-    expect(await services.drafts.get(KEY)).toBe('Typed before the update');
+    expect(await services.drafts.get(KEY)).toEqual({
+      state: 'present',
+      text: 'Typed before the update',
+    });
   });
 
   it('saves when the page is hidden', async () => {
@@ -107,7 +116,10 @@ describe('useDraft', () => {
     Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' });
     document.dispatchEvent(new Event('visibilitychange'));
     await waitFor(async () => {
-      expect(await services.drafts.get(KEY)).toBe('Typed before switching apps');
+      expect(await services.drafts.get(KEY)).toEqual({
+        state: 'present',
+        text: 'Typed before switching apps',
+      });
     });
     Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' });
   });
@@ -118,7 +130,7 @@ describe('useDraft', () => {
     renderField(services, 'Committed');
     await typeInto('Committed');
     await waitFor(async () => {
-      expect(await services.drafts.get(KEY)).toBeNull();
+      expect(await services.drafts.get(KEY)).toEqual({ state: 'absent' });
     });
   });
 
@@ -147,7 +159,7 @@ describe('useDraft', () => {
     );
     expect(screen.getByRole('textbox', { name: 'Texte' })).toHaveValue('My unsaved text');
     await waitFor(async () => {
-      expect(await services.drafts.get(KEY)).toBe('My unsaved text');
+      expect(await services.drafts.get(KEY)).toEqual({ state: 'present', text: 'My unsaved text' });
     });
   });
 
@@ -160,7 +172,7 @@ describe('useDraft', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Oublier' }));
     await waitFor(async () => {
-      expect(await services.drafts.get(KEY)).toBeNull();
+      expect(await services.drafts.get(KEY)).toEqual({ state: 'absent' });
     });
     expect(screen.getByRole('textbox', { name: 'Texte' })).toHaveValue('Committed');
   });

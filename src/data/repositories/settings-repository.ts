@@ -16,7 +16,7 @@ import {
   type SettingsValues,
 } from '../../domain/settings.ts';
 import type { AppDatabase } from '../database.ts';
-import { parseRecord, writeRecord } from '../records.ts';
+import { parseRecord, setAsideIfUnreadable, writeRecord } from '../records.ts';
 import { SETTINGS_ID, type SettingsDocument } from '../schemas/settings.ts';
 
 /** Whether settings were found: `invalid` means stored but unreadable (defaults used). */
@@ -63,9 +63,11 @@ export function createSettingsRepository(db: AppDatabase, clock: Clock): Setting
     },
 
     async update(patch) {
-      return db.dexie.transaction('rw', table, async () => {
+      return db.dexie.transaction('rw', [table, db.table('quarantine')], async () => {
         const raw = await table.get(SETTINGS_ID);
         const { loaded, document } = loadFrom(raw);
+        // Unreadable settings are set aside, never lost, before being replaced (NO-06).
+        await setAsideIfUnreadable(db, 'settings', SETTINGS_ID, clock.now());
         // Merged inside the transaction, on the stored values (applySettingsPatch).
         const values = settingsValuesSchema.parse(applySettingsPatch(loaded.values, patch));
         const now = clock.now();

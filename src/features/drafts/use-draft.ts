@@ -19,6 +19,11 @@ export interface Draft {
   readonly ready: boolean;
   /** True when the text comes from a draft left unsaved last time. */
   readonly restored: boolean;
+  /**
+   * True when a previous draft could not be read: it is set aside (and kept in
+   * the export) before anything replaces it. The field must say so.
+   */
+  readonly unreadable: boolean;
   readonly saveState: DraftSaveState;
   setText(text: string): void;
   /** Saves the pending text now. */
@@ -40,6 +45,7 @@ export function useDraft(
   const [text, setTextState] = useState(committedText);
   const [ready, setReady] = useState(false);
   const [restored, setRestored] = useState(false);
+  const [unreadable, setUnreadable] = useState(false);
   const [saveState, setSaveState] = useState<DraftSaveState>('idle');
 
   const latestText = useRef(committedText);
@@ -68,11 +74,12 @@ export function useDraft(
     drafts.get(key).then(
       (stored) => {
         if (cancelled) return;
-        if (stored !== null && stored !== committed.current) {
-          latestText.current = stored;
-          setTextState(stored);
+        if (stored.state === 'present' && stored.text !== committed.current) {
+          latestText.current = stored.text;
+          setTextState(stored.text);
           setRestored(true);
         }
+        if (stored.state === 'unreadable') setUnreadable(true);
         setReady(true);
       },
       () => {
@@ -157,5 +164,5 @@ export function useDraft(
     };
   }, [flush]);
 
-  return { text, ready, restored, saveState, setText, flush, discard };
+  return { text, ready, restored, unreadable, saveState, setText, flush, discard };
 }

@@ -17,32 +17,34 @@ export interface DatabaseVersion {
   readonly stores: Readonly<Record<string, string>>;
 }
 
+/** Tables of the first version (phase 1). */
+const VERSION_1_STORES: Readonly<Record<string, string>> = {
+  settings: 'id',
+  notionProgress: 'notionId',
+  exerciseAttempts: 'id, [notionId+step], at',
+  generatedExercises: 'id, [notionId+step]',
+  cards: 'id, [status+due], notionId, sourceErrorId',
+  reviewLogs: 'id, cardId, at',
+  productions: 'id, module, createdAt',
+  errors: 'id, productionId, [category+at], [notionId+at]',
+  lexicon: 'id, &key',
+  ruleNotes: 'category',
+  activity: 'id, day',
+  levelEstimates: 'id, [skill+at]',
+  reports: 'id, [targetType+targetId]',
+  diagnosticRuns: 'id',
+  pronunciationAttempts: 'id, at',
+  emailSessions: 'id, updatedAt',
+  drafts: 'key',
+  syncOutbox: '++seq, [table+docId]',
+  syncMeta: 'key',
+  usageSnapshot: 'id',
+};
+
 export const DATABASE_VERSIONS: readonly DatabaseVersion[] = [
-  {
-    version: 1,
-    stores: {
-      settings: 'id',
-      notionProgress: 'notionId',
-      exerciseAttempts: 'id, [notionId+step], at',
-      generatedExercises: 'id, [notionId+step]',
-      cards: 'id, [status+due], notionId, sourceErrorId',
-      reviewLogs: 'id, cardId, at',
-      productions: 'id, module, createdAt',
-      errors: 'id, productionId, [category+at], [notionId+at]',
-      lexicon: 'id, &key',
-      ruleNotes: 'category',
-      activity: 'id, day',
-      levelEstimates: 'id, [skill+at]',
-      reports: 'id, [targetType+targetId]',
-      diagnosticRuns: 'id',
-      pronunciationAttempts: 'id, at',
-      emailSessions: 'id, updatedAt',
-      drafts: 'key',
-      syncOutbox: '++seq, [table+docId]',
-      syncMeta: 'key',
-      usageSnapshot: 'id',
-    },
-  },
+  { version: 1, stores: VERSION_1_STORES },
+  // Review of phase 1: unreadable records are set aside before being replaced.
+  { version: 2, stores: { ...VERSION_1_STORES, quarantine: 'id, [table+key]' } },
 ];
 
 interface StoreDeclaration {

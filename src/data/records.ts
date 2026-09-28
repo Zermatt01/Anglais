@@ -86,3 +86,30 @@ export async function writeRecord<Name extends TableName>(
   }
   await db.table(name).put(record);
 }
+
+/**
+ * Before a write replaces or deletes the record at `key`, copies it into the
+ * `quarantine` table if it cannot be read (NO-06): nothing unreadable is ever
+ * lost, and the copy stays in the export. Returns whether a copy was made.
+ * Must run inside a transaction covering both `name` and `quarantine`.
+ */
+export async function setAsideIfUnreadable(
+  db: AppDatabase,
+  name: TableName,
+  key: string,
+  now: number,
+): Promise<boolean> {
+  const raw: unknown = await db.table(name).get(key);
+  if (raw === undefined) return false;
+  const parsed = parseRecord(name, raw);
+  if (parsed.ok) return false;
+  await writeRecord(db, 'quarantine', {
+    id: crypto.randomUUID(),
+    table: name,
+    key,
+    record: raw,
+    reason: parsed.reason,
+    quarantinedAt: now,
+  });
+  return true;
+}
