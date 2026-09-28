@@ -4,10 +4,12 @@
  * "finish", "went" for "go" (CARD-01, DECISIONS D-047).
  *
  * This is a deliberately rough stemmer, not a dictionary: it may relate two
- * words that are not really of the same family ("even" and "evening"). For a
- * hint, that errs on the prudent side: the card is refused, never shown with
- * a revealing hint. Words of three letters or less are only compared exactly
- * (or through the irregular forms), so "on" never matches "one".
+ * words that are not really of the same family. For a hint, that errs on the
+ * prudent side: the card is refused, never shown with a revealing hint. Words
+ * of three letters or less are only compared exactly (or through the irregular
+ * forms), so "on" never matches "one". Frequent words whose ending only looks
+ * like an inflection ("news", "economics", "evening") are listed in
+ * `NOT_INFLECTED` and compared exactly too.
  */
 import { readingsOf } from './forms.ts';
 
@@ -88,6 +90,50 @@ const IRREGULAR_FORMS: Readonly<Record<string, string>> = {
   people: 'person',
 };
 
+/**
+ * Words ending in -s, -ing or -ed that are not inflections of a shorter word:
+ * no ending is removed from them ("news" is not the plural of "new"). Words
+ * ending in -ss, -us and -is ("business", "status", "analysis") are already
+ * protected by the rule itself.
+ */
+const NOT_INFLECTED = new Set([
+  // Uncountable nouns and nouns with the same singular and plural
+  'news',
+  'economics',
+  'physics',
+  'mathematics',
+  'politics',
+  'statistics',
+  'ethics',
+  'logistics',
+  'analytics',
+  'athletics',
+  'electronics',
+  'series',
+  'species',
+  'means',
+  'headquarters',
+  'lens',
+  'gas',
+  // Adverbs and conjunctions ending in -s
+  'always',
+  'perhaps',
+  'whereas',
+  'besides',
+  'sometimes',
+  // Nouns ending in -ing or -ed that are not verb forms
+  'evening',
+  'morning',
+  'during',
+  'nothing',
+  'something',
+  'anything',
+  'everything',
+  'ceiling',
+  'hundred',
+  'indeed',
+]);
+
 const VOWELS = /[aeiou]/;
 
 /** Base forms a longer word may come from, by removing a regular ending. */
@@ -119,7 +165,7 @@ export function lemmaCandidates(token: string): Set<string> {
   const candidates = new Set([token]);
   const irregular = IRREGULAR_FORMS[token];
   if (irregular !== undefined) candidates.add(irregular);
-  if (token.length > 3) {
+  if (token.length > 3 && !NOT_INFLECTED.has(token)) {
     for (const base of regularBases(token)) candidates.add(base);
   }
   return candidates;

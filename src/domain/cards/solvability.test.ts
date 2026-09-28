@@ -113,6 +113,18 @@ describe('isCardSolvable', () => {
     expect(isCardSolvable(clozeCard({ hint: 'Pense à finir au passé.' })).solvable).toBe(true);
   });
 
+  it('accepts a hint whose word only looks like a form of the answer (counter-review)', () => {
+    const news = clozeCard({
+      meaningFr: 'Je lis les informations tous les matins.',
+      text: 'I read the ___ every morning.',
+      infinitive: null,
+      hint: 'New information reported on television.',
+      notionId: null,
+      answers: { canonical: 'news', variants: [] },
+    });
+    expect(isCardSolvable(news)).toEqual({ solvable: true, issues: [] });
+  });
+
   it('rejects a hint that gives the answer in another form (review of phase 1)', () => {
     const meeting = clozeCard({
       meaningFr: 'Je vais à une réunion tous les lundis.',

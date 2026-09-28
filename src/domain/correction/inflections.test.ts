@@ -36,8 +36,22 @@ describe('sameWordFamily', () => {
     ['analysis', 'analysi'],
     ['sing', 'song'],
     ['report', 'reporter'],
+    // Endings that only look like inflections (counter-review of phase 1).
+    ['news', 'new'],
+    ['economics', 'economic'],
+    ['physics', 'physic'],
+    ['series', 'sery'],
+    ['species', 'specie'],
+    ['means', 'mean'],
+    ['evening', 'even'],
+    ['morning', 'morn'],
+    ['sometimes', 'sometime'],
   ])('keeps %s and %s apart', (a, b) => {
     expect(sameWordFamily(a, b)).toBe(false);
+  });
+
+  it('still compares a non-inflected word with itself', () => {
+    expect(sameWordFamily('news', 'news')).toBe(true);
   });
 });
 
@@ -57,6 +71,11 @@ describe('containsInflectedPhrase', () => {
   it('needs every word of a longer answer, in order', () => {
     expect(containsInflectedPhrase('Pas « went » ici.', 'have gone')).toBe(false);
     expect(containsInflectedPhrase('received … not', 'not received')).toBe(false);
+  });
+
+  it('does not take a word ending in -s for a plural (counter-review of phase 1)', () => {
+    expect(containsInflectedPhrase('New information reported on television', 'news')).toBe(false);
+    expect(containsInflectedPhrase('The news is on television', 'news')).toBe(true);
   });
 
   it('does not match part of a word', () => {
