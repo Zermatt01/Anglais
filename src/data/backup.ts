@@ -32,10 +32,20 @@ function openBackups(name: string): Dexie {
   return dexie;
 }
 
-async function dumpDatabase(name: string, now: number): Promise<ExportEnvelope> {
+/**
+ * Copy of every table of the existing database if it is older than
+ * `targetVersion`, or `null` when no upgrade is pending. The version is checked
+ * before anything is read: at a normal start, no data is loaded.
+ */
+async function dumpIfOlder(
+  name: string,
+  targetVersion: number,
+  now: number,
+): Promise<ExportEnvelope | null> {
   const current = new Dexie(name);
   await current.open();
   try {
+    if (current.verno >= targetVersion) return null;
     const tables: Record<string, unknown[]> = {};
     for (const table of current.tables) {
       tables[table.name] = await table.toArray();
@@ -65,8 +75,8 @@ export async function backupBeforeUpgrade(options: {
   const { databaseName, targetVersion, now, backupDatabaseName = BACKUP_DATABASE_NAME } = options;
   if (!(await Dexie.exists(databaseName))) return false;
 
-  const envelope = await dumpDatabase(databaseName, now);
-  if (envelope.databaseVersion >= targetVersion) return false;
+  const envelope = await dumpIfOlder(databaseName, targetVersion, now);
+  if (envelope === null) return false;
 
   const backups = openBackups(backupDatabaseName);
   try {
