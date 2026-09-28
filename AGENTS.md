@@ -35,12 +35,14 @@ npm run test:e2e   # nécessite : npx playwright install chromium
 5. **Aucune formulation correcte signalée comme erreur** (NO-05). La correction locale accepte les variantes, les contractions et les graphies britannique et américaine.
 6. **Aucune perte de données** (NO-06) :
    - brouillons enregistrés à chaque pause de frappe ;
-   - migrations Dexie additives ;
-   - document et file de synchronisation écrits dans la même transaction ;
+   - migrations Dexie additives, sauvegarde automatique avant toute montée de version ;
+   - toute lecture validée par `parseRecord`, toute écriture par `writeRecord` ; un enregistrement illisible n'est jamais écrasé en silence ;
+   - document et file de synchronisation écrits dans la même transaction (à partir de la phase 2) ;
    - service worker mis à jour sur demande seulement.
 7. **RLS** activée, avec des politiques explicites, sur toute table Postgres (SEC-02).
 8. Aucun test, règle de lint ni vérification de types désactivé (PROC-05).
 9. Aucune donnée personnelle dans le code, les logs ou les commits (SEC-03).
+10. **Couches** : les dépendances entre dossiers de `src/` sont imposées par `eslint.layers.ts` (ARCHITECTURE §3). Le domaine reste pur, sans horloge implicite.
 
 ## Priorités de revue (dans l'ordre)
 

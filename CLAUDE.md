@@ -2,7 +2,7 @@
 
 PWA mobile **local-first** pour qu'un francophone devienne opérationnel en anglais professionnel (entretien d'embauche et e-mails, sans traduction mentale) d'ici février 2027. Interface en français, contenu en anglais.
 
-Référence : [docs/SPEC.md](docs/SPEC.md) (exigences numérotées), [docs/PEDAGOGY.md](docs/PEDAGOGY.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/ROADMAP.md](docs/ROADMAP.md), [docs/DECISIONS.md](docs/DECISIONS.md), [docs/references/murphy-contents.md](docs/references/murphy-contents.md) (tables des matières des deux livres de Murphy qui servent de référence).
+Référence : [docs/SPEC.md](docs/SPEC.md) (exigences numérotées), [docs/PEDAGOGY.md](docs/PEDAGOGY.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/ROADMAP.md](docs/ROADMAP.md), [docs/DECISIONS.md](docs/DECISIONS.md), [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) (déploiement et installation), [docs/references/murphy-contents.md](docs/references/murphy-contents.md) (tables des matières des deux livres de Murphy qui servent de référence).
 
 ## Commandes
 
@@ -13,6 +13,7 @@ npm run check           # typecheck + lint + format:check + tests unitaires + sc
 npm run test:e2e        # Playwright (build de production, émulation Pixel 7)
 npm run build           # build de production
 npm run format          # formater avec Prettier
+npm run generate:icons  # régénérer les icônes de la PWA dans public/
 ```
 
 Détail : `typecheck` (`tsc -b`), `lint` (`eslint . --max-warnings=0`), `test` (`vitest run`), `test:watch`, `check:secrets`. Première exécution des tests e2e : `npx playwright install chromium`.
@@ -21,9 +22,10 @@ Détail : `typecheck` (`tsc -b`), `lint` (`eslint . --max-warnings=0`), `test` (
 
 - **Stack** : Vite, React, TypeScript strict ; Dexie (IndexedDB) comme **source de vérité** sur l'appareil ; Zod à toutes les frontières ; ts-fsrs encapsulé ; vite-plugin-pwa.
 - **Serveur** : Supabase (authentification par code e-mail, Postgres avec RLS) et une Edge Function « ai », seul chemin vers Anthropic. Hébergement du front sur Vercel.
-- **Dossiers** :
+- **Dossiers** (dépendances imposées par `eslint.layers.ts` ; noms de dossiers de couche réservés) :
+  - `src/app` : coquille (démarrage, routage, navigation, thème, bandeau de mise à jour) ;
   - `src/domain` : logique **pure et testée**, sans React, Dexie ni réseau ; horloge injectée ;
-  - `src/data` : Dexie, dépôts, synchronisation ;
+  - `src/data` : Dexie, registre des tables, schémas, lecture validée (`parseRecord`), dépôts, export et import, synchronisation ;
   - `src/features` : écrans par module ;
   - `src/ui` : composants ;
   - `src/content` : programme en **données** ;

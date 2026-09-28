@@ -55,24 +55,36 @@ Principes :
 
 ```
 src/
-  app/            Coquille : routage, fournisseurs, gestion d'erreurs globale, mise à jour du SW
-  ui/             Composants visuels réutilisables (boutons, feuilles, surlignage, frises SVG)
-  features/       Un dossier par module : review, path, theme, journal, email, oral, lexicon,
-                  rules, dashboard, settings, usage, quality, diagnostic, import, session
+  app/            Coquille : démarrage (ouverture de la base), routage, barre de navigation,
+                  thème, bandeau de mise à jour du SW, gestion d'erreurs globale
+  ui/             Composants visuels réutilisables et styles : thème « cahier corrigé »
+                  (theme.css), boutons, champs, avis, marques de correction ; plus tard frises SVG
+  features/       Un dossier par module (P1 : home, settings, data-transfer, not-found ;
+                  ensuite review, path, theme, journal, email, oral, lexicon, rules, dashboard,
+                  usage, quality, diagnostic, import, session), plus ce que les écrans partagent :
+                  app-services.ts (services fournis par la coquille), drafts/ (brouillons)
   domain/         Logique pure, sans React, Dexie ni réseau :
-                    srs/          adaptateur ts-fsrs (interface interne)
-                    correction/   normalisation, variantes, contractions, réparation de segments
-                    cards/        isCardSolvable, fabriques de cartes
-                    curriculum/   moteur des cinq étapes, critères de passage, positionnement
-                    errors/       règle lapsus/lacune, statistiques de catégories
-                    level/        estimation du niveau
-                    streak/       série et joker
-                    session/      composition de la séance du jour
-  data/           Base Dexie, schémas Zod des tables, dépôts (repositories), migrations,
-                  sync/ (file sortante, push/pull, fusion)
-  content/        Programme rédigé : pistes, notions, leçons, exercices du socle (validés Zod)
-  services/       ai-client/ (client typé de l'Edge Function), speech/, storage/ (persistance)
-  test/           Configuration et utilitaires de test
+                    primitives.ts, taxonomy.ts, settings.ts   types et schémas communs
+                    srs/          adaptateur ts-fsrs (interface interne), notes, maîtrise
+                    correction/   normalisation, contractions, graphies, évaluation, segments
+                    cards/        modèle des cartes, isCardSolvable
+                    sync/         règles de fusion (import en P1, synchronisation en P2)
+                    curriculum/   identifiants et états des notions ; moteur des cinq étapes (P3)
+                    errors/       règle lapsus/lacune, statistiques de catégories (P4)
+                    level/        estimation du niveau (P5)
+                    streak/       série et joker (P4)
+                    session/      composition de la séance du jour (P4)
+  data/           database.ts (versions Dexie), tables.ts (registre des tables), schemas/
+                  (un schéma Zod par table ; les tables locales dans local.ts), records.ts
+                  (lecture et écriture validées, migrations de documents), repositories/,
+                  transfer/ (export et import JSON), backup.ts (sauvegarde avant montée de
+                  version), open.ts ; sync/ en P2 (file sortante, push/pull)
+  content/        Programme rédigé : pistes, notions, leçons, exercices du socle (validés Zod, P3)
+  services/       storage/ (stockage persistant) ; ai-client/ (P2), speech/ (P3 et P6)
+  test/           Configuration et utilitaires de test (base en mémoire, fixtures, rendu)
+public/           Icônes de la PWA, générées par scripts/generate-icons.ts
+eslint.layers.ts  Règles de dépendance entre couches (§3)
+vercel.json       En-têtes de sécurité et réécritures (§9)
 shared/
   ai/             Contrat IA partagé client ↔ Edge Function : tâches, schémas d'entrée et de
                   sortie (Zod), prompts versionnés, models.ts, pricing.ts
@@ -96,24 +108,26 @@ features ──► ui
    └──────► content (données, validées par des schémas du domaine)
 ```
 
-- `domain` n'importe **rien** d'autre que lui-même, `zod` et `ts-fsrs` (via l'adaptateur `srs/`). Pas de React, pas de Dexie, pas de `fetch`, pas d'horloge implicite : la date courante est passée en paramètre, pour des tests déterministes.
-- `data` et `services` implémentent des interfaces définies dans `domain` (par exemple `CardRepository`, `SpeechRecognizer`).
-- `features` orchestre : lit via `data`, calcule via `domain`, affiche via `ui`.
-- Ces règles seront imposées par ESLint (`no-restricted-imports` par dossier) dès la phase 1.
-- Le SDK Anthropic est interdit dans `src/` (règle ESLint et scan de secrets, déjà actifs).
+- `domain` n'importe **rien** d'autre que lui-même, `zod` et `ts-fsrs` (seulement dans l'adaptateur `srs/`). Pas de React, pas de Dexie, pas de `fetch` ni de stockage, pas d'horloge implicite ni de hasard : la date courante est passée en paramètre, pour des tests déterministes.
+- `data` et `services` implémentent des interfaces définies dans `domain` (par exemple `SpacedRepetitionScheduler`, plus tard `SpeechRecognizer`). Les types dont la logique pure a besoin (réglages, contenu des cartes, état FSRS) sont définis dans `domain`, et `data` y ajoute l'enveloppe de stockage.
+- `data` est la seule couche qui importe Dexie ; `features` lit les données réactives avec `dexie-react-hooks`, à travers les dépôts.
+- `ui` n'importe ni `data`, ni `services`, ni `features` ; `content` n'importe que `domain`.
+- `features` orchestre : lit via `data`, calcule via `domain`, affiche via `ui`. `app` (la coquille) peut tout importer.
+- Ces règles sont imposées par ESLint (`eslint.layers.ts`, règle `no-restricted-imports` par dossier, DECISIONS D-050). Un test vérifie qu'elles refusent les imports interdits et que la configuration réelle les applique. Les noms de dossiers de couche sont donc réservés.
+- Le SDK Anthropic est interdit dans `src/` (règle ESLint et scan de secrets).
 
 ## 4. Modèle de données
 
 ### 4.1 Conventions
 
-| Champ           | Type                  | Rôle                                                                                                   |
-| --------------- | --------------------- | ------------------------------------------------------------------------------------------------------ |
-| `id`            | `string` (UUID v4)    | Généré sur l'appareil (`crypto.randomUUID()`) : aucun aller-retour serveur pour créer un objet.        |
-| `createdAt`     | `number` (epoch ms)   | Création.                                                                                              |
-| `updatedAt`     | `number` (epoch ms)   | Dernière modification. Strictement croissant pour un même document : `max(maintenant, précédent + 1)`. |
-| `deletedAt`     | `number \| null`      | Suppression logique (tombstone), nécessaire à la synchronisation.                                      |
-| `schemaVersion` | `number`              | Version du schéma Zod du document, pour les migrations.                                                |
-| dates « jour »  | `string` `YYYY-MM-DD` | Jour **local** de l'appareil (série, minutes de la semaine).                                           |
+| Champ           | Type                  | Rôle                                                                                                                                                                                                                                |
+| --------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`            | `string` (UUID v4)    | Généré sur l'appareil (`crypto.randomUUID()`) : aucun aller-retour serveur pour créer un objet. Exceptions : `settings`, `notionProgress` et `ruleNotes` ont une clé naturelle, identique sur tous les appareils (DECISIONS D-044). |
+| `createdAt`     | `number` (epoch ms)   | Création.                                                                                                                                                                                                                           |
+| `updatedAt`     | `number` (epoch ms)   | Dernière modification. Strictement croissant pour un même document : `max(maintenant, précédent + 1)`.                                                                                                                              |
+| `deletedAt`     | `number \| null`      | Suppression logique (tombstone), nécessaire à la synchronisation.                                                                                                                                                                   |
+| `schemaVersion` | `number`              | Version du schéma Zod du document, pour les migrations.                                                                                                                                                                             |
+| dates « jour »  | `string` `YYYY-MM-DD` | Jour **local** de l'appareil (série, minutes de la semaine).                                                                                                                                                                        |
 
 **Classes de synchronisation :**
 
@@ -147,7 +161,14 @@ features ──► ui
 | `syncMeta`              | L      | `key`                                                   | Curseur de lecture, identifiant d'appareil, date de dernière synchronisation.                                                                                                                                                                                                                                                                                                             | P2    |
 | `usageSnapshot`         | L      | `id` (singleton)                                        | Dernier état de l'écran Consommation, pour un affichage hors ligne.                                                                                                                                                                                                                                                                                                                       | P2    |
 
-Chaque table a un schéma Zod (`src/data/schemas/<table>.ts`). Toute lecture passe par `schema.parse` : un document invalide est isolé et signalé, jamais propagé silencieusement.
+Toutes ces tables sont déclarées dès la version 1 de Dexie (DECISIONS D-043). Chacune a :
+
+- un schéma Zod (`src/data/schemas/<table>.ts` ; les quatre tables locales sont regroupées dans `local.ts`) ;
+- une entrée du registre `src/data/tables.ts` : classe de synchronisation, clé primaire, version du schéma, fonctions de migration, présence dans l'export.
+
+Les enregistrements sont lus avec le type `unknown`, ce qui oblige à les valider. Toute lecture passe par `parseRecord` (`src/data/records.ts`) : l'enregistrement est d'abord monté à la version courante du schéma par les fonctions de migration, puis validé. Un enregistrement illisible est isolé et signalé, jamais propagé silencieusement, et jamais écrasé par une lecture. Toute écriture passe par `writeRecord`, qui refuse un enregistrement invalide.
+
+Les schémas des tables des phases 3 à 7 sont des premières versions, ajustables par leur phase tant qu'aucune donnée n'y est écrite. Les contenus dont le format appartient à une phase ultérieure sont acceptés comme JSON valide (`z.json()`), puis validés par leur schéma définitif dans cette phase.
 
 ### 4.3 Tables Postgres (phase 2)
 
@@ -156,7 +177,7 @@ Chaque table a un schéma Zod (`src/data/schemas/<table>.ts`). Toute lecture pas
 create table sync_documents (
   user_id        uuid   not null default auth.uid() references auth.users on delete cascade,
   collection     text   not null,            -- nom de la table Dexie
-  id             uuid   not null,
+  id             text   not null,            -- UUID, ou clé naturelle (settings, notionProgress, ruleNotes : D-044)
   doc            jsonb  not null,
   schema_version int    not null,
   updated_at     bigint not null,            -- updatedAt client (epoch ms)
@@ -207,9 +228,12 @@ create table ai_calls (
 
 Le programme est **du contenu versionné dans le code** (CUR-01), relu par un humain, jamais généré à la volée (NO-04).
 
+Le schéma des exercices est défini dans `src/domain/curriculum`, et non dans `src/content` : la table `generatedExercises` (couche données) valide les exercices générés avec le même schéma que le socle, et la couche données ne peut pas importer le contenu (DECISIONS D-043).
+
 ```
 src/content/
-  schema.ts                 Schémas Zod : Book, Track, Notion, NotionReference, Lesson, Exercise
+  schema.ts                 Schémas Zod : Book, Track, Notion, NotionReference, Lesson
+                            (Exercise : dans src/domain/curriculum)
   books.ts                  Livres de référence : identifiant, titre, édition, libellé affiché, nombre d'unités
   tracks.ts                 Pistes et ordre des notions (PEDAGOGY §11)
   notions/<notion-id>/
@@ -266,30 +290,39 @@ interface NotionReference {
 
 Corriger localement tout ce qui peut l'être (COST-02) repose sur un moteur pur (`src/domain/correction`), livré en phase 1 :
 
-1. **Normalisation** :
-   - minuscules ;
+1. **Normalisation** (`normalize.ts`) :
+   - minuscules et normalisation Unicode (NFKC) ;
    - apostrophes et guillemets typographiques unifiés ;
    - espaces multiples réduits ;
-   - ponctuation finale et ponctuation non significative ignorées.
-2. **Contractions** :
-   - chaque réponse est développée en un **ensemble** de formes équivalentes (_don't_ ↔ _do not_, _I'm_ ↔ _I am_) ;
-   - les contractions ambiguës produisent plusieurs candidats : _'s_ → _is_ / _has_, _'d_ → _would_ / _had_ ;
-   - le _'s_ possessif n'est pas développé après un nom.
+   - ponctuation ignorée, sauf l'apostrophe à l'intérieur d'un mot et le point décimal ;
+   - séparateurs de milliers retirés (_6,000_ = _6000_) ;
+   - traits d'union lus comme des espaces (_three-year_ = _three year_), sauf quelques mots soudés (_e-mail_ = _email_).
+2. **Contractions** (`contractions.ts`) :
+   - chaque réponse est développée en un **ensemble** de formes équivalentes (_don't_ ↔ _do not_, _I'm_ ↔ _I am_, _can't_ ↔ _cannot_ ↔ _can not_) ;
+   - les contractions ambiguës produisent plusieurs candidats : _'s_ → _is_ / _has_, _'d_ → _would_ / _had_ (et _did_ après un mot interrogatif) ;
+   - le _'s_ possessif n'est pas développé après un nom ; après un pronom indéfini (_everyone's_), les deux lectures sont gardées ;
+   - le nombre de lectures d'une réponse est borné (64) : au-delà, une réponse peut devenir `unknown`, jamais `incorrect`.
    - Deux réponses sont équivalentes si leurs ensembles se recoupent.
-3. **Variantes** : la réponse est comparée à la réponse canonique et aux variantes acceptables. Les graphies britannique et américaine d'un même mot sont acceptées toutes les deux : une formulation correcte n'est jamais une erreur (NO-05).
-4. **Résultat** :
-   - `correct` si une variante correspond ;
+3. **Variantes** : la réponse est comparée à la réponse canonique et aux variantes acceptables. Les graphies britannique et américaine d'un même mot (`spelling.ts`) et les nombres de zéro à vingt en lettres ou en chiffres sont ramenés à une forme canonique, **des deux côtés** de la comparaison : une formulation correcte n'est jamais une erreur (NO-05). Les règles et leurs limites sont décrites dans DECISIONS D-046.
+4. **Résultat** (`evaluate.ts`) :
+   - `correct` si une variante correspond, même si la réponse correspond aussi à une erreur connue (ce serait un défaut du contenu, détecté par ses tests) ;
    - `incorrect` si la réponse correspond à une erreur connue de l'exercice ;
-   - sinon `unknown`. Seule une réponse `unknown` peut, **sur action explicite**, être envoyée au modèle (étape 4, cartes, CARD-05).
+   - sinon `unknown`, réponse vide comprise. Seule une réponse `unknown` peut, **sur action explicite**, être envoyée au modèle (étape 4, cartes, CARD-05).
+
+Le même module fournit `containsPhrase`, qui vérifie qu'un indice ne contient pas la réponse ; `isCardSolvable` s'en sert (DECISIONS D-047).
 
 La **réparation des segments** IA (AI-07) vit aussi dans ce module. Un segment signalé par le modèle est recherché tel quel dans le texte :
 
+- s'il n'est pas trouvé tel quel, il est cherché en unifiant les apostrophes et guillemets typographiques, ce qui ne décale aucune position ;
 - s'il y a plusieurs occurrences, on retient la plus proche de la position proposée ;
-- s'il est introuvable, l'erreur est affichée sans surlignage.
+- s'il est introuvable, l'erreur est affichée sans surlignage ;
+- les positions sont des index en unités UTF-16, ceux des chaînes JavaScript.
 
 ## 7. Synchronisation
 
-**Écriture locale** : un dépôt écrit le document (avec `updatedAt` monotone) **et** une entrée dans `syncOutbox`, dans la **même transaction** Dexie. Aucune écriture n'échappe à la file.
+**Écriture locale** : un dépôt écrit le document (avec `updatedAt` monotone) **et** une entrée dans `syncOutbox`, dans la **même transaction** Dexie. Aucune écriture n'échappe à la file. En phase 1, la file n'est pas encore alimentée : la phase 2 l'ajoutera dans `writeRecord` et les dépôts, avec un premier envoi complet des données existantes (DECISIONS D-045).
+
+Les règles de fusion (« le plus récent gagne », union des événements) sont des fonctions pures de `src/domain/sync/merge.ts`, déjà utilisées par l'import JSON.
 
 **Déclencheurs** (aucun coût IA : la synchronisation n'appelle jamais le modèle) :
 
@@ -316,14 +349,18 @@ La **réparation des segments** IA (AI-07) vit aussi dans ce module. Un segment 
 
 - Chaque document porte un `schemaVersion`. Des fonctions `upgrade` pures (v1 → v2 → …), testées sur des jeux de données des versions précédentes, sont appliquées à la lecture locale comme à la réception.
 - Les versions Dexie sont **additives** : on ajoute des index ou des tables, on ne détruit jamais de données.
-- Avant toute montée de version Dexie, un export JSON complet est enregistré localement.
-- L'app demande `navigator.storage.persist()` pour éviter la purge d'IndexedDB par Android (DECISIONS D-019).
+- Un test vérifie que chaque version Dexie est additive : aucune table retirée, aucune clé primaire changée, aucun index retiré (`findNonAdditiveChanges`).
+- Avant toute montée de version Dexie, la base existante est ouverte telle quelle (mode dynamique de Dexie) et copiée en entier, au format d'export, dans une base séparée `anglais-backups` (`src/data/backup.ts`). Les trois copies les plus récentes sont gardées et téléchargeables depuis les Réglages. Si la copie échoue, la montée de version n'a pas lieu. Au démarrage normal, seule la version est lue (DECISIONS D-054).
+- L'app demande `navigator.storage.persist()` au démarrage pour éviter la purge d'IndexedDB par Android, et affiche l'état dans les Réglages (DECISIONS D-019).
 
-**Export et import JSON** (MOD-12) :
+**Export et import JSON** (MOD-12, `src/data/transfer/`, DECISIONS D-054) :
 
-- enveloppe versionnée `{ app, formatVersion, exportedAt, tables }`, validée par Zod ;
-- l'import **fusionne** selon les mêmes règles que la synchronisation, et n'efface jamais ;
-- un aperçu est présenté avant la confirmation.
+- enveloppe versionnée `{ app, formatVersion, exportedAt, databaseVersion, tables }`, validée par Zod ; chaque table y figure telle qu'elle est stockée, enregistrements illisibles compris ;
+- l'export contient toutes les tables de données de l'apprenant, brouillons compris, mais pas l'état technique de la synchronisation ;
+- un aperçu est présenté avant la confirmation : ajouts, mises à jour, éléments déjà à jour, illisibles et ignorés, par table ;
+- l'import **fusionne** selon les mêmes règles que la synchronisation, dans une seule transaction (tout ou rien) ; il n'efface jamais, n'écrase jamais un enregistrement local illisible, et importe suspendue une carte non résoluble (motif `unsolvable`) ;
+- une entrée du lexique dont l'expression existe déjà sous un autre identifiant est laissée de côté (clé unique) ;
+- un fichier d'une version plus récente de l'application est refusé avec un message clair.
 
 ## 8. Flux d'un appel IA
 
@@ -371,7 +408,12 @@ Détails :
 - **Validation** : l'Edge Function refuse toute requête dont la tâche est inconnue ou dont l'entrée ne passe pas son schéma Zod (tailles maximales incluses). Le client n'envoie **jamais** de prompt, seulement `{ task, input }` (DECISIONS D-017).
 - **CORS** : seuls le domaine Vercel de production et `localhost` en développement sont autorisés.
 - **Journaux** : aucun texte de l'apprenant ; seulement identifiants, tâche, compteurs de tokens et codes d'erreur.
-- **En-têtes** (phase 1, `vercel.json`) : Content-Security-Policy restrictive (`connect-src` limité à Supabase), `Referrer-Policy`, `Permissions-Policy` (micro autorisé pour l'origine seule).
+- **En-têtes** (`vercel.json`, DECISIONS D-056) :
+  - Content-Security-Policy : `default-src`, `script-src`, `style-src`, `worker-src`, `manifest-src` et `connect-src` limités à `'self'`, sans `unsafe-inline` ni `unsafe-eval` ; `object-src 'none'`, `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`. La phase 2 ajoutera l'adresse Supabase à `connect-src`.
+  - `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Cross-Origin-Opener-Policy: same-origin`, `Strict-Transport-Security`.
+  - `Permissions-Policy` : micro autorisé pour l'origine seule, caméra et géolocalisation refusées.
+  - Réécriture des adresses internes vers `index.html`, sauf `/assets/` (un fichier absent reste une erreur 404) ; `sw.js` jamais mis en cache, fichiers de `/assets/` en cache permanent (noms hachés).
+  - `vite preview` envoie les mêmes en-têtes, lus dans `vercel.json` : les tests e2e tournent sous la CSP de production, et une violation les fait échouer. Un test unitaire vérifie le contenu de `vercel.json`.
 - **Données personnelles** (SEC-03, SEC-04) :
   - `import-samples/` est exclu du dépôt ;
   - aucun traceur ni outil d'analyse ;
@@ -427,14 +469,16 @@ Les tokens de réflexion sont facturés comme de la sortie.
 
 ## 11. PWA et hors ligne
 
-- **vite-plugin-pwa** en mode `generateSW` (Workbox) : précache de l'app et du programme. L'app est entièrement utilisable hors ligne, sauf l'IA et la synchronisation (ARC-01).
+- **vite-plugin-pwa** en mode `generateSW` (Workbox) : précache de l'app (scripts, styles, `index.html`, manifeste, icônes) et, en phase 3, du programme, qui est dans les scripts. Toute adresse interne ouverte hors ligne reçoit `index.html` (`navigateFallback`). L'app est entièrement utilisable hors ligne, sauf l'IA et la synchronisation (ARC-01).
 - **Manifeste** :
-  - nom, nom court, `lang: "fr"`, `start_url` et `scope` à `/` ;
+  - nom, nom court, `lang: "fr"`, `id`, `start_url` et `scope` à `/` ;
   - `display: "standalone"` ;
-  - couleurs de thème et de fond ;
-  - icônes 192 et 512 px, dont une version _maskable_.
-- **Mises à jour** : `registerType: "prompt"` (DECISIONS D-018). Une nouvelle version s'annonce par un bandeau « Nouvelle version disponible — Mettre à jour ». L'app ne se recharge jamais d'elle-même pendant une saisie, et les brouillons sont enregistrés avant le rechargement.
-- **Stockage persistant** : l'app appelle `navigator.storage.persist()` et affiche son état dans les Réglages.
+  - couleurs de thème et de fond (le papier du thème clair) ;
+  - icônes 192 et 512 px, dont une version _maskable_, plus une icône Apple et un favicon SVG. Elles sont générées à partir d'un seul dessin par `npm run generate:icons` (`scripts/generate-icons.ts`) et versionnées dans `public/` (DECISIONS D-055).
+- **Enregistrement** du service worker par l'application (`virtual:pwa-register/react`), jamais par un script en ligne, que la CSP bloquerait.
+- **Mises à jour** : `registerType: "prompt"` (DECISIONS D-018). Une nouvelle version s'annonce par un bandeau « Nouvelle version disponible », avec « Mettre à jour » et « Plus tard ». L'app ne se recharge jamais d'elle-même, et tous les brouillons en cours sont enregistrés avant le rechargement (`flushAllDrafts`). La disponibilité hors ligne n'est pas annoncée par un bandeau, qui masquerait le bas de l'écran (DECISIONS D-055).
+- **Stockage persistant** : l'app appelle `navigator.storage.persist()` au démarrage et affiche son état dans les Réglages, avec un bouton pour le redemander.
+- **Thème** : clair, sombre ou automatique ; la couleur de la barre du navigateur suit le thème choisi.
 
 ## 12. Parole
 
@@ -462,13 +506,14 @@ L'écran le dit clairement.
 
 ## 13. Stratégie de tests
 
-| Niveau                  | Outil                    | Portée                                                                                                                                                                                                                                                                                                                                    |
-| ----------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Logique pure            | Vitest                   | Tout `src/domain`, les contrats de `shared/ai` (schémas, prix, calcul de coût et de budget), le scan de secrets. Horloge injectée, aucun réseau.                                                                                                                                                                                          |
-| Données                 | Vitest + fake-indexeddb  | Dépôts, transactions document + file de synchro, migrations (jeux de données des versions précédentes), export et import.                                                                                                                                                                                                                 |
-| Contenu                 | Vitest                   | **Test du socle** (CUR-11) : chaque exercice est conforme au schéma, résoluble, avec au moins une réponse attendue, deux marques de relecture et un identifiant de notion valide ; ≥ 10 exercices par étape. **Test des références** (CUR-14) : unités existantes dans `docs/references/murphy-contents.md` et identiques à PEDAGOGY §11. |
-| Composants              | Vitest + Testing Library | Comportements clés de l'interface (brouillons, correction en deux temps).                                                                                                                                                                                                                                                                 |
-| Parcours                | Playwright (Pixel 7)     | Parcours principaux sur le build de production : installation PWA, hors ligne, séance du jour, révision d'une carte. **Le modèle est simulé** : aucun test automatique n'appelle Anthropic.                                                                                                                                               |
-| Qualité des corrections | Banc d'essai (MOD-13)    | Lancé **manuellement**, depuis l'écran développeur, avec le coût affiché avant lancement. Il ne fait jamais partie de la CI.                                                                                                                                                                                                              |
+| Niveau                  | Outil                    | Portée                                                                                                                                                                                                                                                                                                                                                                                          |
+| ----------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Logique pure            | Vitest                   | Tout `src/domain`, les contrats de `shared/ai` (schémas, prix, calcul de coût et de budget), le scan de secrets. Horloge injectée, aucun réseau.                                                                                                                                                                                                                                                |
+| Données                 | Vitest + fake-indexeddb  | Dépôts, transactions document + file de synchro, migrations (jeux de données des versions précédentes), export et import.                                                                                                                                                                                                                                                                       |
+| Contenu                 | Vitest                   | **Test du socle** (CUR-11) : chaque exercice est conforme au schéma, résoluble, avec au moins une réponse attendue, deux marques de relecture et un identifiant de notion valide ; ≥ 10 exercices par étape. **Test des références** (CUR-14) : unités existantes dans `docs/references/murphy-contents.md` et identiques à PEDAGOGY §11.                                                       |
+| Composants              | Vitest + Testing Library | Comportements clés de l'interface : coquille et navigation, réglages, brouillons, export et import, bandeau de mise à jour ; plus tard, correction en deux temps. Les tests tournent sur une vraie base en mémoire (`src/test/render.tsx`).                                                                                                                                                     |
+| Configuration           | Vitest                   | Règles de couches ESLint (`scripts/eslint-layers.test.ts`), en-têtes de `vercel.json`, contrastes des couleurs du thème (`src/ui/theme.test.ts`), versions Dexie additives.                                                                                                                                                                                                                     |
+| Parcours                | Playwright (Pixel 7)     | Parcours principaux sur le build de production, sous la CSP de production : installabilité vérifiée par Chrome, manifeste et icônes, hors ligne, réglages et brouillons conservés au rechargement, export puis import ; plus tard, séance du jour et révision d'une carte. Toute erreur de console fait échouer le test. **Le modèle est simulé** : aucun test automatique n'appelle Anthropic. |
+| Qualité des corrections | Banc d'essai (MOD-13)    | Lancé **manuellement**, depuis l'écran développeur, avec le coût affiché avant lancement. Il ne fait jamais partie de la CI.                                                                                                                                                                                                                                                                    |
 
 La CI (`.github/workflows/ci.yml`) exécute : vérification des types, lint, format, tests unitaires, scan de secrets, build, scan gitleaks de tout l'historique et tests e2e. Une phase n'est terminée que si tout passe (PROC-05).

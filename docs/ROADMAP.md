@@ -4,7 +4,7 @@ Le travail avance par phases. À la fin de chaque phase, on **s'arrête** et on 
 
 Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes les vérifications passent (PROC-05).
 
-**Phase en cours : aucune. La phase 0 est close ; la phase 1 attend l'accord de l'utilisateur.**
+**Phase en cours : aucune. La phase 1 est terminée ; la phase 2 attend l'accord de l'utilisateur.**
 
 ---
 
@@ -28,23 +28,24 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 ## Phase 1 — Cœur local
 
-- [ ] Modèle de données Dexie et schémas Zod de toutes les tables locales
-- [ ] Couche de répétition espacée autour de ts-fsrs (API vérifiée, interface interne)
-- [ ] `isCardSolvable` (fonction pure testée, appliquée à toute création de carte)
-- [ ] Moteur de correction locale (normalisation, contractions, variantes)
-- [ ] Règles ESLint de dépendance entre couches
-- [ ] Squelette d'interface : navigation, accueil, réglages, thèmes clair et sombre, direction visuelle « cahier corrigé »
-- [ ] PWA installable (manifeste, icônes, service worker en mode `prompt`, stockage persistant)
-- [ ] Brouillons de saisie enregistrés à chaque pause de frappe
-- [ ] Export et import JSON complets
-- [ ] En-têtes de sécurité Vercel
-- [ ] Tests unitaires complets ; e2e (installation, hors ligne)
-- [ ] **Arrêt** : expliquer le déploiement sur Vercel et l'installation sur le téléphone
+- [x] Modèle de données Dexie et schémas Zod de toutes les tables locales (D-043, D-044) ; migrations de documents ; versions additives vérifiées par un test ; sauvegarde automatique avant montée de version (D-054)
+- [x] Couche de répétition espacée autour de ts-fsrs 5.4 (API vérifiée, interface interne, D-048)
+- [x] `isCardSolvable` (fonction pure testée, appliquée à toute création de carte, D-047)
+- [x] Moteur de correction locale (normalisation, contractions, graphies, nombres, réparation des segments, D-046)
+- [x] Règles ESLint de dépendance entre couches, avec leur test (D-050)
+- [x] Squelette d'interface : navigation, accueil, réglages, thèmes clair et sombre, direction visuelle « cahier corrigé » (D-049, D-051, D-052)
+- [x] PWA installable (manifeste, icônes, service worker en mode `prompt`, stockage persistant, D-055)
+- [x] Brouillons de saisie enregistrés à chaque pause de frappe (D-053)
+- [x] Export et import JSON complets, avec aperçu (D-054)
+- [x] En-têtes de sécurité Vercel, testés sous la CSP de production (D-056)
+- [x] Tests unitaires complets ; e2e (installation, hors ligne, réglages, brouillons, export et import)
+- [x] **Arrêt** : déploiement sur Vercel et installation sur le téléphone expliqués dans [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ## Phase 2 — Serveur et IA
 
-- [ ] Supabase : migrations SQL versionnées, RLS sur toutes les tables, authentification par code e-mail
-- [ ] Synchronisation local-first (file sortante, push/pull, « le plus récent gagne », union des événements)
+- [ ] Supabase : migrations SQL versionnées (`sync_documents.id` en texte, D-044), RLS sur toutes les tables, authentification par code e-mail
+- [ ] Synchronisation local-first (file sortante alimentée par `writeRecord` et premier envoi complet, D-045 ; push/pull, « le plus récent gagne », union des événements ; règle pour la clé unique du lexique, D-044)
+- [ ] CSP : ajout de l'adresse Supabase à `connect-src` (D-056)
 - [ ] Edge Function mandataire : clé en secret, validation Zod, journal des coûts, plafond mensuel, limite de fréquence, idempotence
 - [ ] Contrat IA partagé (`shared/ai`) : tâches, schémas, `models.ts`, `pricing.ts`
 - [ ] Client IA typé et écran « Consommation »
@@ -53,6 +54,8 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 ## Phase 3 — Parcours
 
 - [ ] Moteur des cinq étapes, critères de passage et de retour
+- [ ] Schéma des exercices dans `src/domain/curriculum`, partagé par le socle et `generatedExercises` (D-043)
+- [ ] Lecture audio des exemples, et choix de la voix et de la vitesse dans les Réglages (D-052)
 - [ ] Test de positionnement par piste
 - [ ] Frises chronologiques SVG
 - [ ] Les 13 notions de phase 3 de la piste « Temps verbaux », dans l'ordre de PEDAGOGY §11, dont « just, already, yet et still » (socle ≥ 10 exercices par étape, doublement relu)

@@ -6,50 +6,64 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 
 ## Index
 
-| ID    | Sujet                                                   | Thème       | Statut          |
-| ----- | ------------------------------------------------------- | ----------- | --------------- |
-| D-001 | Langues du projet                                       | Outillage   | Actée           |
-| D-002 | npm et Node 24                                          | Outillage   | Actée           |
-| D-003 | TypeScript 6.0.x plutôt que 7                           | Outillage   | Actée           |
-| D-004 | ESLint plutôt qu'oxlint, fork d'accessibilité           | Outillage   | Actée           |
-| D-005 | Vitest 5 et jsdom 29                                    | Outillage   | Actée           |
-| D-006 | Options TypeScript                                      | Outillage   | Actée           |
-| D-007 | Playwright sur le build de production                   | Outillage   | Actée           |
-| D-008 | Scan de secrets en plus d'ESLint                        | Sécurité    | Actée           |
-| D-009 | Identifiants de modèles et prix                         | IA et coûts | Actée           |
-| D-010 | Sortie JSON garantie                                    | IA et coûts | Actée           |
-| D-011 | Cache de prompts                                        | IA et coûts | Actée           |
-| D-012 | Réflexion de Sonnet 5 réglée par tâche                  | IA et coûts | À calibrer (P5) |
-| D-013 | Authentification par code à usage unique                | Serveur     | À vérifier (P2) |
-| D-014 | Magasin de documents générique côté serveur             | Serveur     | Actée           |
-| D-015 | Résolution des conflits                                 | Données     | Actée           |
-| D-016 | Réservation budgétaire et nouvelle tentative            | IA et coûts | Actée           |
-| D-017 | Prompts uniquement côté serveur                         | IA et coûts | Actée           |
-| D-018 | Mise à jour du service worker sur demande               | PWA         | Actée           |
-| D-019 | Stockage persistant et migrations sûres                 | Données     | Actée           |
-| D-020 | Aucune donnée personnelle identifiante dans le dépôt    | Sécurité    | Actée           |
-| D-021 | Taxonomie à deux dimensions et règles de départage      | Pédagogie   | Actée           |
-| D-022 | Notion « à consolider »                                 | Pédagogie   | Actée           |
-| D-023 | Notions admises dans le Thème                           | Pédagogie   | Actée           |
-| D-024 | Seules les erreurs qualifiantes déclenchent une lacune  | Pédagogie   | Actée           |
-| D-025 | Erreur sur une notion non étudiée                       | Pédagogie   | Actée           |
-| D-026 | Autocorrection vérifiée localement                      | Pédagogie   | Actée           |
-| D-027 | Critères de passage par défaut                          | Pédagogie   | À ajuster (P3)  |
-| D-028 | Limites de la reconnaissance vocale                     | Parole      | À revoir (P6)   |
-| D-029 | Mise en pause des projets Supabase gratuits             | Serveur     | À vérifier (P2) |
-| D-030 | Code partagé entre le client et l'Edge Function         | Serveur     | À vérifier (P2) |
-| D-031 | Nom des clés Supabase côté client                       | Serveur     | À vérifier (P2) |
-| D-032 | Profil générique renforcé, historique conservé          | Sécurité    | Actée           |
-| D-033 | Scan de l'index Git et gitleaks sur tout l'historique   | Sécurité    | Actée           |
-| D-034 | Serveur e2e dédié, jamais réutilisé                     | Outillage   | Actée           |
-| D-035 | Critère décisif : erreur ou non                         | Pédagogie   | Actée           |
-| D-036 | Programme aligné sur Murphy, en 9 pistes                | Pédagogie   | Actée           |
-| D-037 | Ajouts de phase 8 dans la piste Temps verbaux           | Pédagogie   | Actée           |
-| D-038 | Références « Pour aller plus loin », livrées en phase 3 | Pédagogie   | Actée           |
-| D-039 | Libellés des livres : rouge et bleu                     | Pédagogie   | Actée           |
-| D-040 | Taxonomie : définitions élargies aux nouvelles notions  | Pédagogie   | Actée           |
-| D-041 | Contenu original, sans reprise des livres               | Pédagogie   | Actée           |
-| D-042 | Revue de la mise à jour Murphy                          | Pédagogie   | Actée           |
+| ID    | Sujet                                                    | Thème       | Statut          |
+| ----- | -------------------------------------------------------- | ----------- | --------------- |
+| D-001 | Langues du projet                                        | Outillage   | Actée           |
+| D-002 | npm et Node 24                                           | Outillage   | Actée           |
+| D-003 | TypeScript 6.0.x plutôt que 7                            | Outillage   | Actée           |
+| D-004 | ESLint plutôt qu'oxlint, fork d'accessibilité            | Outillage   | Actée           |
+| D-005 | Vitest 5 et jsdom 29                                     | Outillage   | Actée           |
+| D-006 | Options TypeScript                                       | Outillage   | Actée           |
+| D-007 | Playwright sur le build de production                    | Outillage   | Actée           |
+| D-008 | Scan de secrets en plus d'ESLint                         | Sécurité    | Actée           |
+| D-009 | Identifiants de modèles et prix                          | IA et coûts | Actée           |
+| D-010 | Sortie JSON garantie                                     | IA et coûts | Actée           |
+| D-011 | Cache de prompts                                         | IA et coûts | Actée           |
+| D-012 | Réflexion de Sonnet 5 réglée par tâche                   | IA et coûts | À calibrer (P5) |
+| D-013 | Authentification par code à usage unique                 | Serveur     | À vérifier (P2) |
+| D-014 | Magasin de documents générique côté serveur              | Serveur     | Actée           |
+| D-015 | Résolution des conflits                                  | Données     | Actée           |
+| D-016 | Réservation budgétaire et nouvelle tentative             | IA et coûts | Actée           |
+| D-017 | Prompts uniquement côté serveur                          | IA et coûts | Actée           |
+| D-018 | Mise à jour du service worker sur demande                | PWA         | Actée           |
+| D-019 | Stockage persistant et migrations sûres                  | Données     | Actée           |
+| D-020 | Aucune donnée personnelle identifiante dans le dépôt     | Sécurité    | Actée           |
+| D-021 | Taxonomie à deux dimensions et règles de départage       | Pédagogie   | Actée           |
+| D-022 | Notion « à consolider »                                  | Pédagogie   | Actée           |
+| D-023 | Notions admises dans le Thème                            | Pédagogie   | Actée           |
+| D-024 | Seules les erreurs qualifiantes déclenchent une lacune   | Pédagogie   | Actée           |
+| D-025 | Erreur sur une notion non étudiée                        | Pédagogie   | Actée           |
+| D-026 | Autocorrection vérifiée localement                       | Pédagogie   | Actée           |
+| D-027 | Critères de passage par défaut                           | Pédagogie   | À ajuster (P3)  |
+| D-028 | Limites de la reconnaissance vocale                      | Parole      | À revoir (P6)   |
+| D-029 | Mise en pause des projets Supabase gratuits              | Serveur     | À vérifier (P2) |
+| D-030 | Code partagé entre le client et l'Edge Function          | Serveur     | À vérifier (P2) |
+| D-031 | Nom des clés Supabase côté client                        | Serveur     | À vérifier (P2) |
+| D-032 | Profil générique renforcé, historique conservé           | Sécurité    | Actée           |
+| D-033 | Scan de l'index Git et gitleaks sur tout l'historique    | Sécurité    | Actée           |
+| D-034 | Serveur e2e dédié, jamais réutilisé                      | Outillage   | Actée           |
+| D-035 | Critère décisif : erreur ou non                          | Pédagogie   | Actée           |
+| D-036 | Programme aligné sur Murphy, en 9 pistes                 | Pédagogie   | Actée           |
+| D-037 | Ajouts de phase 8 dans la piste Temps verbaux            | Pédagogie   | Actée           |
+| D-038 | Références « Pour aller plus loin », livrées en phase 3  | Pédagogie   | Actée           |
+| D-039 | Libellés des livres : rouge et bleu                      | Pédagogie   | Actée           |
+| D-040 | Taxonomie : définitions élargies aux nouvelles notions   | Pédagogie   | Actée           |
+| D-041 | Contenu original, sans reprise des livres                | Pédagogie   | Actée           |
+| D-042 | Revue de la mise à jour Murphy                           | Pédagogie   | Actée           |
+| D-043 | Toutes les tables locales déclarées dès la version 1     | Données     | Actée           |
+| D-044 | Clés naturelles communes à tous les appareils            | Données     | À vérifier (P2) |
+| D-045 | File de synchronisation alimentée à partir de la phase 2 | Données     | Actée           |
+| D-046 | Règles d'équivalence de la correction locale             | Pédagogie   | Actée           |
+| D-047 | Résolubilité des cartes : règles et prudence             | Pédagogie   | Actée           |
+| D-048 | Paramètres de répétition espacée                         | Pédagogie   | À calibrer (P4) |
+| D-049 | React Router 8 et adresses en français                   | Outillage   | Actée           |
+| D-050 | Règles de couches par `no-restricted-imports`            | Outillage   | Actée           |
+| D-051 | Direction visuelle : polices système et `light-dark()`   | Interface   | Actée           |
+| D-052 | Réglages livrés en phase 1                               | Interface   | Actée           |
+| D-053 | Brouillons de saisie                                     | Données     | Actée           |
+| D-054 | Export, import et sauvegardes automatiques               | Données     | Actée           |
+| D-055 | PWA : icônes générées, pas d'annonce « hors ligne »      | PWA         | Actée           |
+| D-056 | En-têtes de sécurité, tests sous la CSP de production    | Sécurité    | Actée           |
 
 ---
 
@@ -369,3 +383,141 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - L'unité bleue 80 reste rattachée à `nouns-countable-uncountable` (identifiant inchangé). La notion devient « Dénombrables, indénombrables, pluriels et noms composés », et la catégorie `indenombrables_pluriels` couvre explicitement les noms composés, avec ou sans nombre (_a bus driver_, _a three-year plan_).
   - Le préfixe des identifiants de chaque piste est documenté dans une colonne de PEDAGOGY §11.1 (`tense-`, `adj-`, `prep-`, `vocab-`…), et ARCHITECTURE §5 y renvoie. Un contrôle par script a vérifié les 50 identifiants.
 - **Raison.** Les noms composés posent un vrai problème de nombre aux francophones (_a documents list_ → _a document list_) : les rattacher à cette notion est plus utile que de laisser l'unité sans notion.
+
+### D-043 — Toutes les tables locales déclarées dès la version 1 (2026-09-28)
+
+- **Contexte.** La feuille de route demande en phase 1 le modèle de données et les schémas Zod de **toutes** les tables locales, alors que la plupart ne servent qu'à partir des phases 3 à 7.
+- **Décision.**
+  - Les vingt tables d'ARCHITECTURE §4.2 sont déclarées dans la version 1 de Dexie. Chacune a son schéma Zod et une entrée du registre `src/data/tables.ts` : classe de synchronisation, clé primaire, version du schéma, fonctions de migration, présence dans l'export.
+  - Les schémas des tables des phases 3 à 7 sont des **premières versions**. Tant qu'aucune donnée n'y est écrite, leur phase peut les modifier sans migration. Dès qu'une phase les remplit, tout changement passe par `schemaVersion` et une fonction de migration testée.
+  - Les contenus dont le format appartient à une phase ultérieure sont acceptés comme JSON valide (`z.json()`), puis validés par leur schéma définitif dans cette phase : l'exercice généré (P3), la sortie de correction (P2 et P4), les réponses du diagnostic (P5).
+  - Conséquence pour la phase 3 : `generatedExercises` (couche données) doit valider un exercice avec le même schéma que le socle. Ce schéma vivra donc dans `src/domain/curriculum`, et non dans `src/content/schema.ts`, car la couche données ne peut pas importer le contenu (ARCHITECTURE §3).
+- **Raison.** Les versions Dexie restent additives, et l'export est complet dès maintenant.
+
+### D-044 — Clés naturelles communes à tous les appareils (2026-09-28, à vérifier en phase 2)
+
+- **Décision.** Trois tables gardent une clé naturelle, identique sur tous les appareils, plutôt qu'un UUID :
+  - `settings`, avec la clé fixe `"settings"` ;
+  - `notionProgress`, avec l'identifiant de notion ;
+  - `ruleNotes`, avec la catégorie.
+
+  Deux appareils modifient ainsi le **même** document, que la synchronisation fusionne, au lieu d'en créer deux.
+
+- **Conséquences pour la phase 2.**
+  - La colonne `sync_documents.id` d'ARCHITECTURE §4.3 doit être de type `text`, et non `uuid`.
+  - La clé unique du lexique (`key`) peut entrer en conflit entre deux appareils. La phase 2, ou la phase 4 qui remplit le lexique, doit choisir une règle, par exemple dériver l'identifiant de la clé.
+- **Raison.** Une clé primaire Dexie ne peut pas être changée après coup sans créer une nouvelle table : il fallait trancher avant la première donnée écrite.
+
+### D-045 — File de synchronisation alimentée à partir de la phase 2 (2026-09-28)
+
+- **Décision.** En phase 1, les écritures passent par `writeRecord` (validation Zod) et par des dépôts qui calculent un `updatedAt` monotone, mais n'écrivent pas encore dans `syncOutbox`. La phase 2 ajoutera l'écriture dans la file, dans la même transaction, et un **premier envoi complet** des données existantes.
+- **Raison.** Le format de la file dépend du protocole de synchronisation (P2). Un premier envoi complet est de toute façon nécessaire pour un appareil qui se connecte pour la première fois.
+- **Précaution associée.** La lecture des réglages n'écrit jamais les valeurs par défaut. Sinon, un nouvel appareil enregistrerait des réglages par défaut récents, qui écraseraient ceux d'un autre appareil à la première synchronisation.
+
+### D-046 — Règles d'équivalence de la correction locale (2026-09-28)
+
+- **Décision.** Deux réponses sont équivalentes si elles ont une lecture normalisée commune (`src/domain/correction`). La normalisation ignore :
+  - la casse, les apostrophes et guillemets typographiques, les espaces, la ponctuation, les séparateurs de milliers ;
+  - les traits d'union entre les mots (_three-year_ = _three year_), et soude quelques mots (_e-mail_ = _email_).
+
+  Chaque réponse est ensuite développée :
+  - toutes les lectures des contractions (_he's_ → _he is_ ou _he has_ ; _I'd_ → _I would_ ou _I had_ ; _can't_ = _cannot_ = _can not_), sans développer le _'s_ possessif après un nom ;
+  - les graphies britannique et américaine, ramenées à une forme canonique **des deux côtés** (_organise_ = _organize_, _colour_ = _color_, _learnt_ = _learned_) ;
+  - les nombres de zéro à vingt, en lettres ou en chiffres.
+
+  Le résultat est « correct » si une réponse acceptée correspond, « incorrect » seulement si une erreur connue correspond, et « inconnu » sinon. Une réponse inconnue n'est **jamais** déclarée fausse (NO-05).
+
+- **Raison.** Une règle appliquée des deux côtés ne peut rapprocher que des formes que l'apprenant n'écrirait pas. Les règles génériques sont bornées pour ne jamais confondre deux vrais mots : _four_ et _for_, _prise_ et _prize_ restent distincts, tests à l'appui.
+- **Limite connue.** _analyses_ (nom) et _analyzes_ (verbe) deviennent équivalents. Cette indulgence porte sur l'orthographe ; elle ne rejette jamais une réponse juste.
+
+### D-047 — Résolubilité des cartes : règles et prudence (2026-09-28)
+
+- **Décision.** `isCardSolvable` (`src/domain/cards/solvability.ts`) refuse une carte :
+  - sans sens en français, ou dont le « sens en français » est en fait une réponse anglaise ;
+  - sans réponse, ou avec une variante vide ;
+  - dont l'indice contient une réponse acceptée (mot entier, contractions comprises) ;
+  - issue d'une erreur, sans indice ou sans tentative précédente, ou dont la tentative précédente est elle-même une réponse acceptée (ce n'était pas une erreur, NO-05) ;
+  - dont la phrase à trou ou le contexte de collocation ne contient pas exactement un trou (`___`).
+
+  Le schéma Zod d'une carte ne contrôle que sa **forme**. Une carte non résoluble peut donc être stockée, mais seulement suspendue : c'est le cas à l'import (motif `unsolvable`), pour ne rien perdre (MOD-14). Le dépôt, lui, refuse de la créer et n'écrit rien.
+
+  `isCardPresentable` exclut toute carte suspendue ou non résoluble. Les cartes maîtrisées restent présentables pour leurs révisions de maintien (CARD-06).
+
+- **Raison.** Le contrôle de l'indice est volontairement prudent : un mot français identique à une réponse anglaise courte (_on_, _a_) fait refuser la carte. Refuser une bonne carte est moins grave que montrer un indice qui donne la réponse. Les prompts de la phase 4 devront donc demander des indices qui ne citent pas la réponse.
+
+### D-048 — Paramètres de répétition espacée (2026-09-28, à calibrer en phase 4)
+
+- **Décision.**
+  - ts-fsrs 5.4 (algorithme FSRS-6), encapsulé dans `src/domain/srs`, seul module autorisé à l'importer (règle ESLint).
+  - Paramètres : rétention visée 0,9, intervalle maximal de 100 ans, étapes d'apprentissage de 1 et 10 minutes, réapprentissage de 10 minutes.
+  - Variation aléatoire des échéances (fuzz) activée. ts-fsrs la tire d'une graine déduite de l'heure de révision et de l'état de la carte : le calcul reste déterministe.
+  - L'état est stocké en JSON, avec des dates en millisecondes. Le champ `elapsed_days`, obsolète dans ts-fsrs 5 et recalculé par la bibliothèque à chaque révision, n'est pas stocké.
+  - La correspondance entre résultat et note (PEDAGOGY §6.1) et la règle de maîtrise (CARD-06) sont des fonctions pures du même module.
+- **Raison.** Ce sont les valeurs par défaut de la bibliothèque, adaptées à des séances courtes : une carte ratée revient dans la même séance. Elles seront ajustées avec l'usage réel des Reprises.
+
+### D-049 — React Router 8 et adresses en français (2026-09-28)
+
+- **Décision.** Navigation avec React Router 8 en mode déclaratif (`BrowserRouter`, `Routes`), importé depuis `react-router`. Les adresses sont en français (`/reglages`).
+- **Raison.** Une quinzaine d'écrans arrivent, avec des paramètres (notion, étape) et le bouton retour d'Android : une bibliothèque standard, connue du relecteur, vaut mieux qu'un routeur maison.
+
+### D-050 — Règles de couches par `no-restricted-imports` (2026-09-28)
+
+- **Décision.**
+  - Les dépendances entre couches (ARCHITECTURE §3) sont imposées par `eslint.layers.ts`, avec la règle native `no-restricted-imports` : les imports relatifs qui entrent dans un dossier de couche interdit sont refusés par expression régulière.
+  - Le domaine n'a en plus accès ni au réseau, ni au stockage, ni aux objets du navigateur, ni à `Date.now()`, `new Date()` ou `Math.random()`.
+  - Un test (`scripts/eslint-layers.test.ts`) passe du code d'essai dans chaque couche et vérifie que la configuration réelle applique ces règles.
+- **Conséquence.** Les noms de dossiers de couche (`app`, `features`, `ui`, `domain`, `data`, `services`, `content`) sont réservés : aucun sous-dossier ne doit les réutiliser.
+- **Alternatives écartées.** `eslint-plugin-import-x` (`no-restricted-paths`) : une dépendance et un résolveur de plus pour le même résultat.
+
+### D-051 — Direction visuelle : polices système et `light-dark()` (2026-09-28)
+
+- **Décision.**
+  - Chaque couleur est définie une seule fois avec `light-dark()`. Le thème suit le téléphone par défaut, sauf si les Réglages en imposent un (`data-theme`).
+  - Un test vérifie les contrastes de toutes les couleurs dans les deux thèmes : 4,5:1 pour le texte, 3:1 pour les marques de correction et les contours.
+  - Polices système : sans empattement pour l'interface, avec empattement pour le contenu anglais, appliquée automatiquement à tout élément `lang="en"`. Aucun fichier de police n'est chargé.
+- **Raison.** `light-dark()` est pris en charge par Chrome depuis 2024. Les polices système s'affichent immédiatement, hors ligne et sans aucun poids. Le choix d'une police embarquée pourra être revu.
+
+### D-052 — Réglages livrés en phase 1 (2026-09-28)
+
+- **Décision.**
+  - Livrés : variante d'anglais (britannique par défaut), thème, objectif quotidien (20 minutes), plafonds de cartes (10 nouvelles et 60 révisions), autocorrection (activée), fréquence de l'e-mail guidé (une fois par semaine), profil (domaines et remarques libres), export et import.
+  - Les valeurs numériques se choisissent dans des listes, pour qu'aucune valeur intermédiaire ne soit enregistrée pendant la frappe.
+  - Chaque choix s'affiche aussitôt et s'enregistre immédiatement ; il est annulé à l'écran si l'enregistrement échoue.
+  - Le choix de la voix et de la vitesse de lecture est reporté à la phase 3, avec la lecture audio des exemples. Les champs existent déjà dans le schéma.
+- **Raison.** La voix ne sert à rien avant la première lecture audio, et la liste des voix dépend de la synthèse vocale (ARCHITECTURE §12).
+
+### D-053 — Brouillons de saisie (2026-09-28)
+
+- **Décision.** Un champ de texte libre utilise `useDraft`. Le texte est enregistré localement :
+  - 600 ms après la dernière frappe ;
+  - quand la page est masquée ou fermée, quand le champ disparaît, et avant une mise à jour de l'application.
+
+  Il est restauré quand le champ réapparaît, avec la mention « Brouillon restauré », puis supprimé après un envoi réussi. Si la valeur enregistrée change ailleurs (import, plus tard synchronisation), le champ la suit, sauf si l'apprenant a un texte non enregistré. Les brouillons sont exportés, jamais synchronisés.
+
+- **Raison.** NO-06 et UI-03. Suivre la valeur enregistrée évite qu'un « Enregistrer » renvoie un texte périmé par-dessus une version plus récente.
+
+### D-054 — Export, import et sauvegardes automatiques (2026-09-28)
+
+- **Décision.**
+  - L'export contient toutes les tables de données de l'apprenant, brouillons compris, **telles qu'elles sont stockées**, même un enregistrement illisible. L'état technique de la synchronisation en est exclu.
+  - L'import affiche un aperçu, puis applique les règles de la synchronisation dans **une seule transaction** : tout ou rien. Il n'efface jamais rien, et n'écrase jamais un enregistrement local illisible. Il laisse de côté une entrée du lexique dont l'expression existe déjà sous un autre identifiant.
+  - Avant toute montée de version de la base, une copie complète est faite dans une base séparée (`anglais-backups`, trois copies gardées), téléchargeable depuis les Réglages. Si la copie échoue, la montée de version n'a pas lieu. Au démarrage normal, seule la version de la base est lue.
+- **Raison.** NO-06 : ni un import ni une migration ne doivent perdre une donnée, même illisible pour la version actuelle.
+
+### D-055 — PWA : icônes générées, pas d'annonce « hors ligne » (2026-09-28)
+
+- **Décision.**
+  - Les icônes (192 et 512 px, masquable, Apple, favicon SVG) sont générées à partir d'un seul dessin par `npm run generate:icons`, avec le Chromium de Playwright, et versionnées dans `public/`.
+  - Le service worker précache l'application entière : les motifs par défaut, plus le manifeste et les icônes.
+  - Seul le bandeau « Nouvelle version disponible » est affiché. L'annonce « prête à fonctionner hors connexion » est supprimée : son bandeau fixe masquait le bas de l'écran, boutons compris, pour une information qui ne demande aucune action. L'accueil l'indique déjà.
+- **Raison.** Aucune dépendance de traitement d'image. UI-01 : rien ne doit masquer les actions de l'écran.
+
+### D-056 — En-têtes de sécurité, tests sous la CSP de production (2026-09-28)
+
+- **Décision.**
+  - `vercel.json` envoie une Content-Security-Policy stricte : `'self'` seulement, sans `unsafe-inline` ni `unsafe-eval`, et `connect-src 'self'` jusqu'à l'ajout de Supabase en phase 2.
+  - Il envoie aussi `Referrer-Policy: no-referrer`, `nosniff`, l'interdiction de l'affichage dans un cadre, et une `Permissions-Policy` qui n'autorise le micro qu'à l'application.
+  - Les adresses internes sont réécrites vers `index.html`, mais jamais un fichier absent de `/assets/`. Le service worker n'est jamais mis en cache.
+  - `vite preview` envoie les mêmes en-têtes, lus dans `vercel.json`, et chaque test e2e échoue à la moindre erreur de console : une violation de la CSP casse donc les tests.
+  - L'enregistrement du service worker est fait par l'application, jamais par un script en ligne.
+- **Raison.** Une CSP qui n'est testée qu'en production casse en production. Le serveur de développement n'envoie pas ces en-têtes, car le rechargement à chaud de Vite a besoin de scripts en ligne.
