@@ -36,7 +36,7 @@ npm run test:e2e   # nécessite : npx playwright install chromium
 6. **Aucune perte de données** (NO-06) :
    - brouillons enregistrés à chaque pause de frappe ;
    - migrations Dexie additives, sauvegarde automatique avant toute montée de version ;
-   - toute lecture validée par `parseRecord`, toute écriture par `writeRecord` ; un enregistrement illisible n'est jamais écrasé en silence ;
+   - toute lecture validée par `parseRecord`, toute écriture par `writeRecord` ; un enregistrement illisible n'est jamais écrasé ni supprimé sans avoir été copié dans `quarantine` (`setAsideIfUnreadable`) ;
    - document et file de synchronisation écrits dans la même transaction (à partir de la phase 2) ;
    - service worker mis à jour sur demande seulement.
 7. **RLS** activée, avec des politiques explicites, sur toute table Postgres (SEC-02).

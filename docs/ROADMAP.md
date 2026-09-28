@@ -40,6 +40,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 - [x] En-têtes de sécurité Vercel, testés sous la CSP de production (D-056)
 - [x] Tests unitaires complets ; e2e (installation, hors ligne, réglages, brouillons, export et import)
 - [x] **Arrêt** : déploiement sur Vercel et installation sur le téléphone expliqués dans [DEPLOYMENT.md](DEPLOYMENT.md)
+- [x] Revue de Codex de la phase 1 traitée (D-057) : graphies attestées seulement, indices fléchis, enregistrements illisibles mis de côté (version 2 de la base), règle de couches par chemins résolus, _'s_ verbal après un nom
 
 ## Phase 2 — Serveur et IA
 
@@ -61,7 +62,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 - [ ] Les 13 notions de phase 3 de la piste « Temps verbaux », dans l'ordre de PEDAGOGY §11, dont « just, already, yet et still » (socle ≥ 10 exercices par étape, doublement relu)
 - [ ] Références « Pour aller plus loin » : schéma, affichage sous la leçon, test des unités contre `docs/references/murphy-contents.md` et PEDAGOGY §11, rempli pour les 13 notions (CUR-14)
 - [ ] Génération d'exercices par l'IA sur demande, validée et conservée
-- [ ] Test automatique du socle (bien formé, résoluble, ≥ 1 réponse attendue, relectures)
+- [ ] Test automatique du socle (bien formé, résoluble, ≥ 1 réponse attendue, relectures ; les deux graphies de `CONTEXT_DEPENDENT_SPELLINGS` présentes dans les variantes, D-057)
 - [ ] Relecture séparée de tout le contenu pédagogique
 - [ ] **Arrêt**
 

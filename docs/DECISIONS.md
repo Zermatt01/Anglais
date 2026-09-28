@@ -64,6 +64,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-054 | Export, import et sauvegardes automatiques               | Données     | Actée           |
 | D-055 | PWA : icônes générées, pas d'annonce « hors ligne »      | PWA         | Actée           |
 | D-056 | En-têtes de sécurité, tests sous la CSP de production    | Sécurité    | Actée           |
+| D-057 | Revue de la phase 1                                      | Transverse  | Actée           |
 
 ---
 
@@ -521,3 +522,22 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - `vite preview` envoie les mêmes en-têtes, lus dans `vercel.json`, et chaque test e2e échoue à la moindre erreur de console : une violation de la CSP casse donc les tests.
   - L'enregistrement du service worker est fait par l'application, jamais par un script en ligne.
 - **Raison.** Une CSP qui n'est testée qu'en production casse en production. Le serveur de développement n'envoie pas ces en-têtes, car le rechargement à chaud de Vite a besoin de scripts en ligne.
+
+### D-057 — Revue de la phase 1 (2026-09-29, complète D-046, D-047, D-050, D-053 et D-054)
+
+- **Contexte.** La revue de Codex (commits `b7b445d` à `a5e0fc0`) relève quatre défauts importants et un mineur, tous vérifiés et corrigés.
+- **Décision.**
+  1. **Graphies (complète D-046).**
+     - Les règles génériques en _-ise_ et _-yse_ acceptaient des fautes (_exercize_ pour _exercise_) et confondaient le nom pluriel _analyses_ avec le verbe _analyzes_. Seules des **paires attestées** sont désormais rapprochées : une liste fermée de mots en _-ise_/_-ize_, les formes verbales de _analyse_, et les mots en _-our_ suivis d'une terminaison où l'anglais britannique garde le _u_ (_humourous_ reste une faute).
+     - Les graphies qui dépendent de la fonction grammaticale ne sont jamais rapprochées : _practise_, _licence_, _analyses_. Elles sont listées dans `CONTEXT_DEPENDENT_SPELLINGS`, pour que le test du socle (phase 3) exige les deux graphies dans les variantes.
+     - _one_ n'est plus rapproché de _1_ : c'est aussi un pronom (_the blue one_).
+  2. **Indices (complète D-047).** Un indice qui contient la réponse sous une autre forme (_meetings_ pour _meeting_, _finish_ pour _finished_, _go_ pour _went_) est refusé. La comparaison se fait par familles de mots, avec une racinisation volontairement grossière : pluriels, _-s_, _-ed_, _-ing_ avec _e_ muet et consonne doublée, _-ies_/_-ied_, et les formes irrégulières fréquentes. Les mots de trois lettres ou moins restent comparés exactement. Le verbe à conjuguer va dans le champ « infinitif » de la carte, jamais dans l'indice.
+  3. **Enregistrements illisibles (complète D-053 et D-054).**
+     - Un brouillon illisible était traité comme absent : la pause de frappe suivante l'écrasait, et vider le champ le supprimait, sans avertissement.
+     - La version 2 de la base ajoute une table locale `quarantine`, exportée et jamais synchronisée. Avant d'écrire ou de supprimer un brouillon ou les réglages, une version stockée illisible y est copiée telle quelle (`setAsideIfUnreadable`).
+     - Le dépôt des brouillons distingue désormais « illisible » d'« absent », et le champ avertit l'apprenant (« Ancien brouillon illisible »). Les réglages illisibles sont mis de côté de la même façon, au lieu d'être remplacés après un simple avertissement.
+     - Cette première montée de version réelle passe par la sauvegarde automatique ; un test ouvre une base de version 1 contenant des données avec l'application en version 2.
+  4. **Règles de couches (complète D-050).** Les chemins écrits autrement (`../.././features/x`) et les `import()` dynamiques échappaient à l'expression régulière. Une règle locale, `layers/layer-imports`, résout désormais chaque chemin avant d'en déterminer la couche. Elle vérifie les imports statiques, les `export … from`, les `import()` dynamiques (un chemin calculé est refusé), les `typeof import()` dans les types, et les chemins `/src/…`. L'interdiction du SDK Anthropic garde une seconde règle indépendante.
+  5. **Contractions (complète D-046).** Après un nom, _'s_ est aussi lu _is_ ou _has_ quand le mot suivant exclut un possessif : préposition, _not_, article, _been_, _here_, _there_, _always_, _never_, _already_ (_My manager's in the office_). Les mots qui admettent les deux lectures gardent la seule lecture possessive (_the manager's meeting_ ne devient jamais _the manager is meeting_).
+- **Raison.** NO-05 interdit de refuser une réponse juste, mais COST-02 exige aussi qu'une faute ne soit pas acceptée localement. Dans le doute, une réponse est désormais « inconnue », jamais « correcte » ni « fausse ». NO-06 : aucune donnée, même illisible, ne disparaît sans être conservée.
+- **Non vérifiable par la revue**, et laissé à l'usage réel : le déploiement sur Vercel et ses en-têtes en production, l'installation sur un téléphone physique, une coupure brutale pendant une écriture IndexedDB.
