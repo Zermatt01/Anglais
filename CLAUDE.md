@@ -52,6 +52,7 @@ Détail : `typecheck` (`tsc -b`), `lint` (`eslint . --max-warnings=0`), `test` (
 6. **Données** : aucune perte de saisie ni de données (brouillons, migrations Dexie additives, mises à jour du service worker sur demande). RLS sur toutes les tables.
 7. **Vérifications** : ne jamais désactiver un test, une règle de lint ou une vérification de types. Une phase n'est pas terminée tant que `npm run check`, le build et `npm run test:e2e` ne passent pas.
 8. **Données personnelles** : aucune dans le code, les logs, les commits ou les messages. `import-samples/` reste hors dépôt.
+9. **Règles sur l'anglais** (D-058) : les défauts les plus fréquents des revues viennent de règles linguistiques trop générales. Toute règle sur l'anglais (équivalence, variante, graphie, contraction, flexion, exemple présenté comme faux) part d'une **liste fermée de formes attestées**, jamais d'une règle générique. Ses tests contiennent des **cas négatifs** : ce qui ne doit pas être accepté ni rapproché. Elle respecte le critère décisif de D-035 : une forme n'est fausse que si elle l'est dans toutes les interprétations plausibles.
 
 ## Méthode de travail
 

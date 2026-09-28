@@ -65,6 +65,8 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-055 | PWA : icônes générées, pas d'annonce « hors ligne »      | PWA         | Actée           |
 | D-056 | En-têtes de sécurité, tests sous la CSP de production    | Sécurité    | Actée           |
 | D-057 | Revue de la phase 1                                      | Transverse  | Actée           |
+| D-058 | Règles sur l'anglais : listes fermées et cas négatifs    | Pédagogie   | Actée           |
+| D-059 | Revues : une par phase, revue de l'anglais en phase 3    | Processus   | Actée           |
 
 ---
 
@@ -545,3 +547,33 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - **Mots qui ressemblent à une forme fléchie (complète le point 2).** Le retrait du _-s_ rapprochait _news_ de _new_ : une carte de réponse _news_ était refusée à tort si son indice disait _new information_. Une liste de mots fréquents, terminés par _-s_, _-ing_ ou _-ed_ sans en être une flexion (_news_, _economics_, _physics_, _series_, _species_, _means_, _evening_, _morning_…), est désormais comparée telle quelle. Le cas de Codex est un test négatif.
   - **`import … = require(…)` (complète le point 4).** La forme `import type foo = require('…')`, avec ou sans `type`, échappait à la règle de couches ; elle est désormais contrôlée et testée.
 - **Point noté pour plus tard.** Vite signale un fichier JavaScript de 502,75 kB, au-delà de son seuil d'avertissement de 500 kB. Rien à corriger en phase 1 ; si la taille gêne quand le programme arrivera, le code sera découpé par écran plutôt que le seuil relevé (ROADMAP, phase 3).
+
+### D-058 — Règles sur l'anglais : listes fermées et cas négatifs (2026-09-29)
+
+- **Contexte.** Les défauts les plus fréquents des revues de Codex (D-035, D-042, D-057) viennent de règles linguistiques trop générales :
+  - l'équivalence _-ise_/_-ize_ appliquée à tous les mots, qui acceptait _exercize_ ;
+  - le retrait du _-s_, qui rapprochait _news_ de _new_ ;
+  - des exemples présentés comme faux sans contexte.
+- **Décision** (choix de l'utilisateur, après relecture des revues). Toute règle sur l'anglais (équivalence ou variante acceptée, graphie, contraction, flexion, exemple présenté comme faux) :
+  - part d'une **liste fermée de formes attestées**, jamais d'une règle générique (suffixe, terminaison, motif) ;
+  - s'accompagne, dans ses tests, de **cas négatifs** : ce qui ne doit pas être accepté ni rapproché ;
+  - respecte le critère décisif de D-035 : une forme n'est présentée comme fausse que si elle l'est dans toutes les interprétations plausibles.
+
+  La règle figure dans CLAUDE.md (règle impérative 9) et dans AGENTS.md (règle 11 et priorité de revue 1).
+
+- **État du code existant**, vérifié le 2026-09-29.
+  - `spelling.ts` (paires et radicaux attestés, terminaisons en liste fermée) et `contractions.ts` (listes fermées) respectent déjà la règle, avec leurs cas négatifs.
+  - Deux règles génériques subsistent :
+    - la normalisation lit tout trait d'union comme une espace : _I will follow-up with the client_ est accepté pour _follow up_ (verbe), alors que _follow-up_ est le nom ;
+    - `inflections.ts` rapproche les formes par leurs terminaisons régulières, avec une liste d'exceptions : _united_ y est encore rapproché de _unit_. L'erreur va dans le sens prudent (une carte est refusée, aucune réponse n'est acceptée), mais la règle reste générique.
+  - Leur mise en conformité est inscrite au début de la phase 3, avant que le socle d'exercices utilise la correction locale.
+- **Raison.** Une règle générique accepte des fautes ou rapproche des mots différents sans qu'aucun test positif le révèle. Une liste fermée se relit mot par mot, et les cas négatifs rendent visible ce qu'elle exclut.
+
+### D-059 — Revues : une par phase, revue de l'anglais en phase 3 (2026-09-29)
+
+- **Décision** (choix de l'utilisateur).
+  - Chaque phase reçoit une revue de Codex, puis au plus une contre-revue des corrections, sauf s'il reste un point bloquant.
+  - En phase 3, une revue de Codex est consacrée à la justesse de l'anglais : leçons, exemples, réponses attendues et variantes. Elle est distincte de la revue du code.
+  - L'utilisateur relit ensuite un échantillon d'exercices avant la clôture de la phase 3.
+  - Interprétation retenue, à confirmer : la limite d'une contre-revue s'applique à chacune des deux revues de la phase 3.
+- **Raison.** Limiter les allers-retours garde le rythme des phases, sans jamais laisser passer un point bloquant. En phase 3, une réponse attendue fausse serait le pire défaut possible (CUR-06) : la justesse de l'anglais mérite une revue qui ne soit pas noyée dans celle du code, et un regard humain.

@@ -43,10 +43,11 @@ npm run test:e2e   # nécessite : npx playwright install chromium
 8. Aucun test, règle de lint ni vérification de types désactivé (PROC-05).
 9. Aucune donnée personnelle dans le code, les logs ou les commits (SEC-03).
 10. **Couches** : les dépendances entre dossiers de `src/` sont imposées par `eslint.layers.ts` (ARCHITECTURE §3). Le domaine reste pur, sans horloge implicite.
+11. **Règles sur l'anglais** (D-058) : les défauts les plus fréquents des revues viennent de règles linguistiques trop générales (équivalence _-ise_/_-ize_ appliquée à tous les mots, retrait du _-s_ qui rapprochait _news_ de _new_, exemples présentés comme faux sans contexte). Toute règle sur l'anglais part d'une **liste fermée de formes attestées**, jamais d'une règle générique. Ses tests contiennent des **cas négatifs** : ce qui ne doit pas être accepté ni rapproché. Elle respecte le critère décisif de D-035.
 
 ## Priorités de revue (dans l'ordre)
 
-1. **Exactitude du contenu pédagogique** : chaque réponse attendue et chaque variante acceptable du socle (`src/content`) sont-elles justes, idiomatiques, et les seules à ne pas être rejetées à tort ? Une réponse attendue fausse est le pire défaut possible. Vérifier aussi que l'anglais des exemples est irréprochable, que le français de l'interface est sans faute, que rien n'est repris des livres de Murphy, et que chaque référence « Pour aller plus loin » est identique à PEDAGOGY §11 et à `docs/references/murphy-contents.md` (CUR-14).
+1. **Exactitude du contenu pédagogique** : chaque réponse attendue et chaque variante acceptable du socle (`src/content`) sont-elles justes, idiomatiques, et les seules à ne pas être rejetées à tort ? Une réponse attendue fausse est le pire défaut possible. Vérifier aussi que l'anglais des exemples est irréprochable, que le français de l'interface est sans faute, que rien n'est repris des livres de Murphy, et que chaque référence « Pour aller plus loin » est identique à PEDAGOGY §11 et à `docs/references/murphy-contents.md` (CUR-14). Pour toute règle linguistique du code (correction locale, indices des cartes), vérifier qu'elle part d'une liste fermée et que ses tests contiennent des cas négatifs (D-058).
 2. **Résolubilité des cartes** : chaque carte contient-elle le sens en français, un indice qui ne donne pas la réponse, et assez de contexte pour quelqu'un qui a tout oublié (CARD-01, CARD-02) ?
 3. **Coûts** :
    - aucun chemin qui appelle l'IA sans geste de l'utilisateur ;

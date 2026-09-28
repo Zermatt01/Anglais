@@ -4,6 +4,8 @@ Le travail avance par phases. À la fin de chaque phase, on **s'arrête** et on 
 
 Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes les vérifications passent (PROC-05).
 
+**Revues** (D-059) : chaque phase reçoit une revue de Codex, puis au plus une contre-revue des corrections, sauf s'il reste un point bloquant.
+
 **Phase en cours : aucune. La phase 1 est terminée ; la phase 2 attend l'accord de l'utilisateur.**
 
 ---
@@ -41,6 +43,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 - [x] Tests unitaires complets ; e2e (installation, hors ligne, réglages, brouillons, export et import)
 - [x] **Arrêt** : déploiement sur Vercel et installation sur le téléphone expliqués dans [DEPLOYMENT.md](DEPLOYMENT.md)
 - [x] Revue de Codex de la phase 1 traitée (D-057) : graphies attestées seulement, indices fléchis, enregistrements illisibles mis de côté (version 2 de la base), règle de couches par chemins résolus, _'s_ verbal après un nom
+- [x] Contre-revue traitée (D-057) ; règles durables décidées par l'utilisateur : règles sur l'anglais (D-058) et processus de revue (D-059)
 
 ## Phase 2 — Serveur et IA
 
@@ -55,6 +58,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 ## Phase 3 — Parcours
 
 - [ ] Moteur des cinq étapes, critères de passage et de retour
+- [ ] Mise en conformité de la correction locale avec D-058, avant son premier usage par le socle : les traits d'union (aujourd'hui lus comme des espaces, ce qui accepte _follow-up_ pour le verbe _follow up_) et le rapprochement des formes fléchies (terminaisons génériques, qui rapprochent encore _united_ de _unit_), ramenés à des listes fermées avec leurs cas négatifs
 - [ ] Schéma des exercices dans `src/domain/curriculum`, partagé par le socle et `generatedExercises` (D-043)
 - [ ] Lecture audio des exemples, et choix de la voix et de la vitesse dans les Réglages (D-052)
 - [ ] Taille du bundle, à traiter si besoin : à la fin de la phase 1, Vite signale un fichier JavaScript de 502,75 kB (157,5 kB compressé), au-delà de son seuil d'avertissement de 500 kB. Le programme va l'alourdir : découper le code par écran (`React.lazy`) plutôt que relever le seuil (D-057)
@@ -66,6 +70,9 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 - [ ] Test automatique du socle (bien formé, résoluble, ≥ 1 réponse attendue, relectures ; les deux graphies de `CONTEXT_DEPENDENT_SPELLINGS` présentes dans les variantes, D-057)
 - [ ] Relecture séparée de tout le contenu pédagogique
 - [ ] **Arrêt**
+- [ ] Revue de Codex du code
+- [ ] Revue de Codex dédiée à la justesse de l'anglais (leçons, exemples, réponses attendues et variantes), distincte de la revue du code (D-059)
+- [ ] Relecture par l'utilisateur d'un échantillon d'exercices, avant de clore la phase (D-059)
 
 ## Phase 4 — Production écrite
 
