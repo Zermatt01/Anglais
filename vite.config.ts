@@ -1,9 +1,14 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { headersForAllPaths, readVercelConfig } from './scripts/vercel-config.ts';
 
 // https://vite.dev/config/
 export default defineConfig({
+  // `vite preview` (used by the e2e tests) sends the production security
+  // headers of vercel.json, so a CSP violation fails the tests. The dev server
+  // does not: Vite's hot reload needs inline scripts.
+  preview: { headers: headersForAllPaths(readVercelConfig()) },
   plugins: [
     react(),
     // Installable PWA (ARC-01, docs/ARCHITECTURE.md §11). Updates are never
