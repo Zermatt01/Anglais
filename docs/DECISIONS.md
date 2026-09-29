@@ -613,6 +613,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - Deno refuse par défaut les paquets publiés depuis moins de 24 heures (protection contre les attaques de la chaîne d'approvisionnement) : les versions choisies ont au moins une semaine (SDK Anthropic 0.128.0, `@supabase/server` 1.8.0).
   - La CI vérifie la fonction avec Deno (`deno check`, avec cette configuration) ; en local : `npm run check:edge`. Le fichier `deno.lock` n'est pas versionné : son format pourrait être plus récent que celui du Deno de Supabase.
 - **Raison.** La disposition documentée par Supabase ne dépend d'aucune fonctionnalité incertaine du déploiement, et la copie ne peut pas diverger sans faire échouer les tests.
+- **Vérification en production (2026-09-30).** Le déploiement `--use-api` embarque bien `_shared/ai`, et la fonction tourne sur le runtime de Supabase (compatible Deno 2.1.4, plus ancien que le Deno 2.9 de la CI : ne pas versionner `deno.lock` était justifié).
 
 ### D-062 — Authentification et CORS de l'Edge Function (2026-09-29)
 
@@ -624,6 +625,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - CORS : seules les origines de `AI_ALLOWED_ORIGINS` (l'adresse Vercel et, si besoin, le serveur de développement) reçoivent les en-têtes CORS ; les autres reçoivent une erreur 403.
   - Point d'entrée `export default { fetch }`, la forme générée aujourd'hui par Supabase. La configuration est validée par Zod au démarrage ; une configuration invalide fait répondre `server_error` à toute requête, et le journal nomme les variables fautives, jamais leurs valeurs.
 - **Raison.** Défense en profondeur sur un chemin qui dépense de l'argent (SEC-05), sans dépendre d'un comportement de la plateforme non vérifiable avant le déploiement.
+- **Vérification en production (2026-09-30).** Le point d'entrée `export default { fetch }` fonctionne ; sans session, la fonction répond 401 ; une origine absente de `AI_ALLOWED_ORIGINS` reçoit 403, que le navigateur présente comme une panne réseau (« Le serveur IA n'a pas pu être joint ») : le guide le signale.
 
 ### D-063 — Protocole de synchronisation (2026-09-29, vérifie D-044, précise D-015 et D-045)
 
@@ -665,6 +667,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - **Budget.** La réservation estime l'entrée à un token pour deux caractères, plus 1 000 tokens de marge, et compte toute la sortie au maximum ; les coûts sont arrondis au millionième de dollar supérieur. Un appel à l'issue inconnue (délai dépassé, connexion perdue) est compté à son coût maximal ; une erreur renvoyée par l'API, à zéro. Les refus (plafond, fréquence) sont journalisés sans coût. Le mois du plafond est le mois UTC.
   - **Idempotence.** Un `requestId` déjà reçu est refusé, quelle que soit sa date (et non plus seulement dans les dix dernières minutes : l'unicité est garantie par la base). Le client fournit un identifiant par action de l'utilisateur ; les phases suivantes le conserveront avec la production concernée.
 - **Raison.** COST-01 à COST-07 appliqués côté serveur, avec des chiffres vérifiables dans le journal.
+- **Vérification en production (2026-09-30).** Une clé Anthropic d'organisation, rattachée à aucun espace de travail, est refusée (« not scoped to a workspace ») : la clé doit être créée dans un espace de travail (guide, section 9). Pour diagnostiquer ce genre de refus, la fonction écrit désormais le type et le message de l'erreur d'Anthropic dans ses journaux, jamais en base. Le test de connexion a ensuite abouti.
 
 ### D-067 — Écran « Consommation » (2026-09-29)
 

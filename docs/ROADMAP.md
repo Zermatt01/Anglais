@@ -6,7 +6,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 **Revues** (D-059) : chaque phase reçoit une revue de Codex, puis au plus une contre-revue des corrections, sauf s'il reste un point bloquant.
 
-**Phase en cours : aucune. La phase 2 est livrée, sa revue et sa contre-revue traitées ; restent les actions de l'utilisateur du guide. La phase 3 attend l'accord de l'utilisateur.**
+**Phase en cours : aucune. La phase 2 est terminée (revue, contre-revue et mise en service faites) ; la phase 3 attend l'accord de l'utilisateur.**
 
 ---
 
@@ -55,7 +55,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 - [x] Client IA typé et écran « Consommation », avec le test de connexion (D-066, D-067)
 - [x] Tests : SQL dans PGlite, synchronisation de deux appareils, Edge Function avec un faux modèle, vérification Deno en CI, e2e avec un faux serveur
 - [x] **Arrêt** : guide pas à pas dans [DEPLOYMENT.md](DEPLOYMENT.md) (compte et projet Supabase, migrations, secrets, Claude Console et crédit, variables Vercel, vérifications)
-- [ ] Actions de l'utilisateur : suivre le guide (sections 6 à 12), puis confirmer que la connexion, la synchronisation et le test de connexion à l'IA fonctionnent
+- [x] Actions de l'utilisateur : guide suivi (sections 6 à 12) ; connexion par code, synchronisation et test de connexion à l'IA confirmés sur le téléphone le 2026-09-30 (envoi des codes par Resend, D-071 ; clé Anthropic rattachée à un espace de travail)
 - [x] Revue de Codex de la phase 2 traitée (D-069) : versions locales perdantes gardées à part, refus non journalisés, comparaison du contenu envoyé, `updatedAt` croissant imposé par `writeRecord`, test e2e instable corrigé
 - [x] Contre-revue de Codex traitée (D-070) : historique des versions remplacées côté serveur, éléments mis de côté consultables et retirés seulement après export
 
