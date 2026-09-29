@@ -10,13 +10,20 @@ import {
 import { Button } from '../ui/Button.tsx';
 import { AppRoutes } from './AppShell.tsx';
 import { ErrorBoundary } from './ErrorBoundary.tsx';
-import { createServerServices } from './server.ts';
+import { hasServerConfig } from './server-config.ts';
 
 const systemClock: Clock = { now: () => Date.now() };
 
 async function openServices(): Promise<AppServices> {
-  const db = await openAppDatabase({ now: systemClock.now() });
-  return createAppServices(db, systemClock, { server: createServerServices(db, systemClock) });
+  // The server code (Supabase client) is a separate chunk, loaded while the
+  // database opens, and not at all when no server is configured.
+  const [db, server] = await Promise.all([
+    openAppDatabase({ now: systemClock.now() }),
+    hasServerConfig() ? import('./server.ts') : null,
+  ]);
+  return createAppServices(db, systemClock, {
+    server: server?.createServerServices(db, systemClock) ?? null,
+  });
 }
 
 type BootState =
