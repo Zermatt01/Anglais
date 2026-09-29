@@ -5,10 +5,11 @@ project_id = "anglais"
 
 [functions.ai]
 enabled = true
-# The platform checks the Authorization header before the function runs. It
-# also accepts the publishable key, so the function verifies the user's JWT
-# itself (D-062).
-verify_jwt = true
+# The function verifies the user's JWT itself (signature against the
+# project's keys, issuer, audience), then the allowed e-mail (D-062). The
+# platform check is off: it also accepts the public publishable key, so it
+# adds no protection, and it can block the browser's CORS preflight.
+verify_jwt = false
 entrypoint = "./functions/ai/index.ts"
 # Also resolves the imports of ../_shared (D-061).
 import_map = "./functions/ai/deno.json"
