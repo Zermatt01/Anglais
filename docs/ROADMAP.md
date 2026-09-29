@@ -6,7 +6,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 **Revues** (D-059) : chaque phase reçoit une revue de Codex, puis au plus une contre-revue des corrections, sauf s'il reste un point bloquant.
 
-**Phase en cours : aucune. La phase 2 est terminée (revue, contre-revue et mise en service faites) ; la phase 3 attend l'accord de l'utilisateur.**
+**Phase en cours : phase 3 (lancée le 2026-09-30, avec l'accord de l'utilisateur, après la vérification de la phase 2 sur son téléphone).**
 
 ---
 
