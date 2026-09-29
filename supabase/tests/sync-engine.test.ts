@@ -17,7 +17,7 @@ import {
   type RemoteRow,
   type SyncTransport,
 } from '../../src/data/sync/protocol.ts';
-import { createSyncTransport } from '../../src/services/supabase/sync-transport.ts';
+import { createSyncTransport } from '../../src/services/backend/sync-transport.ts';
 import { createTestClock, createTestDatabase } from '../../src/test/database.ts';
 import { FIXTURE_IDS, T0, VALID_RECORDS } from '../../src/test/fixtures.ts';
 import { createMigratedDatabase, createUser, rpcAs } from './database.ts';
