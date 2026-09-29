@@ -73,6 +73,36 @@ export async function asRole<T>(
   });
 }
 
+/**
+ * Calls a SQL function by the names of its arguments, as PostgREST does for
+ * `supabase.rpc(fn, args)`: a wrong argument name fails here as it would in
+ * production. Objects and arrays are sent as JSON; a function returning a
+ * single value gives that value, a function returning rows gives the rows.
+ */
+export function rpcAs(
+  db: PGlite,
+  role: Role,
+  sub: string | null,
+): (fn: string, args: Readonly<Record<string, unknown>>) => Promise<unknown> {
+  return (fn, args) => {
+    if (!/^[a-z_]+$/.test(fn)) throw new Error(`Unexpected function name ${fn}`);
+    const names = Object.keys(args);
+    for (const name of names) {
+      if (!/^p_[a-z_]+$/.test(name)) throw new Error(`Unexpected argument name ${name}`);
+    }
+    const call = `public.${fn}(${names.map((name, index) => `${name} => $${String(index + 1)}`).join(', ')})`;
+    const values = names.map((name) => {
+      const value = args[name];
+      return typeof value === 'object' && value !== null ? JSON.stringify(value) : value;
+    });
+    return asRole(db, role, sub, async (tx) => {
+      const result = await tx.query<Record<string, unknown>>(`select * from ${call}`, values);
+      const [field] = result.fields;
+      return result.fields.length === 1 && field?.name === fn ? result.rows[0]?.[fn] : result.rows;
+    });
+  };
+}
+
 /** Runs `work` as the signed-in user `userId`. */
 export function asUser<T>(
   db: PGlite,

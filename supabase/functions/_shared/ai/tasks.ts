@@ -1,3 +1,4 @@
+// Generated from shared/ai/tasks.ts by `npm run sync:shared`: do not edit (D-061).
 /**
  * AI tasks and their input and output contracts (AI-01, D-017).
  *

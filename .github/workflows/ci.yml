@@ -49,6 +49,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_COMMENTS: false
 
+  edge-function:
+    # The Edge Function runs on Deno: check it with its own configuration,
+    # exactly as it is deployed (docs/DEPLOYMENT.md).
+    name: Edge Function type check (Deno)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.x
+      - run: deno check --config supabase/functions/ai/deno.json supabase/functions/ai/index.ts
+
   e2e:
     name: End-to-end tests (Playwright, mobile emulation)
     runs-on: ubuntu-latest
