@@ -575,5 +575,5 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - Chaque phase reçoit une revue de Codex, puis au plus une contre-revue des corrections, sauf s'il reste un point bloquant.
   - En phase 3, une revue de Codex est consacrée à la justesse de l'anglais : leçons, exemples, réponses attendues et variantes. Elle est distincte de la revue du code.
   - L'utilisateur relit ensuite un échantillon d'exercices avant la clôture de la phase 3.
-  - Interprétation retenue, à confirmer : la limite d'une contre-revue s'applique à chacune des deux revues de la phase 3.
+  - La limite d'une contre-revue s'applique à chacune des deux revues de la phase 3, celle du code et celle de l'anglais (confirmé par l'utilisateur le 2026-09-29).
 - **Raison.** Limiter les allers-retours garde le rythme des phases, sans jamais laisser passer un point bloquant. En phase 3, une réponse attendue fausse serait le pire défaut possible (CUR-06) : la justesse de l'anglais mérite une revue qui ne soit pas noyée dans celle du code, et un regard humain.
