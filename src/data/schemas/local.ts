@@ -34,30 +34,56 @@ export const draftSchema = z.strictObject({
 });
 export type Draft = z.infer<typeof draftSchema>;
 
-/** `syncOutbox` (P2): local writes waiting to be sent. */
+/**
+ * `syncOutbox` (P2): records written locally and not yet sent. Written in the
+ * same transaction as the record (`writeRecord`); one entry per record, the
+ * latest write replacing the previous entry (D-063).
+ */
 export const syncOutboxEntrySchema = z.strictObject({
   /** Auto-incremented by Dexie: absent before insertion. */
   seq: z.int().positive().optional(),
   table: z.string().min(1).max(100),
+  /** Primary key of the record. */
   docId: z.string().min(1).max(200),
   queuedAt: epochMsSchema,
 });
 export type SyncOutboxEntry = z.infer<typeof syncOutboxEntrySchema>;
 
-/** `syncMeta` (P2): read cursor, device identifier, last synchronization. */
+/**
+ * `syncMeta` (P2), one entry per key:
+ * - `account`: the account the local data was last synchronized with;
+ * - `cursor`: the last `server_seq` applied by a pull;
+ * - `schemaSignature`: the schema versions of the app at the last pull;
+ *   when it changes, everything is pulled again (D-063);
+ * - `lastSyncAt`: end of the last complete synchronization.
+ */
 export const syncMetaSchema = z.strictObject({
-  key: z.enum(['cursor', 'deviceId', 'lastSyncAt']),
+  key: z.enum(['account', 'cursor', 'schemaSignature', 'lastSyncAt']),
   value: z.json(),
 });
 export type SyncMeta = z.infer<typeof syncMetaSchema>;
 
-/** `usageSnapshot` (P2): last known state of the "Consommation" screen, for offline display. */
+/**
+ * `usageSnapshot` (P2): last known state of the "Consommation" screen, shown
+ * with its date when the server cannot be reached (COST-08).
+ */
 export const usageSnapshotSchema = z.strictObject({
   id: z.literal('usage'),
   fetchedAt: epochMsSchema,
-  todayUsd: z.number().nonnegative(),
-  monthUsd: z.number().nonnegative(),
   monthlyBudgetUsd: z.number().nonnegative(),
-  byTask: z.record(z.string().max(100), z.number().nonnegative()),
+  monthStart: z.iso.date(),
+  resetsOn: z.iso.date(),
+  monthUsd: z.number().nonnegative(),
+  todayUsd: z.number().nonnegative(),
+  timeZone: z.string().min(1).max(64),
+  byTask: z
+    .array(
+      z.strictObject({
+        task: z.string().min(1).max(64),
+        calls: z.int().nonnegative(),
+        costUsd: z.number().nonnegative(),
+      }),
+    )
+    .max(100),
 });
 export type UsageSnapshot = z.infer<typeof usageSnapshotSchema>;

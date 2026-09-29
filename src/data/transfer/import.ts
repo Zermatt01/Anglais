@@ -12,7 +12,9 @@
  *
  * `previewImport` computes what would happen, without writing; `applyImport`
  * computes it again inside one read-write transaction, then writes: either
- * the whole import succeeds, or nothing changes.
+ * the whole import succeeds, or nothing changes. Imported records of
+ * synchronized tables are queued for the synchronization in that same
+ * transaction (docs/ARCHITECTURE.md §7).
  */
 import { z } from 'zod';
 import { isCardSolvable } from '../../domain/cards/solvability.ts';
@@ -20,7 +22,8 @@ import { nextUpdatedAt } from '../../domain/primitives.ts';
 import { decideDocumentMerge, decideEventMerge } from '../../domain/sync/merge.ts';
 import type { AppDatabase } from '../database.ts';
 import { parseRecord } from '../records.ts';
-import { isTableName, TABLES, type TableName } from '../tables.ts';
+import { enqueueChange } from '../sync/outbox.ts';
+import { isSyncedTable, isTableName, TABLES, type TableName } from '../tables.ts';
 import type { ExportEnvelope } from './envelope.ts';
 import { EXPORTED_TABLES } from './export.ts';
 
@@ -230,10 +233,13 @@ export async function applyImport(
   envelope: ExportEnvelope,
   now: number,
 ): Promise<ImportPlan> {
-  return db.dexie.transaction('rw', importedTables(db), async () => {
+  const tables = [...importedTables(db), db.table('syncOutbox')];
+  return db.dexie.transaction('rw', tables, async () => {
     const { plan, writes } = await computeImport(db, envelope, now);
     for (const { table, record } of writes) {
       await db.table(table).put(record);
+      const key = keyOf(table, record);
+      if (isSyncedTable(table) && key !== null) await enqueueChange(db, table, key, now);
     }
     return plan;
   });

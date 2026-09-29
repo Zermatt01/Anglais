@@ -45,3 +45,47 @@ export function decideDocumentMerge(
 export function decideEventMerge(existsLocally: boolean): 'insert' | 'keep' {
   return existsLocally ? 'keep' : 'insert';
 }
+
+/**
+ * Where a version received from the server comes from (D-063):
+ * - `pull`: a change read after the cursor;
+ * - `stale`: the stored version returned by a push, because the pushed one
+ *   did not win. `pushedUpdatedAt` is the `updatedAt` of the pushed version.
+ */
+export type RemoteSource =
+  { readonly kind: 'pull' } | { readonly kind: 'stale'; readonly pushedUpdatedAt: number };
+
+/** The local version of a document, as the synchronization compares it. */
+export interface LocalVersion {
+  readonly updatedAt: number;
+  /** Written locally and not sent yet (in the outbox). */
+  readonly pending: boolean;
+  /** Identical to the received version. */
+  readonly sameContent: boolean;
+}
+
+/**
+ * Synchronization of a document: what to do with a version received from the
+ * server (`local` is `undefined` if absent or unreadable). The most recent
+ * version wins; at equal `updatedAt`, the server is the only arbiter
+ * (D-015, D-063), and the device adopts the version the server kept:
+ * - a pulled version, unless the local one waits to be sent (its push will
+ *   be settled by the server);
+ * - a version returned by a push, unless the local one changed since it was
+ *   pushed.
+ */
+export function decideRemoteVersion(
+  local: LocalVersion | undefined,
+  remoteUpdatedAt: number,
+  source: RemoteSource,
+): DocumentMergeDecision {
+  if (local === undefined) return 'insert';
+  if (remoteUpdatedAt !== local.updatedAt) {
+    return remoteUpdatedAt > local.updatedAt ? 'replace' : 'keep';
+  }
+  if (local.sameContent) return 'keep';
+  if (source.kind === 'stale') {
+    return local.updatedAt === source.pushedUpdatedAt ? 'replace' : 'keep';
+  }
+  return local.pending ? 'keep' : 'replace';
+}

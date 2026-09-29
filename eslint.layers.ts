@@ -5,9 +5,9 @@
 //      └──────► content (data validated by domain schemas)
 //   app (shell) may import every layer.
 //
-// Outside src/: shared/ (the AI contract) and supabase/ (the Edge Function)
-// import no layer of src/, and src/ imports neither the Edge Function nor the
-// prompts of shared/ai (D-017).
+// Outside src/: shared/ (the AI contract) and supabase/functions (the Edge
+// Function) import no layer of src/, and src/ imports neither supabase/ nor
+// the prompts of shared/ai (D-017).
 //
 // The local rule `layers/layer-imports` resolves every import path before
 // deciding which layer it enters, so no spelling of a path escapes it
@@ -347,8 +347,10 @@ export const layerConfigs: Linter.Config[] = [
     },
   },
   {
-    // The Edge Function (Deno) never depends on the client application.
-    files: ['supabase/**/*.ts'],
+    // The Edge Function (Deno) never depends on the client application. The
+    // tests of supabase/tests may import it: they check the client
+    // synchronization against the real SQL functions.
+    files: ['supabase/functions/**/*.ts'],
     plugins: { layers: layersPlugin },
     rules: {
       'layers/layer-imports': layerImports({

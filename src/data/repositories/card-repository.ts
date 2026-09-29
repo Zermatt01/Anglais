@@ -55,7 +55,7 @@ export function createCardRepository(
         due: srs.due,
         origin,
       };
-      await writeRecord(db, 'cards', card);
+      await writeRecord(db, 'cards', card, now);
       return { ok: true, card };
     },
 

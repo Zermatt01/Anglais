@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { createTestDatabase } from '../test/database.ts';
-import { VALID_RECORDS } from '../test/fixtures.ts';
+import { T0, VALID_RECORDS } from '../test/fixtures.ts';
 import { parseRecord, parseWithDefinition, readRecord, writeRecord } from './records.ts';
 import type { TableDefinition } from './tables.ts';
 
@@ -81,7 +81,7 @@ describe('parseRecord', () => {
 describe('readRecord and writeRecord', () => {
   it('writes a valid record and reads it back', async () => {
     const db = await createTestDatabase();
-    await writeRecord(db, 'cards', VALID_RECORDS.cards);
+    await writeRecord(db, 'cards', VALID_RECORDS.cards, T0);
     expect(await readRecord(db, 'cards', VALID_RECORDS.cards.id)).toEqual({
       ok: true,
       value: VALID_RECORDS.cards,
@@ -92,7 +92,9 @@ describe('readRecord and writeRecord', () => {
   it('refuses to write an invalid record and leaves the table unchanged', async () => {
     const db = await createTestDatabase();
     const invalid = { ...VALID_RECORDS.settings, dailyGoalMinutes: -5 };
-    await expect(writeRecord(db, 'settings', invalid)).rejects.toThrow(/invalid settings record/);
+    await expect(writeRecord(db, 'settings', invalid, T0)).rejects.toThrow(
+      /invalid settings record/,
+    );
     expect(await db.table('settings').count()).toBe(0);
   });
 

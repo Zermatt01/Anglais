@@ -121,3 +121,17 @@ export function isTableName(name: string): name is TableName {
 }
 
 export const TABLE_NAMES: readonly TableName[] = Object.keys(TABLES).filter(isTableName);
+
+/** Whether the table is synchronized (documents and events, not local tables). */
+export function isSyncedTable(name: TableName): boolean {
+  return TABLES[name].syncClass !== 'local';
+}
+
+export const SYNCED_TABLE_NAMES: readonly TableName[] = TABLE_NAMES.filter(isSyncedTable);
+
+/** Value of the primary key of a record, or `null` if it has none. */
+export function primaryKeyOf(name: TableName, record: unknown): string | null {
+  if (typeof record !== 'object' || record === null) return null;
+  const key: unknown = Reflect.get(record, TABLES[name].primaryKey);
+  return typeof key === 'string' ? key : null;
+}

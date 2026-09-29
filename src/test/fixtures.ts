@@ -223,10 +223,13 @@ export const VALID_RECORDS: { readonly [Name in TableName]: RecordOf<Name> } = {
   usageSnapshot: {
     id: 'usage',
     fetchedAt: T0,
-    todayUsd: 0.02,
-    monthUsd: 1.2,
     monthlyBudgetUsd: 10,
-    byTask: { 'correct-production': 1.1 },
+    monthStart: '2026-09-01',
+    resetsOn: '2026-10-01',
+    monthUsd: 1.2,
+    todayUsd: 0.02,
+    timeZone: 'Europe/Paris',
+    byTask: [{ task: 'correct-production', calls: 40, costUsd: 1.1 }],
   },
   quarantine: {
     id: FIXTURE_IDS.other,

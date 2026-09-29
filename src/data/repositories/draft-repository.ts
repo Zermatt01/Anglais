@@ -44,9 +44,10 @@ export function createDraftRepository(db: AppDatabase, clock: Clock): DraftRepos
 
     save(key, text) {
       if (text.length === 0) return writeSafely(key, () => table.delete(key));
-      return writeSafely(key, () =>
-        writeRecord(db, 'drafts', { key, text, updatedAt: clock.now() }),
-      );
+      return writeSafely(key, () => {
+        const now = clock.now();
+        return writeRecord(db, 'drafts', { key, text, updatedAt: now }, now);
+      });
     },
 
     remove(key) {

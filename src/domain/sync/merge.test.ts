@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { decideDocumentMerge, decideEventMerge, stableStringify } from './merge.ts';
+import {
+  decideDocumentMerge,
+  decideEventMerge,
+  decideRemoteVersion,
+  stableStringify,
+} from './merge.ts';
 
 describe('stableStringify', () => {
   it('ignores key order at every level', () => {
@@ -48,5 +53,44 @@ describe('decideEventMerge', () => {
   it('unions events without ever overwriting one', () => {
     expect(decideEventMerge(false)).toBe('insert');
     expect(decideEventMerge(true)).toBe('keep');
+  });
+});
+
+describe('decideRemoteVersion (synchronization, D-063)', () => {
+  const pull = { kind: 'pull' } as const;
+  const stale = (pushedUpdatedAt: number) => ({ kind: 'stale', pushedUpdatedAt }) as const;
+  const local = (updatedAt: number, fields: { pending?: boolean; sameContent?: boolean } = {}) => ({
+    updatedAt,
+    pending: fields.pending ?? false,
+    sameContent: fields.sameContent ?? false,
+  });
+
+  it('inserts a document absent or unreadable locally', () => {
+    expect(decideRemoteVersion(undefined, 5, pull)).toBe('insert');
+  });
+
+  it('keeps the most recent version, pending or not', () => {
+    expect(decideRemoteVersion(local(1), 2, pull)).toBe('replace');
+    expect(decideRemoteVersion(local(1, { pending: true }), 2, pull)).toBe('replace');
+    expect(decideRemoteVersion(local(2), 1, pull)).toBe('keep');
+    expect(decideRemoteVersion(local(4), 3, stale(3))).toBe('keep');
+  });
+
+  it('does nothing for the same version', () => {
+    expect(decideRemoteVersion(local(3, { sameContent: true }), 3, pull)).toBe('keep');
+    expect(decideRemoteVersion(local(3, { sameContent: true }), 3, stale(3))).toBe('keep');
+  });
+
+  it('adopts the version the server kept at equal time', () => {
+    // Pulled: another device won the tie on the server.
+    expect(decideRemoteVersion(local(3), 3, pull)).toBe('replace');
+    // Returned by a push: the local version lost the tie.
+    expect(decideRemoteVersion(local(3, { pending: true }), 3, stale(3))).toBe('replace');
+  });
+
+  it('lets the server settle a tie with a local version not sent yet', () => {
+    expect(decideRemoteVersion(local(3, { pending: true }), 3, pull)).toBe('keep');
+    // Changed since the push, to a version with the server's time (clock set back).
+    expect(decideRemoteVersion(local(3, { pending: true }), 3, stale(2))).toBe('keep');
   });
 });

@@ -8,7 +8,15 @@
  */
 import { prettifyError, type z } from 'zod';
 import type { AppDatabase } from './database.ts';
-import { TABLES, type RecordOf, type TableDefinition, type TableName } from './tables.ts';
+import { enqueueChange } from './sync/outbox.ts';
+import {
+  isSyncedTable,
+  primaryKeyOf,
+  TABLES,
+  type RecordOf,
+  type TableDefinition,
+  type TableName,
+} from './tables.ts';
 
 export type ParsedRecord<T> =
   { readonly ok: true; readonly value: T } | { readonly ok: false; readonly reason: string };
@@ -74,17 +82,32 @@ export async function readRecord<Name extends TableName>(
 /**
  * Validates then writes a record. An invalid record here is a programming
  * error: it throws instead of storing bad data.
+ *
+ * A synchronized record is written together with its outbox entry, in one
+ * transaction (docs/ARCHITECTURE.md §7): an enclosing transaction must
+ * therefore cover `syncOutbox` too.
  */
 export async function writeRecord<Name extends TableName>(
   db: AppDatabase,
   name: Name,
   record: RecordOf<Name>,
+  now: number,
 ): Promise<void> {
   const result = TABLES[name].schema.safeParse(record);
   if (!result.success) {
     throw new Error(`Refusing to write an invalid ${name} record:\n${prettifyError(result.error)}`);
   }
-  await db.table(name).put(record);
+  const table = db.table(name);
+  if (!isSyncedTable(name)) {
+    await table.put(record);
+    return;
+  }
+  const key = primaryKeyOf(name, record);
+  if (key === null) throw new Error(`Refusing to write a ${name} record without a key`);
+  await db.dexie.transaction('rw', [table, db.table('syncOutbox')], async () => {
+    await table.put(record);
+    await enqueueChange(db, name, key, now);
+  });
 }
 
 /**
@@ -103,13 +126,18 @@ export async function setAsideIfUnreadable(
   if (raw === undefined) return false;
   const parsed = parseRecord(name, raw);
   if (parsed.ok) return false;
-  await writeRecord(db, 'quarantine', {
-    id: crypto.randomUUID(),
-    table: name,
-    key,
-    record: raw,
-    reason: parsed.reason,
-    quarantinedAt: now,
-  });
+  await writeRecord(
+    db,
+    'quarantine',
+    {
+      id: crypto.randomUUID(),
+      table: name,
+      key,
+      record: raw,
+      reason: parsed.reason,
+      quarantinedAt: now,
+    },
+    now,
+  );
   return true;
 }

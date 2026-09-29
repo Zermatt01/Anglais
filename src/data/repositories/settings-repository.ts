@@ -63,7 +63,8 @@ export function createSettingsRepository(db: AppDatabase, clock: Clock): Setting
     },
 
     async update(patch) {
-      return db.dexie.transaction('rw', [table, db.table('quarantine')], async () => {
+      const tables = [table, db.table('quarantine'), db.table('syncOutbox')];
+      return db.dexie.transaction('rw', tables, async () => {
         const raw = await table.get(SETTINGS_ID);
         const { loaded, document } = loadFrom(raw);
         // Unreadable settings are set aside, never lost, before being replaced (NO-06).
@@ -71,14 +72,19 @@ export function createSettingsRepository(db: AppDatabase, clock: Clock): Setting
         // Merged inside the transaction, on the stored values (applySettingsPatch).
         const values = settingsValuesSchema.parse(applySettingsPatch(loaded.values, patch));
         const now = clock.now();
-        await writeRecord(db, 'settings', {
-          ...values,
-          id: SETTINGS_ID,
-          createdAt: document?.createdAt ?? now,
-          updatedAt: nextUpdatedAt(updatedAtOf(raw), now),
-          deletedAt: null,
-          schemaVersion: 1,
-        });
+        await writeRecord(
+          db,
+          'settings',
+          {
+            ...values,
+            id: SETTINGS_ID,
+            createdAt: document?.createdAt ?? now,
+            updatedAt: nextUpdatedAt(updatedAtOf(raw), now),
+            deletedAt: null,
+            schemaVersion: 1,
+          },
+          now,
+        );
         return values;
       });
     },
