@@ -98,6 +98,25 @@ describe('readRecord and writeRecord', () => {
     expect(await db.table('settings').count()).toBe(0);
   });
 
+  it('refuses a document whose updatedAt does not increase (review of phase 2)', async () => {
+    const db = await createTestDatabase();
+    await writeRecord(db, 'cards', VALID_RECORDS.cards, T0);
+    const same = { ...VALID_RECORDS.cards, content: { ...VALID_RECORDS.cards.content, hint: 'x' } };
+    await expect(writeRecord(db, 'cards', same, T0)).rejects.toThrow(/does not increase/);
+    await expect(writeRecord(db, 'cards', { ...same, updatedAt: T0 - 1 }, T0)).rejects.toThrow(
+      /does not increase/,
+    );
+    expect(await readRecord(db, 'cards', VALID_RECORDS.cards.id)).toEqual({
+      ok: true,
+      value: VALID_RECORDS.cards,
+    });
+    // Events and local records carry no updatedAt to compare.
+    await writeRecord(db, 'reviewLogs', VALID_RECORDS.reviewLogs, T0);
+    await writeRecord(db, 'drafts', VALID_RECORDS.drafts, T0);
+    await writeRecord(db, 'drafts', VALID_RECORDS.drafts, T0);
+    await writeRecord(db, 'cards', { ...same, updatedAt: T0 + 1 }, T0 + 1);
+  });
+
   it('reports a corrupted stored record instead of returning it', async () => {
     const db = await createTestDatabase();
     await db.table('settings').put({ id: 'settings', schemaVersion: 1, theme: 'purple' });

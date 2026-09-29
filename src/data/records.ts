@@ -105,9 +105,25 @@ export async function writeRecord<Name extends TableName>(
   const key = primaryKeyOf(name, record);
   if (key === null) throw new Error(`Refusing to write a ${name} record without a key`);
   await db.dexie.transaction('rw', [table, db.table('syncOutbox')], async () => {
+    // "Latest wins" needs a strictly increasing updatedAt (nextUpdatedAt):
+    // otherwise a stored version, or the server's, could win over this one.
+    if (TABLES[name].syncClass === 'document') {
+      const previous = updatedAtOf(await table.get(key));
+      const next = updatedAtOf(record);
+      if (previous !== null && (next === null || next <= previous)) {
+        throw new Error(`Refusing to write a ${name} record whose updatedAt does not increase`);
+      }
+    }
     await table.put(record);
     await enqueueChange(db, name, key, now);
   });
+}
+
+/** `updatedAt` of a stored record, readable or not, or `null`. */
+function updatedAtOf(record: unknown): number | null {
+  if (typeof record !== 'object' || record === null) return null;
+  const value: unknown = Reflect.get(record, 'updatedAt');
+  return typeof value === 'number' ? value : null;
 }
 
 /**
