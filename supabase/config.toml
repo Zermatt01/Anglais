@@ -1,0 +1,14 @@
+# Supabase CLI configuration (docs/DEPLOYMENT.md). Only what the project
+# needs is set here; everything else keeps the CLI defaults.
+# Reference: https://supabase.com/docs/guides/local-development/cli/config
+project_id = "anglais"
+
+[functions.ai]
+enabled = true
+# The platform checks the Authorization header before the function runs. It
+# also accepts the publishable key, so the function verifies the user's JWT
+# itself (D-062).
+verify_jwt = true
+entrypoint = "./functions/ai/index.ts"
+# Also resolves the imports of ../_shared (D-061).
+import_map = "./functions/ai/deno.json"
