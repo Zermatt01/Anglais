@@ -7,11 +7,21 @@ import {
   AppServicesContext,
   createAppServices,
   type AppServices,
+  type ServerServices,
 } from '../features/app-services.ts';
 import { createTestClock, createTestDatabase } from './database.ts';
 
-export async function createTestServices(): Promise<AppServices> {
-  return createAppServices(await createTestDatabase(), createTestClock());
+/**
+ * Services on a fresh in-memory database. By default no server is configured
+ * and the device is online.
+ */
+export async function createTestServices(
+  options: { readonly server?: ServerServices | null; readonly isOnline?: () => boolean } = {},
+): Promise<AppServices> {
+  return createAppServices(await createTestDatabase(), createTestClock(), {
+    server: options.server ?? null,
+    isOnline: options.isOnline ?? (() => true),
+  });
 }
 
 /** Renders `ui` with services (a fresh database unless given) and a router. */

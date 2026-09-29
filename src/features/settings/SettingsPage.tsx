@@ -1,8 +1,11 @@
+import { Link } from 'react-router';
 import type { LoadedSettings } from '../../data/repositories/settings-repository.ts';
 import { CheckboxGroup, ChoiceGroup, SelectField, SwitchField } from '../../ui/fields.tsx';
 import { Notice } from '../../ui/Notice.tsx';
 import { Page, Sheet } from '../../ui/Page.tsx';
+import { AccountSection } from '../account/AccountSection.tsx';
 import { DataSection } from '../data-transfer/DataSection.tsx';
+import { PATHS } from '../paths.ts';
 import { usePageTitle } from '../use-page-title.ts';
 import { CorrectionMarksPreview } from './CorrectionMarksPreview.tsx';
 import { DOMAIN_CHOICES, THEME_CHOICES, VARIANT_CHOICES } from './choices.ts';
@@ -146,6 +149,19 @@ function SettingsForm({ loaded }: { readonly loaded: LoadedSettings }) {
           savedRemarks={loaded.values.learnerProfile.remarks}
           onSave={(remarks) => update({ learnerProfile: { remarks } })}
         />
+      </Sheet>
+
+      <AccountSection />
+
+      <Sheet title="Intelligence artificielle">
+        <p className="muted">
+          L’IA n’est appelée que lorsque tu le demandes, avec un plafond de dépense mensuel.
+        </p>
+        <div className="button-row">
+          <Link className="button button--secondary" to={PATHS.usage}>
+            Voir la consommation
+          </Link>
+        </div>
       </Sheet>
 
       <DataSection />

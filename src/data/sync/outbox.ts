@@ -49,3 +49,9 @@ export async function enqueueEverything(db: AppDatabase, now: number): Promise<n
 export function countPending(db: AppDatabase): Promise<number> {
   return db.table('syncOutbox').count();
 }
+
+/** Sequence number of the latest queued write, or `null`: changes at each write. */
+export async function lastPendingSeq(db: AppDatabase): Promise<number | null> {
+  const [seq] = await db.table('syncOutbox').toCollection().reverse().limit(1).primaryKeys();
+  return typeof seq === 'number' ? seq : null;
+}

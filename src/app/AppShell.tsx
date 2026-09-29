@@ -5,6 +5,8 @@ import { NotFoundPage } from '../features/not-found/NotFoundPage.tsx';
 import { PATHS } from '../features/paths.ts';
 import { SettingsPage } from '../features/settings/SettingsPage.tsx';
 import { useSettings } from '../features/settings/use-settings.ts';
+import { useAutoSync } from '../features/sync/use-sync.ts';
+import { UsagePage } from '../features/usage/UsagePage.tsx';
 import { BottomNav } from './BottomNav.tsx';
 import { UpdatePrompt } from './UpdatePrompt.tsx';
 import { useApplyTheme } from './use-apply-theme.ts';
@@ -13,6 +15,7 @@ import { useApplyTheme } from './use-apply-theme.ts';
 function AppShell() {
   const settings = useSettings();
   useApplyTheme(settings?.values.theme ?? 'system');
+  useAutoSync();
 
   const { pathname } = useLocation();
   useEffect(() => {
@@ -37,6 +40,7 @@ export function AppRoutes() {
       <Route element={<AppShell />}>
         <Route path={PATHS.home} element={<HomePage />} />
         <Route path={PATHS.settings} element={<SettingsPage />} />
+        <Route path={PATHS.usage} element={<UsagePage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

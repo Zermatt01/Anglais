@@ -10,12 +10,13 @@ import {
 import { Button } from '../ui/Button.tsx';
 import { AppRoutes } from './AppShell.tsx';
 import { ErrorBoundary } from './ErrorBoundary.tsx';
+import { createServerServices } from './server.ts';
 
 const systemClock: Clock = { now: () => Date.now() };
 
 async function openServices(): Promise<AppServices> {
   const db = await openAppDatabase({ now: systemClock.now() });
-  return createAppServices(db, systemClock);
+  return createAppServices(db, systemClock, { server: createServerServices(db, systemClock) });
 }
 
 type BootState =

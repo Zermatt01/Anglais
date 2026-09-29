@@ -2,7 +2,7 @@
  * What the device exchanges with the server's SQL functions sync_push and
  * sync_pull (supabase/migrations/…_sync.sql), and the transport that carries
  * it. The transport is injected: Supabase in the application
- * (src/services/supabase), a test double in the tests.
+ * (src/services/backend), a test double in the tests.
  */
 import { z } from 'zod';
 

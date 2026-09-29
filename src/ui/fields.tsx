@@ -1,4 +1,9 @@
-import { useId, type ReactNode, type TextareaHTMLAttributes } from 'react';
+import {
+  useId,
+  type InputHTMLAttributes,
+  type ReactNode,
+  type TextareaHTMLAttributes,
+} from 'react';
 
 export interface Choice<T extends string> {
   readonly value: T;
@@ -205,6 +210,35 @@ export function TextAreaField({ label, hint, status, ...props }: TextAreaFieldPr
       <p className="status-line" aria-live="polite">
         {status}
       </p>
+    </div>
+  );
+}
+
+interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'id'> {
+  readonly label: string;
+  readonly hint?: string;
+}
+
+/** Single-line text input, with its label and an optional hint. */
+export function TextField({ label, hint, ...props }: TextFieldProps) {
+  const id = useId();
+  const hintId = useId();
+  return (
+    <div className="field">
+      <label className="field__label" htmlFor={id}>
+        {label}
+      </label>
+      {hint === undefined ? null : (
+        <p id={hintId} className="field__hint">
+          {hint}
+        </p>
+      )}
+      <input
+        id={id}
+        className="field__control"
+        aria-describedby={hint === undefined ? undefined : hintId}
+        {...props}
+      />
     </div>
   );
 }

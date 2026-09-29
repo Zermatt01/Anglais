@@ -2,4 +2,5 @@
 export const PATHS = {
   home: '/',
   settings: '/reglages',
+  usage: '/consommation',
 } as const;
