@@ -153,6 +153,24 @@ describe('errors of the API', () => {
     });
   });
 
+  it('keep the explanation of the API, for the logs', async () => {
+    const refused = new Anthropic.BadRequestError(
+      400,
+      {
+        type: 'error',
+        error: { type: 'invalid_request_error', message: 'Your credit balance is too low.' },
+      },
+      'Bad request',
+      new Headers(),
+    );
+    expect(await fakeApi(refused).caller.call(request())).toEqual({
+      kind: 'error',
+      errorCode: 'anthropic_400',
+      billed: 'none',
+      detail: 'invalid_request_error: Your credit balance is too low.',
+    });
+  });
+
   it('treat a timeout or a lost connection as possibly billed', async () => {
     expect(await fakeApi(new Anthropic.APIConnectionTimeoutError()).caller.call(request())).toEqual(
       { kind: 'error', errorCode: 'anthropic_timeout', billed: 'unknown' },

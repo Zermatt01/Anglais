@@ -13,7 +13,7 @@ import type {
   MessageCreateParamsNonStreaming,
   TextBlock,
 } from '@anthropic-ai/sdk/resources/messages/messages';
-import type { z } from 'zod';
+import { z } from 'zod';
 import type { TaskSettings } from '../_shared/ai/models.ts';
 import type { TokenUsage } from '../_shared/ai/pricing.ts';
 
@@ -46,7 +46,13 @@ export type ModelResult<Output> =
    * is billed), `unknown` when the request may have been processed
    * (connection lost, timeout): the call is then counted at its maximum cost.
    */
-  | { readonly kind: 'error'; readonly errorCode: string; readonly billed: 'none' | 'unknown' };
+  | {
+      readonly kind: 'error';
+      readonly errorCode: string;
+      readonly billed: 'none' | 'unknown';
+      /** Type and message of the API's answer, for the function logs only. */
+      readonly detail?: string;
+    };
 
 export interface ModelCaller {
   call<Output>(request: ModelRequest<Output>): Promise<ModelResult<Output>>;
@@ -96,6 +102,23 @@ function paramsOf<Output>(request: ModelRequest<Output>): MessageCreateParamsNon
   };
 }
 
+const apiErrorBodySchema = z.object({
+  error: z.object({ type: z.string(), message: z.string() }),
+});
+
+/**
+ * Type and message of an error answered by the API, such as
+ * "invalid_request_error: Your credit balance is too low…": without them, a
+ * refusal (credit, limits, parameters) cannot be understood. They describe the
+ * account or the request's parameters; they go to the function logs only,
+ * never to the database or the client.
+ */
+function detailOf(body: unknown): string | undefined {
+  const parsed = apiErrorBodySchema.safeParse(body);
+  if (!parsed.success) return undefined;
+  return `${parsed.data.error.type}: ${parsed.data.error.message}`.slice(0, 300);
+}
+
 function errorOf(error: unknown): Extract<ModelResult<never>, { kind: 'error' }> {
   // Most specific first: a timeout is also a connection error.
   if (error instanceof Anthropic.APIConnectionTimeoutError) {
@@ -105,7 +128,13 @@ function errorOf(error: unknown): Extract<ModelResult<never>, { kind: 'error' }>
     return { kind: 'error', errorCode: 'anthropic_connection', billed: 'unknown' };
   }
   if (error instanceof Anthropic.APIError && typeof error.status === 'number') {
-    return { kind: 'error', errorCode: `anthropic_${String(error.status)}`, billed: 'none' };
+    const detail = detailOf(error.error);
+    return {
+      kind: 'error',
+      errorCode: `anthropic_${String(error.status)}`,
+      billed: 'none',
+      ...(detail === undefined ? {} : { detail }),
+    };
   }
   return { kind: 'error', errorCode: 'anthropic_unknown', billed: 'unknown' };
 }

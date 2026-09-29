@@ -42,6 +42,8 @@ export interface LogEntry {
   readonly costUsd?: number;
   readonly latencyMs?: number;
   readonly errorCode?: string;
+  /** Explanation given by the API with an error (logs only, never stored). */
+  readonly detail?: string;
 }
 
 export interface Dependencies {
@@ -171,6 +173,7 @@ async function runTask(
       costUsd: outcome.costUsd,
       latencyMs: outcome.latencyMs,
       ...(outcome.errorCode === null ? {} : { errorCode: outcome.errorCode }),
+      ...(result.kind === 'error' && result.detail !== undefined ? { detail: result.detail } : {}),
     });
 
     switch (result.kind) {

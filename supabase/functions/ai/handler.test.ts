@@ -380,6 +380,17 @@ describe('a call', () => {
     expect(lost.completed[0]?.costUsd).toBe(RESERVED_COST);
   });
 
+  it('writes the explanation of an API error to the logs only, never to the log table', async () => {
+    const detail = 'invalid_request_error: Your credit balance is too low.';
+    const { deps, logs, completed } = harness({
+      results: [{ kind: 'error', errorCode: 'anthropic_400', billed: 'none', detail }],
+    });
+    const response = await handleRequest(post(CHECK), deps);
+    expect(await errorOf(response)).toEqual({ code: 'upstream_error' });
+    expect(logs).toContainEqual(expect.objectContaining({ errorCode: 'anthropic_400', detail }));
+    expect(JSON.stringify(completed)).not.toContain('credit');
+  });
+
   it('still answers when the outcome cannot be logged: the reservation stays', async () => {
     const { deps, logs } = harness({ completeFails: true });
     const response = await handleRequest(post(CHECK), deps);
