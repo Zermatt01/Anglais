@@ -290,3 +290,96 @@ describe('Row Level Security of the synchronization (SEC-02)', () => {
     ).rejects.toThrow(/not authenticated/);
   });
 });
+
+describe('history of replaced versions (NO-06, D-070)', () => {
+  const historySchema = z.object({
+    id: z.string(),
+    doc: z.record(z.string(), z.unknown()),
+    updated_at: z.coerce.number(),
+    server_seq: z.coerce.number(),
+  });
+
+  async function history(userId: string, id: string) {
+    const { rows } = await asUser(db, userId, (tx) =>
+      tx.query(
+        'select id, doc, updated_at, server_seq from public.sync_document_history where id = $1 order by server_seq',
+        [id],
+      ),
+    );
+    return rows.map((row) => historySchema.parse(row));
+  }
+
+  it('keeps a version already sent that a device with a clock ahead replaces', async () => {
+    const user = await createUser(db);
+    const id = crypto.randomUUID();
+    // Sent by a first device…
+    await push(user, [documentOf(id, 1_000, { front: 'sent first' })]);
+    // …then replaced by a second one, offline, whose clock runs ahead.
+    await push(user, [documentOf(id, 9_000, { front: 'written later, clock ahead' })]);
+    expect((await history(user, id)).map((entry) => entry.doc.front)).toEqual(['sent first']);
+  });
+
+  it('keeps the loser of a tie, and nothing when the version does not change', async () => {
+    const user = await createUser(db);
+    const id = crypto.randomUUID();
+    const a = documentOf(id, 300, { front: 'aaa' });
+    const b = documentOf(id, 300, { front: 'bbb' });
+    await push(user, [a]);
+    await push(user, [b]);
+    await push(user, [b]);
+    const kept = await storedDocument(user, id);
+    const archived = await history(user, id);
+    expect(archived).toHaveLength(kept?.doc.front === 'bbb' ? 1 : 0);
+    // A version that loses on arrival is never stored, so never archived.
+    await push(user, [documentOf(id, 100, { front: 'older' })]);
+    expect(await history(user, id)).toHaveLength(archived.length);
+  });
+
+  it('keeps the last ten replaced versions of each document', async () => {
+    const user = await createUser(db);
+    const id = crypto.randomUUID();
+    for (let version = 1; version <= 13; version += 1) {
+      await push(user, [documentOf(id, version, { front: `v${String(version)}` })]);
+    }
+    const archived = await history(user, id);
+    expect(archived.map((entry) => entry.doc.front)).toEqual([
+      'v3',
+      'v4',
+      'v5',
+      'v6',
+      'v7',
+      'v8',
+      'v9',
+      'v10',
+      'v11',
+      'v12',
+    ]);
+    expect((await storedDocument(user, id))?.doc.front).toBe('v13');
+  });
+
+  it('shows each user their own history only, and lets no client write or delete it', async () => {
+    const alice = await createUser(db);
+    const bob = await createUser(db);
+    const id = crypto.randomUUID();
+    await push(alice, [documentOf(id, 1)]);
+    await push(alice, [documentOf(id, 2)]);
+    expect(await history(alice, id)).toHaveLength(1);
+    expect(await history(bob, id)).toEqual([]);
+    await expect(
+      asUser(db, alice, (tx) => tx.query('delete from public.sync_document_history')),
+    ).rejects.toThrow(/permission denied/);
+    await expect(
+      asUser(db, alice, (tx) =>
+        tx.query(
+          `insert into public.sync_document_history
+             (user_id, collection, id, doc, schema_version, updated_at, deleted, server_seq)
+           values ($1, 'cards', 'x', '{}', 1, 1, false, 1)`,
+          [alice],
+        ),
+      ),
+    ).rejects.toThrow(/permission denied/);
+    await expect(
+      asRole(db, 'anon', null, (tx) => tx.query('select * from public.sync_document_history')),
+    ).rejects.toThrow(/permission denied/);
+  });
+});

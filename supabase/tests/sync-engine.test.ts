@@ -20,7 +20,7 @@ import {
 import { createSyncTransport } from '../../src/services/backend/sync-transport.ts';
 import { createTestClock, createTestDatabase } from '../../src/test/database.ts';
 import { FIXTURE_IDS, T0, VALID_RECORDS } from '../../src/test/fixtures.ts';
-import { createMigratedDatabase, createUser, rpcAs } from './database.ts';
+import { asRole, createMigratedDatabase, createUser, rpcAs } from './database.ts';
 
 let server: PGlite;
 
@@ -150,6 +150,31 @@ describe('synchronize', () => {
     expect((await phone.settings.load()).values.theme).toBe('light');
     const [copy] = await phone.db.table('quarantine').toArray();
     expect(copy).toMatchObject({ table: 'settings', record: { theme: 'dark' } });
+  });
+
+  it('keeps on the server a version already sent that a clock ahead replaces (counter-review)', async () => {
+    const user = await createUser(server);
+    const phone = await device(user);
+    const laptop = await device(user);
+    // The phone sends its change…
+    await phone.settings.update({ theme: 'dark' });
+    await phone.sync();
+    // …then the laptop, offline, clock ten minutes ahead, writes another one.
+    laptop.clock.advance(10 * 60_000);
+    await laptop.settings.update({ theme: 'light' });
+    await laptop.sync();
+
+    const report = await phone.sync();
+    // Nothing waited on the phone: it adopts the newer version, as it should…
+    expect(report.conflicts).toBe(0);
+    expect((await phone.settings.load()).values.theme).toBe('light');
+    // …and its own version is kept on the server (D-070).
+    const { rows } = await asRole(server, 'authenticated', user, (tx) =>
+      tx.query<{ doc: { theme: string } }>(
+        `select doc from public.sync_document_history where collection = 'settings'`,
+      ),
+    );
+    expect(rows.map((row) => row.doc.theme)).toEqual(['dark']);
   });
 
   it('keeps the events of every device (union)', async () => {

@@ -49,16 +49,34 @@ describe('migrations', () => {
   it('fix the search path of every function', async () => {
     const { rows } = await db.query<{ name: string }>(
       `select p.proname as name from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-       where n.nspname = 'public'
+       where n.nspname in ('public', 'private')
          and not coalesce(p.proconfig @> array['search_path=""'], false)`,
     );
     expect(rows).toEqual([]);
   });
 
-  it('create no security definer function, which would bypass Row Level Security', async () => {
+  it('keep the private schema, and its functions, out of reach of the clients', async () => {
+    const roles = await db.query<{ role: string }>(
+      `select r.rolname as role from pg_roles r
+       where r.rolname in ('anon', 'authenticated') and has_schema_privilege(r.rolname, 'private', 'usage')`,
+    );
+    expect(roles.rows).toEqual([]);
+    const functions = await db.query<{ name: string }>(
+      `select p.proname as name from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+       where n.nspname = 'private'
+         and (has_function_privilege('anon', p.oid, 'execute')
+           or has_function_privilege('authenticated', p.oid, 'execute'))`,
+    );
+    expect(functions.rows).toEqual([]);
+  });
+
+  it('create no security definer function that a client could call', async () => {
+    // Such a function would bypass Row Level Security. The only ones allowed
+    // are trigger functions of the private schema, which cannot be called.
     const { rows } = await db.query<{ name: string }>(
       `select p.proname as name from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-       where n.nspname = 'public' and p.prosecdef`,
+       where p.prosecdef and n.nspname in ('public', 'private')
+         and not (n.nspname = 'private' and p.prorettype = 'trigger'::regtype)`,
     );
     expect(rows).toEqual([]);
   });
