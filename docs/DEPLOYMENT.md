@@ -110,7 +110,7 @@ npx supabase@2.118.0 db push
 
 - `login` ouvre le navigateur pour autoriser la CLI.
 - `link` demande le mot de passe de la base (section 6).
-- `db push` liste les deux migrations (`…_sync.sql` et `…_ai_calls.sql`) et demande confirmation.
+- `db push` liste les migrations de `supabase/migrations/` (trois aujourd'hui : `…_sync.sql`, `…_ai_calls.sql` et `…_ai_refusals_not_logged.sql`) et demande confirmation. Après une mise à jour du dépôt qui en ajoute, relancer la même commande : seules les nouvelles sont appliquées.
 
 Vérification : **Table Editor** montre `sync_documents`, `sync_events` et `ai_calls`, chacune marquée « RLS enabled ».
 
