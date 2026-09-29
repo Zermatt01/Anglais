@@ -458,7 +458,7 @@ describe('with the real SQL functions (PGlite)', () => {
     expect(await errorOf(again)).toEqual({ code: 'duplicate_request' });
   });
 
-  it('refuses a call over the cap and logs the refusal at no cost', async () => {
+  it('refuses a call over the cap without calling the model or writing to the log', async () => {
     const userId = await createUser(db);
     const ledger = createLedger(rpcAs(db, 'service_role', null));
     const { deps, modelCalls } = harness({ ledger, user: { ...USER, id: userId } });
@@ -471,6 +471,6 @@ describe('with the real SQL functions (PGlite)', () => {
       'select status, cost_usd from public.ai_calls where user_id = $1',
       [userId],
     );
-    expect(rows).toEqual([{ status: 'refused_budget', cost_usd: '0.000000' }]);
+    expect(rows).toEqual([]);
   });
 });

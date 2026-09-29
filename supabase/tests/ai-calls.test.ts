@@ -129,16 +129,29 @@ describe('ai_reserve_call and ai_complete_call', () => {
     await expect(reserve(user, { requestId, attempt: 3 })).rejects.toThrow();
   });
 
-  it('refuse calls beyond the rate limit, and log the refusal at no cost (COST-07)', async () => {
+  it('refuse calls beyond the rate limit, without writing anything (COST-07, D-069)', async () => {
     const user = await createUser(db);
     for (let call = 0; call < 3; call += 1) {
       expect((await reserve(user, { ratePerMinute: 3 })).outcome).toBe('reserved');
     }
-    expect((await reserve(user, { ratePerMinute: 3 })).outcome).toBe('rate_limited');
-    // Refusals do not count as calls: the limit stays at 3.
+    // However many refusals, the log does not grow (review of phase 2).
+    for (let refusal = 0; refusal < 20; refusal += 1) {
+      expect((await reserve(user, { ratePerMinute: 3 })).outcome).toBe('rate_limited');
+    }
+    expect(await rowsOf(user)).toHaveLength(3);
     expect((await reserve(user, { ratePerMinute: 4 })).outcome).toBe('reserved');
-    const refused = (await rowsOf(user)).filter((row) => row.status === 'refused_rate');
-    expect(refused).toEqual([{ status: 'refused_rate', attempt: 1, cost_usd: '0.000000' }]);
+  });
+
+  it('let a refused request be sent again later with the same identifier', async () => {
+    const user = await createUser(db);
+    const requestId = crypto.randomUUID();
+    expect((await reserve(user, { requestId, reservedUsd: 20, budgetUsd: 10 })).outcome).toBe(
+      'budget_exceeded',
+    );
+    expect(await rowsOf(user)).toEqual([]);
+    expect((await reserve(user, { requestId, reservedUsd: 0.01, budgetUsd: 10 })).outcome).toBe(
+      'reserved',
+    );
   });
 
   it('count only the calls of the last minute, and not the second attempts', async () => {
