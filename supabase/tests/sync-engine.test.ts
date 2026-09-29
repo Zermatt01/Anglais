@@ -14,10 +14,10 @@ import { readCursor, readLastSyncAt, writeMeta } from '../../src/data/sync/meta.
 import { countPending } from '../../src/data/sync/outbox.ts';
 import {
   pullResultSchema,
-  pushResultSchema,
   type RemoteRow,
   type SyncTransport,
 } from '../../src/data/sync/protocol.ts';
+import { createSyncTransport } from '../../src/services/supabase/sync-transport.ts';
 import { createTestClock, createTestDatabase } from '../../src/test/database.ts';
 import { FIXTURE_IDS, T0, VALID_RECORDS } from '../../src/test/fixtures.ts';
 import { createMigratedDatabase, createUser, rpcAs } from './database.ts';
@@ -28,18 +28,9 @@ beforeAll(async () => {
   server = await createMigratedDatabase();
 });
 
+/** The transport of the app, over the SQL functions called as `userId`. */
 function transportFor(userId: string): SyncTransport {
-  const rpc = rpcAs(server, 'authenticated', userId);
-  return {
-    async push(documents, events) {
-      return pushResultSchema.parse(
-        await rpc('sync_push', { p_documents: documents, p_events: events }),
-      );
-    },
-    async pull(cursor, limit) {
-      return pullResultSchema.parse(await rpc('sync_pull', { p_cursor: cursor, p_limit: limit }));
-    },
-  };
+  return createSyncTransport(rpcAs(server, 'authenticated', userId));
 }
 
 interface Device {
