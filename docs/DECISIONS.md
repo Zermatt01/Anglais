@@ -6,67 +6,76 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 
 ## Index
 
-| ID    | Sujet                                                    | Thème       | Statut          |
-| ----- | -------------------------------------------------------- | ----------- | --------------- |
-| D-001 | Langues du projet                                        | Outillage   | Actée           |
-| D-002 | npm et Node 24                                           | Outillage   | Actée           |
-| D-003 | TypeScript 6.0.x plutôt que 7                            | Outillage   | Actée           |
-| D-004 | ESLint plutôt qu'oxlint, fork d'accessibilité            | Outillage   | Actée           |
-| D-005 | Vitest 5 et jsdom 29                                     | Outillage   | Actée           |
-| D-006 | Options TypeScript                                       | Outillage   | Actée           |
-| D-007 | Playwright sur le build de production                    | Outillage   | Actée           |
-| D-008 | Scan de secrets en plus d'ESLint                         | Sécurité    | Actée           |
-| D-009 | Identifiants de modèles et prix                          | IA et coûts | Actée           |
-| D-010 | Sortie JSON garantie                                     | IA et coûts | Actée           |
-| D-011 | Cache de prompts                                         | IA et coûts | Actée           |
-| D-012 | Réflexion de Sonnet 5 réglée par tâche                   | IA et coûts | À calibrer (P5) |
-| D-013 | Authentification par code à usage unique                 | Serveur     | À vérifier (P2) |
-| D-014 | Magasin de documents générique côté serveur              | Serveur     | Actée           |
-| D-015 | Résolution des conflits                                  | Données     | Actée           |
-| D-016 | Réservation budgétaire et nouvelle tentative             | IA et coûts | Actée           |
-| D-017 | Prompts uniquement côté serveur                          | IA et coûts | Actée           |
-| D-018 | Mise à jour du service worker sur demande                | PWA         | Actée           |
-| D-019 | Stockage persistant et migrations sûres                  | Données     | Actée           |
-| D-020 | Aucune donnée personnelle identifiante dans le dépôt     | Sécurité    | Actée           |
-| D-021 | Taxonomie à deux dimensions et règles de départage       | Pédagogie   | Actée           |
-| D-022 | Notion « à consolider »                                  | Pédagogie   | Actée           |
-| D-023 | Notions admises dans le Thème                            | Pédagogie   | Actée           |
-| D-024 | Seules les erreurs qualifiantes déclenchent une lacune   | Pédagogie   | Actée           |
-| D-025 | Erreur sur une notion non étudiée                        | Pédagogie   | Actée           |
-| D-026 | Autocorrection vérifiée localement                       | Pédagogie   | Actée           |
-| D-027 | Critères de passage par défaut                           | Pédagogie   | À ajuster (P3)  |
-| D-028 | Limites de la reconnaissance vocale                      | Parole      | À revoir (P6)   |
-| D-029 | Mise en pause des projets Supabase gratuits              | Serveur     | À vérifier (P2) |
-| D-030 | Code partagé entre le client et l'Edge Function          | Serveur     | À vérifier (P2) |
-| D-031 | Nom des clés Supabase côté client                        | Serveur     | À vérifier (P2) |
-| D-032 | Profil générique renforcé, historique conservé           | Sécurité    | Actée           |
-| D-033 | Scan de l'index Git et gitleaks sur tout l'historique    | Sécurité    | Actée           |
-| D-034 | Serveur e2e dédié, jamais réutilisé                      | Outillage   | Actée           |
-| D-035 | Critère décisif : erreur ou non                          | Pédagogie   | Actée           |
-| D-036 | Programme aligné sur Murphy, en 9 pistes                 | Pédagogie   | Actée           |
-| D-037 | Ajouts de phase 8 dans la piste Temps verbaux            | Pédagogie   | Actée           |
-| D-038 | Références « Pour aller plus loin », livrées en phase 3  | Pédagogie   | Actée           |
-| D-039 | Libellés des livres : rouge et bleu                      | Pédagogie   | Actée           |
-| D-040 | Taxonomie : définitions élargies aux nouvelles notions   | Pédagogie   | Actée           |
-| D-041 | Contenu original, sans reprise des livres                | Pédagogie   | Actée           |
-| D-042 | Revue de la mise à jour Murphy                           | Pédagogie   | Actée           |
-| D-043 | Toutes les tables locales déclarées dès la version 1     | Données     | Actée           |
-| D-044 | Clés naturelles communes à tous les appareils            | Données     | À vérifier (P2) |
-| D-045 | File de synchronisation alimentée à partir de la phase 2 | Données     | Actée           |
-| D-046 | Règles d'équivalence de la correction locale             | Pédagogie   | Actée           |
-| D-047 | Résolubilité des cartes : règles et prudence             | Pédagogie   | Actée           |
-| D-048 | Paramètres de répétition espacée                         | Pédagogie   | À calibrer (P4) |
-| D-049 | React Router 8 et adresses en français                   | Outillage   | Actée           |
-| D-050 | Règles de couches par `no-restricted-imports`            | Outillage   | Actée           |
-| D-051 | Direction visuelle : polices système et `light-dark()`   | Interface   | Actée           |
-| D-052 | Réglages livrés en phase 1                               | Interface   | Actée           |
-| D-053 | Brouillons de saisie                                     | Données     | Actée           |
-| D-054 | Export, import et sauvegardes automatiques               | Données     | Actée           |
-| D-055 | PWA : icônes générées, pas d'annonce « hors ligne »      | PWA         | Actée           |
-| D-056 | En-têtes de sécurité, tests sous la CSP de production    | Sécurité    | Actée           |
-| D-057 | Revue de la phase 1                                      | Transverse  | Actée           |
-| D-058 | Règles sur l'anglais : listes fermées et cas négatifs    | Pédagogie   | Actée           |
-| D-059 | Revues : une par phase, revue de l'anglais en phase 3    | Processus   | Actée           |
+| ID    | Sujet                                                    | Thème       | Statut           |
+| ----- | -------------------------------------------------------- | ----------- | ---------------- |
+| D-001 | Langues du projet                                        | Outillage   | Actée            |
+| D-002 | npm et Node 24                                           | Outillage   | Actée            |
+| D-003 | TypeScript 6.0.x plutôt que 7                            | Outillage   | Actée            |
+| D-004 | ESLint plutôt qu'oxlint, fork d'accessibilité            | Outillage   | Actée            |
+| D-005 | Vitest 5 et jsdom 29                                     | Outillage   | Actée            |
+| D-006 | Options TypeScript                                       | Outillage   | Actée            |
+| D-007 | Playwright sur le build de production                    | Outillage   | Actée            |
+| D-008 | Scan de secrets en plus d'ESLint                         | Sécurité    | Actée            |
+| D-009 | Identifiants de modèles et prix                          | IA et coûts | Actée            |
+| D-010 | Sortie JSON garantie                                     | IA et coûts | Actée            |
+| D-011 | Cache de prompts                                         | IA et coûts | Actée            |
+| D-012 | Réflexion de Sonnet 5 réglée par tâche                   | IA et coûts | À calibrer (P5)  |
+| D-013 | Authentification par code à usage unique                 | Serveur     | Vérifiée (D-060) |
+| D-014 | Magasin de documents générique côté serveur              | Serveur     | Actée            |
+| D-015 | Résolution des conflits                                  | Données     | Actée            |
+| D-016 | Réservation budgétaire et nouvelle tentative             | IA et coûts | Actée            |
+| D-017 | Prompts uniquement côté serveur                          | IA et coûts | Actée            |
+| D-018 | Mise à jour du service worker sur demande                | PWA         | Actée            |
+| D-019 | Stockage persistant et migrations sûres                  | Données     | Actée            |
+| D-020 | Aucune donnée personnelle identifiante dans le dépôt     | Sécurité    | Actée            |
+| D-021 | Taxonomie à deux dimensions et règles de départage       | Pédagogie   | Actée            |
+| D-022 | Notion « à consolider »                                  | Pédagogie   | Actée            |
+| D-023 | Notions admises dans le Thème                            | Pédagogie   | Actée            |
+| D-024 | Seules les erreurs qualifiantes déclenchent une lacune   | Pédagogie   | Actée            |
+| D-025 | Erreur sur une notion non étudiée                        | Pédagogie   | Actée            |
+| D-026 | Autocorrection vérifiée localement                       | Pédagogie   | Actée            |
+| D-027 | Critères de passage par défaut                           | Pédagogie   | À ajuster (P3)   |
+| D-028 | Limites de la reconnaissance vocale                      | Parole      | À revoir (P6)    |
+| D-029 | Mise en pause des projets Supabase gratuits              | Serveur     | Vérifiée (P2)    |
+| D-030 | Code partagé entre le client et l'Edge Function          | Serveur     | Tranchée (D-061) |
+| D-031 | Nom des clés Supabase côté client                        | Serveur     | Tranchée (D-060) |
+| D-032 | Profil générique renforcé, historique conservé           | Sécurité    | Actée            |
+| D-033 | Scan de l'index Git et gitleaks sur tout l'historique    | Sécurité    | Actée            |
+| D-034 | Serveur e2e dédié, jamais réutilisé                      | Outillage   | Actée            |
+| D-035 | Critère décisif : erreur ou non                          | Pédagogie   | Actée            |
+| D-036 | Programme aligné sur Murphy, en 9 pistes                 | Pédagogie   | Actée            |
+| D-037 | Ajouts de phase 8 dans la piste Temps verbaux            | Pédagogie   | Actée            |
+| D-038 | Références « Pour aller plus loin », livrées en phase 3  | Pédagogie   | Actée            |
+| D-039 | Libellés des livres : rouge et bleu                      | Pédagogie   | Actée            |
+| D-040 | Taxonomie : définitions élargies aux nouvelles notions   | Pédagogie   | Actée            |
+| D-041 | Contenu original, sans reprise des livres                | Pédagogie   | Actée            |
+| D-042 | Revue de la mise à jour Murphy                           | Pédagogie   | Actée            |
+| D-043 | Toutes les tables locales déclarées dès la version 1     | Données     | Actée            |
+| D-044 | Clés naturelles communes à tous les appareils            | Données     | Vérifiée (D-063) |
+| D-045 | File de synchronisation alimentée à partir de la phase 2 | Données     | Actée            |
+| D-046 | Règles d'équivalence de la correction locale             | Pédagogie   | Actée            |
+| D-047 | Résolubilité des cartes : règles et prudence             | Pédagogie   | Actée            |
+| D-048 | Paramètres de répétition espacée                         | Pédagogie   | À calibrer (P4)  |
+| D-049 | React Router 8 et adresses en français                   | Outillage   | Actée            |
+| D-050 | Règles de couches par `no-restricted-imports`            | Outillage   | Actée            |
+| D-051 | Direction visuelle : polices système et `light-dark()`   | Interface   | Actée            |
+| D-052 | Réglages livrés en phase 1                               | Interface   | Actée            |
+| D-053 | Brouillons de saisie                                     | Données     | Actée            |
+| D-054 | Export, import et sauvegardes automatiques               | Données     | Actée            |
+| D-055 | PWA : icônes générées, pas d'annonce « hors ligne »      | PWA         | Actée            |
+| D-056 | En-têtes de sécurité, tests sous la CSP de production    | Sécurité    | Actée            |
+| D-057 | Revue de la phase 1                                      | Transverse  | Actée            |
+| D-058 | Règles sur l'anglais : listes fermées et cas négatifs    | Pédagogie   | Actée            |
+| D-059 | Revues : une par phase, revue de l'anglais en phase 3    | Processus   | Actée            |
+| D-060 | Compte : clé publique, code par e-mail, compte unique    | Serveur     | Actée            |
+| D-061 | Contrat IA copié dans `supabase/functions/_shared`       | Serveur     | Actée            |
+| D-062 | Authentification et CORS de l'Edge Function              | Sécurité    | Actée            |
+| D-063 | Protocole de synchronisation                             | Données     | Actée            |
+| D-064 | Droits SQL explicites, migrations testées avec PGlite    | Serveur     | Actée            |
+| D-065 | CSP : adresse exacte du projet Supabase                  | Sécurité    | Actée            |
+| D-066 | Chaîne d'appel IA et test de connexion                   | IA et coûts | Actée            |
+| D-067 | Écran « Consommation »                                   | IA et coûts | Actée            |
+| D-068 | Client Supabase dans un fichier JavaScript séparé        | Outillage   | Actée            |
 
 ---
 
@@ -160,6 +169,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - Inscriptions désactivées une fois le compte unique créé.
   - L'Edge Function vérifie en plus que l'e-mail figure dans la liste `AI_ALLOWED_EMAILS`.
 - **Alternatives écartées.** Lien magique : risque de session ouverte dans le mauvais contexte, et de connexion qui semble échouer.
+- **Suite (2026-09-29).** Vérifiée et précisée par D-060 : le compte est créé dans le tableau de bord, et les inscriptions sont fermées dès le départ.
 
 ### D-014 — Magasin de documents générique côté serveur (2026-09-27)
 
@@ -277,6 +287,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 
 - **Contexte.** Le plan gratuit met en pause un projet inactif pendant environ une semaine.
 - **Décision.** Documenter ce comportement dans le guide de la phase 2. Pendant une pause, l'app reste utilisable hors ligne ; la synchronisation et l'IA reprennent après réactivation dans le tableau de bord Supabase.
+- **Vérification (2026-09-29).** Un projet gratuit sans activité de base de données pendant sept jours est mis en pause ; Supabase prévient par e-mail environ une semaine avant. Les données sont conservées, et le projet peut être relancé pendant un an (**Resume project**). Une synchronisation compte comme une activité : un usage régulier de l'app suffit. Voir [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ### D-030 — Code partagé entre le client et l'Edge Function (2026-09-27, à vérifier en phase 2)
 
@@ -410,6 +421,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - La colonne `sync_documents.id` d'ARCHITECTURE §4.3 doit être de type `text`, et non `uuid`.
   - La clé unique du lexique (`key`) peut entrer en conflit entre deux appareils. La phase 2, ou la phase 4 qui remplit le lexique, doit choisir une règle, par exemple dériver l'identifiant de la clé.
 - **Raison.** Une clé primaire Dexie ne peut pas être changée après coup sans créer une nouvelle table : il fallait trancher avant la première donnée écrite.
+- **Suite (2026-09-29).** Vérifiée en phase 2 : voir D-063 (colonne `text`, règle du lexique).
 
 ### D-045 — File de synchronisation alimentée à partir de la phase 2 (2026-09-28)
 
@@ -577,3 +589,85 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - L'utilisateur relit ensuite un échantillon d'exercices avant la clôture de la phase 3.
   - La limite d'une contre-revue s'applique à chacune des deux revues de la phase 3, celle du code et celle de l'anglais (confirmé par l'utilisateur le 2026-09-29).
 - **Raison.** Limiter les allers-retours garde le rythme des phases, sans jamais laisser passer un point bloquant. En phase 3, une réponse attendue fausse serait le pire défaut possible (CUR-06) : la justesse de l'anglais mérite une revue qui ne soit pas noyée dans celle du code, et un regard humain.
+
+### D-060 — Compte : clé publique, code par e-mail, compte unique (2026-09-29, vérifie D-013, tranche D-031)
+
+- **Contexte.** Supabase a remplacé les clés « anon » et « service_role » (des JWT) par une clé publique `sb_publishable_…` et une clé secrète `sb_secret_…`.
+- **Décision.**
+  - Le client reçoit, au moment du build, `VITE_SUPABASE_URL` et `VITE_SUPABASE_PUBLISHABLE_KEY`. Une clé qui ne commence pas par `sb_publishable_` est refusée : l'app reste alors entièrement locale. La clé secrète n'existe que dans l'environnement de l'Edge Function, et le scan de secrets la refuse dans le dépôt. Un `.env.example` documente les deux variables.
+  - Connexion par code : `signInWithOtp({ email, options: { shouldCreateUser: false } })`, puis `verifyOtp({ email, token, type: 'email' })`. Le modèle d'e-mail « Magic Link » de Supabase doit contenir `{{ .Token }}` pour envoyer un code au lieu d'un lien. Le code est valable une heure ; un nouveau code peut être demandé toutes les 60 secondes ; l'envoi intégré de Supabase est limité à deux e-mails par heure.
+  - **Changement par rapport à D-013** : le compte unique est créé dans le tableau de bord Supabase, et les inscriptions sont fermées dès le départ, au lieu d'être fermées après la première connexion. L'app ne crée jamais de compte (`shouldCreateUser: false`) : il n'existe aucun moment où un inconnu pourrait s'inscrire.
+  - La déconnexion ne concerne que ce téléphone et laisse toutes les données locales.
+- **Raison.** Option la plus prudente (PROC-04) : aucune fenêtre d'inscription ouverte, aucune clé secrète côté client.
+
+### D-061 — Contrat IA copié dans `supabase/functions/_shared` (2026-09-29, tranche D-030)
+
+- **Contexte.** La documentation de Supabase recommande de partager le code entre fonctions dans `supabase/functions/_shared`. L'import de fichiers situés hors de `supabase/` est annoncé avec les déploiements sans Docker, mais des utilisateurs signalent des difficultés, et ce point ne peut pas être vérifié sans déployer.
+- **Décision.**
+  - `shared/ai` reste la source. `npm run sync:shared` en écrit une copie dans `supabase/functions/_shared/ai` (tests exclus), chaque fichier marqué « généré, ne pas modifier ». Un test vérifie que la copie est à jour.
+  - Les dépendances de la fonction sont épinglées dans `supabase/functions/ai/deno.json` (carte d'imports), déclaré aussi dans `supabase/config.toml`. Un test vérifie qu'elles sont identiques aux versions installées pour les tests Node.
+  - Deno refuse par défaut les paquets publiés depuis moins de 24 heures (protection contre les attaques de la chaîne d'approvisionnement) : les versions choisies ont au moins une semaine (SDK Anthropic 0.128.0, `@supabase/server` 1.8.0).
+  - La CI vérifie la fonction avec Deno (`deno check`, avec cette configuration) ; en local : `npm run check:edge`. Le fichier `deno.lock` n'est pas versionné : son format pourrait être plus récent que celui du Deno de Supabase.
+- **Raison.** La disposition documentée par Supabase ne dépend d'aucune fonctionnalité incertaine du déploiement, et la copie ne peut pas diverger sans faire échouer les tests.
+
+### D-062 — Authentification et CORS de l'Edge Function (2026-09-29)
+
+- **Contexte.** La vérification JWT de la plateforme (`verify_jwt`) accepte aussi la clé publique, qui est publique par définition : elle n'identifie personne. Avec les nouvelles clés, elle est aussi une cause connue d'échecs, notamment de la requête CORS préalable du navigateur. Supabase fournit désormais un SDK serveur officiel, `@supabase/server` (v1, bêta publique, versionnage sémantique).
+- **Décision.**
+  - La fonction vérifie elle-même le JWT de l'utilisateur avec `verifyAuth` de `@supabase/server/core` : signature contre les clés publiques du projet (JWKS), émetteur (`<projet>/auth/v1`) et audience (`authenticated`) imposés, rôle `authenticated` et e-mail exigés. Puis l'e-mail doit figurer dans `AI_ALLOWED_EMAILS`.
+  - `verify_jwt = false` dans `supabase/config.toml` : aucune protection n'est perdue, et une cause de panne disparaît.
+  - Cette vérification suppose des clés de signature asymétriques (le cas des projets récents) : le guide fait vérifier la page **JWT Keys**.
+  - CORS : seules les origines de `AI_ALLOWED_ORIGINS` (l'adresse Vercel et, si besoin, le serveur de développement) reçoivent les en-têtes CORS ; les autres reçoivent une erreur 403.
+  - Point d'entrée `export default { fetch }`, la forme générée aujourd'hui par Supabase. La configuration est validée par Zod au démarrage ; une configuration invalide fait répondre `server_error` à toute requête, et le journal nomme les variables fautives, jamais leurs valeurs.
+- **Raison.** Défense en profondeur sur un chemin qui dépense de l'argent (SEC-05), sans dépendre d'un comportement de la plateforme non vérifiable avant le déploiement.
+
+### D-063 — Protocole de synchronisation (2026-09-29, vérifie D-044, précise D-015 et D-045)
+
+- **Décision.**
+  - **File sortante.** `writeRecord` écrit un enregistrement synchronisé et son entrée de file dans la même transaction ; une transaction englobante doit donc inclure `syncOutbox` (sinon elle échoue, ce que les tests vérifient). Une seule entrée par enregistrement : une nouvelle écriture remplace l'entrée précédente par une entrée plus récente, si bien qu'un envoi en cours ne supprime jamais une écriture qu'il n'a pas vue. L'import JSON alimente la file de la même façon.
+  - **Premier envoi.** La première synchronisation avec un compte met en file tout ce qui existe (D-045) ; un changement de compte recommence depuis zéro.
+  - **Égalités.** Le serveur est le seul arbitre (comparaison déterministe des documents sérialisés). Les versions qui n'ont pas gagné reviennent dans la réponse de `sync_push`, et l'appareil les adopte si sa version n'a pas changé depuis l'envoi. À la réception, une version de même `updatedAt` mais de contenu différent remplace la version locale, sauf si celle-ci attend d'être envoyée : sans cette règle, un appareil qui avait perdu une égalité et n'avait plus rien à envoyer gardait sa version indéfiniment (défaut trouvé par les tests, corrigé).
+  - **Curseur.** Les envois d'un même utilisateur passent un par un (verrou consultatif jusqu'à la fin de la transaction) : les numéros de séquence sont attribués dans l'ordre des validations, et une lecture ne saute jamais une modification.
+  - **Rien ne se perd (NO-06).** Un enregistrement reçu illisible va en `quarantine`. Un enregistrement d'une version plus récente de l'app, ou d'une table inconnue, reste sur le serveur ; la « signature de schéma » de l'app est mémorisée, et quand elle change (mise à jour), tout est relu depuis le début. Un enregistrement local illisible est mis de côté avant d'être remplacé, et n'est jamais envoyé.
+  - **Lexique (D-044).** Une entrée reçue dont l'expression existe déjà localement sous un autre identifiant est mise en `quarantine` au lieu de violer la clé unique ; la synchronisation continue. Pour éviter ces doublons, la phase 4, qui crée les entrées, dérivera l'identifiant de l'expression normalisée : deux appareils créeront alors le même document.
+  - **Clés naturelles (D-044).** `sync_documents.id` est de type `text` ; `settings`, `notionProgress` et `ruleNotes` fusionnent bien entre appareils (vérifié par les tests).
+  - **Déclencheurs.** Ouverture de l'app, connexion, retour du réseau, cinq secondes après la dernière écriture, bouton « Synchroniser maintenant ». Une seule synchronisation à la fois ; une demande pendant une synchronisation en provoque une seule de plus. Aucune n'appelle l'IA (COST-01).
+- **Raison.** Chaque règle est vérifiée par des tests qui font synchroniser deux appareils à travers les vraies fonctions SQL.
+
+### D-064 — Droits SQL explicites, migrations testées avec PGlite (2026-09-29)
+
+- **Contexte.** Supabase n'accorde plus automatiquement les droits de l'API sur les nouvelles tables (nouveaux projets depuis le 30 mai 2026, tous les projets à partir du 30 octobre 2026) ; les anciens projets, eux, accordaient trop (`anon`, `delete`). Les fonctions SQL restent exécutables par tous par défaut.
+- **Décision.**
+  - Chaque migration révoque puis accorde explicitement les droits : `authenticated` lit et écrit ses lignes de synchronisation (sans `delete`) et lit ses appels IA ; `anon` n'a rien ; seul `service_role` exécute les fonctions du journal des appels IA.
+  - Toutes les fonctions sont en `security invoker` (soumises à la RLS), avec un `search_path` vide.
+  - Les migrations sont testées dans PGlite (Postgres compilé en WebAssembly, sans serveur ni Docker), avec les rôles de Supabase et une copie de `auth.uid()`. Un test général vérifie, pour toute migration présente et future : RLS sur chaque table, aucun droit pour `anon`, `search_path` fixé, aucune fonction `security definer`.
+- **Raison.** SEC-02 est vérifié automatiquement, et plus seulement à la relecture.
+
+### D-065 — CSP : adresse exacte du projet Supabase (2026-09-29, complète D-056)
+
+- **Contexte.** `vercel.json` est statique ; l'adresse du projet n'existe qu'une fois le projet créé. `vercel.ts` permettrait de la calculer au build, mais ce mécanisme récent ne peut pas être vérifié sans déployer, et il porterait les en-têtes de sécurité.
+- **Décision.**
+  - `connect-src` autorise `'self'` et l'adresse **exacte** du projet (`https://<ref>.supabase.co`), jamais `*.supabase.co`. `npm run configure:csp -- <adresse>` l'écrit dans `vercel.json`, et refuse toute autre forme.
+  - Tout build dont `VITE_SUPABASE_URL` n'est pas autorisée par la CSP échoue en indiquant la commande à lancer, au lieu de produire une app dont toutes les requêtes au serveur seraient bloquées.
+  - Les tests e2e construisent l'app avec un faux projet sur sa propre origine (`http://localhost:4193/__supabase`) : la CSP de production s'applique sans modification.
+- **Raison.** La CSP la plus stricte possible, sans risque de déploiement cassé en silence.
+
+### D-066 — Chaîne d'appel IA et test de connexion (2026-09-29, complète D-010, D-011 et D-016)
+
+- **Décision.**
+  - **Tâche de la phase 2.** Les prompts de correction et de génération appartiennent aux phases 3 et 4. La phase 2 livre une seule tâche, `connection-check` : un appel minimal à Haiku 4.5 (64 tokens de sortie au plus, moins d'un millième de dollar), lancé uniquement par le bouton « Tester la connexion ». Il vérifie toute la chaîne (session, clé, crédit, plafond, sortie structurée, journal des coûts), ce que le guide demande de faire.
+  - **Sortie structurée.** `messages.create()` avec `output_config.format = zodOutputFormat(schéma)`, puis validation par la fonction. `messages.parse()` lève une exception sur une réponse invalide et perd le décompte des tokens, alors que chaque appel doit être journalisé à son coût réel (COST-05). Constat pour la phase 4 : le SDK retire aussi `enum` et `const` du schéma envoyé (ils passent dans la description) ; la validation Zod de la fonction reste donc la seule garantie sur les valeurs.
+  - **Nouvelles tentatives.** Aucune nouvelle tentative automatique du SDK (`maxRetries: 0`) : une requête répétée pourrait être facturée deux fois sans être journalisée. Une seule nouvelle tentative après une sortie invalide ou un refus du modèle, aucune après `max_tokens` (ARCHITECTURE §8). Délai maximal : 90 secondes.
+  - **Budget.** La réservation estime l'entrée à un token pour deux caractères, plus 1 000 tokens de marge, et compte toute la sortie au maximum ; les coûts sont arrondis au millionième de dollar supérieur. Un appel à l'issue inconnue (délai dépassé, connexion perdue) est compté à son coût maximal ; une erreur renvoyée par l'API, à zéro. Les refus (plafond, fréquence) sont journalisés sans coût. Le mois du plafond est le mois UTC.
+  - **Idempotence.** Un `requestId` déjà reçu est refusé, quelle que soit sa date (et non plus seulement dans les dix dernières minutes : l'unicité est garantie par la base). Le client fournit un identifiant par action de l'utilisateur ; les phases suivantes le conserveront avec la production concernée.
+- **Raison.** COST-01 à COST-07 appliqués côté serveur, avec des chiffres vérifiables dans le journal.
+
+### D-067 — Écran « Consommation » (2026-09-29)
+
+- **Décision.** L'écran `/consommation`, accessible depuis les Réglages, lit la consommation par une requête `GET` à l'Edge Function, qui connaît le plafond configuré (`AI_MONTHLY_BUDGET_USD`) et lit le journal pour l'utilisateur vérifié ; aucun modèle n'est appelé. Il montre le coût du mois (plafond compris, mois UTC), du jour (dans le fuseau du téléphone) et par fonction. Le dernier état est gardé dans `usageSnapshot` et affiché, avec sa date, hors connexion.
+- **Raison.** Le plafond n'est connu que du serveur ; le lire à côté des chiffres évite de le recopier côté client.
+
+### D-068 — Client Supabase dans un fichier JavaScript séparé (2026-09-29)
+
+- **Contexte.** `supabase-js` porte le fichier JavaScript principal de 502 kB à 745 kB (219 kB compressés).
+- **Décision.** Le code serveur est chargé par un import dynamique, pendant l'ouverture de la base, et pas du tout si aucun serveur n'est configuré. Le fichier principal revient à 521 kB (163 kB compressés), le client Supabase fait 224 kB ; les deux sont précachés pour le hors ligne. Le découpage par écran reste prévu en phase 3.

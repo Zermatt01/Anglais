@@ -24,6 +24,7 @@ npm ci
 npm run check      # typecheck + lint + format:check + tests unitaires + scan de secrets
 npm run build
 npm run test:e2e   # nécessite : npx playwright install chromium
+npm run check:edge # l'Edge Function vérifiée par Deno (aussi en CI)
 ```
 
 ## Règles essentielles
@@ -39,7 +40,7 @@ npm run test:e2e   # nécessite : npx playwright install chromium
    - toute lecture validée par `parseRecord`, toute écriture par `writeRecord` ; un enregistrement illisible n'est jamais écrasé ni supprimé sans avoir été copié dans `quarantine` (`setAsideIfUnreadable`) ;
    - document et file de synchronisation écrits dans la même transaction (à partir de la phase 2) ;
    - service worker mis à jour sur demande seulement.
-7. **RLS** activée, avec des politiques explicites, sur toute table Postgres (SEC-02).
+7. **RLS** activée, avec des politiques et des droits explicites, sur toute table Postgres (SEC-02, D-064) ; `supabase/tests/security.test.ts` le vérifie pour toute migration. L'Edge Function vérifie elle-même le JWT (D-062) ; `supabase/functions/_shared/ai` est une copie générée de `shared/ai`, à ne pas modifier à la main (D-061).
 8. Aucun test, règle de lint ni vérification de types désactivé (PROC-05).
 9. Aucune donnée personnelle dans le code, les logs ou les commits (SEC-03).
 10. **Couches** : les dépendances entre dossiers de `src/` sont imposées par `eslint.layers.ts` (ARCHITECTURE §3). Le domaine reste pur, sans horloge implicite.

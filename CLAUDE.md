@@ -14,24 +14,27 @@ npm run test:e2e        # Playwright (build de production, émulation Pixel 7)
 npm run build           # build de production
 npm run format          # formater avec Prettier
 npm run generate:icons  # régénérer les icônes de la PWA dans public/
+npm run sync:shared     # recopier shared/ai dans supabase/functions/_shared/ai (après toute modification)
+npm run check:edge      # vérifier l'Edge Function avec Deno (via npx)
+npm run configure:csp -- https://<ref>.supabase.co  # autoriser le projet Supabase dans la CSP
 ```
 
-Détail : `typecheck` (`tsc -b`), `lint` (`eslint . --max-warnings=0`), `test` (`vitest run`), `test:watch`, `check:secrets`. Première exécution des tests e2e : `npx playwright install chromium`.
+Détail : `typecheck` (`tsc -b`), `lint` (`eslint . --max-warnings=0`), `test` (`vitest run`, y compris les tests SQL dans PGlite), `test:watch`, `check:secrets`. Première exécution des tests e2e : `npx playwright install chromium`. CLI Supabase : `npx supabase@2.118.0 …` (docs/DEPLOYMENT.md).
 
 ## Architecture (détails : docs/ARCHITECTURE.md)
 
 - **Stack** : Vite, React, TypeScript strict ; Dexie (IndexedDB) comme **source de vérité** sur l'appareil ; Zod à toutes les frontières ; ts-fsrs encapsulé ; vite-plugin-pwa.
-- **Serveur** : Supabase (authentification par code e-mail, Postgres avec RLS) et une Edge Function « ai », seul chemin vers Anthropic. Hébergement du front sur Vercel.
+- **Serveur** : Supabase (authentification par code e-mail, Postgres avec RLS) et une Edge Function « ai », seul chemin vers Anthropic, qui vérifie elle-même le JWT. Hébergement du front sur Vercel. Sans `VITE_SUPABASE_URL` et `VITE_SUPABASE_PUBLISHABLE_KEY`, l'app reste entièrement locale.
 - **Dossiers** (dépendances imposées par `eslint.layers.ts` ; noms de dossiers de couche réservés) :
   - `src/app` : coquille (démarrage, routage, navigation, thème, bandeau de mise à jour) ;
   - `src/domain` : logique **pure et testée**, sans React, Dexie ni réseau ; horloge injectée ;
-  - `src/data` : Dexie, registre des tables, schémas, lecture validée (`parseRecord`), dépôts, export et import, synchronisation ;
+  - `src/data` : Dexie, registre des tables, schémas, lecture validée (`parseRecord`), écriture validée avec file de synchronisation (`writeRecord`), dépôts, export et import, synchronisation (`sync/`) ;
   - `src/features` : écrans par module ;
   - `src/ui` : composants ;
   - `src/content` : programme en **données** ;
-  - `src/services` : IA, parole ;
-  - `shared/ai` : contrat IA (tâches, schémas, prompts versionnés, `models.ts`, `pricing.ts`) ;
-  - `supabase/` : migrations et Edge Function.
+  - `src/services` : `backend/` (Supabase : compte, transport de synchronisation), `ai-client/`, stockage, parole ;
+  - `shared/ai` : contrat IA (tâches, schémas, prompts versionnés, `models.ts`, `pricing.ts`), copié pour Deno dans `supabase/functions/_shared/ai` par `npm run sync:shared` ;
+  - `supabase/` : `migrations/`, `functions/ai/` (Edge Function), `tests/` (PGlite).
 - **Modèles** : `claude-haiku-4-5-20251001` pour les vérifications simples, `claude-sonnet-5` pour la correction, le diagnostic et la génération. Seulement dans `shared/ai/models.ts`.
 
 ## Conventions

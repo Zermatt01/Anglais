@@ -60,9 +60,11 @@ src/
   ui/             Composants visuels réutilisables et styles : thème « cahier corrigé »
                   (theme.css), boutons, champs, avis, marques de correction ; plus tard frises SVG
   features/       Un dossier par module (P1 : home, settings, data-transfer, not-found ;
-                  ensuite review, path, theme, journal, email, oral, lexicon, rules, dashboard,
-                  usage, quality, diagnostic, import, session), plus ce que les écrans partagent :
-                  app-services.ts (services fournis par la coquille), drafts/ (brouillons)
+                  P2 : account, usage ; ensuite review, path, theme, journal, email, oral,
+                  lexicon, rules, dashboard, quality, diagnostic, import, session), plus ce que
+                  les écrans partagent : app-services.ts (services fournis par la coquille),
+                  drafts/ (brouillons), sync/ (contrôleur et déclencheurs de la synchronisation),
+                  ai/ (montants et messages d'erreur de l'IA)
   domain/         Logique pure, sans React, Dexie ni réseau :
                     primitives.ts, taxonomy.ts, settings.ts   types et schémas communs
                     srs/          adaptateur ts-fsrs (interface interne), notes, maîtrise
@@ -78,25 +80,34 @@ src/
                   (un schéma Zod par table ; les tables locales dans local.ts), records.ts
                   (lecture et écriture validées, migrations de documents), repositories/,
                   transfer/ (export et import JSON), backup.ts (sauvegarde avant montée de
-                  version), open.ts ; sync/ en P2 (file sortante, push/pull)
+                  version), open.ts, sync/ (file sortante, protocole, application des
+                  changements reçus, moteur de synchronisation, P2)
   content/        Programme rédigé : pistes, notions, leçons, exercices du socle (validés Zod, P3)
-  services/       storage/ (stockage persistant) ; ai-client/ (P2), speech/ (P3 et P6)
+  services/       storage/ (stockage persistant) ; backend/ (client Supabase, compte,
+                  transport de synchronisation, P2) ; ai-client/ (client de l'Edge Function, P2) ;
+                  speech/ (P3 et P6)
   test/           Configuration et utilitaires de test (base en mémoire, fixtures, rendu)
 public/           Icônes de la PWA, générées par scripts/generate-icons.ts
 eslint.layers.ts  Règles de dépendance entre couches (§3)
 vercel.json       En-têtes de sécurité et réécritures (§9)
 shared/
-  ai/             Contrat IA partagé client ↔ Edge Function : tâches, schémas d'entrée et de
-                  sortie (Zod), prompts versionnés, models.ts, pricing.ts
+  ai/             Contrat IA partagé client ↔ Edge Function : tasks.ts (tâches, schémas
+                  d'entrée et de sortie), protocol.ts (requêtes, réponses, erreurs, consommation),
+                  models.ts, pricing.ts, prompts/ (versionnés, jamais importés par le client)
 supabase/
-  migrations/     SQL versionné (schéma, RLS, fonctions de synchro)
-  functions/ai/   Edge Function mandataire (Deno)
-e2e/              Tests Playwright (émulation mobile)
-scripts/          Outils du dépôt (scan de secrets…)
+  config.toml     Réglages de la CLI : fonction « ai », carte d'imports
+  migrations/     SQL versionné : synchronisation, journal des appels IA (RLS, droits, fonctions)
+  functions/ai/   Edge Function mandataire (Deno) : index.ts (entrée), server.ts (assemblage),
+                  handler.ts (traitement), auth.ts, cors.ts, config.ts, ledger.ts (journal),
+                  model.ts (appel Anthropic), deno.json (dépendances épinglées)
+  functions/_shared/ai/  Copie générée de shared/ai (npm run sync:shared, D-061)
+  tests/          Tests des migrations et de la synchronisation dans PGlite (D-064)
+e2e/              Tests Playwright (émulation mobile, faux serveur Supabase)
+scripts/          Outils du dépôt (scan de secrets, copie de shared/ai, CSP…)
 docs/             Documentation
 ```
 
-`shared/ai` est importé par l'Edge Function (Deno) et par le client (schémas uniquement). La faisabilité de cet import depuis Deno est à vérifier en phase 2 ; à défaut, un script copiera le dossier dans `supabase/functions/_shared`, et la CI vérifiera que la copie est à jour (DECISIONS D-030).
+`shared/ai` est importé par le client (contrat seulement, jamais les prompts) et, à travers sa copie dans `supabase/functions/_shared/ai`, par l'Edge Function. Un test vérifie que la copie est à jour (DECISIONS D-061).
 
 ## 3. Couches et règles de dépendance
 
@@ -115,6 +126,7 @@ features ──► ui
 - `features` orchestre : lit via `data`, calcule via `domain`, affiche via `ui`. `app` (la coquille) peut tout importer.
 - Ces règles sont imposées par ESLint (`eslint.layers.ts`, DECISIONS D-050 et D-057). Une règle locale, `layers/layer-imports`, résout chaque chemin avant d'en déterminer la couche : aucune écriture du chemin ne lui échappe. Elle vérifie les imports statiques, les `export … from`, les `import()` dynamiques (un chemin calculé est refusé) et les `typeof import()` dans les types. Un test vérifie qu'elle refuse les imports interdits, y compris les contournements connus, et que la configuration réelle l'applique. Les noms de dossiers de couche sont réservés.
 - Le SDK Anthropic est interdit dans `src/` (règle ESLint et scan de secrets).
+- Hors de `src/` : `shared/` n'importe aucune couche de `src/`, ni le SDK Anthropic, ni React, Dexie ou Supabase, et reste pur comme le domaine ; `supabase/functions/` n'importe aucune couche de `src/`. `src/` n'importe ni `supabase/`, ni les prompts de `shared/ai` (D-017). Les tests de `supabase/tests/` peuvent importer `src/` : ils vérifient la synchronisation du client contre les vraies fonctions SQL.
 
 ## 4. Modèle de données
 
@@ -157,9 +169,9 @@ features ──► ui
 | `pronunciationAttempts` | E      | `id` ; `at`                                             | Texte attendu, texte reconnu, mots manqués et leurs catégories de sons. Les sons faibles en sont **déduits**.                                                                                                                                                                                                                                                                             | P6      |
 | `emailSessions`         | D      | `id` ; `updatedAt`                                      | Scénario, étape (`plan`, `draft`, `revision`, `model`, `done`), plan, objet, brouillon, production liée (reprenable).                                                                                                                                                                                                                                                                     | P7      |
 | `drafts`                | L      | `key` (par exemple `theme:<itemId>`)                    | Brouillon de saisie, enregistré à chaque pause de frappe (UI-03). Supprimé après envoi réussi.                                                                                                                                                                                                                                                                                            | P1      |
-| `syncOutbox`            | L      | `++seq` ; `[table+docId]`                               | Écritures locales en attente d'envoi.                                                                                                                                                                                                                                                                                                                                                     | P2      |
-| `syncMeta`              | L      | `key`                                                   | Curseur de lecture, identifiant d'appareil, date de dernière synchronisation.                                                                                                                                                                                                                                                                                                             | P2      |
-| `usageSnapshot`         | L      | `id` (singleton)                                        | Dernier état de l'écran Consommation, pour un affichage hors ligne.                                                                                                                                                                                                                                                                                                                       | P2      |
+| `syncOutbox`            | L      | `++seq` ; `[table+docId]`                               | Enregistrements synchronisés écrits localement et pas encore envoyés : une entrée par enregistrement, écrite dans la même transaction que lui (D-063).                                                                                                                                                                                                                                    | P2      |
+| `syncMeta`              | L      | `key`                                                   | Compte synchronisé, curseur de lecture, signature de schéma de l'app, date de la dernière synchronisation complète.                                                                                                                                                                                                                                                                       | P2      |
+| `usageSnapshot`         | L      | `id` (singleton)                                        | Dernier état de l'écran Consommation (plafond, coûts du mois, du jour et par tâche), pour un affichage hors ligne.                                                                                                                                                                                                                                                                        | P2      |
 | `quarantine`            | L      | `id` ; `[table+key]`                                    | Enregistrement illisible copié tel quel avant d'être remplacé ou supprimé : table et clé d'origine, enregistrement brut, raison, date. Exporté, jamais synchronisé ni relu par l'application (DECISIONS D-057).                                                                                                                                                                           | P1 (v2) |
 
 Toutes ces tables sont déclarées dès la version 1 de Dexie (DECISIONS D-043). La version 2 ajoute une table locale `quarantine`, exportée : un enregistrement illisible y est copié tel quel avant qu'une écriture le remplace ou le supprime (`setAsideIfUnreadable`, DECISIONS D-057). C'est le cas aujourd'hui pour les brouillons et les réglages.
@@ -174,6 +186,8 @@ Les enregistrements sont lus avec le type `unknown`, ce qui oblige à les valide
 Les schémas des tables des phases 3 à 7 sont des premières versions, ajustables par leur phase tant qu'aucune donnée n'y est écrite. Les contenus dont le format appartient à une phase ultérieure sont acceptés comme JSON valide (`z.json()`), puis validés par leur schéma définitif dans cette phase.
 
 ### 4.3 Tables Postgres (phase 2)
+
+Le SQL de référence est dans `supabase/migrations/` ; en voici l'essentiel (contraintes de format omises).
 
 ```sql
 -- Documents fusionnés en « le plus récent gagne » (classe D)
@@ -210,22 +224,30 @@ create table ai_calls (
   task               text not null,
   model              text not null,
   prompt_version     text not null,
-  status             text not null,          -- reserved | ok | invalid_output | error | refused_budget | refused_rate
-  attempt            int  not null default 1,
+  status             text not null,          -- reserved | ok | invalid_output | truncated | model_refusal
+                                             -- | error | refused_budget | refused_rate
+  attempt            smallint not null default 1,  -- 2 : l'unique nouvelle tentative
+
   input_tokens       int, output_tokens int,
   cache_creation_input_tokens int, cache_read_input_tokens int,
   reserved_cost_usd  numeric(10,6) not null default 0,
   cost_usd           numeric(10,6),
   latency_ms         int,
-  error_code         text
+  error_code         text,
+  unique (user_id, request_id, attempt)
 );
 ```
 
 - `server_seq` est tiré d'une séquence commune, affectée par un déclencheur à chaque insertion ou mise à jour. Le curseur de lecture est ainsi monotone et indépendant des horloges.
-- **RLS** activée sur les trois tables :
-  - `sync_documents` et `sync_events` : `select`, `insert` et `update` limités à `user_id = auth.uid()`. Pas de `delete` : on utilise des tombstones.
-  - `ai_calls` : `select` seulement pour le propriétaire. Aucune écriture possible depuis le client ; l'Edge Function écrit avec la clé de service.
+- **RLS** activée sur les trois tables, droits accordés explicitement (D-064) :
+  - `sync_documents` : `select`, `insert` et `update` limités à `user_id = auth.uid()` ; `sync_events` : `select` et `insert`. Pas de `delete` : on utilise des tombstones.
+  - `ai_calls` : `select` seulement pour le propriétaire. Aucune écriture possible depuis le client ; l'Edge Function écrit avec la clé secrète (rôle `service_role`).
+  - Le rôle `anon` n'a aucun droit.
+- **Fonctions SQL** (toutes en `security invoker`, `search_path` vide) :
+  - `sync_push(documents, events)` et `sync_pull(cursor, limit)`, appelées par le client connecté (§7) ;
+  - `ai_reserve_call`, `ai_complete_call` et `ai_usage_summary`, réservées à `service_role` (§8, §10.3).
 - **Aucun texte de l'apprenant** dans `ai_calls` : uniquement des métadonnées et des compteurs.
+- Les migrations sont testées dans PGlite (`supabase/tests/`), avec les rôles de Supabase ; un test général vérifie la RLS de chaque table et l'absence de droits pour `anon` (D-064).
 
 ## 5. Programme et contenu
 
@@ -323,30 +345,34 @@ La **réparation des segments** IA (AI-07) vit aussi dans ce module. Un segment 
 
 ## 7. Synchronisation
 
-**Écriture locale** : un dépôt écrit le document (avec `updatedAt` monotone) **et** une entrée dans `syncOutbox`, dans la **même transaction** Dexie. Aucune écriture n'échappe à la file. En phase 1, la file n'est pas encore alimentée : la phase 2 l'ajoutera dans `writeRecord` et les dépôts, avec un premier envoi complet des données existantes (DECISIONS D-045).
+La synchronisation (`src/data/sync/`) ne fonctionne que si un projet Supabase est configuré et que l'apprenant est connecté ; sinon, tout reste sur l'appareil. Elle n'appelle jamais le modèle (COST-01). Règles et raisons : DECISIONS D-063.
 
-Les règles de fusion (« le plus récent gagne », union des événements) sont des fonctions pures de `src/domain/sync/merge.ts`, déjà utilisées par l'import JSON.
+**Écriture locale.** `writeRecord` écrit un enregistrement synchronisé (classes D et E) **et** son entrée dans `syncOutbox`, dans la **même transaction** Dexie ; une transaction englobante doit donc inclure `syncOutbox`, sinon elle échoue. Aucune écriture n'échappe à la file, import JSON compris. Une seule entrée par enregistrement : une nouvelle écriture remplace l'entrée précédente par une entrée de numéro plus élevé. Les tables locales (brouillons, `quarantine`, état de la synchronisation, `usageSnapshot`) ne sont jamais synchronisées.
 
-**Déclencheurs** (aucun coût IA : la synchronisation n'appelle jamais le modèle) :
+Les règles de fusion sont des fonctions pures de `src/domain/sync/merge.ts` : `decideDocumentMerge` pour l'import JSON, `decideRemoteVersion` pour la synchronisation.
 
-- ouverture de l'app ;
-- événement `online` ;
-- 5 secondes après la dernière écriture ;
-- bouton « Synchroniser ».
+**Déclencheurs** (`src/features/sync/`) : ouverture de l'app, connexion, événement `online`, 5 secondes après la dernière écriture, bouton « Synchroniser maintenant ». Une seule synchronisation à la fois ; une demande faite pendant une synchronisation en déclenche une seule de plus.
 
-**Push** : les entrées de la file sont envoyées par lots à une fonction RPC `sync_push` (sécurité invoker, soumise à la RLS).
+**Compte.** La première synchronisation avec un compte met en file tous les enregistrements existants (D-045) ; un changement de compte remet le curseur à zéro et envoie tout de nouveau.
 
-- Documents : `insert … on conflict do update … where excluded.updated_at > sync_documents.updated_at`, avec départage déterministe à égalité (comparaison du `doc` sérialisé).
+**Push** : les entrées de la file sont lues par lots de 200, avec les enregistrements qu'elles désignent tels qu'ils sont stockés, puis envoyées à la fonction `sync_push` (soumise à la RLS).
+
+- Documents : `insert … on conflict do update … where excluded.updated_at > stored.updated_at`, ou à égalité si le `doc` sérialisé est plus grand (départage déterministe, le serveur seul arbitre). Les versions qui n'ont pas gagné sont renvoyées (`stale`) ; l'appareil les adopte si sa version n'a pas changé depuis l'envoi.
 - Événements : `insert … on conflict do nothing`.
-- Les entrées acquittées sont retirées de la file.
+- Les envois d'un même utilisateur passent un par un (verrou consultatif) : les numéros de séquence suivent l'ordre des validations, et une lecture ne saute jamais une modification.
+- Les entrées envoyées sont retirées de la file dans la transaction qui applique la réponse. Un enregistrement local illisible n'est jamais envoyé (il reste dans l'export).
 
-**Pull** : `sync_pull(cursor, limit)` renvoie les lignes dont `server_seq > cursor`, par ordre croissant.
+**Pull** : `sync_pull(cursor, limit)` renvoie par lots de 200 les lignes dont `server_seq > cursor`, par ordre croissant. Chaque lot est appliqué dans une transaction qui fait aussi avancer le curseur.
 
-- Documents : appliqués si le document local est absent ou si `remote.updatedAt > local.updatedAt`. Un document local plus récent sera renvoyé au prochain push.
-- Événements : insérés s'ils sont absents.
-- Le curseur n'avance qu'après une application réussie.
+- Documents : appliqués si le document local est absent ou illisible (il est alors mis de côté), ou si la version reçue est plus récente ; à `updatedAt` égal et contenu différent, la version du serveur l'emporte, sauf si la version locale attend d'être envoyée (son envoi sera arbitré par le serveur).
+- Événements : insérés s'ils sont absents, jamais remplacés.
+- Un enregistrement reçu illisible va en `quarantine`. Un enregistrement d'une version plus récente de l'app, ou d'une table inconnue, reste sur le serveur : quand la « signature de schéma » de l'app change (mise à jour), tout est relu depuis le début.
+- Une entrée du lexique dont l'expression existe déjà localement sous un autre identifiant va en `quarantine` (clé unique, D-044).
+- Les changements reçus ne sont pas remis dans la file ; l'entrée d'une version locale remplacée en est retirée.
 
 **Conflits** : « le plus récent gagne » par document ; l'historique d'activité est fusionné par union des événements (DECISIONS D-015). Les brouillons ne sont jamais synchronisés.
+
+**Tests.** Deux appareils (deux bases Dexie) se synchronisent à travers les vraies fonctions SQL dans PGlite (`supabase/tests/sync-engine.test.ts`) : premier envoi, changements d'un appareil à l'autre, égalités, union des événements, écriture pendant un envoi, coupure réseau, lots, changement de compte, enregistrements illisibles ou plus récents.
 
 **Migrations de schéma** (NO-06) :
 
@@ -373,8 +399,9 @@ Utilisateur          Client (PWA)                    Edge Function « ai »     
     │ « Corriger » ───►│ 1. production enregistrée         │                                      │
     │                  │    localement (aucune perte)      │                                      │
     │                  │ 2. entrée validée (Zod)           │                                      │
-    │                  │── POST {task, input, requestId} ─►│ 3. CORS, JWT, e-mail autorisé        │
-    │                  │   + JWT                           │ 4. validation Zod de l'entrée        │
+    │                  │── POST {task, input, requestId} ─►│ 3. CORS, JWT vérifié par la fonction,│
+    │                  │   + JWT + clé publique            │    e-mail autorisé                   │
+    │                  │                                   │ 4. validation Zod de l'entrée        │
     │                  │                                   │ 5. idempotence (requestId)           │
     │                  │                                   │ 6. limite de fréquence (par minute)  │
     │                  │                                   │ 7. budget : réservation du coût max  │
@@ -384,35 +411,42 @@ Utilisateur          Client (PWA)                    Edge Function « ai »     
     │                  │                                   │ 9. validation Zod (+ 1 nouvelle      │
     │                  │                                   │    tentative si sortie invalide)     │
     │                  │                                   │10. coût réel → ai_calls              │
-    │                  │◄─ {output, usage, promptVersion} ─│                                      │
+    │                  │◄─ {output, costUsd, promptVersion}│                                      │
     │                  │11. validation Zod, réparation des segments,                              │
     │                  │    enregistrement (jamais redemandé), règles du domaine                  │
     │◄── feedback ─────│                                                                          │
 ```
 
+Code : `supabase/functions/ai/handler.ts` (étapes 3 à 10), `src/services/ai-client/ai-client.ts` (client). Les étapes 5 à 7 sont faites en une transaction par la fonction SQL `ai_reserve_call`, une seule à la fois par utilisateur ; l'étape 10 par `ai_complete_call`.
+
 Détails :
 
-- **Étape 7, budget.** La somme du mois (coûts réels + réservations en cours), augmentée du coût **maximal** de l'appel, ne doit pas dépasser le plafond (COST-06). Le coût maximal se calcule à partir de l'entrée estimée et de `max_tokens`. On insère ensuite une ligne `reserved`. En cas de refus, le message est clair : « Plafond mensuel de 10 USD atteint (9,87 USD utilisés). Les fonctions IA reprendront le 1er octobre. Tout le reste de l'app fonctionne. »
-- **Étape 8, appel.** Via `@anthropic-ai/sdk` : `client.messages.parse()` avec `output_config.format = zodOutputFormat(schéma)`, qui garantit un JSON conforme (DECISIONS D-010). La tâche fixe `max_tokens`, le modèle et la réflexion.
+- **Étape 3, identité** (D-062). La fonction vérifie elle-même le JWT de l'utilisateur (`@supabase/server/core` : signature contre les clés du projet, émetteur et audience imposés), puis que son e-mail figure dans `AI_ALLOWED_EMAILS`. La vérification de la plateforme (`verify_jwt`) est désactivée : elle accepte aussi la clé publique et peut bloquer la requête CORS préalable.
+- **Étape 5, idempotence.** Un `requestId` déjà reçu est refusé (`duplicate_request`), sans appel ni coût. Le client en fournit un par action de l'utilisateur.
+- **Étape 7, budget.** La somme du mois UTC (coûts réels + réservations en cours), augmentée du coût **maximal** de l'appel, ne doit pas dépasser le plafond (COST-06). Le coût maximal se calcule à partir de l'entrée estimée (un token pour deux caractères, plus 1 000 tokens de marge) et de `max_tokens`. On insère ensuite une ligne `reserved`. En cas de refus, le message est clair : « Plafond mensuel de 10 USD atteint (9,87 USD utilisés). Les fonctions IA reprendront le 1er octobre. Tout le reste de l'app fonctionne. »
+- **Étape 8, appel.** Via `@anthropic-ai/sdk` : `client.messages.create()` avec `output_config.format = zodOutputFormat(schéma)` (DECISIONS D-010, D-066). La réponse est validée par la fonction plutôt que par `messages.parse()`, qui perdrait le décompte des tokens d'une réponse invalide. La tâche fixe `max_tokens`, le modèle et la réflexion (envoyée explicitement). Pas de nouvelle tentative automatique du SDK (`maxRetries: 0`), délai maximal de 90 secondes.
   - Le **préfixe stable** du système porte `cache_control` : rôle, taxonomie avec définitions, identifiants de notions, règles, exemples.
   - La **partie variable** vient après : profil de l'apprenant, texte, consigne (COST-03).
-- **Étape 9, sortie invalide.** Si la sortie est invalide (`stop_reason` `max_tokens` ou `refusal`, ou échec de validation sémantique), **une seule** nouvelle tentative est faite, sauf pour `max_tokens`, qu'une nouvelle tentative identique ne corrigerait pas. Chaque tentative est journalisée et comptée dans le budget (DECISIONS D-016). Si l'échec persiste, le client affiche une version dégradée utilisable : la production reste enregistrée, avec le statut `correction-failed` et un bouton « Réessayer ».
+- **Étape 9, sortie invalide.** Si la sortie est invalide (`stop_reason` `max_tokens` ou `refusal`, ou échec de validation), **une seule** nouvelle tentative est faite, sauf pour `max_tokens`, qu'une nouvelle tentative identique ne corrigerait pas. Chaque tentative est réservée, journalisée et comptée dans le budget (DECISIONS D-016). Si l'échec persiste, le client affiche une version dégradée utilisable : la production reste enregistrée, avec le statut `correction-failed` et un bouton « Réessayer ».
+- **Étape 10, coût réel.** Calculé d'après l'usage renvoyé (§10.1). Une erreur renvoyée par l'API coûte zéro ; un appel à l'issue inconnue (délai dépassé, connexion perdue) est compté à son coût maximal. Si le journal ne peut pas être mis à jour, la réservation reste, au coût maximal : le plafond tient toujours.
+- **Erreurs.** Chaque refus a un code (`protocol.ts`) et un message en français (`src/features/ai/messages.ts`).
 - **Hors ligne.** Le bouton d'action IA reste visible mais inactif, avec la mention : « Connexion nécessaire pour la correction. Ta réponse est enregistrée. »
+- **Phase 2.** Seule la tâche `connection-check` existe : un appel minimal, lancé par le bouton « Tester la connexion » de l'écran Consommation, qui vérifie toute la chaîne (D-066).
 
 ## 9. Sécurité
 
 - **Clé Anthropic** (SEC-01) : uniquement dans les secrets de l'Edge Function (`ANTHROPIC_API_KEY`), jamais journalisée. La règle ESLint et `npm run check:secrets` (contenu indexé, copie de travail et nouveaux fichiers) interdisent tout accès direct à Anthropic depuis `src/` et toute clé dans le dépôt. En CI, gitleaks analyse en plus **tout l'historique Git** (DECISIONS D-033).
-- **Clés Supabase côté client** : la clé publique est publique par conception, et la protection repose sur la RLS. La clé de service n'existe que dans l'environnement de l'Edge Function. Le nom exact des variables (clé « anon » ou « publishable ») sera vérifié en phase 2 (DECISIONS D-031).
-- **Authentification** (DECISIONS D-013) :
-  - un code à usage unique envoyé par e-mail ;
-  - inscriptions désactivées une fois le compte unique créé ;
-  - l'Edge Function vérifie en plus que l'e-mail figure dans `AI_ALLOWED_EMAILS` (défense en profondeur contre la dépense).
-- **RLS** sur toutes les tables, avec des politiques explicites (SEC-02). Toute nouvelle migration qui crée une table doit activer la RLS : c'est vérifié à la relecture (AGENTS.md).
+- **Clés Supabase** (DECISIONS D-060) : le client reçoit au build `VITE_SUPABASE_URL` et la clé publique `VITE_SUPABASE_PUBLISHABLE_KEY` (`sb_publishable_…`), publique par conception : la protection repose sur la RLS. Une clé d'une autre forme est refusée. La clé secrète (`sb_secret_…`) n'existe que dans l'environnement de l'Edge Function, fourni par Supabase.
+- **Authentification** (DECISIONS D-013, D-060, D-062) :
+  - un code à usage unique envoyé par e-mail, jamais un lien ;
+  - le compte unique est créé dans le tableau de bord Supabase, les inscriptions sont fermées dès le départ, et l'app ne crée jamais de compte ;
+  - l'Edge Function vérifie elle-même le JWT (clés du projet, émetteur, audience), puis que l'e-mail figure dans `AI_ALLOWED_EMAILS` (défense en profondeur contre la dépense).
+- **RLS** sur toutes les tables, avec des politiques et des droits explicites (SEC-02, D-064). Un test vérifie, pour toute migration, la RLS de chaque table, l'absence de droits pour `anon`, le `search_path` de chaque fonction et l'absence de fonction `security definer`.
 - **Validation** : l'Edge Function refuse toute requête dont la tâche est inconnue ou dont l'entrée ne passe pas son schéma Zod (tailles maximales incluses). Le client n'envoie **jamais** de prompt, seulement `{ task, input }` (DECISIONS D-017).
-- **CORS** : seuls le domaine Vercel de production et `localhost` en développement sont autorisés.
+- **CORS** : seules les origines de `AI_ALLOWED_ORIGINS` (le domaine Vercel de production et, si besoin, un serveur de développement) reçoivent les en-têtes CORS de l'Edge Function.
 - **Journaux** : aucun texte de l'apprenant ; seulement identifiants, tâche, compteurs de tokens et codes d'erreur.
 - **En-têtes** (`vercel.json`, DECISIONS D-056) :
-  - Content-Security-Policy : `default-src`, `script-src`, `style-src`, `worker-src`, `manifest-src` et `connect-src` limités à `'self'`, sans `unsafe-inline` ni `unsafe-eval` ; `object-src 'none'`, `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`. La phase 2 ajoutera l'adresse Supabase à `connect-src`.
+  - Content-Security-Policy : `default-src`, `script-src`, `style-src`, `worker-src`, `manifest-src` et `connect-src` limités à `'self'`, sans `unsafe-inline` ni `unsafe-eval` ; `object-src 'none'`, `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`. `connect-src` autorise en plus l'adresse **exacte** du projet Supabase, écrite par `npm run configure:csp` ; un build qui appellerait un projet non autorisé échoue (DECISIONS D-065).
   - `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Cross-Origin-Opener-Policy: same-origin`, `Strict-Transport-Security`.
   - `Permissions-Policy` : micro autorisé pour l'origine seule, caméra et géolocalisation refusées.
   - Réécriture des adresses internes vers `index.html`, sauf `/assets/` (un fichier absent reste une erreur 404) ; `sw.js` jamais mis en cache, fichiers de `/assets/` en cache permanent (noms hachés).
@@ -428,7 +462,7 @@ Détails :
 ### 10.1 Configuration
 
 - `shared/ai/models.ts` est le **seul** fichier où l'on choisit, par tâche : le modèle, `max_tokens`, la réflexion et l'effort, et la mise en cache (ARC-09).
-- `shared/ai/pricing.ts` contient le tableau de prix (USD par million de tokens), vérifié le 2026-09-27 :
+- `shared/ai/pricing.ts` contient le tableau de prix (USD par million de tokens), vérifié le 2026-09-29. Les montants sont calculés en millionièmes de dollar et arrondis au-dessus :
 
 | Modèle                      | Entrée | Sortie | Écriture en cache (TTL 5 min) | Lecture en cache | Préfixe minimum cacheable |
 | --------------------------- | ------ | ------ | ----------------------------- | ---------------- | ------------------------- |
@@ -448,6 +482,8 @@ Les tokens de réflexion sont facturés comme de la sortie.
 
 ### 10.2 Tâches prévues (valeurs initiales, calibrées en phases 2 et 5)
 
+Chaque phase ajoute à `shared/ai` les tâches dont elle a besoin. La phase 2 livre seulement `connection-check` : Haiku 4.5, 64 tokens de sortie, sans réflexion ni cache, déclenchée par « Tester la connexion » (D-066).
+
 | Tâche                | Modèle    | `max_tokens` | Réflexion                                    | Cache du préfixe                    | Déclencheur                                                       |
 | -------------------- | --------- | ------------ | -------------------------------------------- | ----------------------------------- | ----------------------------------------------------------------- |
 | `correct-production` | Sonnet 5  | 2 000        | Désactivée ou effort bas (à calibrer, D-012) | Oui                                 | « Corriger » (Thème, Journal, Produire, E-mail, étape 4 inconnue) |
@@ -465,14 +501,15 @@ Les tokens de réflexion sont facturés comme de la sortie.
 
 - **Fréquence** : `AI_RATE_LIMIT_PER_MINUTE` (défaut 6), compté sur `ai_calls`.
 - **Plafond mensuel** : `AI_MONTHLY_BUDGET_USD` (défaut 10), avec réservation préalable du coût maximal, ce qui garantit le plafond même en cas d'appels concurrents.
-- **Idempotence** : un `requestId` déjà vu dans les 10 dernières minutes est refusé. Un double tap ne coûte donc rien.
+- **Idempotence** : un `requestId` déjà reçu est refusé, quelle que soit sa date (D-066). Le client en fournit un par action de l'utilisateur : la même action envoyée deux fois ne coûte rien.
+- **Refus journalisés** : les refus pour fréquence ou plafond sont enregistrés sans coût ; ils ne comptent pas dans la limite de fréquence.
 - **Réutilisation** : les corrections et les exercices générés sont enregistrés localement, et leur résultat n'est jamais redemandé.
-- **Écran « Consommation »** (COST-08) : coût du jour, du mois et par tâche, lu dans `ai_calls` (RLS). Hors ligne, le dernier état connu est affiché avec sa date.
+- **Écran « Consommation »** (COST-08, D-067) : coût du jour (fuseau du téléphone), du mois (mois UTC du plafond) et par tâche, avec le plafond configuré, lus par une requête `GET` à l'Edge Function, qui interroge `ai_calls` pour l'utilisateur vérifié ; aucun modèle n'est appelé. Hors ligne, le dernier état connu est affiché avec sa date.
 - **Vérification du cache** : le journal conserve `cache_read_input_tokens`. Si ce compteur reste à zéro sur des appels rapprochés, un invalidateur silencieux est à chercher.
 
 ## 11. PWA et hors ligne
 
-- **vite-plugin-pwa** en mode `generateSW` (Workbox) : précache de l'app (scripts, styles, `index.html`, manifeste, icônes) et, en phase 3, du programme, qui est dans les scripts. Toute adresse interne ouverte hors ligne reçoit `index.html` (`navigateFallback`). L'app est entièrement utilisable hors ligne, sauf l'IA et la synchronisation (ARC-01).
+- **vite-plugin-pwa** en mode `generateSW` (Workbox) : précache de l'app (scripts, styles, `index.html`, manifeste, icônes) et, en phase 3, du programme, qui est dans les scripts. Toute adresse interne ouverte hors ligne reçoit `index.html` (`navigateFallback`). L'app est entièrement utilisable hors ligne, sauf l'IA et la synchronisation (ARC-01). Le client Supabase est un fichier séparé, chargé pendant l'ouverture de la base et précaché lui aussi (DECISIONS D-068).
 - **Manifeste** :
   - nom, nom court, `lang: "fr"`, `id`, `start_url` et `scope` à `/` ;
   - `display: "standalone"` ;
@@ -509,14 +546,15 @@ L'écran le dit clairement.
 
 ## 13. Stratégie de tests
 
-| Niveau                  | Outil                    | Portée                                                                                                                                                                                                                                                                                                                                                                                          |
-| ----------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Logique pure            | Vitest                   | Tout `src/domain`, les contrats de `shared/ai` (schémas, prix, calcul de coût et de budget), le scan de secrets. Horloge injectée, aucun réseau.                                                                                                                                                                                                                                                |
-| Données                 | Vitest + fake-indexeddb  | Dépôts, transactions document + file de synchro, migrations (jeux de données des versions précédentes), export et import.                                                                                                                                                                                                                                                                       |
-| Contenu                 | Vitest                   | **Test du socle** (CUR-11) : chaque exercice est conforme au schéma, résoluble, avec au moins une réponse attendue, deux marques de relecture et un identifiant de notion valide ; ≥ 10 exercices par étape. **Test des références** (CUR-14) : unités existantes dans `docs/references/murphy-contents.md` et identiques à PEDAGOGY §11.                                                       |
-| Composants              | Vitest + Testing Library | Comportements clés de l'interface : coquille et navigation, réglages, brouillons, export et import, bandeau de mise à jour ; plus tard, correction en deux temps. Les tests tournent sur une vraie base en mémoire (`src/test/render.tsx`).                                                                                                                                                     |
-| Configuration           | Vitest                   | Règles de couches ESLint (`scripts/eslint-layers.test.ts`), en-têtes de `vercel.json`, contrastes des couleurs du thème (`src/ui/theme.test.ts`), versions Dexie additives.                                                                                                                                                                                                                     |
-| Parcours                | Playwright (Pixel 7)     | Parcours principaux sur le build de production, sous la CSP de production : installabilité vérifiée par Chrome, manifeste et icônes, hors ligne, réglages et brouillons conservés au rechargement, export puis import ; plus tard, séance du jour et révision d'une carte. Toute erreur de console fait échouer le test. **Le modèle est simulé** : aucun test automatique n'appelle Anthropic. |
-| Qualité des corrections | Banc d'essai (MOD-13)    | Lancé **manuellement**, depuis l'écran développeur, avec le coût affiché avant lancement. Il ne fait jamais partie de la CI.                                                                                                                                                                                                                                                                    |
+| Niveau                  | Outil                    | Portée                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ----------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Logique pure            | Vitest                   | Tout `src/domain`, les contrats de `shared/ai` (schémas, prix, calcul de coût et de budget), le scan de secrets. Horloge injectée, aucun réseau.                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Données                 | Vitest + fake-indexeddb  | Dépôts, écriture dans la file de synchronisation dans la même transaction, migrations (jeux de données des versions précédentes), export et import.                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Contenu                 | Vitest                   | **Test du socle** (CUR-11) : chaque exercice est conforme au schéma, résoluble, avec au moins une réponse attendue, deux marques de relecture et un identifiant de notion valide ; ≥ 10 exercices par étape. **Test des références** (CUR-14) : unités existantes dans `docs/references/murphy-contents.md` et identiques à PEDAGOGY §11.                                                                                                                                                                                                                             |
+| Serveur                 | Vitest + PGlite, Deno    | Migrations SQL dans PGlite, avec les rôles de Supabase : RLS, droits, `sync_push`/`sync_pull`, réservation, plafond, fréquence, idempotence (`supabase/tests/`). Synchronisation de deux appareils à travers ces fonctions. Edge Function avec un faux modèle : CORS, JWT (clés générées pour le test), refus, nouvelle tentative, coûts journalisés, sous le vrai SQL. `deno check` de la fonction en CI.                                                                                                                                                            |
+| Composants              | Vitest + Testing Library | Comportements clés de l'interface : coquille et navigation, réglages, brouillons, export et import, bandeau de mise à jour, connexion par code, état de la synchronisation, écran Consommation (aucun appel au modèle à l'ouverture) ; plus tard, correction en deux temps. Les tests tournent sur une vraie base en mémoire (`src/test/render.tsx`), avec un faux serveur (`src/test/server.ts`).                                                                                                                                                                    |
+| Configuration           | Vitest                   | Règles de couches ESLint (`scripts/eslint-layers.test.ts`), en-têtes et CSP de `vercel.json`, contrastes des couleurs du thème (`src/ui/theme.test.ts`), versions Dexie additives, copie à jour de `shared/ai` et versions de `deno.json`.                                                                                                                                                                                                                                                                                                                            |
+| Parcours                | Playwright (Pixel 7)     | Parcours principaux sur le build de production, sous la CSP de production : installabilité vérifiée par Chrome, manifeste et icônes, hors ligne, réglages et brouillons conservés au rechargement, export puis import, connexion par code, synchronisation (envoi, réception, coupure réseau), écran Consommation et test de connexion ; plus tard, séance du jour et révision d'une carte. Toute erreur de console fait échouer le test. **Le serveur et le modèle sont simulés** (`e2e/supabase-mock.ts`) : aucun test automatique n'appelle Supabase ni Anthropic. |
+| Qualité des corrections | Banc d'essai (MOD-13)    | Lancé **manuellement**, depuis l'écran développeur, avec le coût affiché avant lancement. Il ne fait jamais partie de la CI.                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
-La CI (`.github/workflows/ci.yml`) exécute : vérification des types, lint, format, tests unitaires, scan de secrets, build, scan gitleaks de tout l'historique et tests e2e. Une phase n'est terminée que si tout passe (PROC-05).
+La CI (`.github/workflows/ci.yml`) exécute : vérification des types, lint, format, tests unitaires, scan de secrets, build, scan gitleaks de tout l'historique, vérification de l'Edge Function par Deno et tests e2e. Une phase n'est terminée que si tout passe (PROC-05).

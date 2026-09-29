@@ -6,7 +6,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 **Revues** (D-059) : chaque phase reçoit une revue de Codex, puis au plus une contre-revue des corrections, sauf s'il reste un point bloquant.
 
-**Phase en cours : aucune. La phase 1 est terminée ; la phase 2 attend l'accord de l'utilisateur.**
+**Phase en cours : aucune. La phase 2 est livrée (en attente de la revue de Codex et des actions de l'utilisateur du guide) ; la phase 3 attend l'accord de l'utilisateur.**
 
 ---
 
@@ -47,13 +47,16 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 ## Phase 2 — Serveur et IA
 
-- [ ] Supabase : migrations SQL versionnées (`sync_documents.id` en texte, D-044), RLS sur toutes les tables, authentification par code e-mail
-- [ ] Synchronisation local-first (file sortante alimentée par `writeRecord` et premier envoi complet, D-045 ; push/pull, « le plus récent gagne », union des événements ; règle pour la clé unique du lexique, D-044)
-- [ ] CSP : ajout de l'adresse Supabase à `connect-src` (D-056)
-- [ ] Edge Function mandataire : clé en secret, validation Zod, journal des coûts, plafond mensuel, limite de fréquence, idempotence
-- [ ] Contrat IA partagé (`shared/ai`) : tâches, schémas, `models.ts`, `pricing.ts`
-- [ ] Client IA typé et écran « Consommation »
-- [ ] **Arrêt** : guide pas à pas (compte et projet Supabase, secrets, Anthropic Console et crédit, variables Vercel)
+- [x] Supabase : migrations SQL versionnées (`sync_documents.id` en texte, D-044), RLS et droits explicites sur toutes les tables, testées dans PGlite (D-064) ; authentification par code e-mail, compte unique, inscriptions fermées (D-060)
+- [x] Synchronisation local-first (file sortante alimentée par `writeRecord` et premier envoi complet, D-045 ; push/pull, « le plus récent gagne » arbitré par le serveur, union des événements ; règle pour la clé unique du lexique ; D-063)
+- [x] CSP : adresse exacte du projet Supabase dans `connect-src` (`npm run configure:csp`), build refusé si elle manque (D-065) ; l'adresse réelle s'ajoute pendant le guide
+- [x] Edge Function mandataire : clé en secret, JWT vérifié par la fonction, e-mail autorisé, CORS, validation Zod, journal des coûts, plafond mensuel, limite de fréquence, idempotence (D-062, D-066)
+- [x] Contrat IA partagé (`shared/ai`) : tâches, schémas, `models.ts`, `pricing.ts`, prompts versionnés, copie vérifiée pour Deno (D-061)
+- [x] Client IA typé et écran « Consommation », avec le test de connexion (D-066, D-067)
+- [x] Tests : SQL dans PGlite, synchronisation de deux appareils, Edge Function avec un faux modèle, vérification Deno en CI, e2e avec un faux serveur
+- [x] **Arrêt** : guide pas à pas dans [DEPLOYMENT.md](DEPLOYMENT.md) (compte et projet Supabase, migrations, secrets, Claude Console et crédit, variables Vercel, vérifications)
+- [ ] Actions de l'utilisateur : suivre le guide (sections 6 à 12), puis confirmer que la connexion, la synchronisation et le test de connexion à l'IA fonctionnent
+- [ ] Revue de Codex de la phase 2
 
 ## Phase 3 — Parcours
 
@@ -61,7 +64,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 - [ ] Mise en conformité de la correction locale avec D-058, avant son premier usage par le socle : les traits d'union (aujourd'hui lus comme des espaces, ce qui accepte _follow-up_ pour le verbe _follow up_) et le rapprochement des formes fléchies (terminaisons génériques, qui rapprochent encore _united_ de _unit_), ramenés à des listes fermées avec leurs cas négatifs
 - [ ] Schéma des exercices dans `src/domain/curriculum`, partagé par le socle et `generatedExercises` (D-043)
 - [ ] Lecture audio des exemples, et choix de la voix et de la vitesse dans les Réglages (D-052)
-- [ ] Taille du bundle, à traiter si besoin : à la fin de la phase 1, Vite signale un fichier JavaScript de 502,75 kB (157,5 kB compressé), au-delà de son seuil d'avertissement de 500 kB. Le programme va l'alourdir : découper le code par écran (`React.lazy`) plutôt que relever le seuil (D-057)
+- [ ] Taille du bundle, à traiter si besoin : à la fin de la phase 1, Vite signale un fichier JavaScript de 502,75 kB (157,5 kB compressé), au-delà de son seuil d'avertissement de 500 kB. En phase 2, le client Supabase est passé dans un fichier séparé (224 kB) et le fichier principal fait 521 kB (163 kB compressé, D-068). Le programme va l'alourdir : découper le code par écran (`React.lazy`) plutôt que relever le seuil (D-057)
 - [ ] Test de positionnement par piste
 - [ ] Frises chronologiques SVG
 - [ ] Les 13 notions de phase 3 de la piste « Temps verbaux », dans l'ordre de PEDAGOGY §11, dont « just, already, yet et still » (socle ≥ 10 exercices par étape, doublement relu)
