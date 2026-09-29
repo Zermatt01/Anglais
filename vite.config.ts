@@ -1,7 +1,28 @@
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
-import { headersForAllPaths, readVercelConfig } from './scripts/vercel-config.ts';
+import {
+  headersForAllPaths,
+  readVercelConfig,
+  supabaseOriginProblem,
+} from './scripts/vercel-config.ts';
+
+/**
+ * A build that calls a Supabase project the CSP of vercel.json does not
+ * allow would have every server request blocked in production: it fails
+ * instead, saying what to run (D-065).
+ */
+function supabaseCspGuard(): Plugin {
+  return {
+    name: 'supabase-csp-guard',
+    configResolved(config) {
+      const url: unknown = config.env.VITE_SUPABASE_URL;
+      if (config.command !== 'build' || typeof url !== 'string' || url.trim() === '') return;
+      const problem = supabaseOriginProblem(readVercelConfig(), url.trim());
+      if (problem !== null) throw new Error(problem);
+    },
+  };
+}
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -10,6 +31,7 @@ export default defineConfig({
   // does not: Vite's hot reload needs inline scripts.
   preview: { headers: headersForAllPaths(readVercelConfig()) },
   plugins: [
+    supabaseCspGuard(),
     react(),
     // Installable PWA (ARC-01, docs/ARCHITECTURE.md §11). Updates are never
     // forced: the app shows a banner and reloads only on request (D-018).

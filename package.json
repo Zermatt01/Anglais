@@ -22,7 +22,8 @@
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run test && npm run check:secrets",
     "generate:icons": "node scripts/generate-icons.ts",
     "sync:shared": "node scripts/sync-shared.ts",
-    "check:edge": "npx -y deno@2.9.6 check --config supabase/functions/ai/deno.json supabase/functions/ai/index.ts"
+    "check:edge": "npx -y deno@2.9.6 check --config supabase/functions/ai/deno.json supabase/functions/ai/index.ts",
+    "configure:csp": "node scripts/configure-csp.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",

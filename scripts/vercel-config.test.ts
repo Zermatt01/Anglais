@@ -1,9 +1,14 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import {
+  connectSources,
   headersForAllPaths,
   parseContentSecurityPolicy,
   readVercelConfig,
+  SUPABASE_ORIGIN,
+  supabaseOriginProblem,
+  withSupabaseOrigin,
+  type VercelConfig,
 } from './vercel-config.ts';
 
 const config = readVercelConfig();
@@ -26,8 +31,11 @@ describe('vercel.json security headers (docs/ARCHITECTURE.md §9)', () => {
     expect(everySource).not.toContain('*');
   });
 
-  it('limits network access to the app (Supabase is added in phase 2)', () => {
-    expect(csp.get('connect-src')).toEqual(["'self'"]);
+  it('limits network access to the app and, once configured, its Supabase project (D-065)', () => {
+    const [self, ...others] = csp.get('connect-src') ?? [];
+    expect(self).toBe("'self'");
+    expect(others.length).toBeLessThanOrEqual(1);
+    for (const origin of others) expect(origin).toMatch(SUPABASE_ORIGIN);
   });
 
   it('forbids plugins, framing and base changes', () => {
@@ -67,6 +75,58 @@ describe('vercel.json security headers (docs/ARCHITECTURE.md §9)', () => {
         ?.headers.find((header) => header.key === 'Cache-Control')?.value;
     expect(cacheControl('/sw.js')).toBe('public, max-age=0, must-revalidate');
     expect(cacheControl('/assets/(.*)')).toContain('immutable');
+  });
+});
+
+const PROJECT = 'https://abcdefghijklmnopqrst.supabase.co';
+const POLICY = "default-src 'self'; connect-src 'self'; object-src 'none'";
+
+function configWith(policy: string): VercelConfig {
+  return {
+    rewrites: [],
+    headers: [{ source: '/(.*)', headers: [{ key: 'Content-Security-Policy', value: policy }] }],
+  };
+}
+
+describe('withSupabaseOrigin (npm run configure:csp)', () => {
+  it('adds the project to connect-src only', () => {
+    expect(withSupabaseOrigin(POLICY, PROJECT)).toBe(
+      `default-src 'self'; connect-src 'self' ${PROJECT}; object-src 'none'`,
+    );
+  });
+
+  it('replaces the previous project instead of adding a second one', () => {
+    const other = 'https://zyxwvutsrqponmlkjihg.supabase.co';
+    const policy = withSupabaseOrigin(withSupabaseOrigin(POLICY, other), PROJECT);
+    expect(connectSources(configWith(policy))).toEqual(["'self'", PROJECT]);
+  });
+
+  it.each([
+    'https://*.supabase.co',
+    'http://abcdefghijklmnopqrst.supabase.co',
+    'https://abcdefghijklmnopqrst.supabase.co.evil.test',
+    'https://abcdefghijklmnopqrst.supabase.co/functions/v1',
+    'https://example.com',
+    '',
+  ])('refuses %j, which is not the exact address of a project', (origin) => {
+    expect(() => withSupabaseOrigin(POLICY, origin)).toThrow(/project address/);
+  });
+});
+
+describe('supabaseOriginProblem (checked by every build)', () => {
+  it('accepts a project allowed by the CSP, and a local server', () => {
+    const config = configWith(withSupabaseOrigin(POLICY, PROJECT));
+    expect(supabaseOriginProblem(config, `${PROJECT}/`)).toBeNull();
+    expect(
+      supabaseOriginProblem(configWith(POLICY), 'http://localhost:4193/__supabase'),
+    ).toBeNull();
+  });
+
+  it('says what to run when the project is not allowed', () => {
+    expect(supabaseOriginProblem(configWith(POLICY), PROJECT)).toContain(
+      `npm run configure:csp -- ${PROJECT}`,
+    );
+    expect(supabaseOriginProblem(configWith(POLICY), 'not a url')).toContain('not a URL');
   });
 });
 
