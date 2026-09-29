@@ -78,6 +78,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-068 | Client Supabase dans un fichier JavaScript séparé        | Outillage   | Actée            |
 | D-069 | Revue de la phase 2                                      | Transverse  | Actée            |
 | D-070 | Contre-revue de la phase 2                               | Transverse  | Actée            |
+| D-071 | Envoi des codes de connexion par Resend                  | Serveur     | Actée            |
 
 ---
 
@@ -601,6 +602,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - **Changement par rapport à D-013** : le compte unique est créé dans le tableau de bord Supabase, et les inscriptions sont fermées dès le départ, au lieu d'être fermées après la première connexion. L'app ne crée jamais de compte (`shouldCreateUser: false`) : il n'existe aucun moment où un inconnu pourrait s'inscrire.
   - La déconnexion ne concerne que ce téléphone et laisse toutes les données locales.
 - **Raison.** Option la plus prudente (PROC-04) : aucune fenêtre d'inscription ouverte, aucune clé secrète côté client.
+- **Suite (2026-09-30).** Le service d'e-mail intégré de Supabase ne permet pas de modifier le modèle : les codes sont envoyés par Resend, en SMTP (D-071).
 
 ### D-061 — Contrat IA copié dans `supabase/functions/_shared` (2026-09-29, tranche D-030)
 
@@ -692,3 +694,19 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   2. **Éléments mis de côté sans limite.** Les copies de conflit et les enregistrements illisibles s'accumulaient dans `quarantine` sans moyen de les voir ni de les retirer. **Réglages → Données** les liste (nature, table, date) et propose « Exporter puis retirer du téléphone » : un export qui les contient est téléchargé d'abord, l'apprenant confirme qu'il l'a bien, puis seuls les éléments mis de côté jusqu'à cet export sont retirés. Rien ne peut être retiré sans avoir été exporté.
 - **Raison.** NO-06 est une exigence absolue ; l'historique côté serveur la garantit sans changer la règle « le plus récent gagne », qui reste simple. Une révision attribuée par le serveur aurait aussi réglé le cas, au prix d'un protocole plus complexe.
 - **Processus (D-059).** C'était l'unique contre-revue de la phase 2 ; ces corrections ne demandent pas de nouvelle revue, sauf point bloquant.
+
+### D-071 — Envoi des codes de connexion par Resend (2026-09-30, complète D-060)
+
+- **Contexte.** En suivant le guide, l'utilisateur constate que le tableau de bord de Supabase refuse de modifier les modèles d'e-mail tant qu'aucun SMTP personnalisé n'est configuré (« Set up custom SMTP to edit templates »). Le message par défaut contient un lien, pas le code `{{ .Token }}` : la connexion par code de D-013 et D-060 est impossible avec le service intégré. Ce service est de toute façon limité à deux e-mails par heure, aux adresses de l'équipe du projet, et sans garantie (documentation Supabase vérifiée le 2026-09-30).
+- **Décision.**
+  - Les e-mails d'authentification passent par **Resend**, en SMTP (`smtp.resend.com`, port 465, utilisateur `resend`, mot de passe = une clé API). Resend figure parmi les fournisseurs recommandés par Supabase. Le plan gratuit permet 100 e-mails par jour et 3 000 par mois.
+  - **Sans nom de domaine** : l'expéditeur est l'adresse de test `onboarding@resend.dev`, qui n'envoie qu'à l'adresse du titulaire du compte Resend. Pour un seul utilisateur, c'est suffisant : le compte Resend est créé avec la même adresse que le compte Supabase.
+  - **Sécurité** : la clé a la permission « Sending access » (envoi seulement). Elle n'est enregistrée que dans les réglages SMTP de Supabase, jamais dans le dépôt ni dans une variable Vercel. Même volée, elle ne permettrait d'écrire qu'à l'adresse de l'utilisateur ; le guide explique comment la révoquer et la remplacer.
+  - Le modèle « Magic Link », devenu modifiable, envoie le code (`{{ .Token }}`), comme prévu par D-060. Aucun code de l'application ne change.
+  - **Solution de repli**, décrite dans le guide : un compte Gmail **dédié**, avec validation en deux étapes et mot de passe d'application (500 e-mails par jour). Jamais la boîte principale : un mot de passe d'application donne accès à toute la boîte aux lettres.
+- **Point non vérifiable sans compte.** La documentation de Resend présente `onboarding@resend.dev` comme une adresse de test, et son guide Supabase suppose un domaine vérifié. Qu'elle soit acceptée par l'interface SMTP vers la propre adresse du titulaire n'est pas confirmé par écrit. Le guide indique comment le constater (**Logs → Auth**) et quoi faire sinon (Gmail dédié, ou un domaine vérifié chez Resend).
+- **Alternatives écartées.**
+  - Revenir au lien magique : il s'ouvrirait dans Chrome plutôt que dans l'application installée, et demanderait de changer le code (D-013).
+  - Gmail avec la boîte principale : le mot de passe d'application, enregistré chez Supabase, donnerait accès à toute la boîte.
+  - Brevo avec une adresse Gmail comme expéditeur : pas de domaine à vérifier, mais un expéditeur Gmail envoyé par un tiers risque d'être classé comme indésirable ou refusé.
+  - Acheter un nom de domaine : quelques euros par an et une configuration DNS, inutiles pour un seul destinataire.

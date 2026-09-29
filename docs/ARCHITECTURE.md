@@ -441,7 +441,7 @@ Détails :
 - **Clé Anthropic** (SEC-01) : uniquement dans les secrets de l'Edge Function (`ANTHROPIC_API_KEY`), jamais journalisée. La règle ESLint et `npm run check:secrets` (contenu indexé, copie de travail et nouveaux fichiers) interdisent tout accès direct à Anthropic depuis `src/` et toute clé dans le dépôt. En CI, gitleaks analyse en plus **tout l'historique Git** (DECISIONS D-033).
 - **Clés Supabase** (DECISIONS D-060) : le client reçoit au build `VITE_SUPABASE_URL` et la clé publique `VITE_SUPABASE_PUBLISHABLE_KEY` (`sb_publishable_…`), publique par conception : la protection repose sur la RLS. Une clé d'une autre forme est refusée. La clé secrète (`sb_secret_…`) n'existe que dans l'environnement de l'Edge Function, fourni par Supabase.
 - **Authentification** (DECISIONS D-013, D-060, D-062) :
-  - un code à usage unique envoyé par e-mail, jamais un lien ;
+  - un code à usage unique envoyé par e-mail, jamais un lien ; les e-mails d'authentification passent par Resend en SMTP, avec une clé limitée à l'envoi, enregistrée seulement dans Supabase (D-071) ;
   - le compte unique est créé dans le tableau de bord Supabase, les inscriptions sont fermées dès le départ, et l'app ne crée jamais de compte ;
   - l'Edge Function vérifie elle-même le JWT (clés du projet, émetteur, audience), puis que l'e-mail figure dans `AI_ALLOWED_EMAILS` (défense en profondeur contre la dépense).
 - **RLS** sur toutes les tables, avec des politiques et des droits explicites (SEC-02, D-064). Un test vérifie, pour toute migration, la RLS de chaque table, l'absence de droits pour `anon`, le `search_path` de chaque fonction et l'absence de fonction `security definer`.

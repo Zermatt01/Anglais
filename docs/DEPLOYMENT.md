@@ -5,7 +5,7 @@ Ce guide explique comment mettre l'application en ligne sur Vercel, l'installer 
 - **Sections 1 à 5** (phase 1) : l'application seule. Elle fonctionne alors entièrement sur le téléphone, sans compte ni IA.
 - **Sections 6 à 12** (phase 2) : le projet Supabase (compte, base de données, Edge Function « ai »), la clé Anthropic et les variables Vercel. À faire une seule fois, dans l'ordre.
 
-Aucune clé n'est jamais écrite dans le dépôt. La seule clé secrète, celle d'Anthropic, n'est enregistrée qu'à un endroit : les secrets de l'Edge Function (section 10).
+Aucune clé n'est jamais écrite dans le dépôt. Les deux clés secrètes ne sont enregistrées qu'à un endroit chacune : celle de Resend dans les réglages SMTP de Supabase (section 7), celle d'Anthropic dans les secrets de l'Edge Function (section 10).
 
 ## 1. Publier le code sur GitHub
 
@@ -77,12 +77,36 @@ Supabase héberge le compte, la copie de sauvegarde des données et l'Edge Funct
 
 L'application se connecte avec un **code à six chiffres reçu par e-mail**, jamais avec un lien, qui s'ouvrirait hors de l'application installée (DECISIONS D-060).
 
+Le service d'e-mail intégré de Supabase ne permet plus de modifier les modèles d'e-mail : son message par défaut contient un lien, pas le code. Il faut donc brancher un service d'envoi externe (SMTP). Le guide utilise **Resend**, gratuit et recommandé par Supabase, sans nom de domaine à acheter (DECISIONS D-071).
+
 1. **Créer le compte unique** : **Authentication → Users → Add user → Create new user**.
    - E-mail : ton adresse ;
    - mot de passe : en générer un au hasard (il ne servira jamais) ;
    - cocher **Auto Confirm User**.
 2. **Fermer les inscriptions** : **Authentication → Sign In / Providers** : désactiver « **Allow new users to sign up** ». Le fournisseur **Email** doit rester activé. L'application ne crée jamais de compte : personne d'autre ne pourra s'inscrire.
-3. **Envoyer un code au lieu d'un lien** : **Authentication → Emails → Templates → Magic Link**. Remplacer le sujet et le contenu par :
+3. **Créer le compte Resend** : sur [resend.com](https://resend.com), **Sign up** avec **la même adresse e-mail** que le compte du point 1, puis confirmer l'adresse. Sans nom de domaine, Resend n'envoie qu'à cette adresse-là, depuis l'expéditeur de test `onboarding@resend.dev` : c'est ce qui rend la solution gratuite, et ce qui limite les risques (voir « Sécurité de la clé Resend » plus bas).
+4. **Créer la clé d'envoi** : dans Resend, **API Keys → Create API Key** :
+   - **Name** : `supabase-smtp` ;
+   - **Permission** : **Sending access** (jamais « Full access ») ;
+   - **Domain** : laisser « All domains » (aucun domaine n'est configuré).
+
+   Copier la clé (elle commence par `re_`) : Resend ne l'affiche qu'une fois. La coller directement au point 5, et nulle part ailleurs.
+
+5. **Brancher Resend sur Supabase** : **Authentication → Emails → SMTP Settings** (selon la version du tableau de bord : **Project Settings → Authentication → SMTP Settings**), activer **Enable Custom SMTP**, puis remplir :
+
+   | Champ                                | Valeur                            |
+   | ------------------------------------ | --------------------------------- |
+   | Sender email                         | `onboarding@resend.dev`           |
+   | Sender name                          | `Anglais`                         |
+   | Host                                 | `smtp.resend.com`                 |
+   | Port number                          | `465`                             |
+   | Username                             | `resend`                          |
+   | Password                             | la clé du point 4 (`re_…`)        |
+   | Minimum interval between emails sent | `60` secondes (valeur par défaut) |
+
+   Enregistrer.
+
+6. **Envoyer un code au lieu d'un lien** : le modèle est maintenant modifiable. **Authentication → Emails → Templates → Magic Link** : remplacer le sujet et le contenu par :
    - Sujet : `Ton code de connexion`
    - Contenu :
 
@@ -94,9 +118,25 @@ L'application se connecte avec un **code à six chiffres reçu par e-mail**, jam
 
    Enregistrer. Le code doit apparaître par `{{ .Token }}` ; sans lui, Supabase enverrait un lien.
 
-4. **URL Configuration** : mettre dans **Site URL** l'adresse Vercel de la section 2.
+7. **URL Configuration** : mettre dans **Site URL** l'adresse Vercel de la section 2.
 
-Limites du service d'e-mail intégré de Supabase : **deux e-mails par heure** pour tout le projet, et un nouveau code au plus toutes les 60 secondes. Un code non reçu arrive souvent dans les indésirables ; attendre avant d'en redemander un.
+**Limites.** Resend gratuit : 100 e-mails par jour et 3 000 par mois. Supabase avec un SMTP personnalisé : 30 e-mails par heure pour le projet (réglable dans **Authentication → Rate Limits**), et un nouveau code au plus toutes les 60 secondes par adresse. Les messages de `onboarding@resend.dev` peuvent arriver dans les indésirables la première fois : les marquer comme « non indésirable », ou ajouter l'expéditeur aux contacts.
+
+**Sécurité de la clé Resend** (le « mot de passe SMTP ») :
+
+- elle ne sert qu'à envoyer (« Sending access ») : elle ne donne accès ni aux autres réglages de Resend, ni à une boîte aux lettres ;
+- sans domaine, Resend n'envoie qu'à l'adresse du titulaire du compte : même volée, la clé ne permettrait d'écrire qu'à toi ;
+- elle n'est enregistrée que dans Supabase, qui ne la réaffiche pas ; elle ne va ni dans le dépôt, ni dans l'application, ni dans une variable Vercel ;
+- si elle a pu fuiter : la supprimer dans **Resend → API Keys**, en créer une nouvelle, et la coller au point 5.
+
+**Si aucun code n'arrive** (et que l'application affiche « Le serveur n'a pas répondu comme prévu ») : ouvrir **Logs → Auth** dans Supabase. Une erreur SMTP y apparaît, par exemple si Resend refuse l'expéditeur de test. Vérifier d'abord que l'adresse du compte Supabase (point 1) est exactement celle du compte Resend (point 3). Si l'erreur persiste, utiliser la solution de repli ci-dessous.
+
+**Solution de repli : Gmail, avec un compte dédié.** Gratuite, sans domaine, limitée à 500 e-mails par jour.
+
+1. Créer un **nouveau** compte Gmail réservé à cet envoi. **Ne pas utiliser ta boîte principale** : un mot de passe d'application donne accès à toute la boîte aux lettres du compte (lecture et envoi), et il serait enregistré chez Supabase.
+2. Sur ce compte, activer la **validation en deux étapes** ([myaccount.google.com/security](https://myaccount.google.com/security)), puis créer un **mot de passe d'application** ([myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)), nommé `supabase` : 16 lettres, affichées une seule fois.
+3. Dans **SMTP Settings** (point 5), remplacer les valeurs : **Sender email** et **Username** = l'adresse du compte dédié ; **Host** = `smtp.gmail.com` ; **Port number** = `465` ; **Password** = le mot de passe d'application, sans les espaces.
+4. Le mot de passe d'application est révoqué si le mot de passe du compte dédié change : en recréer un, et le recoller.
 
 ## 8. Créer les tables (migrations)
 
@@ -176,22 +216,23 @@ Sur le téléphone, ouvrir l'application : « Nouvelle version disponible » →
 
 En cas de problème :
 
-| Message de l'application                              | Cause probable et correction                                                                                                                                                          |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| « Aucun compte n'existe pour cette adresse »          | Compte non créé ou adresse différente (section 7).                                                                                                                                    |
-| Aucun code reçu                                       | Dossier des indésirables ; limite de deux e-mails par heure ; modèle d'e-mail sans `{{ .Token }}` (section 7).                                                                        |
-| « Synchronisation interrompue »                       | Projet en pause (section 13) ou migrations non appliquées (section 8).                                                                                                                |
-| « Le serveur IA n'est pas prêt »                      | Secret manquant ou invalide. **Edge Functions → ai → Logs** : la ligne `misconfigured` nomme la variable à corriger (jamais sa valeur).                                               |
-| « Ce compte n'est pas autorisé à utiliser l'IA »      | Adresse absente de `AI_ALLOWED_EMAILS`.                                                                                                                                               |
-| « Ta session a expiré »                               | Se déconnecter puis se reconnecter. Si cela persiste : clés de signature « Legacy » (section 6, point 4).                                                                             |
-| « Le serveur IA n'a pas pu être joint »               | Fonction non déployée, ou `AI_ALLOWED_ORIGINS` différent de l'adresse ouverte (la comparer exactement, `https://` compris).                                                           |
-| « Le service d'IA n'a pas répondu »                   | Clé Anthropic invalide ou crédit épuisé : les journaux de la fonction indiquent `anthropic_401` (clé) ou `anthropic_400` / `anthropic_402` (crédit). Vérifier dans la Claude Console. |
-| Build Vercel en échec : « Content-Security-Policy … » | Lancer la commande indiquée (section 11, point 2), puis pousser.                                                                                                                      |
+| Message de l'application                              | Cause probable et correction                                                                                                                                                                          |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| « Aucun compte n'existe pour cette adresse »          | Compte non créé ou adresse différente (section 7).                                                                                                                                                    |
+| Aucun code reçu                                       | Dossier des indésirables ; nouveau code demandé moins de 60 secondes après le précédent ; SMTP mal configuré (**Logs → Auth**, section 7) ; modèle d'e-mail sans `{{ .Token }}` (section 7, point 6). |
+| « Synchronisation interrompue »                       | Projet en pause (section 13) ou migrations non appliquées (section 8).                                                                                                                                |
+| « Le serveur IA n'est pas prêt »                      | Secret manquant ou invalide. **Edge Functions → ai → Logs** : la ligne `misconfigured` nomme la variable à corriger (jamais sa valeur).                                                               |
+| « Ce compte n'est pas autorisé à utiliser l'IA »      | Adresse absente de `AI_ALLOWED_EMAILS`.                                                                                                                                                               |
+| « Ta session a expiré »                               | Se déconnecter puis se reconnecter. Si cela persiste : clés de signature « Legacy » (section 6, point 4).                                                                                             |
+| « Le serveur IA n'a pas pu être joint »               | Fonction non déployée, ou `AI_ALLOWED_ORIGINS` différent de l'adresse ouverte (la comparer exactement, `https://` compris).                                                                           |
+| « Le service d'IA n'a pas répondu »                   | Clé Anthropic invalide ou crédit épuisé : les journaux de la fonction indiquent `anthropic_401` (clé) ou `anthropic_400` / `anthropic_402` (crédit). Vérifier dans la Claude Console.                 |
+| Build Vercel en échec : « Content-Security-Policy … » | Lancer la commande indiquée (section 11, point 2), puis pousser.                                                                                                                                      |
 
 ## 13. Coûts et limites
 
 - **Supabase (gratuit)** : un projet sans activité pendant **sept jours** est mis en pause ; Supabase prévient par e-mail environ une semaine avant. Les données sont conservées ; **Resume project** dans le tableau de bord le relance (possible pendant un an). Pendant une pause, l'application fonctionne normalement sur le téléphone ; seules la synchronisation et l'IA attendent. Un usage régulier de l'application suffit à éviter la pause (DECISIONS D-029).
 - **Anthropic** : l'IA n'est appelée que sur une action explicite (COST-01). L'Edge Function refuse tout appel qui ferait dépasser le plafond mensuel (10 USD par défaut), et au plus 6 appels par minute. **Réglages → Voir la consommation** montre le coût du jour, du mois et par fonction.
+- **Resend (gratuit)** : 100 e-mails par jour, 3 000 par mois ; une connexion en consomme un (section 7).
 - **Vercel (Hobby)** : gratuit pour cet usage.
 
 ## 14. Sauvegarder ses données
