@@ -142,9 +142,27 @@ function SignInForm({ account }: { readonly account: AccountService }) {
 }
 
 function ReportDetails({ report }: { readonly report: SyncReport }) {
-  if (report.quarantined === 0 && report.deferred === 0 && report.unsent === 0) return null;
+  if (
+    report.quarantined === 0 &&
+    report.deferred === 0 &&
+    report.unsent === 0 &&
+    report.conflicts === 0
+  ) {
+    return null;
+  }
   return (
     <ul className="muted">
+      {report.conflicts > 0 ? (
+        <li>
+          {countOf(
+            report.conflicts,
+            'modification de ce téléphone a été remplacée',
+            'modifications de ce téléphone ont été remplacées',
+          )}{' '}
+          par une version plus récente d’un autre appareil ; l’ancienne version est gardée à part,
+          dans l’export de tes données.
+        </li>
+      ) : null}
       {report.quarantined > 0 ? (
         <li>
           {countOf(report.quarantined, 'élément reçu illisible', 'éléments reçus illisibles')} : mis

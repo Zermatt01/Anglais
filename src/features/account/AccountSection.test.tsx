@@ -99,6 +99,7 @@ describe('account and synchronization', () => {
       kept: 0,
       quarantined: 1,
       deferred: 2,
+      conflicts: 1,
       sent: 1,
       received: 6,
       unsent: 0,
@@ -113,5 +114,10 @@ describe('account and synchronization', () => {
     );
     expect(section.getByText(/1 élément reçu illisible/)).toBeInTheDocument();
     expect(section.getByText(/2 éléments attendent une mise à jour/)).toBeInTheDocument();
+    expect(
+      section.getByText(
+        /1 modification de ce téléphone a été remplacée par une version plus récente/,
+      ),
+    ).toBeInTheDocument();
   });
 });

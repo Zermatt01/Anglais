@@ -133,6 +133,25 @@ describe('synchronize', () => {
     expect((await laptop.settings.load()).values.theme).toBe(phoneTheme);
   });
 
+  it('keeps a change made offline on a device whose clock runs late (review of phase 2)', async () => {
+    const user = await createUser(server);
+    const phone = await device(user);
+    const laptop = await device(user);
+    // The laptop changes the theme first, with a correct clock, and sends it.
+    laptop.clock.advance(10 * 60_000);
+    await laptop.settings.update({ theme: 'light' });
+    await laptop.sync();
+    // Later, the phone, offline and ten minutes late, changes it too.
+    await phone.settings.update({ theme: 'dark' });
+
+    const report = await phone.sync();
+    // Its version carries the older time and loses, but is kept aside, in the export.
+    expect(report.conflicts).toBe(1);
+    expect((await phone.settings.load()).values.theme).toBe('light');
+    const [copy] = await phone.db.table('quarantine').toArray();
+    expect(copy).toMatchObject({ table: 'settings', record: { theme: 'dark' } });
+  });
+
   it('keeps the events of every device (union)', async () => {
     const user = await createUser(server);
     const phone = await device(user);

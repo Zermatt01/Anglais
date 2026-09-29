@@ -6,6 +6,10 @@
  *   version does not know, is left on the server and applied after the app
  *   is updated (the cursor starts again from zero, `SCHEMA_SIGNATURE`);
  * - a local record that cannot be read is set aside before being replaced;
+ * - a local version that no other copy holds (a change not sent yet, or a
+ *   concurrent version with the same `updatedAt`) is set aside before a
+ *   received version replaces it: with a device clock running late, the
+ *   version that loses may be the most recent one (review of phase 2, D-069);
  * - a lexicon entry whose expression already exists locally under another
  *   identifier (unique key, D-044) is copied into `quarantine`.
  *
@@ -13,7 +17,9 @@
  */
 import {
   decideRemoteVersion,
+  discardsLocalVersion,
   stableStringify,
+  type LocalVersion,
   type RemoteSource,
 } from '../../domain/sync/merge.ts';
 import type { AppDatabase } from '../database.ts';
@@ -34,10 +40,14 @@ export interface ApplyCounts {
   quarantined: number;
   /** Left on the server until the app is updated. */
   deferred: number;
+  /** Local versions replaced by a received one, set aside beforehand. */
+  conflicts: number;
 }
 
+type Outcome = Exclude<keyof ApplyCounts, 'conflicts'>;
+
 export function emptyCounts(): ApplyCounts {
-  return { applied: 0, kept: 0, quarantined: 0, deferred: 0 };
+  return { applied: 0, kept: 0, quarantined: 0, deferred: 0, conflicts: 0 };
 }
 
 /** Tables of a transaction that applies received changes. */
@@ -94,9 +104,10 @@ async function lexiconKeyTaken(db: AppDatabase, row: RemoteRow): Promise<boolean
 async function applyRow(
   db: AppDatabase,
   row: RemoteRow,
-  source: RemoteSource,
+  pushedContent: string | undefined,
   now: number,
-): Promise<keyof ApplyCounts> {
+  counts: ApplyCounts,
+): Promise<Outcome> {
   if (!isTableName(row.collection) || !isSyncedTable(row.collection)) return 'deferred';
   const name = row.collection;
   const definition = TABLES[name];
@@ -127,43 +138,65 @@ async function applyRow(
   const outboxEntry = db.table('syncOutbox').where('[table+docId]').equals([name, row.id]);
   const local = raw === undefined ? undefined : parseRecord(name, raw);
   const localUpdatedAt = local?.ok === true ? updatedAtOf(local.value) : undefined;
-  const localVersion =
+  const localContent = stableStringify(raw);
+  const localVersion: LocalVersion | undefined =
     localUpdatedAt === undefined
       ? undefined
       : {
           updatedAt: localUpdatedAt,
           pending: (await outboxEntry.count()) > 0,
-          sameContent: stableStringify(raw) === stableStringify(row.doc),
+          sameContent: localContent === stableStringify(row.doc),
+          unchangedSincePush: localContent === pushedContent,
         };
+  const source: RemoteSource = pushedContent === undefined ? 'pull' : 'stale';
   if (decideRemoteVersion(localVersion, remoteUpdatedAt, source) === 'keep') return 'kept';
   if (name === 'lexicon' && (await lexiconKeyTaken(db, row))) {
     return quarantine(db, row, 'this expression already exists under another identifier', now);
   }
 
   await setAsideIfUnreadable(db, name, row.id, now);
+  if (discardsLocalVersion(localVersion, remoteUpdatedAt)) {
+    await writeRecord(
+      db,
+      'quarantine',
+      {
+        id: crypto.randomUUID(),
+        table: name,
+        key: row.id,
+        record: raw,
+        reason: `conflict: local version (updatedAt ${String(localUpdatedAt)}) replaced by the version kept by the server (updatedAt ${String(remoteUpdatedAt)})`,
+        quarantinedAt: now,
+      },
+      now,
+    );
+    counts.conflicts += 1;
+  }
   await table.put(row.doc);
   // The local version waiting to be sent is superseded: nothing left to send.
   await outboxEntry.delete();
   return 'applied';
 }
 
+/** Key of a record in the `pushed` map of `applyRemoteRows`. */
+export function pushedKey(table: string, id: string): string {
+  return `${table}/${id}`;
+}
+
 /**
- * Applies received rows. `pushed` gives, for the stale versions returned by a
- * push, the `updatedAt` that was pushed (key: `table/id`). Must run in a
- * transaction covering `applyTables(db)`.
+ * Applies received rows. For the stale versions returned by a push, `pushed`
+ * gives the content that was pushed, serialized by `stableStringify` (key:
+ * `pushedKey`). Must run in a transaction covering `applyTables(db)`.
  */
 export async function applyRemoteRows(
   db: AppDatabase,
   rows: readonly RemoteRow[],
   now: number,
-  pushed?: ReadonlyMap<string, number>,
+  pushed?: ReadonlyMap<string, string>,
 ): Promise<ApplyCounts> {
   const counts = emptyCounts();
   for (const row of rows) {
-    const pushedUpdatedAt = pushed?.get(`${row.collection}/${row.id}`);
-    const source: RemoteSource =
-      pushedUpdatedAt === undefined ? { kind: 'pull' } : { kind: 'stale', pushedUpdatedAt };
-    counts[await applyRow(db, row, source, now)] += 1;
+    const pushedContent = pushed?.get(pushedKey(row.collection, row.id));
+    counts[await applyRow(db, row, pushedContent, now, counts)] += 1;
   }
   return counts;
 }

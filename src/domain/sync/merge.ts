@@ -50,10 +50,9 @@ export function decideEventMerge(existsLocally: boolean): 'insert' | 'keep' {
  * Where a version received from the server comes from (D-063):
  * - `pull`: a change read after the cursor;
  * - `stale`: the stored version returned by a push, because the pushed one
- *   did not win. `pushedUpdatedAt` is the `updatedAt` of the pushed version.
+ *   did not win.
  */
-export type RemoteSource =
-  { readonly kind: 'pull' } | { readonly kind: 'stale'; readonly pushedUpdatedAt: number };
+export type RemoteSource = 'pull' | 'stale';
 
 /** The local version of a document, as the synchronization compares it. */
 export interface LocalVersion {
@@ -62,6 +61,12 @@ export interface LocalVersion {
   readonly pending: boolean;
   /** Identical to the received version. */
   readonly sameContent: boolean;
+  /**
+   * For a version returned by a push: the local version is still exactly the
+   * one that was pushed. Compared on the content, not on `updatedAt`
+   * (review of phase 2, D-069).
+   */
+  readonly unchangedSincePush: boolean;
 }
 
 /**
@@ -84,8 +89,21 @@ export function decideRemoteVersion(
     return remoteUpdatedAt > local.updatedAt ? 'replace' : 'keep';
   }
   if (local.sameContent) return 'keep';
-  if (source.kind === 'stale') {
-    return local.updatedAt === source.pushedUpdatedAt ? 'replace' : 'keep';
-  }
+  if (source === 'stale') return local.unchangedSincePush ? 'replace' : 'keep';
   return local.pending ? 'keep' : 'replace';
+}
+
+/**
+ * Whether replacing `local` by a received version would discard a version
+ * that no other copy holds (NO-06, D-069): a local change not sent yet (or
+ * sent, but that lost on the server), or a concurrent version with the same
+ * `updatedAt`. It is then set aside before being replaced. Replacing a sent
+ * version by a later one is the normal course of the synchronization.
+ */
+export function discardsLocalVersion(local: LocalVersion | undefined, remoteUpdatedAt: number) {
+  return (
+    local !== undefined &&
+    !local.sameContent &&
+    (local.pending || remoteUpdatedAt === local.updatedAt)
+  );
 }

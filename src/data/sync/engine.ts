@@ -18,7 +18,8 @@ import type { AppDatabase } from '../database.ts';
 import { parseRecord } from '../records.ts';
 import { syncOutboxEntrySchema, type SyncOutboxEntry } from '../schemas/local.ts';
 import { isSyncedTable, isTableName, SYNCED_TABLE_NAMES, TABLES } from '../tables.ts';
-import { applyRemoteRows, applyTables, emptyCounts, type ApplyCounts } from './apply.ts';
+import { stableStringify } from '../../domain/sync/merge.ts';
+import { applyRemoteRows, applyTables, emptyCounts, pushedKey, type ApplyCounts } from './apply.ts';
 import { readCursor, readMeta, SCHEMA_SIGNATURE, writeMeta } from './meta.ts';
 import { enqueueEverything } from './outbox.ts';
 import type { PushedDocument, PushedEvent, SyncTransport } from './protocol.ts';
@@ -71,8 +72,8 @@ interface Batch {
   readonly seqs: number[];
   readonly documents: PushedDocument[];
   readonly events: PushedEvent[];
-  /** `updatedAt` pushed per `table/id`, to recognize the stale versions. */
-  readonly pushed: Map<string, number>;
+  /** Content pushed per record (`pushedKey`), to recognize the stale versions. */
+  readonly pushed: Map<string, string>;
   unsent: number;
 }
 
@@ -109,7 +110,7 @@ async function readBatch(db: AppDatabase): Promise<Batch | null> {
           updated_at: doc.updatedAt ?? 0,
           deleted: doc.deletedAt !== undefined && doc.deletedAt !== null,
         });
-        batch.pushed.set(`${name}/${docId}`, doc.updatedAt ?? 0);
+        batch.pushed.set(pushedKey(name, docId), stableStringify(raw));
       } else {
         batch.events.push({
           collection: name,
@@ -139,6 +140,7 @@ export async function synchronize(
     counts.kept += more.kept;
     counts.quarantined += more.quarantined;
     counts.deferred += more.deferred;
+    counts.conflicts += more.conflicts;
   };
   let sent = 0;
   let received = 0;
