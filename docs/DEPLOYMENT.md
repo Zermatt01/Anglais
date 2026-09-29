@@ -5,6 +5,8 @@ Ce guide explique comment mettre l'application en ligne sur Vercel, l'installer 
 - **Sections 1 à 5** (phase 1) : l'application seule. Elle fonctionne alors entièrement sur le téléphone, sans compte ni IA.
 - **Sections 6 à 12** (phase 2) : le projet Supabase (compte, base de données, Edge Function « ai »), la clé Anthropic et les variables Vercel. À faire une seule fois, dans l'ordre.
 
+**Pour copier les commandes** : ne copier que les lignes situées entre les ` ``` `, jamais ces ` ``` ` eux-mêmes, qui servent seulement à l'affichage. Remplacer `<ref>` par la référence du projet (section 6, point 3), sans les chevrons : par exemple `https://abcdefghijklmnopqrst.supabase.co`.
+
 Aucune clé n'est jamais écrite dans le dépôt. Les deux clés secrètes ne sont enregistrées qu'à un endroit chacune : celle de Resend dans les réglages SMTP de Supabase (section 7), celle d'Anthropic dans les secrets de l'Edge Function (section 10).
 
 ## 1. Publier le code sur GitHub
