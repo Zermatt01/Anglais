@@ -33,6 +33,9 @@ import-samples/
 .vercel/
 supabase/.temp/
 supabase/.branches/
+# Written by deno check; the Edge Runtime may use an older lock format.
+# Direct dependencies are pinned in deno.json.
+supabase/functions/**/deno.lock
 
 # Editors and OS
 .vscode/*
