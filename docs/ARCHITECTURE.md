@@ -172,7 +172,7 @@ features ──► ui
 | `syncOutbox`            | L      | `++seq` ; `[table+docId]`                               | Enregistrements synchronisés écrits localement et pas encore envoyés : une entrée par enregistrement, écrite dans la même transaction que lui (D-063).                                                                                                                                                                                                                                    | P2      |
 | `syncMeta`              | L      | `key`                                                   | Compte synchronisé, curseur de lecture, signature de schéma de l'app, date de la dernière synchronisation complète.                                                                                                                                                                                                                                                                       | P2      |
 | `usageSnapshot`         | L      | `id` (singleton)                                        | Dernier état de l'écran Consommation (plafond, coûts du mois, du jour et par tâche), pour un affichage hors ligne.                                                                                                                                                                                                                                                                        | P2      |
-| `quarantine`            | L      | `id` ; `[table+key]`                                    | Enregistrement illisible copié tel quel avant d'être remplacé ou supprimé : table et clé d'origine, enregistrement brut, raison, date. Exporté, jamais synchronisé ni relu par l'application (DECISIONS D-057).                                                                                                                                                                           | P1 (v2) |
+| `quarantine`            | L      | `id` ; `[table+key]`                                    | Enregistrement copié tel quel avant d'être remplacé ou supprimé : enregistrement illisible, enregistrement reçu illisible, ou version locale qu'une version reçue remplace alors qu'aucune autre copie ne la garde (conflit). Table et clé d'origine, enregistrement brut, raison, date. Exporté, jamais synchronisé ni relu par l'application (DECISIONS D-057, D-069).                  | P1 (v2) |
 
 Toutes ces tables sont déclarées dès la version 1 de Dexie (DECISIONS D-043). La version 2 ajoute une table locale `quarantine`, exportée : un enregistrement illisible y est copié tel quel avant qu'une écriture le remplace ou le supprime (`setAsideIfUnreadable`, DECISIONS D-057). C'est le cas aujourd'hui pour les brouillons et les réglages.
 
@@ -225,7 +225,7 @@ create table ai_calls (
   model              text not null,
   prompt_version     text not null,
   status             text not null,          -- reserved | ok | invalid_output | truncated | model_refusal
-                                             -- | error | refused_budget | refused_rate
+                                             -- | error (refused_budget et refused_rate ne sont plus écrits, D-069)
   attempt            smallint not null default 1,  -- 2 : l'unique nouvelle tentative
 
   input_tokens       int, output_tokens int,
@@ -245,7 +245,7 @@ create table ai_calls (
   - Le rôle `anon` n'a aucun droit.
 - **Fonctions SQL** (toutes en `security invoker`, `search_path` vide) :
   - `sync_push(documents, events)` et `sync_pull(cursor, limit)`, appelées par le client connecté (§7) ;
-  - `ai_reserve_call`, `ai_complete_call` et `ai_usage_summary`, réservées à `service_role` (§8, §10.3).
+  - `ai_reserve_call`, `ai_complete_call` et `ai_usage_summary`, réservées à `service_role` (§8, §10.3). `ai_reserve_call` a été remplacée par une migration ultérieure : les migrations appliquées ne sont jamais modifiées.
 - **Aucun texte de l'apprenant** dans `ai_calls` : uniquement des métadonnées et des compteurs.
 - Les migrations sont testées dans PGlite (`supabase/tests/`), avec les rôles de Supabase ; un test général vérifie la RLS de chaque table et l'absence de droits pour `anon` (D-064).
 
@@ -347,7 +347,7 @@ La **réparation des segments** IA (AI-07) vit aussi dans ce module. Un segment 
 
 La synchronisation (`src/data/sync/`) ne fonctionne que si un projet Supabase est configuré et que l'apprenant est connecté ; sinon, tout reste sur l'appareil. Elle n'appelle jamais le modèle (COST-01). Règles et raisons : DECISIONS D-063.
 
-**Écriture locale.** `writeRecord` écrit un enregistrement synchronisé (classes D et E) **et** son entrée dans `syncOutbox`, dans la **même transaction** Dexie ; une transaction englobante doit donc inclure `syncOutbox`, sinon elle échoue. Aucune écriture n'échappe à la file, import JSON compris. Une seule entrée par enregistrement : une nouvelle écriture remplace l'entrée précédente par une entrée de numéro plus élevé. Les tables locales (brouillons, `quarantine`, état de la synchronisation, `usageSnapshot`) ne sont jamais synchronisées.
+**Écriture locale.** `writeRecord` écrit un enregistrement synchronisé (classes D et E) **et** son entrée dans `syncOutbox`, dans la **même transaction** Dexie ; une transaction englobante doit donc inclure `syncOutbox`, sinon elle échoue. Aucune écriture n'échappe à la file, import JSON compris. Une seule entrée par enregistrement : une nouvelle écriture remplace l'entrée précédente par une entrée de numéro plus élevé. `writeRecord` refuse un document dont `updatedAt` n'augmente pas (D-069). Les tables locales (brouillons, `quarantine`, état de la synchronisation, `usageSnapshot`) ne sont jamais synchronisées.
 
 Les règles de fusion sont des fonctions pures de `src/domain/sync/merge.ts` : `decideDocumentMerge` pour l'import JSON, `decideRemoteVersion` pour la synchronisation.
 
@@ -357,7 +357,7 @@ Les règles de fusion sont des fonctions pures de `src/domain/sync/merge.ts` : `
 
 **Push** : les entrées de la file sont lues par lots de 200, avec les enregistrements qu'elles désignent tels qu'ils sont stockés, puis envoyées à la fonction `sync_push` (soumise à la RLS).
 
-- Documents : `insert … on conflict do update … where excluded.updated_at > stored.updated_at`, ou à égalité si le `doc` sérialisé est plus grand (départage déterministe, le serveur seul arbitre). Les versions qui n'ont pas gagné sont renvoyées (`stale`) ; l'appareil les adopte si sa version n'a pas changé depuis l'envoi.
+- Documents : `insert … on conflict do update … where excluded.updated_at > stored.updated_at`, ou à égalité si le `doc` sérialisé est plus grand (départage déterministe, le serveur seul arbitre). Les versions qui n'ont pas gagné sont renvoyées (`stale`) ; l'appareil les adopte si sa version n'a pas changé depuis l'envoi (contenu comparé à celui envoyé, D-069).
 - Événements : `insert … on conflict do nothing`.
 - Les envois d'un même utilisateur passent un par un (verrou consultatif) : les numéros de séquence suivent l'ordre des validations, et une lecture ne saute jamais une modification.
 - Les entrées envoyées sont retirées de la file dans la transaction qui applique la réponse. Un enregistrement local illisible n'est jamais envoyé (il reste dans l'export).
@@ -368,6 +368,7 @@ Les règles de fusion sont des fonctions pures de `src/domain/sync/merge.ts` : `
 - Événements : insérés s'ils sont absents, jamais remplacés.
 - Un enregistrement reçu illisible va en `quarantine`. Un enregistrement d'une version plus récente de l'app, ou d'une table inconnue, reste sur le serveur : quand la « signature de schéma » de l'app change (mise à jour), tout est relu depuis le début.
 - Une entrée du lexique dont l'expression existe déjà localement sous un autre identifiant va en `quarantine` (clé unique, D-044).
+- Avant qu'une version reçue la remplace, une version locale qu'aucune autre copie ne garde (modification pas encore envoyée, ou version concurrente de même `updatedAt`) est copiée dans `quarantine` : avec une horloge en retard, la version perdante peut être la plus récente (D-069). Le rapport les compte et les Réglages l'indiquent.
 - Les changements reçus ne sont pas remis dans la file ; l'entrée d'une version locale remplacée en est retirée.
 
 **Conflits** : « le plus récent gagne » par document ; l'historique d'activité est fusionné par union des événements (DECISIONS D-015). Les brouillons ne sont jamais synchronisés.
@@ -502,7 +503,7 @@ Chaque phase ajoute à `shared/ai` les tâches dont elle a besoin. La phase 2 li
 - **Fréquence** : `AI_RATE_LIMIT_PER_MINUTE` (défaut 6), compté sur `ai_calls`.
 - **Plafond mensuel** : `AI_MONTHLY_BUDGET_USD` (défaut 10), avec réservation préalable du coût maximal, ce qui garantit le plafond même en cas d'appels concurrents.
 - **Idempotence** : un `requestId` déjà reçu est refusé, quelle que soit sa date (D-066). Le client en fournit un par action de l'utilisateur : la même action envoyée deux fois ne coûte rien.
-- **Refus journalisés** : les refus pour fréquence ou plafond sont enregistrés sans coût ; ils ne comptent pas dans la limite de fréquence.
+- **Refus** : les refus pour fréquence ou plafond ne sont pas écrits dans `ai_calls`, qui ne grossit donc qu'avec des appels réels ; ils restent dans les journaux de l'Edge Function (D-069).
 - **Réutilisation** : les corrections et les exercices générés sont enregistrés localement, et leur résultat n'est jamais redemandé.
 - **Écran « Consommation »** (COST-08, D-067) : coût du jour (fuseau du téléphone), du mois (mois UTC du plafond) et par tâche, avec le plafond configuré, lus par une requête `GET` à l'Edge Function, qui interroge `ai_calls` pour l'utilisateur vérifié ; aucun modèle n'est appelé. Hors ligne, le dernier état connu est affiché avec sa date.
 - **Vérification du cache** : le journal conserve `cache_read_input_tokens`. Si ce compteur reste à zéro sur des appels rapprochés, un invalidateur silencieux est à chercher.

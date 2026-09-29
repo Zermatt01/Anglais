@@ -6,7 +6,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 **Revues** (D-059) : chaque phase reçoit une revue de Codex, puis au plus une contre-revue des corrections, sauf s'il reste un point bloquant.
 
-**Phase en cours : aucune. La phase 2 est livrée (en attente de la revue de Codex et des actions de l'utilisateur du guide) ; la phase 3 attend l'accord de l'utilisateur.**
+**Phase en cours : aucune. La phase 2 est livrée et sa revue traitée (en attente de la contre-revue et des actions de l'utilisateur du guide) ; la phase 3 attend l'accord de l'utilisateur.**
 
 ---
 
@@ -56,7 +56,8 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 - [x] Tests : SQL dans PGlite, synchronisation de deux appareils, Edge Function avec un faux modèle, vérification Deno en CI, e2e avec un faux serveur
 - [x] **Arrêt** : guide pas à pas dans [DEPLOYMENT.md](DEPLOYMENT.md) (compte et projet Supabase, migrations, secrets, Claude Console et crédit, variables Vercel, vérifications)
 - [ ] Actions de l'utilisateur : suivre le guide (sections 6 à 12), puis confirmer que la connexion, la synchronisation et le test de connexion à l'IA fonctionnent
-- [ ] Revue de Codex de la phase 2
+- [x] Revue de Codex de la phase 2 traitée (D-069) : versions locales perdantes gardées à part, refus non journalisés, comparaison du contenu envoyé, `updatedAt` croissant imposé par `writeRecord`, test e2e instable corrigé
+- [ ] Contre-revue de Codex des corrections (au plus une, D-059)
 
 ## Phase 3 — Parcours
 
