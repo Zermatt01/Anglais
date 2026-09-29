@@ -86,8 +86,14 @@ test('keeps working without network, and says so', async ({ page, context }) => 
   expect(mock.pushes).toHaveLength(pushes);
 
   await context.setOffline(false);
+  // The pending count is hidden while a synchronization runs: wait for the push itself.
+  await expect.poll(() => mock.pushes.length).toBeGreaterThan(pushes);
+  await expect(page.getByText(/Dernière synchronisation/)).toBeVisible();
   await expect(page.getByText(/en attente d’envoi/)).toHaveCount(0);
-  expect(mock.pushes.length).toBeGreaterThan(pushes);
+  const sent = mock.pushes.flatMap((push) => push.p_documents);
+  expect(sent).toContainEqual(
+    expect.objectContaining({ doc: expect.objectContaining({ theme: 'light' }) }),
+  );
 });
 
 test('shows the usage without calling the model, and tests the AI on request only', async ({
