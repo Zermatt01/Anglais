@@ -77,6 +77,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-067 | Écran « Consommation »                                   | IA et coûts | Actée            |
 | D-068 | Client Supabase dans un fichier JavaScript séparé        | Outillage   | Actée            |
 | D-069 | Revue de la phase 2                                      | Transverse  | Actée            |
+| D-070 | Contre-revue de la phase 2                               | Transverse  | Actée            |
 
 ---
 
@@ -682,3 +683,12 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   3. **Réponse tardive d'un envoi (NO-06, D-063).** Une version renvoyée par le serveur remplaçait la version locale si son `updatedAt` n'avait pas changé depuis l'envoi : une nouvelle écriture de même `updatedAt` aurait été perdue. La comparaison porte désormais sur le contenu exact envoyé. De plus, `writeRecord` refuse d'écrire un document dont `updatedAt` n'augmente pas : l'invariant de « le plus récent gagne » est imposé par l'API générique, et plus seulement par chaque dépôt.
 - **Test instable corrigé.** En répétant les tests e2e, celui du hors-ligne échouait une fois sur quelques dizaines : il vérifiait la disparition du nombre de modifications en attente, qui est masqué pendant une synchronisation, avant que l'envoi ait eu lieu. Il attend désormais l'envoi lui-même (90 exécutions sur 90 réussies).
 - **Non vérifiable par la revue**, et laissé à l'usage réel : le projet Supabase déployé (secrets, clés de signature, origines, politiques), deux vrais téléphones, les coupures réseau en production, la facturation et les erreurs réelles de l'API Anthropic.
+
+### D-070 — Contre-revue de la phase 2 (2026-09-30, complète D-069)
+
+- **Contexte.** La contre-revue de Codex confirme que les trois corrections de D-069 fonctionnent, sans défaut bloquant. Elle relève un risque important déjà signalé comme limite dans D-069, et un point mineur.
+- **Décision.**
+  1. **Version déjà envoyée perdue face à une horloge en avance (NO-06).** Un appareil qui avait envoyé sa version pouvait ensuite adopter une version écrite plus tard par un appareil dont l'horloge avance : sa version n'existait plus nulle part. Le serveur garde désormais les versions remplacées : un déclencheur copie chaque version d'un document dans `sync_document_history` avant qu'un envoi l'écrase (migration `20260930120000_sync_history.sql`). Le propriétaire peut les lire (tableau de bord Supabase, **Table Editor**) ; aucun client ne peut les écrire ni les supprimer. La fonction du déclencheur s'exécute avec les droits de son propriétaire, dans un schéma `private` que l'API n'expose pas, et ne peut pas être appelée directement ; le test de sécurité général l'autorise nommément et vérifie qu'aucun client ne peut l'exécuter. **Rétention** : les dix dernières versions remplacées de chaque document, pour borner la base (une carte change à chaque révision). La limite de D-069 est ainsi levée, tant qu'un document n'a pas été remplacé dix fois de plus.
+  2. **Éléments mis de côté sans limite.** Les copies de conflit et les enregistrements illisibles s'accumulaient dans `quarantine` sans moyen de les voir ni de les retirer. **Réglages → Données** les liste (nature, table, date) et propose « Exporter puis retirer du téléphone » : un export qui les contient est téléchargé d'abord, l'apprenant confirme qu'il l'a bien, puis seuls les éléments mis de côté jusqu'à cet export sont retirés. Rien ne peut être retiré sans avoir été exporté.
+- **Raison.** NO-06 est une exigence absolue ; l'historique côté serveur la garantit sans changer la règle « le plus récent gagne », qui reste simple. Une révision attribuée par le serveur aurait aussi réglé le cas, au prix d'un protocole plus complexe.
+- **Processus (D-059).** C'était l'unique contre-revue de la phase 2 ; ces corrections ne demandent pas de nouvelle revue, sauf point bloquant.

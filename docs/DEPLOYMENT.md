@@ -110,9 +110,9 @@ npx supabase@2.118.0 db push
 
 - `login` ouvre le navigateur pour autoriser la CLI.
 - `link` demande le mot de passe de la base (section 6).
-- `db push` liste les migrations de `supabase/migrations/` (trois aujourd'hui : `…_sync.sql`, `…_ai_calls.sql` et `…_ai_refusals_not_logged.sql`) et demande confirmation. Après une mise à jour du dépôt qui en ajoute, relancer la même commande : seules les nouvelles sont appliquées.
+- `db push` liste les migrations de `supabase/migrations/` (quatre aujourd'hui : `…_sync.sql`, `…_ai_calls.sql`, `…_ai_refusals_not_logged.sql` et `…_sync_history.sql`) et demande confirmation. Après une mise à jour du dépôt qui en ajoute, relancer la même commande : seules les nouvelles sont appliquées.
 
-Vérification : **Table Editor** montre `sync_documents`, `sync_events` et `ai_calls`, chacune marquée « RLS enabled ».
+Vérification : **Table Editor** montre `sync_documents`, `sync_events`, `sync_document_history` et `ai_calls`, chacune marquée « RLS enabled ».
 
 ## 9. Préparer la clé Anthropic
 
@@ -202,6 +202,11 @@ L'export reste recommandé de temps en temps, surtout avant de changer de télé
 
 - **Réglages → Données → Exporter mes données** produit un fichier à garder (Drive, ordinateur…). Il ne contient aucune clé ni aucun mot de passe, seulement les données de l'application : réglages, profil, brouillons et, plus tard, cartes et productions. Les brouillons ne sont jamais synchronisés : seul l'export les sauvegarde.
 - Pour restaurer, ou pour passer sur un autre appareil : **Importer** ce fichier. Rien n'est effacé ; pour chaque élément présent des deux côtés, la version la plus récente est gardée.
+
+**Versions remplacées.** Si une modification semble avoir disparu après une synchronisation entre deux appareils, deux copies existent :
+
+- sur le téléphone, **Réglages → Données → Éléments mis de côté** (et dans chaque export) ;
+- sur le serveur, **Table Editor → sync_document_history** : les dix dernières versions remplacées de chaque document. Demander à Claude Code de restaurer celle qui convient.
 
 ## 15. Confidentialité
 
