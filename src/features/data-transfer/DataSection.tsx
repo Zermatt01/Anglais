@@ -25,6 +25,7 @@ import { countOf, formatDateTime, localDay } from '../dates.ts';
 import { downloadTextFile } from './download.ts';
 import { ImportPreview } from './ImportPreview.tsx';
 import { ENVELOPE_ERRORS } from './labels.ts';
+import { SetAsideList } from './SetAsideList.tsx';
 
 /** Largest file the import reads (an export is far smaller). */
 const MAX_IMPORT_BYTES = 50 * 1024 * 1024;
@@ -289,6 +290,8 @@ export function DataSection() {
           </Notice>
         ) : null}
       </div>
+
+      <SetAsideList />
 
       <BackupList />
     </Sheet>

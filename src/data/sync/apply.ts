@@ -24,6 +24,7 @@ import {
 } from '../../domain/sync/merge.ts';
 import type { AppDatabase } from '../database.ts';
 import { parseRecord, setAsideIfUnreadable, writeRecord } from '../records.ts';
+import { SET_ASIDE_REASON } from '../repositories/quarantine-repository.ts';
 import {
   isSyncedTable,
   isTableName,
@@ -85,7 +86,7 @@ async function quarantine(
       table: row.collection,
       key: row.id,
       record: row.doc,
-      reason: `received from the server: ${reason}`,
+      reason: `${SET_ASIDE_REASON.received}${reason}`,
       quarantinedAt: now,
     },
     now,
@@ -164,7 +165,7 @@ async function applyRow(
         table: name,
         key: row.id,
         record: raw,
-        reason: `conflict: local version (updatedAt ${String(localUpdatedAt)}) replaced by the version kept by the server (updatedAt ${String(remoteUpdatedAt)})`,
+        reason: `${SET_ASIDE_REASON.conflict}local version (updatedAt ${String(localUpdatedAt)}) replaced by the version kept by the server (updatedAt ${String(remoteUpdatedAt)})`,
         quarantinedAt: now,
       },
       now,
