@@ -22,6 +22,7 @@ describe('areEquivalent', () => {
     ["My manager's in the office", 'My manager is in the office'],
     ["Anna's not here yet", 'Anna is not here yet'],
     ["The report's already been sent", 'The report has already been sent'],
+    ['I sent you an e-mail', 'I sent you an email'],
   ])('%s = %s', (a, b) => {
     expect(areEquivalent(a, b)).toBe(true);
     expect(areEquivalent(b, a)).toBe(true);
@@ -45,6 +46,9 @@ describe('areEquivalent', () => {
     ["The manager's meeting", 'The manager is meeting'],
     // "one" is also a pronoun.
     ['I prefer the blue one', 'I prefer the blue 1'],
+    // A hyphen may change the word (D-058): the noun "follow-up", the verb "follow up".
+    ['I will follow-up with the client', 'I will follow up with the client'],
+    ['We signed a two-year contract', 'We signed a two year contract'],
   ])('%s ≠ %s', (a, b) => {
     expect(areEquivalent(a, b)).toBe(false);
   });

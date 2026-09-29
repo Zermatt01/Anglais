@@ -2,10 +2,10 @@
  * Text normalization for local answer checking (docs/ARCHITECTURE.md §6, COST-02).
  *
  * Normalization only removes differences that never change whether an answer is
- * right: letter case, typographic apostrophes and quotes, spacing, punctuation,
- * thousands separators and hyphens between words. Everything else (word choice,
- * word order, verb forms) is kept, so that two normalized answers are equal only
- * when a teacher would grade them the same way.
+ * right: letter case, typographic apostrophes and quotes, spacing, punctuation
+ * and thousands separators. Everything else (word choice, word order, verb
+ * forms, hyphens inside a word) is kept, so that two normalized answers are
+ * equal only when a teacher would grade them the same way.
  */
 
 /** Typographic apostrophes and look-alikes, all read as a plain apostrophe. */
@@ -18,35 +18,52 @@ const DASH_LIKE = /[‐-―−]/g;
 const THOUSANDS_SEPARATOR = /(?<=\d),(?=\d{3}(?!\d))/g;
 
 /**
- * Hyphenated spellings that are single words once the hyphen is removed.
- * Hyphens are otherwise read as spaces ("three-year" = "three year").
+ * Hyphenated spellings that are the same word as their closed spelling, in
+ * every use (DECISIONS D-058, D-072). The list is closed: any other hyphen is
+ * part of the word, since a hyphen often changes the word ("a follow-up" is a
+ * noun, "follow up" a verb; "a three-year plan", but "for three years").
  */
-const CLOSED_COMPOUNDS: readonly (readonly [RegExp, string])[] = [
-  [/\be-mail/g, 'email'],
-  [/\bon-line\b/g, 'online'],
-  [/\bco-operat/g, 'cooperat'],
-  [/\bco-ordinat/g, 'coordinat'],
-];
+const HYPHENATED_SPELLINGS: Readonly<Record<string, string>> = {
+  'e-mail': 'email',
+  'e-mails': 'emails',
+  'e-mailed': 'emailed',
+  'e-mailing': 'emailing',
+  'on-line': 'online',
+  'co-operate': 'cooperate',
+  'co-operates': 'cooperates',
+  'co-operated': 'cooperated',
+  'co-operating': 'cooperating',
+  'co-operation': 'cooperation',
+  'co-operative': 'cooperative',
+  'co-ordinate': 'coordinate',
+  'co-ordinates': 'coordinates',
+  'co-ordinated': 'coordinated',
+  'co-ordinating': 'coordinating',
+  'co-ordination': 'coordination',
+  'co-ordinator': 'coordinator',
+  'co-ordinators': 'coordinators',
+  'co-worker': 'coworker',
+  'co-workers': 'coworkers',
+};
 
 /**
- * A token is a decimal number ("6.5"), a word with inner apostrophes ("don't",
- * "o'clock", "company's"), or a currency or percent sign. Leading and trailing
- * apostrophes are dropped ("students'" → "students"), like any other punctuation.
+ * A token is a decimal number ("6.5"), a word with inner apostrophes or
+ * hyphens ("don't", "o'clock", "company's", "follow-up"), or a currency or
+ * percent sign. Apostrophes and hyphens at word edges are dropped
+ * ("students'" → "students"), like any other punctuation: a dash between
+ * spaces ("rates rose — sharply") separates words.
  */
-const TOKEN = /\d+(?:\.\d+)+|[\p{L}\p{N}]+(?:'[\p{L}\p{N}]+)*|[%$€£]/gu;
+const TOKEN = /\d+(?:\.\d+)+|[\p{L}\p{N}]+(?:['-][\p{L}\p{N}]+)*|[%$€£]/gu;
 
 /** Splits a text into normalized tokens (lowercase, no punctuation). */
 export function tokenize(text: string): string[] {
-  let normalized = text
+  const normalized = text
     .normalize('NFKC')
     .toLowerCase()
     .replace(APOSTROPHE_LIKE, "'")
     .replace(DASH_LIKE, '-')
     .replace(THOUSANDS_SEPARATOR, '');
-  for (const [pattern, replacement] of CLOSED_COMPOUNDS) {
-    normalized = normalized.replace(pattern, replacement);
-  }
-  return normalized.match(TOKEN) ?? [];
+  return (normalized.match(TOKEN) ?? []).map((token) => HYPHENATED_SPELLINGS[token] ?? token);
 }
 
 /** Normalized form of a text: its tokens joined by single spaces. */

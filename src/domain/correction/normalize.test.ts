@@ -28,17 +28,39 @@ describe('normalizeText', () => {
     expect(tokenize("'cause")).toEqual(['cause']);
   });
 
-  it('reads hyphens and dashes as word separators', () => {
-    expect(normalizeText('a three-year plan')).toBe('a three year plan');
-    expect(normalizeText('a three–year plan')).toBe('a three year plan');
-    expect(normalizeText('well-known — really')).toBe('well known really');
+  it('keeps a hyphen inside a word, whatever dash was typed', () => {
+    expect(tokenize('a three-year plan')).toEqual(['a', 'three-year', 'plan']);
+    expect(normalizeText('a three–year plan')).toBe('a three-year plan');
+    expect(normalizeText('a three‐year plan')).toBe('a three-year plan');
+    expect(tokenize('my mother-in-law')).toEqual(['my', 'mother-in-law']);
   });
 
-  it('closes a few compounds whose hyphen is optional', () => {
+  it('reads a dash between words as punctuation', () => {
+    expect(normalizeText('well-known — really')).toBe('well-known really');
+    expect(normalizeText('rates rose - sharply')).toBe('rates rose sharply');
+    expect(normalizeText('rates rose -sharply-')).toBe('rates rose sharply');
+  });
+
+  it('never reads a hyphen as a space (D-058: follow-up is a noun, follow up a verb)', () => {
+    expect(normalizeText('I will follow-up with the client')).not.toBe(
+      normalizeText('I will follow up with the client'),
+    );
+    expect(normalizeText('a three-year plan')).not.toBe(normalizeText('a three year plan'));
+    expect(normalizeText('the set-up')).not.toBe(normalizeText('the set up'));
+    expect(normalizeText('a well-known bank')).not.toBe(normalizeText('a well known bank'));
+    expect(normalizeText('a check-in')).not.toBe(normalizeText('a checkin'));
+  });
+
+  it('closes only the attested hyphenated spellings of the closed list', () => {
     expect(normalizeText('Send an E-mail')).toBe('send an email');
     expect(normalizeText('two e-mails')).toBe('two emails');
     expect(normalizeText('on-line')).toBe('online');
     expect(normalizeText('co-operate')).toBe('cooperate');
+    expect(normalizeText('the co-ordinator')).toBe('the coordinator');
+    expect(normalizeText('my co-workers')).toBe('my coworkers');
+    // Not in the list: kept as typed.
+    expect(normalizeText('co-author')).toBe('co-author');
+    expect(normalizeText('e-commerce')).toBe('e-commerce');
   });
 
   it('removes thousands separators but keeps decimal points', () => {
