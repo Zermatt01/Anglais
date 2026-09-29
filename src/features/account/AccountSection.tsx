@@ -173,6 +173,7 @@ function SyncPanel({ server, email }: { readonly server: ServerServices; readonl
   const { status, lastReport } = useSyncState(server);
   const progress = useSyncProgress();
   const running = status.kind === 'running';
+  const lastSyncAt = progress?.lastSyncAt ?? null;
 
   return (
     <>
@@ -184,9 +185,9 @@ function SyncPanel({ server, email }: { readonly server: ServerServices; readonl
         <p className="muted" role="status">
           {running
             ? 'Synchronisation en cours…'
-            : progress?.lastSyncAt == null
+            : lastSyncAt === null
               ? 'Pas encore synchronisé.'
-              : `Dernière synchronisation : ${formatDateTime(progress.lastSyncAt)}.`}
+              : `Dernière synchronisation : ${formatDateTime(lastSyncAt)}.`}
           {progress !== undefined && progress.pending > 0 && !running
             ? ` ${countOf(progress.pending, 'modification en attente d’envoi', 'modifications en attente d’envoi')}.`
             : ''}
