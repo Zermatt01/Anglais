@@ -1,199 +1,71 @@
 /**
- * Inflected forms of a word, to check that a card's hint does not give the
- * answer away in another form: "meetings" for "meeting", "finished" for
- * "finish", "went" for "go" (CARD-01, DECISIONS D-047).
+ * Inflected forms of a word, to check that a card's or an exercise's hint does
+ * not give the answer away in another form: "meetings" for "meeting",
+ * "finished" for "finish", "went" for "go" (CARD-01, DECISIONS D-047).
  *
- * This is a deliberately rough stemmer, not a dictionary: it may relate two
- * words that are not really of the same family. For a hint, that errs on the
- * prudent side: the card is refused, never shown with a revealing hint. Words
- * of three letters or less are only compared exactly (or through the irregular
- * forms), so "on" never matches "one". Frequent words whose ending only looks
- * like an inflection ("news", "economics", "evening") are listed in
- * `NOT_INFLECTED` and compared exactly too.
+ * Words are related only through the closed list of `word-families.ts`
+ * (D-058, D-072): no ending is removed by a rule, so "united" is never taken
+ * for a form of "unit", nor "news" for a form of "new". A word missing from
+ * the list is only compared with itself.
+ *
+ * The only rule is the possessive "'s", which is not an inflection but a
+ * clitic: "manager's" always contains the word "manager".
  */
 import { readingsOf } from './forms.ts';
+import { WORD_FAMILIES } from './word-families.ts';
 
-/** Frequent irregular forms, mapped to their base form. */
-const IRREGULAR_FORMS: Readonly<Record<string, string>> = {
-  am: 'be',
-  is: 'be',
-  are: 'be',
-  was: 'be',
-  were: 'be',
-  been: 'be',
-  being: 'be',
-  has: 'have',
-  had: 'have',
-  having: 'have',
-  does: 'do',
-  did: 'do',
-  done: 'do',
-  goes: 'go',
-  went: 'go',
-  gone: 'go',
-  made: 'make',
-  took: 'take',
-  taken: 'take',
-  got: 'get',
-  gotten: 'get',
-  gave: 'give',
-  given: 'give',
-  came: 'come',
-  saw: 'see',
-  seen: 'see',
-  knew: 'know',
-  known: 'know',
-  thought: 'think',
-  told: 'tell',
-  said: 'say',
-  found: 'find',
-  left: 'leave',
-  felt: 'feel',
-  kept: 'keep',
-  brought: 'bring',
-  bought: 'buy',
-  began: 'begin',
-  begun: 'begin',
-  wrote: 'write',
-  written: 'write',
-  spoke: 'speak',
-  spoken: 'speak',
-  sent: 'send',
-  spent: 'spend',
-  met: 'meet',
-  paid: 'pay',
-  ran: 'run',
-  rose: 'rise',
-  risen: 'rise',
-  lent: 'lend',
-  built: 'build',
-  held: 'hold',
-  led: 'lead',
-  lost: 'lose',
-  won: 'win',
-  sold: 'sell',
-  stood: 'stand',
-  understood: 'understand',
-  taught: 'teach',
-  caught: 'catch',
-  chose: 'choose',
-  chosen: 'choose',
-  fell: 'fall',
-  fallen: 'fall',
-  grew: 'grow',
-  grown: 'grow',
-  drove: 'drive',
-  driven: 'drive',
-  children: 'child',
-  men: 'man',
-  women: 'woman',
-  people: 'person',
-};
+/** Families of each form, by index in `WORD_FAMILIES`. */
+const FAMILIES_OF_FORM: ReadonlyMap<string, readonly number[]> = (() => {
+  const index = new Map<string, number[]>();
+  WORD_FAMILIES.forEach((forms, family) => {
+    for (const form of forms) {
+      const families = index.get(form) ?? [];
+      families.push(family);
+      index.set(form, families);
+    }
+  });
+  return index;
+})();
+
+/** The word itself, and without its possessive "'s". */
+function wordsOf(token: string): string[] {
+  return token.endsWith("'s") && token.length > 2 ? [token, token.slice(0, -2)] : [token];
+}
+
+/** True when both words are the same, or two forms of one word of the closed list. */
+export function sameWordFamily(a: string, b: string): boolean {
+  const wordsOfA = wordsOf(a);
+  const wordsOfB = wordsOf(b);
+  if (wordsOfA.some((word) => wordsOfB.includes(word))) return true;
+  const familiesOfA = new Set(wordsOfA.flatMap((word) => FAMILIES_OF_FORM.get(word) ?? []));
+  return wordsOfB.some((word) =>
+    (FAMILIES_OF_FORM.get(word) ?? []).some((family) => familiesOfA.has(family)),
+  );
+}
 
 /**
- * Words ending in -s, -ing or -ed that are not inflections of a shorter word:
- * no ending is removed from them ("news" is not the plural of "new"). Words
- * ending in -ss, -us and -is ("business", "status", "analysis") are already
- * protected by the rule itself.
+ * Words of a reading, hyphenated words split into their parts. For a hint,
+ * this errs on the prudent side: "a follow-up" gives away "follow up".
  */
-const NOT_INFLECTED = new Set([
-  // Uncountable nouns and nouns with the same singular and plural
-  'news',
-  'economics',
-  'physics',
-  'mathematics',
-  'politics',
-  'statistics',
-  'ethics',
-  'logistics',
-  'analytics',
-  'athletics',
-  'electronics',
-  'series',
-  'species',
-  'means',
-  'headquarters',
-  'lens',
-  'gas',
-  // Adverbs and conjunctions ending in -s
-  'always',
-  'perhaps',
-  'whereas',
-  'besides',
-  'sometimes',
-  // Nouns ending in -ing or -ed that are not verb forms
-  'evening',
-  'morning',
-  'during',
-  'nothing',
-  'something',
-  'anything',
-  'everything',
-  'ceiling',
-  'hundred',
-  'indeed',
-]);
-
-const VOWELS = /[aeiou]/;
-
-/** Base forms a longer word may come from, by removing a regular ending. */
-function regularBases(token: string): string[] {
-  const bases: string[] = [];
-  const add = (base: string) => {
-    if (base.length >= 3 && VOWELS.test(base)) bases.push(base);
-  };
-  const withoutDoubling = (base: string) => (/([^aeiou])\1$/.test(base) ? base.slice(0, -1) : base);
-
-  if (token.endsWith("'s")) add(token.slice(0, -2));
-  if (/ie[sd]$/.test(token)) add(`${token.slice(0, -3)}y`);
-  if (token.endsWith('es')) add(token.slice(0, -2));
-  if (token.endsWith('s') && !/(ss|us|is)$/.test(token)) add(token.slice(0, -1));
-  for (const ending of ['ed', 'ing']) {
-    const base = token.slice(0, -ending.length);
-    // The stem itself must be long enough: "thing" is not "th" + "ing".
-    if (token.endsWith(ending) && base.length >= 3) {
-      add(base);
-      add(`${base}e`);
-      add(withoutDoubling(base));
-    }
-  }
-  return bases;
-}
-
-/** The word itself and the base forms it may be an inflection of. */
-export function lemmaCandidates(token: string): Set<string> {
-  const candidates = new Set([token]);
-  const irregular = IRREGULAR_FORMS[token];
-  if (irregular !== undefined) candidates.add(irregular);
-  if (token.length > 3 && !NOT_INFLECTED.has(token)) {
-    for (const base of regularBases(token)) candidates.add(base);
-  }
-  return candidates;
-}
-
-/** True when both words may be forms of the same word. */
-export function sameWordFamily(a: string, b: string): boolean {
-  if (a === b) return true;
-  const ofA = lemmaCandidates(a);
-  for (const candidate of lemmaCandidates(b)) {
-    if (ofA.has(candidate)) return true;
-  }
-  return false;
+function looseWords(tokens: readonly string[]): string[] {
+  return tokens.flatMap((token) => token.split('-')).filter((word) => word.length > 0);
 }
 
 /**
  * True when `text` contains `phrase`, word for word, allowing each word to be
- * in another inflected form ("has finished" contains "have finished"). An empty
- * phrase is never contained.
+ * in another form of its family ("has finished" contains "have finished"). An
+ * empty phrase is never contained.
  */
 export function containsInflectedPhrase(text: string, phrase: string): boolean {
-  const phraseReadings = readingsOf(phrase).filter((tokens) => tokens.length > 0);
+  const phraseReadings = readingsOf(phrase)
+    .map(looseWords)
+    .filter((words) => words.length > 0);
   if (phraseReadings.length === 0) return false;
-  for (const textTokens of readingsOf(text)) {
-    for (const phraseTokens of phraseReadings) {
-      for (let start = 0; start + phraseTokens.length <= textTokens.length; start += 1) {
-        const window = textTokens.slice(start, start + phraseTokens.length);
-        if (window.every((token, index) => sameWordFamily(token, phraseTokens[index] ?? ''))) {
+  for (const textWords of readingsOf(text).map(looseWords)) {
+    for (const phraseWords of phraseReadings) {
+      for (let start = 0; start + phraseWords.length <= textWords.length; start += 1) {
+        const window = textWords.slice(start, start + phraseWords.length);
+        if (window.every((word, index) => sameWordFamily(word, phraseWords[index] ?? ''))) {
           return true;
         }
       }
