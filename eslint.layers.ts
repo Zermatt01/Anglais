@@ -5,6 +5,10 @@
 //      └──────► content (data validated by domain schemas)
 //   app (shell) may import every layer.
 //
+// Outside src/: shared/ (the AI contract) and supabase/ (the Edge Function)
+// import no layer of src/, and src/ imports neither the Edge Function nor the
+// prompts of shared/ai (D-017).
+//
 // The local rule `layers/layer-imports` resolves every import path before
 // deciding which layer it enters, so no spelling of a path escapes it
 // ("../.././features/x", "../../domain/../data/x", "/src/data/x"). It checks
@@ -208,6 +212,8 @@ const domainPurity: Linter.RulesRecord = {
 };
 
 const DOMAIN_LAYERS = ['app', 'features', 'ui', 'data', 'services', 'content'];
+/** Every layer of src/: code outside src/ must import none of them. */
+const SOURCE_LAYERS = [...DOMAIN_LAYERS, 'domain'];
 const DOMAIN_PACKAGES = [ANTHROPIC, ...REACT, 'dexie', 'workbox-window'];
 
 export const layerConfigs: Linter.Config[] = [
@@ -230,6 +236,14 @@ export const layerConfigs: Linter.Config[] = [
               group: [ANTHROPIC],
               message:
                 'AI calls go through the Supabase Edge Function proxy, never from the client.',
+            },
+            {
+              group: ['**/supabase/**'],
+              message: 'The client never imports the Edge Function code (docs/ARCHITECTURE.md §3).',
+            },
+            {
+              group: ['**/shared/ai/prompts', '**/shared/ai/prompts/**'],
+              message: 'Prompts are assembled by the Edge Function only (D-017).',
             },
           ],
         },
@@ -304,6 +318,43 @@ export const layerConfigs: Linter.Config[] = [
         layer: 'features',
         layers: ['app'],
         packages: [ANTHROPIC, 'ts-fsrs', 'dexie'],
+      }),
+    },
+  },
+  {
+    // The AI contract, imported by the client and by the Edge Function: pure,
+    // and free of the SDK, which would end up in the client bundle.
+    files: ['shared/**/*.ts'],
+    plugins: { layers: layersPlugin },
+    rules: {
+      'layers/layer-imports': layerImports({
+        layer: 'shared',
+        layers: SOURCE_LAYERS,
+        packages: [ANTHROPIC, ...REACT, 'dexie', 'ts-fsrs', '@supabase/*'],
+      }),
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/supabase/**'],
+              message: 'shared/ must not depend on the Edge Function.',
+            },
+          ],
+        },
+      ],
+      ...domainPurity,
+    },
+  },
+  {
+    // The Edge Function (Deno) never depends on the client application.
+    files: ['supabase/**/*.ts'],
+    plugins: { layers: layersPlugin },
+    rules: {
+      'layers/layer-imports': layerImports({
+        layer: 'supabase',
+        layers: SOURCE_LAYERS,
+        packages: [...REACT, 'dexie', 'ts-fsrs'],
       }),
     },
   },

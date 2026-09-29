@@ -186,3 +186,58 @@ describe('layer rules (docs/ARCHITECTURE.md §3)', () => {
     expect(await violations('src/data/probe.ts', 'export const a = Date.now();')).toEqual([]);
   });
 });
+
+describe('rules outside src/ (phase 2)', () => {
+  it.each(['shared/ai/probe.ts', 'supabase/functions/ai/probe.ts'])(
+    'are applied unchanged by the real configuration to %s',
+    async (filePath) => {
+      const real = effectiveConfig.parse(await realConfiguration.calculateConfigForFile(filePath));
+      const expected = effectiveConfig.parse(await layersOnly.calculateConfigForFile(filePath));
+      expect(real.rules[LAYER_RULE]).toBeDefined();
+      for (const rule of CHECKED_RULES) {
+        expect(real.rules[rule]).toEqual(expected.rules[rule]);
+      }
+    },
+  );
+
+  it.each([
+    // The SDK must never reach the client bundle through the shared contract.
+    ['shared/ai/probe.ts', '@anthropic-ai/sdk'],
+    ['shared/ai/probe.ts', '@supabase/supabase-js'],
+    ['shared/ai/probe.ts', 'react'],
+    ['shared/ai/probe.ts', '../../src/domain/primitives.ts'],
+    ['supabase/functions/ai/probe.ts', '../../../src/domain/primitives.ts'],
+    ['supabase/functions/ai/probe.ts', '../../../src/data/database.ts'],
+    ['supabase/functions/ai/probe.ts', 'dexie'],
+  ])('refuse in %s an import of %s', async (filePath, source) => {
+    expect(await violations(filePath, importOf(source))).toEqual([LAYER_RULE]);
+  });
+
+  it.each([
+    ['src/services/probe.ts', '../../supabase/functions/ai/handler.ts'],
+    ['src/features/probe.ts', '../../shared/ai/prompts/index.ts'],
+    ['src/features/probe.ts', '../../shared/ai/prompts'],
+    ['shared/ai/probe.ts', '../../supabase/functions/ai/handler.ts'],
+  ])('refuse in %s an import of %s (D-017)', async (filePath, source) => {
+    expect(await violations(filePath, importOf(source))).toEqual(['no-restricted-imports']);
+  });
+
+  it.each([
+    ['src/services/probe.ts', '../../shared/ai/protocol.ts'],
+    ['src/features/probe.ts', '../../shared/ai/tasks.ts'],
+    ['shared/ai/probe.ts', 'zod'],
+    ['supabase/functions/ai/probe.ts', '../_shared/ai/protocol.ts'],
+    ['supabase/functions/ai/probe.ts', '@anthropic-ai/sdk'],
+    ['supabase/functions/ai/probe.ts', '@supabase/server/core'],
+  ])('allow in %s an import of %s', async (filePath, source) => {
+    expect(await violations(filePath, importOf(source))).toEqual([]);
+  });
+
+  it('keep the shared contract free of implicit clocks and network', async () => {
+    const code = ['export const a = Date.now();', "export const d = fetch('/x');"].join('\n');
+    expect(await violations('shared/ai/probe.ts', code)).toEqual([
+      'no-restricted-properties',
+      'no-restricted-globals',
+    ]);
+  });
+});

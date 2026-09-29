@@ -43,7 +43,14 @@ export default defineConfig(
   },
   ...layerConfigs,
   {
-    files: ['*.config.ts', 'eslint.layers.ts', 'scripts/**/*.ts', 'e2e/**/*.ts'],
+    files: [
+      '*.config.ts',
+      'eslint.layers.ts',
+      'scripts/**/*.ts',
+      'e2e/**/*.ts',
+      'shared/**/*.ts',
+      'supabase/**/*.ts',
+    ],
     languageOptions: { globals: globals.node },
   },
   // Must stay last: turns off stylistic rules that conflict with Prettier.

@@ -16,7 +16,12 @@ export default mergeConfig(
     test: {
       environment: 'jsdom',
       setupFiles: ['./src/test/setup.ts'],
-      include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.ts'],
+      include: [
+        'src/**/*.test.{ts,tsx}',
+        'scripts/**/*.test.ts',
+        'shared/**/*.test.ts',
+        'supabase/**/*.test.ts',
+      ],
       restoreMocks: true,
       // CSS is replaced by empty strings in tests, except the theme, whose
       // colour tokens are checked for contrast (src/ui/theme.test.ts).

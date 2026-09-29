@@ -1,0 +1,32 @@
+{
+  // Code shared with the server (shared/) and the Supabase Edge Function
+  // (supabase/). The function runs on Deno; it is written so that it also
+  // type-checks and runs in Node for the tests: web APIs, `node:process`, and
+  // packages resolved by the function's deno.json in Deno and by node_modules here.
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.server.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Type safety (see docs/DECISIONS.md, D-006) */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true
+  },
+  "include": ["shared/**/*.ts", "supabase/**/*.ts"]
+}
