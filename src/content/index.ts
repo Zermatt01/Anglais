@@ -39,6 +39,7 @@ const LOADERS: Readonly<Partial<Record<NotionId, Loader>>> = {
     import('./notions/tense-present-perfect-continuous/index.ts').then((module) => module.CONTENT),
   'tense-past-perfect': () =>
     import('./notions/tense-past-perfect/index.ts').then((module) => module.CONTENT),
+  'tense-review': () => import('./notions/tense-review/index.ts').then((module) => module.CONTENT),
 };
 
 /** Notions whose content exists, in any order. */
