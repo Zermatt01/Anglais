@@ -7,7 +7,7 @@
  * from an import be stored as suspended instead of being lost (MOD-14).
  */
 import { z } from 'zod';
-import { notionIdSchema } from '../curriculum/notion-id.ts';
+import { notionIdSchema, type NotionId } from '../curriculum/notion-id.ts';
 import { errorCategorySchema, soundCategorySchema } from '../taxonomy.ts';
 
 /** Gap marker in a cloze sentence or a collocation context: three underscores or more. */
@@ -106,7 +106,7 @@ export type CardContent = z.infer<typeof cardContentSchema>;
 export type CardType = CardContent['type'];
 
 /** Notion taught by the card's lesson, if any. */
-export function notionOfCard(content: CardContent): string | null {
+export function notionOfCard(content: CardContent): NotionId | null {
   return content.type === 'pronunciation' ? null : content.notionId;
 }
 
