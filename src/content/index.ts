@@ -22,6 +22,8 @@ const LOADERS: Readonly<Partial<Record<NotionId, Loader>>> = {
     ),
   'tense-past-simple': () =>
     import('./notions/tense-past-simple/index.ts').then((module) => module.CONTENT),
+  'tense-past-continuous': () =>
+    import('./notions/tense-past-continuous/index.ts').then((module) => module.CONTENT),
 };
 
 /** Notions whose content exists, in any order. */
