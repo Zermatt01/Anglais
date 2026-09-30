@@ -30,6 +30,10 @@ const LOADERS: Readonly<Partial<Record<NotionId, Loader>>> = {
     import('./notions/tense-just-already-yet-still/index.ts').then((module) => module.CONTENT),
   'tense-for-since-ago': () =>
     import('./notions/tense-for-since-ago/index.ts').then((module) => module.CONTENT),
+  'tense-present-perfect-vs-past-simple': () =>
+    import('./notions/tense-present-perfect-vs-past-simple/index.ts').then(
+      (module) => module.CONTENT,
+    ),
 };
 
 /** Notions whose content exists, in any order. */
