@@ -35,7 +35,24 @@ function markedTexts(content: NotionContent): string[] {
     ...lesson.contrast.points,
     ...lesson.pitfalls,
     ...content.producePrompts,
-    ...content.exercises.map((exercise) => exercise.explanation),
+    ...content.placement.flatMap((question) => question.contextFr ?? []),
+    ...content.exercises.flatMap((exercise) => {
+      switch (exercise.kind) {
+        case 'choice-with-reason':
+          return [
+            exercise.explanation,
+            ...exercise.reasons,
+            ...(exercise.contextFr === undefined ? [] : [exercise.contextFr]),
+          ];
+        case 'fill-verb':
+        case 'place-word':
+          return [exercise.explanation, exercise.meaningFr];
+        case 'transform':
+          return [exercise.explanation, exercise.instructionFr];
+        case 'translate':
+          return [exercise.explanation, exercise.hint, exercise.sentenceFr];
+      }
+    }),
   ];
 }
 

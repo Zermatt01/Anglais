@@ -14,6 +14,8 @@ type Loader = () => Promise<NotionContentInput>;
 const LOADERS: Readonly<Partial<Record<NotionId, Loader>>> = {
   'tense-present-continuous': () =>
     import('./notions/tense-present-continuous/index.ts').then((module) => module.CONTENT),
+  'tense-present-simple': () =>
+    import('./notions/tense-present-simple/index.ts').then((module) => module.CONTENT),
 };
 
 /** Notions whose content exists, in any order. */
