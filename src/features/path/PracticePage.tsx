@@ -256,7 +256,7 @@ function Session({
         ) : null}
         {standing === null || progress?.status === 'acquired' ? null : (
           <p className="muted">
-            {`${standing.score.toLocaleString('fr-FR')} sur ${String(standing.counted)} (il en faut ${String(standing.needed)} sur les ${String(standing.window)} dernières)`}
+            {`Score : ${standing.score.toLocaleString('fr-FR')} sur ${String(standing.counted)} (il en faut ${String(standing.needed)} sur ${String(standing.window)})`}
           </p>
         )}
         {shown === null ? (

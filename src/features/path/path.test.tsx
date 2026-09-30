@@ -165,12 +165,11 @@ describe('exercises (steps 2 to 4)', () => {
     expect(await screen.findByText('Noté comme à revoir')).toBeInTheDocument();
 
     await waitFor(async () => {
-      expect(
-        (await services.path.attempts(NOTION)).map(({ result, grader }) => [result, grader]),
-      ).toEqual([
-        ['correct', 'local'],
-        ['incorrect', 'user'],
-      ]);
+      // Same time on the test clock: compared without their order.
+      const graded = (await services.path.attempts(NOTION)).map(
+        ({ result, grader }) => `${result}/${grader}`,
+      );
+      expect(graded.sort()).toEqual(['correct/local', 'incorrect/user']);
     });
   });
 

@@ -63,11 +63,11 @@ function Standing({
   const score = standing.score.toLocaleString('fr-FR');
   return progress.recall === null ? (
     <p className="muted">
-      {`Sur tes ${String(standing.counted)} dernières réponses (au plus ${String(standing.window)}) : ${score} bonne(s). Il en faut ${String(standing.needed)} sur ${String(standing.window)} pour passer à l’étape suivante.`}
+      {`Score : ${score} sur ${String(standing.counted)} réponse(s) comptée(s), les ${String(standing.window)} dernières au plus. Pour passer à l’étape suivante : ${String(standing.needed)} sur ${String(standing.window)}.`}
     </p>
   ) : (
     <p className="muted">
-      {`Rappel de l’étape « ${stepName(progress.recall.step)} » : ${score} réussite(s) sur ${String(standing.counted)}. Il en faut ${String(standing.needed)} sur ${String(standing.window)}.`}
+      {`Rappel de l’étape « ${stepName(progress.recall.step)} » : ${score} sur ${String(standing.counted)}. Pour revenir à l’étape en cours : ${String(standing.needed)} sur ${String(standing.window)}.`}
     </p>
   );
 }
