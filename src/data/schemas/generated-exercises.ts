@@ -3,24 +3,28 @@
  * validated and kept so that they are never generated twice (COST-09).
  */
 import { z } from 'zod';
+import { exerciseSchema, STEP_OF_KIND } from '../../domain/curriculum/exercise.ts';
 import { notionIdSchema } from '../../domain/curriculum/notion-id.ts';
 import { stepSchema } from '../../domain/curriculum/progress.ts';
 import { uuidSchema } from '../../domain/primitives.ts';
 import { documentTimestamps } from './common.ts';
 
-export const generatedExerciseDocumentSchema = z.strictObject({
-  id: uuidSchema,
-  ...documentTimestamps,
-  schemaVersion: z.literal(1),
-  notionId: notionIdSchema,
-  step: stepSchema,
-  /**
-   * The exercise itself, in the same format as the core exercises. That format
-   * is defined in phase 3; until then only JSON-serializable data is accepted.
-   */
-  exercise: z.json(),
-  model: z.string().min(1).max(100),
-  promptVersion: z.string().min(1).max(100),
-  status: z.enum(['active', 'reported']),
-});
+export const generatedExerciseDocumentSchema = z
+  .strictObject({
+    id: uuidSchema,
+    ...documentTimestamps,
+    schemaVersion: z.literal(1),
+    notionId: notionIdSchema,
+    step: stepSchema,
+    /** The exercise itself, in the same format as the core exercises (D-043). */
+    exercise: exerciseSchema,
+    model: z.string().min(1).max(100),
+    promptVersion: z.string().min(1).max(100),
+    /** `reported`: the learner reported it; it is never shown again. */
+    status: z.enum(['active', 'reported']),
+  })
+  .refine((document) => STEP_OF_KIND[document.exercise.kind] === document.step, {
+    message: 'the exercise kind does not belong to this step',
+    path: ['step'],
+  });
 export type GeneratedExerciseDocument = z.infer<typeof generatedExerciseDocumentSchema>;
