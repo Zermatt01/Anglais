@@ -193,7 +193,7 @@ export function TypedExercise({ exercise, draftKey, onAnswered }: TypedExerciseP
           <p lang="en" className="feedback__answer">
             {canonical}
           </p>
-          <p>Ta réponse dit-elle la même chose, avec la forme travaillée ici, sans autre faute ?</p>
+          <p>Ta réponse a-t-elle le même sens, avec la forme travaillée ici bien employée ?</p>
           <div className="button-row">
             <Button
               onClick={() => {

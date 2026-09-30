@@ -27,11 +27,14 @@ import './path.css';
 function useCandidates(trackId: TrackId): NotionId[] | undefined {
   const { path } = useAppServices();
   return useLiveQuery(async () => {
-    const progress = await path.allProgress();
     const candidates: NotionId[] = [];
     for (const notionId of notionsOfTrack(trackId).filter(hasContent)) {
-      const status = progress.get(notionId)?.status ?? 'not_started';
-      if (status !== 'not_started') continue;
+      // An unreadable progress is not "not started": it is left alone (NO-06).
+      const stored = await path.progress(notionId);
+      const notStarted =
+        stored.state === 'absent' ||
+        (stored.state === 'valid' && stored.values.status === 'not_started');
+      if (!notStarted) continue;
       const attempts = await path.attempts(notionId);
       if (attempts.some((attempt) => attempt.context === 'placement')) continue;
       candidates.push(notionId);
