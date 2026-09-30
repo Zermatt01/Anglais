@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { countGaps } from '../domain/cards/content.ts';
 import { areEquivalent } from '../domain/correction/forms.ts';
 import { checkExercise, exerciseSchema, STEP_OF_KIND } from '../domain/curriculum/exercise.ts';
-import { phaseOf, type NotionId } from '../domain/curriculum/notion-id.ts';
+import { PHASE_3_NOTION_IDS, phaseOf, type NotionId } from '../domain/curriculum/notion-id.ts';
 import { loadNotionContent, NOTIONS_WITH_CONTENT } from './index.ts';
 import type { NotionContent } from './schema.ts';
 
@@ -55,6 +55,10 @@ function markedTexts(content: NotionContent): string[] {
     }),
   ];
 }
+
+it('has content for every notion of phase 3, and only for them (CUR-10)', () => {
+  expect([...NOTIONS_WITH_CONTENT].sort()).toEqual([...PHASE_3_NOTION_IDS].sort());
+});
 
 describe.each(contents)('%s', (notionId: NotionId, content: NotionContent) => {
   it('is registered under its own identifier, and delivered in phase 3', () => {
