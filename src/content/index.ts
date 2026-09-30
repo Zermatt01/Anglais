@@ -26,6 +26,8 @@ const LOADERS: Readonly<Partial<Record<NotionId, Loader>>> = {
     import('./notions/tense-past-continuous/index.ts').then((module) => module.CONTENT),
   'tense-present-perfect': () =>
     import('./notions/tense-present-perfect/index.ts').then((module) => module.CONTENT),
+  'tense-just-already-yet-still': () =>
+    import('./notions/tense-just-already-yet-still/index.ts').then((module) => module.CONTENT),
 };
 
 /** Notions whose content exists, in any order. */
