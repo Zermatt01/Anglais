@@ -37,6 +37,8 @@ const LOADERS: Readonly<Partial<Record<NotionId, Loader>>> = {
   'tense-future': () => import('./notions/tense-future/index.ts').then((module) => module.CONTENT),
   'tense-present-perfect-continuous': () =>
     import('./notions/tense-present-perfect-continuous/index.ts').then((module) => module.CONTENT),
+  'tense-past-perfect': () =>
+    import('./notions/tense-past-perfect/index.ts').then((module) => module.CONTENT),
 };
 
 /** Notions whose content exists, in any order. */
