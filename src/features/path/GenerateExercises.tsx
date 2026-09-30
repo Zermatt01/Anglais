@@ -32,6 +32,24 @@ const MAX_COST_USD = maxCostOfCall(SETTINGS.model, {
   cachePrefix: SETTINGS.cachePrefix,
 });
 
+/** "2 exercice(s) ajouté(s)… Coût : 0,02 USD." */
+function generationMessage({
+  added,
+  dropped,
+  costUsd,
+}: {
+  readonly added: number;
+  readonly dropped: number;
+  readonly costUsd: number;
+}): string {
+  const result =
+    added > 0
+      ? `${String(added)} exercice(s) ajouté(s) à cette étape.`
+      : 'Aucun exercice n’a passé les vérifications : rien n’a été ajouté.';
+  const discarded = dropped > 0 ? ` ${String(dropped)} écarté(s) par les vérifications.` : '';
+  return `${result}${discarded} Coût : ${formatUsd(costUsd)}.`;
+}
+
 type Generation =
   | { readonly state: 'idle' | 'running' }
   | {
@@ -48,13 +66,23 @@ interface GenerateExercisesProps {
   readonly step: Step;
   /** Exercises the learner already has at this step, not to be repeated. */
   readonly existing: readonly Exercise[];
+  /**
+   * Once stored, the new exercises make the step no longer "done", and this
+   * block disappears: the parent keeps the message visible.
+   */
+  readonly onGenerated?: (message: string) => void;
 }
 
 /**
  * Once the core of a step is done, the AI can write new exercises, on request
  * only (COST-01, CUR-07). They are checked, stored and reused (COST-09).
  */
-export function GenerateExercises({ notionId, step, existing }: GenerateExercisesProps) {
+export function GenerateExercises({
+  notionId,
+  step,
+  existing,
+  onGenerated,
+}: GenerateExercisesProps) {
   const { server, generatedExercises } = useAppServices();
   const settings = useSettings()?.values ?? DEFAULT_SETTINGS;
   const online = useOnline();
@@ -99,12 +127,14 @@ export function GenerateExercises({ notionId, step, existing }: GenerateExercise
           model: result.model,
           promptVersion: result.promptVersion,
         });
-        setGeneration({
+        const done = {
           state: 'done',
           added: stored.length,
           dropped: result.output.exercises.length - stored.length,
           costUsd: result.costUsd,
-        });
+        } as const;
+        setGeneration(done);
+        onGenerated?.(generationMessage(done));
       } catch {
         setGeneration({ state: 'not-saved' });
       }
@@ -123,15 +153,7 @@ export function GenerateExercises({ notionId, step, existing }: GenerateExercise
       </p>
       {generation.state === 'done' ? (
         <Notice tone={generation.added > 0 ? 'success' : 'info'} title="Exercices créés">
-          <p>
-            {generation.added > 0
-              ? `${String(generation.added)} exercice(s) ajouté(s) à cette étape.`
-              : 'Aucun exercice n’a passé les vérifications : rien n’a été ajouté.'}
-            {generation.dropped > 0
-              ? ` ${String(generation.dropped)} écarté(s) par les vérifications.`
-              : ''}
-            {` Coût : ${formatUsd(generation.costUsd)}.`}
-          </p>
+          <p>{generationMessage(generation)}</p>
         </Notice>
       ) : null}
       {generation.state === 'failed' ? (

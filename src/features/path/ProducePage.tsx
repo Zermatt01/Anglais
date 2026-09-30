@@ -65,6 +65,7 @@ function ProduceView({ notionId }: { readonly notionId: NotionId }) {
           lang="en"
           spellCheck={false}
           rows={6}
+          maxLength={2_000}
           value={draft.text}
           disabled={!draft.ready}
           onChange={(event) => {

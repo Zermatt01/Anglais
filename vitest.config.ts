@@ -23,6 +23,9 @@ export default mergeConfig(
         'supabase/**/*.test.ts',
       ],
       restoreMocks: true,
+      // Screen tests load screens and notions on demand and go through several
+      // steps: on a busy machine (CI), 5 s per test is too short.
+      testTimeout: 20_000,
       // CSS is replaced by empty strings in tests, except the theme, whose
       // colour tokens are checked for contrast (src/ui/theme.test.ts).
       css: { include: [/src\/ui\/theme\.css/] },

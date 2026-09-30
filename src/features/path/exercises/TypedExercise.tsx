@@ -15,6 +15,8 @@ import type { ExerciseAnswer } from './types.ts';
 
 type TypedExercise = Exclude<Exercise, { kind: 'choice-with-reason' }>;
 
+const MAX_ANSWER_LENGTH = 500;
+
 interface TypedExerciseProps {
   readonly exercise: TypedExercise;
   /** Where the draft of the answer is kept (UI-03). */
@@ -129,6 +131,8 @@ export function TypedExercise({ exercise, draftKey, onAnswered }: TypedExerciseP
     lang: 'en',
     spellCheck: false,
     autoComplete: 'off',
+    // Stored with the answer (exerciseAttempts): far above any expected answer.
+    maxLength: MAX_ANSWER_LENGTH,
     onChange: (event: { currentTarget: { value: string } }) => {
       setEmpty(false);
       draft.setText(event.currentTarget.value);

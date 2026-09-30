@@ -203,6 +203,7 @@ function Session({
 }) {
   const { path, generatedExercises, clock } = useAppServices();
   const [shown, setShown] = useState<Shown | null>(() => choose(pool, attempts, null, clock.now()));
+  const [generated, setGenerated] = useState<string | null>(null);
   const [outcome, setOutcome] = useState<
     | { readonly state: 'idle' }
     | { readonly state: 'recorded'; readonly event: ProgressEvent | null }
@@ -211,6 +212,7 @@ function Session({
 
   const next = () => {
     setOutcome({ state: 'idle' });
+    setGenerated(null);
     setShown(choose(pool, attempts, shown?.item.id ?? null, clock.now()));
   };
 
@@ -328,8 +330,14 @@ function Session({
           notionId={notionId}
           step={step}
           existing={pool.map((item) => item.exercise)}
+          onGenerated={setGenerated}
         />
       ) : null}
+      {generated === null || exhausted ? null : (
+        <Notice tone="success" title="Exercices créés">
+          <p>{generated}</p>
+        </Notice>
+      )}
     </>
   );
 }
