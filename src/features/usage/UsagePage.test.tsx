@@ -77,7 +77,13 @@ describe('"Consommation" screen (COST-08)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Test en cours…' }));
     expect(fake?.calls.run).toEqual(['connection-check']);
 
-    answer({ ok: true, output: { status: 'ok' }, costUsd: 0.00013 });
+    answer({
+      ok: true,
+      output: { status: 'ok' },
+      costUsd: 0.00013,
+      model: 'claude-haiku-4-5-20251001',
+      promptVersion: 'connection-check@1',
+    });
     expect(await screen.findByText('La connexion à l’IA fonctionne')).toBeInTheDocument();
     expect(screen.getByText('Coût de ce test : 0,0001 USD.')).toBeInTheDocument();
     // The figures are read again afterwards (still no model call).

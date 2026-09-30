@@ -5,6 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { MODELS, TASK_SETTINGS, type TaskSettings } from './models.ts';
+import { NOTION_GUIDES } from './prompts/notion-guides.ts';
 import { PROMPTS } from './prompts/index.ts';
 import {
   aiRequestSchema,
@@ -13,7 +14,12 @@ import {
   AI_ERROR_CODES,
   timeZoneSchema,
 } from './protocol.ts';
-import { AI_TASK_NAMES, TASK_CONTRACTS } from './tasks.ts';
+import {
+  AI_TASK_NAMES,
+  GENERATABLE_NOTION_IDS,
+  TASK_CONTRACTS,
+  type AiTaskInput,
+} from './tasks.ts';
 
 const REQUEST_ID = '0b6f2c1e-3c3a-4a8e-9f61-2d4c5b6a7e80';
 
@@ -122,4 +128,51 @@ describe('timeZoneSchema', () => {
       expect(timeZoneSchema.safeParse(zone).success).toBe(false);
     },
   );
+});
+
+describe('generate-exercises', () => {
+  const input: AiTaskInput<'generate-exercises'> = {
+    notionId: 'tense-future',
+    step: 4,
+    englishVariant: 'en-US',
+    domains: [],
+    avoid: [],
+  };
+
+  it('has a guide for every notion it may generate', () => {
+    for (const notionId of GENERATABLE_NOTION_IDS) {
+      expect(NOTION_GUIDES[notionId].length).toBeGreaterThan(100);
+    }
+  });
+
+  it('puts the notion, the step, the variant and the sentences to avoid after the stable prefix', () => {
+    const prompt = PROMPTS['generate-exercises'];
+    const message = prompt.userMessage({ ...input, avoid: ['Line one\nline two'] });
+    expect(message).toContain(NOTION_GUIDES['tense-future']);
+    expect(message).toContain('kind "translate"');
+    expect(message).toContain('American English (en-US)');
+    expect(message).toContain('Domains of the learner: all of them.');
+    expect(message).toContain('- Line one line two');
+    expect(prompt.system).not.toContain('tense-future');
+  });
+
+  it('reads a generated exercise of each kind', () => {
+    const output = TASK_CONTRACTS['generate-exercises'].output;
+    expect(
+      output.safeParse({
+        exercises: [
+          {
+            kind: 'fill-verb',
+            sentence: 'We ___ it.',
+            verb: 'sign',
+            meaningFr: 'Nous l’avons signé.',
+            accepted: ['signed'],
+            knownErrors: [],
+            explanation: 'Prétérit.',
+          },
+        ],
+      }).success,
+    ).toBe(true);
+    expect(output.safeParse({ exercises: [{ kind: 'free-text', text: 'x' }] }).success).toBe(false);
+  });
 });

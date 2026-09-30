@@ -40,4 +40,12 @@ export interface TaskSettings {
 export const TASK_SETTINGS = {
   // The expected output is `{"status":"ok"}`: a few tokens.
   'connection-check': { model: MODELS.fast, maxTokens: 64, thinking: 'off', cachePrefix: false },
+  // Six exercises of about 200 tokens each, plus a short reasoning at low
+  // effort (D-012, D-079). To be calibrated with real calls (phase 5).
+  'generate-exercises': {
+    model: MODELS.capable,
+    maxTokens: 4_000,
+    thinking: { effort: 'low' },
+    cachePrefix: true,
+  },
 } as const satisfies Record<AiTaskName, TaskSettings>;

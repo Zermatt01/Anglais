@@ -30,7 +30,8 @@ export interface FakeServerOptions {
   readonly account?: Account | null;
   readonly sendCode?: (email: string) => AccountResult;
   readonly verifyCode?: (email: string, code: string) => AccountResult;
-  readonly run?: () => Promise<AiRunResult<'connection-check'>>;
+  /** Answer of the AI; by default, the connection check succeeds. */
+  readonly run?: (task: AiTaskName, input: unknown) => Promise<AiRunResult<AiTaskName>>;
   readonly usage?: () => Promise<AiUsageResult>;
   readonly syncState?: SyncState;
 }
@@ -103,12 +104,18 @@ export function createFakeServer(options: FakeServerOptions = {}): FakeServer {
   };
 
   const ai: AiClient = {
-    run<Task extends AiTaskName>(task: Task): Promise<AiRunResult<Task>> {
+    run<Task extends AiTaskName>(task: Task, input: unknown): Promise<AiRunResult<Task>> {
       calls.run.push(task);
       const result =
-        options.run?.() ??
-        Promise.resolve({ ok: true, output: { status: 'ok' }, costUsd: 0.00013 });
-      // Safe: the connection check is the only task (AI_TASK_NAMES).
+        options.run?.(task, input) ??
+        Promise.resolve({
+          ok: true,
+          output: { status: 'ok' },
+          costUsd: 0.00013,
+          model: 'claude-haiku-4-5-20251001',
+          promptVersion: 'connection-check@1',
+        });
+      // Safe in tests: each test answers with the output of the task it runs.
       return result as Promise<AiRunResult<Task>>;
     },
     usage() {

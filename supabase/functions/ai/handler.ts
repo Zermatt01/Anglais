@@ -12,6 +12,7 @@
  * Dependencies are injected: the tests replace the model, the log and the JWT
  * check. Nothing of the learner's text is ever logged (SEC-03).
  */
+import type { z } from 'zod';
 import { TASK_SETTINGS, type ModelId } from '../_shared/ai/models.ts';
 import { costOfUsage, estimateInputTokens, maxCostOfCall } from '../_shared/ai/pricing.ts';
 import { PROMPTS } from '../_shared/ai/prompts/index.ts';
@@ -102,6 +103,16 @@ const FINAL_STATUS = {
   error: 'error',
 } as const satisfies Record<ModelResult<unknown>['kind'], CallOutcome['status']>;
 
+/** The variable part of the prompt, for the task of the request (D-017). */
+function userMessageOf(request: AiRequest): string {
+  switch (request.task) {
+    case 'connection-check':
+      return PROMPTS['connection-check'].userMessage(request.input);
+    case 'generate-exercises':
+      return PROMPTS['generate-exercises'].userMessage(request.input);
+  }
+}
+
 async function runTask(
   request: AiRequest,
   user: AuthenticatedUser,
@@ -111,7 +122,9 @@ async function runTask(
   const { task } = request;
   const settings = TASK_SETTINGS[task];
   const prompt = PROMPTS[task];
-  const userMessage = prompt.userMessage(request.input);
+  const userMessage = userMessageOf(request);
+  // Each task has its own output schema; the model's answer is validated with it.
+  const outputSchema: z.ZodType = TASK_CONTRACTS[task].output;
   const reservedCostUsd = maxCostOfCall(settings.model, {
     inputTokens: estimateInputTokens(prompt.system + userMessage),
     maxTokens: settings.maxTokens,
@@ -150,7 +163,7 @@ async function runTask(
       settings,
       system: prompt.system,
       userMessage,
-      outputSchema: TASK_CONTRACTS[task].output,
+      outputSchema,
     });
     const outcome: CallOutcome = {
       status: FINAL_STATUS[result.kind],

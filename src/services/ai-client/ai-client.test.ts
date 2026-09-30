@@ -44,6 +44,8 @@ describe('run', () => {
       ok: true,
       output: { status: 'ok' },
       costUsd: 0.00013,
+      model: 'claude-haiku-4-5-20251001',
+      promptVersion: 'connection-check@1',
     });
     const [request] = sent;
     expect(request?.url).toBe(FUNCTION_URL);

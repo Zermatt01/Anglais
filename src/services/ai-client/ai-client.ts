@@ -41,7 +41,14 @@ export interface AiClientError {
 }
 
 export type AiRunResult<Task extends AiTaskName> =
-  | { readonly ok: true; readonly output: AiTaskOutput<Task>; readonly costUsd: number }
+  | {
+      readonly ok: true;
+      readonly output: AiTaskOutput<Task>;
+      readonly costUsd: number;
+      /** Kept with the result, so that it can be traced (D-017). */
+      readonly model: string;
+      readonly promptVersion: string;
+    }
   | { readonly ok: false; readonly error: AiClientError };
 
 export type AiUsageResult =
@@ -113,6 +120,8 @@ export function createAiClient(options: AiClientOptions): AiClient {
         // Safe: validated just above by the output schema of `task`.
         output: output.data as AiTaskOutput<typeof task>,
         costUsd: answer.data.costUsd,
+        model: answer.data.model,
+        promptVersion: answer.data.promptVersion,
       };
     },
 

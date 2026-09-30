@@ -23,7 +23,16 @@ export const connectionCheckRequestSchema = z.strictObject({
   input: TASK_CONTRACTS['connection-check'].input,
 });
 
-export const aiRequestSchema = z.discriminatedUnion('task', [connectionCheckRequestSchema]);
+export const generateExercisesRequestSchema = z.strictObject({
+  task: z.literal('generate-exercises'),
+  requestId: z.uuid(),
+  input: TASK_CONTRACTS['generate-exercises'].input,
+});
+
+export const aiRequestSchema = z.discriminatedUnion('task', [
+  connectionCheckRequestSchema,
+  generateExercisesRequestSchema,
+]);
 export type AiRequest = z.infer<typeof aiRequestSchema>;
 
 export const AI_ERROR_CODES = [
@@ -33,7 +42,7 @@ export const AI_ERROR_CODES = [
   'forbidden',
   /** Unknown task, invalid input or body too large. */
   'invalid_request',
-  /** This `requestId` was already received in the last ten minutes. */
+  /** This `requestId` was already received (D-066). */
   'duplicate_request',
   /** Too many calls in the last minute (COST-07). */
   'rate_limited',

@@ -5,6 +5,7 @@
  * exercises; lessons and placement questions are complete.
  */
 import { describe, expect, it } from 'vitest';
+import { GENERATABLE_NOTION_IDS } from '../../shared/ai/tasks.ts';
 import { countGaps } from '../domain/cards/content.ts';
 import { areEquivalent } from '../domain/correction/forms.ts';
 import { checkExercise, exerciseSchema, STEP_OF_KIND } from '../domain/curriculum/exercise.ts';
@@ -55,6 +56,10 @@ function markedTexts(content: NotionContent): string[] {
     }),
   ];
 }
+
+it('lets the AI generate exercises for exactly the notions delivered (D-079)', () => {
+  expect([...GENERATABLE_NOTION_IDS]).toEqual([...PHASE_3_NOTION_IDS]);
+});
 
 it('has content for every notion of phase 3, and only for them (CUR-10)', () => {
   expect([...NOTIONS_WITH_CONTENT].sort()).toEqual([...PHASE_3_NOTION_IDS].sort());

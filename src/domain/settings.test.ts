@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { applySettingsPatch, DEFAULT_SETTINGS, settingsValuesSchema } from './settings.ts';
+import { LEARNER_DOMAIN_IDS } from '../../shared/ai/tasks.ts';
+import {
+  applySettingsPatch,
+  DEFAULT_SETTINGS,
+  LEARNER_DOMAINS,
+  settingsValuesSchema,
+} from './settings.ts';
 
 describe('settings', () => {
   it('has valid defaults matching PEDAGOGY', () => {
@@ -41,5 +47,11 @@ describe('settings', () => {
     expect(settingsValuesSchema.safeParse({ ...DEFAULT_SETTINGS, extra: true }).success).toBe(
       false,
     );
+  });
+});
+
+describe('LEARNER_DOMAINS', () => {
+  it('is the list the AI contract accepts (shared/ai)', () => {
+    expect([...LEARNER_DOMAINS]).toEqual([...LEARNER_DOMAIN_IDS]);
   });
 });

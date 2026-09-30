@@ -9,6 +9,7 @@ import { createMigratedDatabase, createUser, rpcAs } from '../../tests/database.
 import { MODELS, TASK_SETTINGS } from '../_shared/ai/models.ts';
 import { costOfUsage, estimateInputTokens, maxCostOfCall } from '../_shared/ai/pricing.ts';
 import { CONNECTION_CHECK_PROMPT } from '../_shared/ai/prompts/connection-check.ts';
+import { GENERATE_EXERCISES_PROMPT } from '../_shared/ai/prompts/generate-exercises.ts';
 import {
   aiFailureSchema,
   aiSuccessSchema,
@@ -25,7 +26,7 @@ import {
   type CallToReserve,
   type Reservation,
 } from './ledger.ts';
-import type { ModelCaller, ModelResult } from './model.ts';
+import type { ModelCaller, ModelRequest, ModelResult } from './model.ts';
 
 const ORIGIN = 'https://app.example.test';
 const URL_OF_FUNCTION = 'https://abcdefghijklmnopqrst.supabase.co/functions/v1/ai';
@@ -483,5 +484,66 @@ describe('with the real SQL functions (PGlite)', () => {
       [userId],
     );
     expect(rows).toEqual([]);
+  });
+});
+
+describe('exercise generation (D-079)', () => {
+  const GENERATE = {
+    task: 'generate-exercises',
+    requestId: REQUEST_ID,
+    input: {
+      notionId: 'tense-past-simple',
+      step: 3,
+      englishVariant: 'en-GB',
+      domains: ['finance'],
+      avoid: ['We ___ the contract last week.'],
+    },
+  };
+
+  it('sends the versioned prompt and the task schema to the capable model, prefix cached', async () => {
+    const requests: ModelRequest<unknown>[] = [];
+    const output = { exercises: [] };
+    const { deps, reserved } = harness();
+    const model: ModelCaller = {
+      call(request) {
+        requests.push(request);
+        // Safe: the fake answers with the output of this task.
+        return Promise.resolve({ kind: 'ok', output, usage: USAGE } as ModelResult<never>);
+      },
+    };
+    const response = await handleRequest(post(GENERATE), { ...deps, model });
+    expect(response.status).toBe(200);
+    const [request] = requests;
+    expect(request?.settings).toEqual(TASK_SETTINGS['generate-exercises']);
+    expect(request?.settings.cachePrefix).toBe(true);
+    expect(request?.system).toBe(GENERATE_EXERCISES_PROMPT.system);
+    expect(request?.userMessage).toContain('Past simple of regular verbs');
+    expect(request?.userMessage).toContain('- We ___ the contract last week.');
+    expect(request?.userMessage).toContain('kind "fill-verb"');
+    expect(request?.outputSchema.safeParse(output).success).toBe(true);
+    expect(reserved[0]).toMatchObject({
+      task: 'generate-exercises',
+      model: MODELS.capable,
+      promptVersion: 'generate-exercises@1',
+    });
+  });
+
+  it.each([
+    ['a notion not delivered yet', { notionId: 'tense-have-got' }],
+    ['step 5, corrected by the AI instead', { step: 5 }],
+    ['an unknown domain', { domains: ['astrology'] }],
+    [
+      'too many sentences to avoid',
+      { avoid: Array.from({ length: 61 }, (_, index) => `s${String(index)}`) },
+    ],
+    ['a sentence to avoid that is too long', { avoid: ['x'.repeat(301)] }],
+  ])('refuses %s, without calling the model', async (_label, change) => {
+    const { deps, modelCalls } = harness();
+    const response = await handleRequest(
+      post({ ...GENERATE, input: { ...GENERATE.input, ...change } }),
+      deps,
+    );
+    expect(response.status).toBe(400);
+    expect(modelCalls).toEqual([]);
   });
 });
