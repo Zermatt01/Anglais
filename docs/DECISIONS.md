@@ -34,7 +34,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-024 | Seules les erreurs qualifiantes déclenchent une lacune   | Pédagogie   | Actée            |
 | D-025 | Erreur sur une notion non étudiée                        | Pédagogie   | Actée            |
 | D-026 | Autocorrection vérifiée localement                       | Pédagogie   | Actée            |
-| D-027 | Critères de passage par défaut                           | Pédagogie   | À ajuster (P3)   |
+| D-027 | Critères de passage par défaut                           | Pédagogie   | Précisée (D-075) |
 | D-028 | Limites de la reconnaissance vocale                      | Parole      | À revoir (P6)    |
 | D-029 | Mise en pause des projets Supabase gratuits              | Serveur     | Vérifiée (P2)    |
 | D-030 | Code partagé entre le client et l'Edge Function          | Serveur     | Tranchée (D-061) |
@@ -79,6 +79,15 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-069 | Revue de la phase 2                                      | Transverse  | Actée            |
 | D-070 | Contre-revue de la phase 2                               | Transverse  | Actée            |
 | D-071 | Envoi des codes de connexion par Resend                  | Serveur     | Actée            |
+| D-072 | Correction locale : traits d'union et familles de mots   | Pédagogie   | Actée            |
+| D-073 | Catalogue fermé des notions, contenu par notion          | Pédagogie   | Actée            |
+| D-074 | Exercices : schéma, correction locale et relectures      | Pédagogie   | Actée            |
+| D-075 | Moteur du parcours et test de positionnement             | Pédagogie   | À ajuster (P5)   |
+| D-076 | Étapes 4 et 5 avant la correction par l'IA               | Pédagogie   | Provisoire (P4)  |
+| D-077 | Lecture audio des exemples                               | Parole      | Actée            |
+| D-078 | Écrans et notions chargés à la demande                   | Outillage   | Actée            |
+| D-079 | Génération d'exercices par l'IA                          | IA et coûts | À calibrer (P5)  |
+| D-080 | Relecture séparée du socle de la phase 3                 | Pédagogie   | Actée            |
 
 ---
 
@@ -582,6 +591,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
     - la normalisation lit tout trait d'union comme une espace : _I will follow-up with the client_ est accepté pour _follow up_ (verbe), alors que _follow-up_ est le nom ;
     - `inflections.ts` rapproche les formes par leurs terminaisons régulières, avec une liste d'exceptions : _united_ y est encore rapproché de _unit_. L'erreur va dans le sens prudent (une carte est refusée, aucune réponse n'est acceptée), mais la règle reste générique.
   - Leur mise en conformité est inscrite au début de la phase 3, avant que le socle d'exercices utilise la correction locale.
+  - **Suite (2026-09-30)** : mise en conformité faite au début de la phase 3 (D-072).
 - **Raison.** Une règle générique accepte des fautes ou rapproche des mots différents sans qu'aucun test positif le révèle. Une liste fermée se relit mot par mot, et les cas négatifs rendent visible ce qu'elle exclut.
 
 ### D-059 — Revues : une par phase, revue de l'anglais en phase 3 (2026-09-29)
@@ -713,3 +723,82 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - Gmail avec la boîte principale : le mot de passe d'application, enregistré chez Supabase, donnerait accès à toute la boîte.
   - Brevo avec une adresse Gmail comme expéditeur : pas de domaine à vérifier, mais un expéditeur Gmail envoyé par un tiers risque d'être classé comme indésirable ou refusé.
   - Acheter un nom de domaine : quelques euros par an et une configuration DNS, inutiles pour un seul destinataire.
+
+### D-072 — Correction locale : traits d'union et familles de mots (2026-09-30, met en œuvre D-058, complète D-046 et D-057)
+
+- **Contexte.** D-058 laissait deux règles génériques dans la correction locale, à corriger avant le premier usage par le socle : le trait d'union lu comme une espace (_I will follow-up_ était accepté pour le verbe _follow up_) et le rapprochement des formes fléchies par leurs terminaisons (_united_ restait rapproché de _unit_).
+- **Décision.**
+  - **Traits d'union.** Un trait d'union fait partie du mot : _follow-up_ ≠ _follow up_, _three-year_ ≠ _three year_. Seule une liste fermée de graphies qui désignent le même mot dans tous leurs emplois est soudée : _e-mail_ (et ses formes), _on-line_, _co-operate_ et _co-ordinate_ (et leurs dérivés), _co-worker(s)_. Un tiret entre deux espaces reste de la ponctuation.
+  - **Formes fléchies.** Le contrôle des indices ne rapproche plus deux mots que s'ils appartiennent à une même famille d'une liste fermée, écrite forme par forme (`word-families.ts`) : verbes irréguliers, modaux, verbes réguliers et noms fréquents du vocabulaire professionnel, comparatifs. Un mot absent de la liste n'est comparé qu'à lui-même. Seule règle restante : le _'s_ possessif, qui n'est pas une flexion. Pour ce contrôle, un mot composé est aussi lu en ses parties (_a follow-up_ révèle _follow up_), du côté prudent.
+  - Cas négatifs testés : _united_/_unit_, _news_/_new_, _planet_/_plan_, _find_/_founded_ (reliés seulement par un troisième mot), _follow-up_/_follow up_, _set-up_/_set up_, _well-known_/_well known_.
+- **Conséquences.** Une réponse _a three year plan_ pour _a three-year plan_ devient « non prévue », jamais « fausse » ; le contenu liste les deux graphies quand les deux sont justes. Un indice qui citerait un mot absent de la liste sous une autre forme n'est plus détecté : les indices du socle sont en français et relus, et le prompt de génération interdit de citer la réponse. La clé normalisée du lexique change de définition, sans conséquence : aucune entrée n'existe encore (phase 4).
+
+### D-073 — Catalogue fermé des notions, contenu par notion (2026-09-30, complète D-036, D-038 et D-043)
+
+- **Décision.**
+  - `notionIdSchema` devient la **liste fermée** des 50 identifiants de PEDAGOGY §11, dans leur ordre, avec leur piste et leur phase (`src/domain/curriculum/notion-id.ts`). Un test lit PEDAGOGY §11 et vérifie les pistes, les identifiants, l'ordre, les phases, les titres et les références « Pour aller plus loin » ; un autre lit `docs/references/murphy-contents.md` et vérifie chaque unité citée, les libellés et le nombre d'unités de chaque livre.
+  - **Écart au plan d'ARCHITECTURE §5** : les titres et les références de toutes les notions sont dans `src/content/catalog.ts`, et non dans un `meta.ts` par notion, pour que la liste du Parcours s'affiche sans charger chaque notion. Chaque dossier de notion contient `lesson.ts`, `exercises.ts`, `placement.ts`, `review.ts` et `index.ts` ; le registre `src/content/index.ts` charge chaque notion à la demande et la valide.
+  - Les références sont renseignées pour les 13 notions de la phase 3 seulement (D-038) ; le test refuse une référence pour une notion hors du code.
+- **Limite connue.** Un enregistrement d'une version future de l'application qui citerait une notion nouvelle serait illisible pour cette version, donc mis de côté. Les 50 notions du programme sont déjà dans la liste.
+
+### D-074 — Exercices : schéma, correction locale et relectures (2026-09-30, complète D-035, D-043 et D-057)
+
+- **Décision.**
+  - **Schéma** (`src/domain/curriculum/exercise.ts`), partagé par le socle et `generatedExercises` : `choice-with-reason` (étape 2), `fill-verb`, `transform` et `place-word` (étape 3), `translate` (étape 4). `checkExercise` refuse tout exercice qui pourrait déclarer fausse une réponse juste : réponse absente des choix, deux choix équivalents, erreur anticipée acceptée, trou absent ou double, indice qui donne la réponse, sens français identique à la réponse, mot déjà placé, graphie dépendante de la grammaire sans son pendant.
+  - **Correction.** Une réponse à trou est remise dans sa phrase avant la comparaison : _She ___ left_ + _’s_ donne _She’s left_. Après un nom, _’s_ reste ambigu (D-057) : _the manager’s talking_ est « non prévue ».
+  - **Réponse non prévue** : l'apprenant la compare à la réponse de référence et dit si elle a le même sens, avec la forme travaillée bien employée ; la réponse est enregistrée avec le correcteur `user`. Elle n'est jamais déclarée fausse (NO-05). L'IA pourra vérifier ces réponses à partir de la phase 4 (CARD-05).
+  - Les options d'une question de choix sont montrées dans un ordre mêlé, stable pour un même passage (dans le contenu, la bonne réponse est souvent écrite en premier).
+  - **Relectures** : chaque fichier d'exercices d'une notion porte ses deux marques, datées (`review.ts`) ; le test du socle exige les deux (CUR-06).
+- **Conventions du contenu** (critère décisif de D-035).
+  - Réponses canoniques en anglais britannique ; les graphies américaines sont rapprochées automatiquement.
+  - Le prétérit américain de même sens est accepté comme variante (_I just finished_, _Did you ever work abroad?_, un résultat présent) ; il n'est jamais présenté comme faux.
+  - Un choix faux ou une erreur anticipée doit être faux dans toutes les lectures plausibles. Sont donc écartés : le présent simple après _Look!_ (lecture de commentaire en direct), un horaire possible (_We sign the contract on 3 March_), l'accord au pluriel d'un nom collectif (_The bank offer…_, admis en anglais britannique), _What time is the office open?_.
+  - Les mots dont la graphie dépend de la grammaire (_practise_, _licence_, _analyses_) sont évités.
+
+### D-075 — Moteur du parcours et test de positionnement (2026-09-30, précise D-022 et D-027 ; valeurs à ajuster en phase 5)
+
+- **Décision** (fonctions pures de `src/domain/curriculum/engine.ts`).
+  - Le compteur d'une étape est l'ensemble de ses réponses données dans le Parcours depuis `stepEnteredAt`. Les réponses du positionnement et de la pratique immédiate (phase 4) ne comptent pas.
+  - **Rappel** après 4 échecs sur les 6 dernières réponses : séries de 5 exercices de l'étape précédente ; 4 réussites renvoient à l'étape d'origine, compteur remis à zéro. **Point non précisé par PEDAGOGY §3.3**, tranché de façon prudente : une série manquée en ouvre une nouvelle, sans jamais descendre plus bas. À l'étape 2, la leçon est proposée, rien n'est imposé.
+  - Une notion acquise peut être pratiquée à l'étape 4 sans que son état change.
+  - Ouvrir une notion depuis le Parcours la démarre (PEDAGOGY §3.1) : l'écriture a lieu au clic, jamais à l'affichage. Une leçon ouverte par un lien direct ne démarre rien.
+  - **Positionnement** (CUR-08) : 4 questions de choix par notion, corrigées localement. Une notion est réussie si **toutes** ses réponses sont justes (au moins 3 questions) : elle passe « à consolider », à l'étape 4. Une notion déjà commencée, ou déjà testée, n'est pas proposée : un second essai permettrait de réussir au hasard. Les réponses sont enregistrées dans `exerciseAttempts` (contexte `placement`).
+  - Une progression illisible n'est jamais écrasée : les réponses sont enregistrées, la notion ne bouge pas, l'écran demande de mettre l'application à jour.
+- **Raison.** Un faux positif au positionnement ferait sauter la pratique guidée ; un faux négatif ne coûte que quelques exercices de plus. Le critère strict est donc le plus prudent.
+
+### D-076 — Étapes 4 et 5 avant la correction par l'IA (2026-09-30, provisoire jusqu'à la phase 4)
+
+- **Contexte.** CUR-05 confie à l'IA les réponses inattendues de l'étape 4 et la correction de l'étape 5, mais la tâche de correction (`correct-production`), ses prompts et ses exemples contrastés relèvent de la phase 4 (ROADMAP, ARCHITECTURE §10.2).
+- **Décision.**
+  - Étape 4 : une traduction non prévue est comparée par l'apprenant (D-074) et compte pour le critère de passage.
+  - Étape 5 : l'écran « Produire » propose les amorces et garde le texte dans un brouillon (`path-produce:<notion>`), exporté, jamais perdu ; il annonce que la correction arrive avec la prochaine version. La règle de l'étape 5 (deux productions consécutives sans erreur sur la notion) est codée et testée ; elle sera branchée en phase 4. **Aucune notion ne peut donc être « acquise » en phase 3.**
+- **Raison.** Option la plus prudente (PROC-04) : aucun prompt de correction sans les exemples contrastés exigés par AI-04, aucun coût, aucune saisie perdue.
+
+### D-077 — Lecture audio des exemples (2026-09-30, complète D-052 ; ARCHITECTURE §12)
+
+- **Décision.**
+  - Synthèse vocale de Web Speech (documentation MDN vérifiée le 2026-09-30 : la liste des voix peut être vide jusqu'à l'événement `voiceschanged`). L'interface `SpeechSynthesizer` et le choix de la voix sont dans le domaine ; l'implémentation est dans `src/services/speech`.
+  - Voix proposées : les voix anglaises du téléphone, celles de la variante choisie d'abord. La voix est enregistrée par son `voiceURI` ; si elle disparaît : voix par défaut de la variante, puis sa première voix, puis une autre voix anglaise, puis la langue seule.
+  - **Réglages → Lecture audio** : voix, vitesse (0,75 à 1,25, dans une liste), « Écouter un exemple ». Sans synthèse vocale, un message le dit et les boutons d'écoute n'apparaissent pas.
+
+### D-078 — Écrans et notions chargés à la demande (2026-09-30, complète D-057 et D-068)
+
+- **Décision.** Chaque écran, sauf l'accueil et la page introuvable, est chargé à la demande (`React.lazy`), et chaque notion est un fichier séparé (environ 5 kB compressés). Le service worker les précache tous (46 fichiers, 1 046 KiB) : tout s'ouvre hors ligne, ce qu'un test e2e vérifie.
+- **Résultat.** Le plus gros fichier JavaScript passe de 521 kB à 287 kB (92 kB compressés) : plus d'avertissement de Vite, sans relever son seuil.
+- **Tests.** Les tests d'écran attendent jusqu'à 5 secondes un élément, et 20 secondes au plus par test : sur une machine chargée, le premier chargement d'un écran dépassait parfois la seconde par défaut.
+
+### D-079 — Génération d'exercices par l'IA (2026-09-30, complète D-010, D-012, D-017 et D-066 ; à calibrer en phase 5)
+
+- **Décision.**
+  - Tâche `generate-exercises` : Sonnet 5, réflexion à effort bas, `max_tokens` 4 000 (au lieu des 3 000 prévus : six exercices d'environ 200 tokens, plus la réflexion), préfixe mis en cache. Six exercices d'un même type par appel : choix avec raison (étape 2), verbe à compléter (étape 3, seul type généré pour cette étape, car le plus simple à vérifier), traduction (étape 4).
+  - Le client n'envoie que l'identifiant de la notion (liste fermée des notions livrées), l'étape, la variante, les domaines de l'apprenant et les phrases déjà vues (au plus 60, de 300 caractères) : aucun texte de l'apprenant. Le prompt et un guide par notion sont côté serveur.
+  - La sortie structurée reste simple : les unions (`anyOf`) sont acceptées, pas les contraintes de longueur ou de nombre (documentation vérifiée le 2026-09-30). Le client vérifie chaque exercice (schéma, `checkExercise`, phrase déjà vue) et écarte les autres sans rejeter le lot ; il les stocke avec le modèle et la version du prompt.
+  - Le bouton n'apparaît qu'une fois tous les exercices de l'étape faits (socle et exercices déjà générés), sur action explicite (COST-01), avec le coût maximal estimé (environ 0,06 USD) ; il est inactif hors ligne. Les exercices créés sont signalés comme tels et peuvent être signalés : un exercice signalé n'est plus jamais montré, mais il est gardé.
+- **Raison.** CUR-07 et COST-09. NO-04 porte sur le socle : les exercices générés s'y ajoutent, vérifiés automatiquement et identifiés comme non relus.
+- **Limite connue.** Le SDK retire `enum` et `const` du schéma envoyé (D-066) : le type d'exercice n'est pas imposé par l'API. La validation par l'Edge Function, puis par le client, couvre ce point.
+
+### D-080 — Relecture séparée du socle de la phase 3 (2026-09-30, CUR-13, D-059)
+
+- **Contexte.** Le socle compte 13 leçons, 474 exercices (158 de reconnaissance, 173 de pratique, 143 de traduction), 908 réponses acceptées, 528 erreurs anticipées et 52 questions de positionnement, tous originaux.
+- **Décision.** Après la première relecture faite à la rédaction, une relecture séparée a repris chaque notion avec le critère de D-035. Elle a retiré des erreurs anticipées ou des choix faux qu'une lecture plausible rend justes (commentaire en direct après _Look!_, lecture d'horaire, accord pluriel d'un nom collectif, _What time is the office open?_, progressif familier _it’s depending_), ajouté une variante et précisé une leçon (_payed_ au sens de « payer »). La seconde marque de relecture est posée, et le test du socle l'exige.
+- **Suite (D-059).** Restent la revue de Codex consacrée à la justesse de l'anglais, distincte de celle du code, puis la relecture d'un échantillon par l'utilisateur, avant la clôture de la phase.

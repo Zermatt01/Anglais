@@ -4,6 +4,7 @@ Ce guide explique comment mettre l'application en ligne sur Vercel, l'installer 
 
 - **Sections 1 à 5** (phase 1) : l'application seule. Elle fonctionne alors entièrement sur le téléphone, sans compte ni IA.
 - **Sections 6 à 12** (phase 2) : le projet Supabase (compte, base de données, Edge Function « ai »), la clé Anthropic et les variables Vercel. À faire une seule fois, dans l'ordre.
+- **Section 16** (phase 3) : la mise à jour pour le Parcours.
 
 **Pour copier les commandes** : ne copier que les lignes situées entre les ` ``` `, jamais ces ` ``` ` eux-mêmes, qui servent seulement à l'affichage. Remplacer `<ref>` par la référence du projet (section 6, point 3), sans les chevrons : par exemple `https://abcdefghijklmnopqrst.supabase.co`.
 
@@ -243,7 +244,7 @@ Une fois connecté, les données sont copiées sur le serveur à chaque synchron
 
 L'export reste recommandé de temps en temps, surtout avant de changer de téléphone :
 
-- **Réglages → Données → Exporter mes données** produit un fichier à garder (Drive, ordinateur…). Il ne contient aucune clé ni aucun mot de passe, seulement les données de l'application : réglages, profil, brouillons et, plus tard, cartes et productions. Les brouillons ne sont jamais synchronisés : seul l'export les sauvegarde.
+- **Réglages → Données → Exporter mes données** produit un fichier à garder (Drive, ordinateur…). Il ne contient aucune clé ni aucun mot de passe, seulement les données de l'application : réglages, profil, brouillons, progression dans le Parcours, réponses aux exercices, exercices créés par l'IA et, plus tard, cartes et productions. Les brouillons ne sont jamais synchronisés : seul l'export les sauvegarde.
 - Pour restaurer, ou pour passer sur un autre appareil : **Importer** ce fichier. Rien n'est effacé ; pour chaque élément présent des deux côtés, la version la plus récente est gardée.
 
 **Versions remplacées.** Si une modification semble avoir disparu après une synchronisation entre deux appareils, deux copies existent :
@@ -255,4 +256,24 @@ L'export reste recommandé de temps en temps, surtout avant de changer de télé
 
 - L'adresse `*.vercel.app` est publique : quiconque la connaît peut ouvrir l'application, mais sans compte, il n'y voit que les données de son propre appareil. Les inscriptions sont fermées.
 - Les données synchronisées sont stockées dans le projet Supabase (région choisie à la section 6), protégées par la RLS : seul le compte connecté y a accès.
-- L'IA ne reçoit que ce qu'une action demande : le test de connexion n'envoie rien de personnel. À partir de la phase 4, « Corriger » enverra le texte à corriger. Le journal des appels (`ai_calls`) ne contient jamais de texte, seulement des compteurs et des codes.
+- L'IA ne reçoit que ce qu'une action demande : le test de connexion n'envoie rien de personnel ; la création d'exercices envoie la notion, l'étape, la variante d'anglais, les domaines choisis dans le profil et les phrases des exercices déjà vus, jamais un texte écrit par l'apprenant. À partir de la phase 4, « Corriger » enverra le texte à corriger. Le journal des appels (`ai_calls`) ne contient jamais de texte, seulement des compteurs et des codes.
+
+## 16. Mise à jour de la phase 3 (Parcours)
+
+La phase 3 n'ajoute aucune migration ni aucun secret. Elle ajoute une tâche à l'Edge Function : la création d'exercices par l'IA.
+
+1. **Publier le code** : `git push`. Vercel redéploie l'application (section 1), et la CI doit être verte.
+2. **Redéployer l'Edge Function**, sans quoi la création d'exercices répondrait « La demande n'a pas été acceptée par le serveur » :
+
+   ```sh
+   npx supabase@2.118.0 functions deploy ai --use-api
+   ```
+
+3. **Sur le téléphone** : « Nouvelle version disponible » → **Mettre à jour**. La barre du bas affiche désormais **Parcours**.
+4. **Vérifier** :
+   - **Parcours → Présent continu → Lire la leçon** : la frise, le tableau, les exemples et la ligne « Pour aller plus loin » s'affichent ; le bouton de haut-parleur lit un exemple.
+   - **Réglages → Lecture audio** : choisir une voix anglaise et une vitesse, puis **Écouter un exemple**. Si aucune voix anglaise n'apparaît, installer une voix anglaise dans les réglages Android (**Paramètres → Gestion globale → Synthèse vocale**, selon le modèle).
+   - En mode avion, les leçons et les exercices s'affichent, même ceux jamais ouverts : après la mise à jour, tout le Parcours est enregistré sur le téléphone.
+5. **Relire un échantillon** (D-059) : faire au moins la leçon et une dizaine d'exercices de trois notions, dont « _Just_, _already_, _yet_ et _still_ », et noter toute réponse attendue ou variante douteuse, avec la phrase concernée.
+
+La création d'exercices par l'IA n'apparaît qu'une fois tous les exercices d'une étape faits (au moins dix par étape). Chaque création coûte au plus 0,06 USD environ et apparaît dans **Réglages → Voir la consommation** (« Exercices générés »).

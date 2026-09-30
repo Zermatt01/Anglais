@@ -58,20 +58,22 @@ src/
   app/            Coquille : démarrage (ouverture de la base), routage, barre de navigation,
                   thème, bandeau de mise à jour du SW, gestion d'erreurs globale
   ui/             Composants visuels réutilisables et styles : thème « cahier corrigé »
-                  (theme.css), boutons, champs, avis, marques de correction ; plus tard frises SVG
+                  (theme.css), boutons, champs, avis, marques de correction, frises SVG et choix (P3)
   features/       Un dossier par module (P1 : home, settings, data-transfer, not-found ;
-                  P2 : account, usage ; ensuite review, path, theme, journal, email, oral,
-                  lexicon, rules, dashboard, quality, diagnostic, import, session), plus ce que
+                  P2 : account, usage ; P3 : path, speech ; ensuite review, theme, journal, email,
+                  oral, lexicon, rules, dashboard, quality, diagnostic, import, session), plus ce que
                   les écrans partagent : app-services.ts (services fournis par la coquille),
                   drafts/ (brouillons), sync/ (contrôleur et déclencheurs de la synchronisation),
                   ai/ (montants et messages d'erreur de l'IA)
   domain/         Logique pure, sans React, Dexie ni réseau :
                     primitives.ts, taxonomy.ts, settings.ts   types et schémas communs
+                    speech.ts     interface de synthèse vocale et choix de la voix (P3)
                     srs/          adaptateur ts-fsrs (interface interne), notes, maîtrise
                     correction/   normalisation, contractions, graphies, évaluation, segments
                     cards/        modèle des cartes, isCardSolvable
                     sync/         règles de fusion (import en P1, synchronisation en P2)
-                    curriculum/   identifiants et états des notions ; moteur des cinq étapes (P3)
+                    curriculum/   catalogue fermé des notions, états, schéma des exercices et
+                                  checkExercise, moteur des cinq étapes et du positionnement (P3)
                     errors/       règle lapsus/lacune, statistiques de catégories (P4)
                     level/        estimation du niveau (P5)
                     streak/       série et joker (P4)
@@ -82,7 +84,8 @@ src/
                   transfer/ (export et import JSON), backup.ts (sauvegarde avant montée de
                   version), open.ts, sync/ (file sortante, protocole, application des
                   changements reçus, moteur de synchronisation, P2)
-  content/        Programme rédigé : pistes, notions, leçons, exercices du socle (validés Zod, P3)
+  content/        Programme rédigé : titres et références (catalog.ts), leçons, exercices du
+                  socle et positionnement par notion, chargés à la demande (validés Zod, P3)
   services/       storage/ (stockage persistant) ; backend/ (client Supabase, compte,
                   transport de synchronisation, P2) ; ai-client/ (client de l'Edge Function, P2) ;
                   speech/ (P3 et P6)
@@ -258,17 +261,23 @@ Le schéma des exercices est défini dans `src/domain/curriculum`, et non dans `
 
 ```
 src/content/
-  schema.ts                 Schémas Zod : Book, Track, Notion, NotionReference, Lesson
-                            (Exercise : dans src/domain/curriculum)
+  schema.ts                 Schémas Zod : Lesson, Timeline, PlacementQuestion, CoreExercise (exercice
+                            du domaine + identifiant + marques de relecture), NotionContent
   books.ts                  Livres de référence : identifiant, titre, édition, libellé affiché, nombre d'unités
-  tracks.ts                 Pistes et ordre des notions (PEDAGOGY §11)
+  references.ts             Schéma des références et formatReferences
+  catalog.ts                Titres des pistes et des 50 notions, références des notions livrées (D-073)
+  builders.ts               Fonctions d'écriture des exercices (identifiant, étape, relectures)
   notions/<notion-id>/
-    meta.ts                 Titre, piste, phase, références « Pour aller plus loin » (CUR-14)
     lesson.ts               Étape 1 : usage, tableau de forme, contraste, pièges, exemples, frise
     exercises.ts            Socle des étapes 2 à 4 (≥ 10 exercices par étape, CUR-06)
-    placement.ts            3 à 5 questions de positionnement (CUR-08)
-  index.ts                  Registre : ajouter une notion = ajouter un dossier + une ligne ici
+    placement.ts            4 questions de positionnement (CUR-08)
+    review.ts               Dates des deux relectures (CUR-06, CUR-13)
+    index.ts                Contenu de la notion, avec ses amorces de l'étape 5
+  index.ts                  Registre : ajouter une notion = ajouter un dossier + une ligne ici ; chaque
+                            notion est un fichier séparé, chargé à la demande et validé (D-078)
 ```
+
+Le catalogue (identifiants, pistes, phases) est une liste fermée du domaine (`src/domain/curriculum/notion-id.ts`, D-073) ; les titres et les références sont du contenu. Des tests vérifient l'un et l'autre contre PEDAGOGY §11 et `docs/references/murphy-contents.md`.
 
 **Types d'exercices** (union discriminée par `kind`) :
 
@@ -280,7 +289,9 @@ src/content/
 | `place-word`         | 3     | Phrase, mot à placer, réponses acceptées (phrases complètes)                                | Locale           |
 | `translate`          | 4     | Phrase française, réponses acceptées (canonique + variantes), indice, difficulté (1–3)      | Locale, sinon IA |
 
-Chaque exercice porte un identifiant stable (`<notion-id>/s<étape>/<nn>`). Il porte aussi deux marques de relecture (`review: { first, second }`), exigées par le test du socle (CUR-06, CUR-11).
+Chaque exercice porte une explication en français, montrée après la réponse, et, sauf pour les choix, des erreurs anticipées : chacune doit être fausse dans toutes les lectures plausibles (D-035). `checkExercise` refuse tout exercice qui pourrait déclarer fausse une réponse juste ; une réponse à trou est remise dans sa phrase avant la comparaison (D-074).
+
+Chaque exercice du socle porte un identifiant stable (`<notion-id>/s<étape>/<nn>`) et deux marques de relecture datées (`review: { first, second }`), exigées par le test du socle (CUR-06, CUR-11). Une réponse qui ne correspond à rien de prévu n'est jamais déclarée fausse : l'apprenant la compare à la réponse de référence (D-074 ; l'IA pourra la vérifier en phase 4, D-076).
 
 **Identifiants de notions.** La liste ordonnée des pistes et des notions, avec leurs identifiants, leur phase et leurs références, est dans [PEDAGOGY.md §11](PEDAGOGY.md#11-programme--pistes-notions-et-références), **source unique**. Les identifiants sont en anglais, en kebab-case, et **stables une fois livrés**. Ils commencent par le préfixe de leur piste, parfois abrégé (`tense-`, `adj-`, `prep-`, `vocab-`…) : la correspondance piste → préfixe est la colonne « Préfixe des notions » de PEDAGOGY §11.1. Ceux des notions hors phase 3 ont été renommés le 2026-09-27, avant toute implémentation (DECISIONS D-036). Ces identifiants forment la liste fermée transmise au modèle (AI-03) : toute sortie IA qui cite un autre identifiant est rejetée.
 
@@ -322,7 +333,7 @@ Corriger localement tout ce qui peut l'être (COST-02) repose sur un moteur pur 
    - espaces multiples réduits ;
    - ponctuation ignorée, sauf l'apostrophe à l'intérieur d'un mot et le point décimal ;
    - séparateurs de milliers retirés (_6,000_ = _6000_) ;
-   - traits d'union lus comme des espaces (_three-year_ = _three year_), sauf quelques mots soudés (_e-mail_ = _email_).
+   - un trait d'union fait partie du mot (_follow-up_ ≠ _follow up_), sauf une liste fermée de graphies soudées (_e-mail_ = _email_, _co-operate_ = _cooperate_) ; un tiret entre deux espaces est de la ponctuation (D-072).
 2. **Contractions** (`contractions.ts`) :
    - chaque réponse est développée en un **ensemble** de formes équivalentes (_don't_ ↔ _do not_, _I'm_ ↔ _I am_, _can't_ ↔ _cannot_ ↔ _can not_) ;
    - les contractions ambiguës produisent plusieurs candidats : _'s_ → _is_ / _has_, _'d_ → _would_ / _had_ (et _did_ après un mot interrogatif) ;
@@ -335,7 +346,7 @@ Corriger localement tout ce qui peut l'être (COST-02) repose sur un moteur pur 
    - `incorrect` si la réponse correspond à une erreur connue de l'exercice ;
    - sinon `unknown`, réponse vide comprise. Seule une réponse `unknown` peut, **sur action explicite**, être envoyée au modèle (étape 4, cartes, CARD-05).
 
-Le même module fournit `containsInflectedPhrase` (`inflections.ts`), qui vérifie qu'un indice ne contient pas la réponse, même sous une autre forme (_meetings_ pour _meeting_, _go_ pour _went_) ; `isCardSolvable` s'en sert (DECISIONS D-047 et D-057).
+Le même module fournit `containsInflectedPhrase` (`inflections.ts`), qui vérifie qu'un indice ne contient pas la réponse, même sous une autre forme (_meetings_ pour _meeting_, _go_ pour _went_) ; `isCardSolvable` et `checkExercise` s'en servent (DECISIONS D-047 et D-057). Deux mots ne sont rapprochés que s'ils appartiennent à une même famille d'une liste fermée (`word-families.ts`, D-072) : aucune terminaison n'est retirée par une règle.
 
 La **réparation des segments** IA (AI-07) vit aussi dans ce module. Un segment signalé par le modèle est recherché tel quel dans le texte :
 
@@ -434,7 +445,8 @@ Détails :
 - **Étape 10, coût réel.** Calculé d'après l'usage renvoyé (§10.1). Une erreur renvoyée par l'API coûte zéro ; un appel à l'issue inconnue (délai dépassé, connexion perdue) est compté à son coût maximal. Si le journal ne peut pas être mis à jour, la réservation reste, au coût maximal : le plafond tient toujours.
 - **Erreurs.** Chaque refus a un code (`protocol.ts`) et un message en français (`src/features/ai/messages.ts`).
 - **Hors ligne.** Le bouton d'action IA reste visible mais inactif, avec la mention : « Connexion nécessaire pour la correction. Ta réponse est enregistrée. »
-- **Phase 2.** Seule la tâche `connection-check` existe : un appel minimal, lancé par le bouton « Tester la connexion » de l'écran Consommation, qui vérifie toute la chaîne (D-066).
+- **Phase 2.** La tâche `connection-check` : un appel minimal, lancé par le bouton « Tester la connexion » de l'écran Consommation, qui vérifie toute la chaîne (D-066).
+- **Phase 3.** La tâche `generate-exercises` (D-079), sur le bouton « Créer 6 exercices avec l'IA », proposé quand tous les exercices d'une étape sont faits. Le client envoie la notion, l'étape, la variante, les domaines et les phrases déjà vues ; il vérifie chaque exercice reçu et ne garde que ceux qui passent `checkExercise`, stockés dans `generatedExercises` avec le modèle et la version du prompt.
 
 ## 9. Sécurité
 
@@ -485,14 +497,14 @@ Les tokens de réflexion sont facturés comme de la sortie.
 
 ### 10.2 Tâches prévues (valeurs initiales, calibrées en phases 2 et 5)
 
-Chaque phase ajoute à `shared/ai` les tâches dont elle a besoin. La phase 2 livre seulement `connection-check` : Haiku 4.5, 64 tokens de sortie, sans réflexion ni cache, déclenchée par « Tester la connexion » (D-066).
+Chaque phase ajoute à `shared/ai` les tâches dont elle a besoin. La phase 2 livre `connection-check` : Haiku 4.5, 64 tokens de sortie, sans réflexion ni cache, déclenchée par « Tester la connexion » (D-066). La phase 3 livre `generate-exercises` (D-079).
 
 | Tâche                | Modèle    | `max_tokens` | Réflexion                                    | Cache du préfixe                    | Déclencheur                                                       |
 | -------------------- | --------- | ------------ | -------------------------------------------- | ----------------------------------- | ----------------------------------------------------------------- |
 | `correct-production` | Sonnet 5  | 2 000        | Désactivée ou effort bas (à calibrer, D-012) | Oui                                 | « Corriger » (Thème, Journal, Produire, E-mail, étape 4 inconnue) |
 | `check-card-answer`  | Haiku 4.5 | 300          | —                                            | Non (préfixe < 4 096 tokens, D-011) | « Vérifier » sur une réponse de carte `unknown`                   |
 | `classify-sounds`    | Haiku 4.5 | 400          | —                                            | Non                                 | Fin d'un exercice de shadowing, si des mots sont manqués          |
-| `generate-exercises` | Sonnet 5  | 3 000        | Effort bas                                   | Oui                                 | « Plus d'exercices » quand le socle est épuisé                    |
+| `generate-exercises` | Sonnet 5  | 4 000        | Effort bas                                   | Oui                                 | « Créer 6 exercices » quand l'étape est épuisée (livrée, D-079)   |
 | `diagnose`           | Sonnet 5  | 2 500        | Effort bas                                   | Oui                                 | Fin du diagnostic initial                                         |
 | `recalibrate-level`  | Sonnet 5  | 1 200        | Effort bas                                   | Oui                                 | « Recalibrer mon niveau »                                         |
 | `review-email`       | Sonnet 5  | 2 500        | Effort bas                                   | Oui                                 | « Réviser mon e-mail »                                            |
@@ -512,7 +524,7 @@ Chaque phase ajoute à `shared/ai` les tâches dont elle a besoin. La phase 2 li
 
 ## 11. PWA et hors ligne
 
-- **vite-plugin-pwa** en mode `generateSW` (Workbox) : précache de l'app (scripts, styles, `index.html`, manifeste, icônes) et, en phase 3, du programme, qui est dans les scripts. Toute adresse interne ouverte hors ligne reçoit `index.html` (`navigateFallback`). L'app est entièrement utilisable hors ligne, sauf l'IA et la synchronisation (ARC-01). Le client Supabase est un fichier séparé, chargé pendant l'ouverture de la base et précaché lui aussi (DECISIONS D-068).
+- **vite-plugin-pwa** en mode `generateSW` (Workbox) : précache de l'app (scripts, styles, `index.html`, manifeste, icônes), y compris les écrans et les notions chargés à la demande, chacun dans son fichier (D-078). Toute adresse interne ouverte hors ligne reçoit `index.html` (`navigateFallback`). L'app est entièrement utilisable hors ligne, sauf l'IA et la synchronisation (ARC-01). Le client Supabase est un fichier séparé, chargé pendant l'ouverture de la base et précaché lui aussi (DECISIONS D-068).
 - **Manifeste** :
   - nom, nom court, `lang: "fr"`, `id`, `start_url` et `scope` à `/` ;
   - `display: "standalone"` ;
@@ -530,7 +542,7 @@ Des interfaces du domaine, avec des implémentations interchangeables dans `src/
 - **`SpeechRecognizer`** : `isAvailable()`, `start({ lang, continuous })`, événements (partiel, final, fin, erreur), `stop()`.
   - Implémentation `WebSpeechRecognizer` (`SpeechRecognition` / `webkitSpeechRecognition`), avec redémarrage automatique après un silence pendant une réponse chronométrée.
   - Repli : saisie par la **dictée du clavier** Android, via un champ texte accompagné d'une consigne (ARC-08).
-- **`SpeechSynthesizer`** : `speak(text, { voice, rate, lang })`, par la synthèse Web Speech, avec des voix filtrées selon la variante choisie.
+- **`SpeechSynthesizer`** (livré en phase 3, D-077) : `speak(text, { variant, voiceId, rate })`, par la synthèse Web Speech (`src/services/speech/web-speech-synthesizer.ts`). Le domaine propose les voix anglaises, celles de la variante choisie d'abord, et choisit une voix de repli si la voix enregistrée a disparu. Les exemples des leçons se lisent d'un bouton ; voix et vitesse se règlent dans les Réglages.
 - **`PronunciationAssessor`** : interface **non implémentée** pour un futur service d'évaluation phonétique (par exemple Azure Speech).
 
 En attendant, la mesure est une **approximation** (MOD-06(f)) :
@@ -549,15 +561,15 @@ L'écran le dit clairement.
 
 ## 13. Stratégie de tests
 
-| Niveau                  | Outil                    | Portée                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| ----------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Logique pure            | Vitest                   | Tout `src/domain`, les contrats de `shared/ai` (schémas, prix, calcul de coût et de budget), le scan de secrets. Horloge injectée, aucun réseau.                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| Données                 | Vitest + fake-indexeddb  | Dépôts, écriture dans la file de synchronisation dans la même transaction, migrations (jeux de données des versions précédentes), export et import.                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| Contenu                 | Vitest                   | **Test du socle** (CUR-11) : chaque exercice est conforme au schéma, résoluble, avec au moins une réponse attendue, deux marques de relecture et un identifiant de notion valide ; ≥ 10 exercices par étape. **Test des références** (CUR-14) : unités existantes dans `docs/references/murphy-contents.md` et identiques à PEDAGOGY §11.                                                                                                                                                                                                                             |
-| Serveur                 | Vitest + PGlite, Deno    | Migrations SQL dans PGlite, avec les rôles de Supabase : RLS, droits, `sync_push`/`sync_pull`, réservation, plafond, fréquence, idempotence (`supabase/tests/`). Synchronisation de deux appareils à travers ces fonctions. Edge Function avec un faux modèle : CORS, JWT (clés générées pour le test), refus, nouvelle tentative, coûts journalisés, sous le vrai SQL. `deno check` de la fonction en CI.                                                                                                                                                            |
-| Composants              | Vitest + Testing Library | Comportements clés de l'interface : coquille et navigation, réglages, brouillons, export et import, bandeau de mise à jour, connexion par code, état de la synchronisation, écran Consommation (aucun appel au modèle à l'ouverture) ; plus tard, correction en deux temps. Les tests tournent sur une vraie base en mémoire (`src/test/render.tsx`), avec un faux serveur (`src/test/server.ts`).                                                                                                                                                                    |
-| Configuration           | Vitest                   | Règles de couches ESLint (`scripts/eslint-layers.test.ts`), en-têtes et CSP de `vercel.json`, contrastes des couleurs du thème (`src/ui/theme.test.ts`), versions Dexie additives, copie à jour de `shared/ai` et versions de `deno.json`.                                                                                                                                                                                                                                                                                                                            |
-| Parcours                | Playwright (Pixel 7)     | Parcours principaux sur le build de production, sous la CSP de production : installabilité vérifiée par Chrome, manifeste et icônes, hors ligne, réglages et brouillons conservés au rechargement, export puis import, connexion par code, synchronisation (envoi, réception, coupure réseau), écran Consommation et test de connexion ; plus tard, séance du jour et révision d'une carte. Toute erreur de console fait échouer le test. **Le serveur et le modèle sont simulés** (`e2e/supabase-mock.ts`) : aucun test automatique n'appelle Supabase ni Anthropic. |
-| Qualité des corrections | Banc d'essai (MOD-13)    | Lancé **manuellement**, depuis l'écran développeur, avec le coût affiché avant lancement. Il ne fait jamais partie de la CI.                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Niveau                  | Outil                    | Portée                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ----------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Logique pure            | Vitest                   | Tout `src/domain`, les contrats de `shared/ai` (schémas, prix, calcul de coût et de budget), le scan de secrets. Horloge injectée, aucun réseau.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Données                 | Vitest + fake-indexeddb  | Dépôts, écriture dans la file de synchronisation dans la même transaction, migrations (jeux de données des versions précédentes), export et import.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Contenu                 | Vitest                   | **Test du socle** (CUR-11) : chaque exercice est conforme au schéma, résoluble, avec au moins une réponse attendue, deux marques de relecture et un identifiant de notion valide ; ≥ 10 exercices par étape ; aucune phrase répétée ; questions de positionnement vérifiées comme les exercices ; les notions livrées sont exactement celles de la phase et celles que l'IA peut compléter. **Test des références** (CUR-14) : unités existantes dans `docs/references/murphy-contents.md` et identiques à PEDAGOGY §11.                                                                                                                                         |
+| Serveur                 | Vitest + PGlite, Deno    | Migrations SQL dans PGlite, avec les rôles de Supabase : RLS, droits, `sync_push`/`sync_pull`, réservation, plafond, fréquence, idempotence (`supabase/tests/`). Synchronisation de deux appareils à travers ces fonctions. Edge Function avec un faux modèle : CORS, JWT (clés générées pour le test), refus, nouvelle tentative, coûts journalisés, sous le vrai SQL. `deno check` de la fonction en CI.                                                                                                                                                                                                                                                       |
+| Composants              | Vitest + Testing Library | Comportements clés de l'interface : coquille et navigation, réglages, brouillons, export et import, bandeau de mise à jour, connexion par code, état de la synchronisation, écran Consommation (aucun appel au modèle à l'ouverture), Parcours (leçon, lecture audio, exercices, réponse non prévue, retour à la leçon, positionnement, création d'exercices seulement sur demande) ; plus tard, correction en deux temps. Les tests tournent sur une vraie base en mémoire (`src/test/render.tsx`), avec un faux serveur (`src/test/server.ts`).                                                                                                                |
+| Configuration           | Vitest                   | Règles de couches ESLint (`scripts/eslint-layers.test.ts`), en-têtes et CSP de `vercel.json`, contrastes des couleurs du thème (`src/ui/theme.test.ts`), versions Dexie additives, copie à jour de `shared/ai` et versions de `deno.json`.                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Parcours                | Playwright (Pixel 7)     | Parcours principaux sur le build de production, sous la CSP de production : installabilité vérifiée par Chrome, manifeste et icônes, hors ligne, réglages et brouillons conservés au rechargement, export puis import, connexion par code, synchronisation (envoi, réception, coupure réseau), écran Consommation et test de connexion, Parcours (leçon puis réponse conservée au rechargement, leçon hors ligne, positionnement) ; plus tard, séance du jour et révision d'une carte. Toute erreur de console fait échouer le test. **Le serveur et le modèle sont simulés** (`e2e/supabase-mock.ts`) : aucun test automatique n'appelle Supabase ni Anthropic. |
+| Qualité des corrections | Banc d'essai (MOD-13)    | Lancé **manuellement**, depuis l'écran développeur, avec le coût affiché avant lancement. Il ne fait jamais partie de la CI.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
 La CI (`.github/workflows/ci.yml`) exécute : vérification des types, lint, format, tests unitaires, scan de secrets, build, scan gitleaks de tout l'historique, vérification de l'Edge Function par Deno et tests e2e. Une phase n'est terminée que si tout passe (PROC-05).

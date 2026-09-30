@@ -6,7 +6,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 **Revues** (D-059) : chaque phase reçoit une revue de Codex, puis au plus une contre-revue des corrections, sauf s'il reste un point bloquant.
 
-**Phase en cours : phase 3 (lancée le 2026-09-30, avec l'accord de l'utilisateur, après la vérification de la phase 2 sur son téléphone).**
+**Phase en cours : phase 3, à l'arrêt.** Le développement est terminé (lancé le 2026-09-30, avec l'accord de l'utilisateur) ; restent les deux revues de Codex (code, puis justesse de l'anglais) et la relecture d'un échantillon par l'utilisateur. La phase 4 attend son accord.
 
 ---
 
@@ -61,19 +61,19 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 ## Phase 3 — Parcours
 
-- [ ] Moteur des cinq étapes, critères de passage et de retour
-- [ ] Mise en conformité de la correction locale avec D-058, avant son premier usage par le socle : les traits d'union (aujourd'hui lus comme des espaces, ce qui accepte _follow-up_ pour le verbe _follow up_) et le rapprochement des formes fléchies (terminaisons génériques, qui rapprochent encore _united_ de _unit_), ramenés à des listes fermées avec leurs cas négatifs
-- [ ] Schéma des exercices dans `src/domain/curriculum`, partagé par le socle et `generatedExercises` (D-043)
-- [ ] Lecture audio des exemples, et choix de la voix et de la vitesse dans les Réglages (D-052)
-- [ ] Taille du bundle, à traiter si besoin : à la fin de la phase 1, Vite signale un fichier JavaScript de 502,75 kB (157,5 kB compressé), au-delà de son seuil d'avertissement de 500 kB. En phase 2, le client Supabase est passé dans un fichier séparé (224 kB) et le fichier principal fait 521 kB (163 kB compressé, D-068). Le programme va l'alourdir : découper le code par écran (`React.lazy`) plutôt que relever le seuil (D-057)
-- [ ] Test de positionnement par piste
-- [ ] Frises chronologiques SVG
-- [ ] Les 13 notions de phase 3 de la piste « Temps verbaux », dans l'ordre de PEDAGOGY §11, dont « just, already, yet et still » (socle ≥ 10 exercices par étape, doublement relu)
-- [ ] Références « Pour aller plus loin » : schéma, affichage sous la leçon, test des unités contre `docs/references/murphy-contents.md` et PEDAGOGY §11, rempli pour les 13 notions (CUR-14)
-- [ ] Génération d'exercices par l'IA sur demande, validée et conservée
-- [ ] Test automatique du socle (bien formé, résoluble, ≥ 1 réponse attendue, relectures ; les deux graphies de `CONTEXT_DEPENDENT_SPELLINGS` présentes dans les variantes, D-057)
-- [ ] Relecture séparée de tout le contenu pédagogique
-- [ ] **Arrêt**
+- [x] Moteur des cinq étapes, critères de passage et de retour (D-075) ; étape 5 : règle codée et testée, branchée en phase 4 avec la correction (D-076)
+- [x] Mise en conformité de la correction locale avec D-058, avant son premier usage par le socle : traits d'union gardés dans le mot, sauf une liste fermée de graphies ; formes fléchies rapprochées par une liste fermée de familles de mots ; cas négatifs testés (D-072)
+- [x] Schéma des exercices dans `src/domain/curriculum`, partagé par le socle et `generatedExercises` (D-043, D-074)
+- [x] Lecture audio des exemples, et choix de la voix et de la vitesse dans les Réglages (D-052, D-077)
+- [x] Taille du bundle : écrans et notions chargés à la demande (`React.lazy`) ; le plus gros fichier passe de 521 kB à 287 kB, sans relever le seuil (D-078)
+- [x] Test de positionnement par piste : 4 questions par notion, réussite si toutes sont justes (D-075)
+- [x] Frises chronologiques SVG
+- [x] Les 13 notions de phase 3 de la piste « Temps verbaux », dans l'ordre de PEDAGOGY §11, dont « just, already, yet et still » : 13 leçons, 474 exercices (au moins 10 par étape), 52 questions de positionnement, doublement relus (D-074, D-080)
+- [x] Références « Pour aller plus loin » : schéma, affichage sous la leçon, test des unités contre `docs/references/murphy-contents.md` et PEDAGOGY §11, rempli pour les 13 notions (CUR-14, D-073)
+- [x] Génération d'exercices par l'IA sur demande, validée et conservée (D-079)
+- [x] Test automatique du socle (bien formé, résoluble, ≥ 1 réponse attendue, deux relectures ; les deux graphies de `CONTEXT_DEPENDENT_SPELLINGS` exigées dans les variantes, D-057)
+- [x] Relecture séparée de tout le contenu pédagogique (D-080)
+- [x] **Arrêt** : rapport de fin de phase ; actions de l'utilisateur : pousser le code, redéployer l'Edge Function, relire un échantillon (DEPLOYMENT.md, section 16)
 - [ ] Revue de Codex du code
 - [ ] Revue de Codex dédiée à la justesse de l'anglais (leçons, exemples, réponses attendues et variantes), distincte de la revue du code (D-059)
 - [ ] Relecture par l'utilisateur d'un échantillon d'exercices, avant de clore la phase (D-059)

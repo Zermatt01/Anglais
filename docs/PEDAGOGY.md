@@ -96,8 +96,18 @@ Les valeurs par défaut sont les suivantes.
 
 - **Déclencheur** : **au moins 4 échecs parmi les 6 dernières réponses** de l'étape (avec au moins 6 réponses).
 - L'apprenant reçoit un message encourageant et concret, par exemple : « Cette forme résiste encore, c'est normal à ce stade. On revoit la pratique guidée quelques minutes, puis tu reviens à la traduction. »
-- **Rappel à l'étape précédente** : une série courte de 5 exercices. 4 réussites sur 5 renvoient à l'étape d'origine, dont le compteur est remis à zéro.
-- Pas de retour en deçà de l'étape 2 : l'étape 1 reste accessible à tout moment, mais n'est jamais imposée.
+- **Rappel à l'étape précédente** : une série courte de 5 exercices. 4 réussites sur 5 renvoient à l'étape d'origine, dont le compteur est remis à zéro. Une série manquée en ouvre une nouvelle, de la même étape (DECISIONS D-075).
+- Pas de retour en deçà de l'étape 2 : l'étape 1 reste accessible à tout moment, mais n'est jamais imposée. À l'étape 2, des échecs répétés font seulement proposer la leçon.
+
+**Réponse non prévue** (étapes 3 et 4) : une réponse qui ne correspond ni aux réponses acceptées ni aux erreurs anticipées n'est jamais déclarée fausse (NO-05). L'apprenant la compare à la réponse de référence et dit si elle a le même sens, avec la forme travaillée bien employée ; son jugement compte pour le critère. À partir de la phase 4, l'IA pourra vérifier ces réponses sur demande (DECISIONS D-074, D-076).
+
+**Étape 5 en phase 3** : les phrases sont écrites et gardées sur le téléphone ; leur correction, et donc le passage à « acquise », arrivent avec la phase 4 (DECISIONS D-076).
+
+### 3.4 Test de positionnement (CUR-08)
+
+- Par piste, notion par notion, dans l'ordre du programme : 4 questions de choix par notion, sans aide, corrigées localement.
+- Une notion est **réussie** si **toutes** ses réponses sont justes : elle passe « à consolider » et démarre à l'étape 4 (§3.1, DECISIONS D-022). Sinon, elle reste non commencée.
+- Seules les notions non commencées et jamais testées sont proposées : un second essai permettrait de réussir au hasard. Le test peut s'arrêter à tout moment ; chaque notion testée est enregistrée (DECISIONS D-075).
 
 ## 4. Lapsus ou lacune
 
