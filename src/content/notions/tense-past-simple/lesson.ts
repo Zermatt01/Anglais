@@ -49,7 +49,7 @@ export const LESSON: NotionContentInput['lesson'] = {
   pitfalls: [
     'Le passé composé français se traduit souvent par le prétérit : « j’ai envoyé le rapport hier » → _I sent the report yesterday_, et non _I have sent the report yesterday_.',
     'Après _did_ ou _didn’t_, base verbale : _Did you go?_, _I didn’t go_, et non _I didn’t went_.',
-    'Les verbes irréguliers fréquents sont à connaître : _buyed_, _sended_ et _payed_ sont faux ; on dit _bought_, _sent_, _paid_.',
+    'Les verbes irréguliers fréquents sont à connaître : on dit _bought_, _sent_ et _paid_ (pour « payer »), jamais _buyed_, _sended_ ou _payed_.',
     'Pas de _-s_ au prétérit, quelle que soit la personne : _she worked_.',
   ],
   examples: [

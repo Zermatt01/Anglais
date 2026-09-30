@@ -160,7 +160,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     verb: 'offer',
     meaningFr: 'La banque propose des prêts aux petites entreprises.',
     accepted: ['offers'],
-    knownErrors: ['offer', 'offering'],
+    knownErrors: ['offering'],
     explanation: 'Un fait stable, sujet singulier : _offers_.',
   }),
   fill(7, {
@@ -168,7 +168,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     verb: 'do',
     meaningFr: 'À quelle heure le bureau ouvre-t-il ?',
     accepted: ['does'],
-    knownErrors: ['do', 'is'],
+    knownErrors: ['do'],
     explanation: 'Question sur un horaire, sujet _the office_ : _does_ + _open_.',
   }),
   fill(8, {
@@ -192,7 +192,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     verb: 'depend',
     meaningFr: 'Cela dépend des conditions du marché.',
     accepted: ['depends'],
-    knownErrors: ['depend', 'is depending'],
+    knownErrors: ['depend'],
     explanation: '_Depend_ est un verbe d’état : présent simple, _it depends on_.',
   }),
   transform(11, {
@@ -323,11 +323,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'It depends on the customer.',
       'That depends on the customer.',
     ],
-    knownErrors: [
-      'It depend on the client.',
-      'It is depending on the client.',
-      'It depends of the client.',
-    ],
+    knownErrors: ['It depend on the client.', 'It depends of the client.'],
     explanation: '_Depend_ est un verbe d’état : _it depends on_ (avec la préposition _on_).',
   }),
   translate(8, {

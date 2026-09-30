@@ -185,7 +185,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     verb: 'present',
     meaningFr: 'Le directeur général a présenté les résultats à 9 heures ce matin.',
     accepted: ['presented'],
-    knownErrors: ['has presented', 'presents'],
+    knownErrors: ['has presented'],
     explanation: 'Une heure précise, passée : prétérit.',
   }),
   fill(10, {
@@ -299,7 +299,6 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'The meeting lasted for two hours.',
       'The meeting took two hours.',
     ],
-    knownErrors: ['The meeting lasts two hours.'],
     explanation: 'La réunion est finie : prétérit, _lasted_.',
   }),
   translate(7, {

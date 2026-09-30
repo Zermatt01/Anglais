@@ -25,12 +25,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     explanation: '_Usually_ : une habitude, donc le présent simple. _Today_ marque l’exception.',
   }),
   choice(2, {
-    sentence: 'Look! The CEO ___ into the building.',
-    options: ['is walking', 'walks'],
-    answer: 'is walking',
+    sentence: 'Please don’t disturb him: he ___ an important client right now.',
+    options: ['is calling', 'calls'],
+    answer: 'is calling',
     reasons: [NOW, HABIT, STATE],
     reason: NOW,
-    explanation: '_Look!_ : on montre ce qui se passe à l’instant.',
+    explanation: '_Right now_ : l’appel a lieu en ce moment, présent continu.',
   }),
   choice(3, {
     sentence: 'Sorry, I ___ his name.',
@@ -165,7 +165,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     verb: 'employ',
     meaningFr: 'Notre cabinet emploie plus de 200 personnes.',
     accepted: ['employs'],
-    knownErrors: ['employ', 'employing'],
+    knownErrors: ['employing'],
     explanation: 'Un fait stable : présent simple, avec le _-s_ de la 3e personne.',
   }),
   fill(6, {
@@ -206,7 +206,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     verb: 'review',
     meaningFr: 'La banque centrale réexamine ses taux d’intérêt toutes les six semaines.',
     accepted: ['reviews'],
-    knownErrors: ['review'],
+    knownErrors: ['reviewing'],
     explanation: 'Un rythme régulier : présent simple, _reviews_.',
   }),
   transform(11, {

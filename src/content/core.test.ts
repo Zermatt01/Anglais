@@ -90,11 +90,14 @@ describe.each(contents)('%s', (notionId: NotionId, content: NotionContent) => {
     }
   });
 
-  it('only has exercises fit for local grading (CUR-11, NO-05)', () => {
+  it('only has exercises fit for local grading, reviewed twice (CUR-06, CUR-11, NO-05)', () => {
     for (const { id, review, ...exercise } of content.exercises) {
       const parsed = exerciseSchema.parse(exercise);
       expect({ id, issues: checkExercise(parsed) }).toEqual({ id, issues: [] });
       expect(review.first, id).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      // The separate review (CUR-13) comes after the author's own reading.
+      expect(review.second ?? '', id).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect((review.second ?? '') >= review.first, id).toBe(true);
     }
   });
 
@@ -132,6 +135,7 @@ describe.each(contents)('%s', (notionId: NotionId, content: NotionContent) => {
         question.id,
       ).toBe(false);
       expect(question.review.first, question.id).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(question.review.second ?? '', question.id).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     });
   });
 

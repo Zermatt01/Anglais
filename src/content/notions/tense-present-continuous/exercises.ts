@@ -264,7 +264,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     sentenceFr: 'Regarde, il pleut !',
     hint: 'Ce que l’on voit en ce moment même.',
     difficulty: 1,
-    accepted: ['Look, it’s raining!'],
+    accepted: ['Look, it’s raining!', 'It’s raining, look!'],
     knownErrors: ['Look, it rains!', 'Look, it raining!'],
     explanation: 'On montre ce qui se passe à l’instant : _it’s raining_.',
   }),

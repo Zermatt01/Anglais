@@ -186,7 +186,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     verb: 'have',
     meaningFr: 'Notre équipe a ce client depuis trois ans.',
     accepted: ['has had', 'have had'],
-    knownErrors: ['has', 'is having'],
+    knownErrors: ['is having'],
     explanation:
       '_Have_ (posséder) est un verbe d’état : _has had_. En anglais britannique, _team_ admet aussi le pluriel.',
   }),

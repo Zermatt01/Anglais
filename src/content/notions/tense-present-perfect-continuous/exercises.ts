@@ -227,11 +227,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Une activité qui dure jusqu’à maintenant ; « depuis » + une durée.',
     difficulty: 1,
     accepted: ['I’ve been waiting for an hour.', 'I’ve waited for an hour.'],
-    knownErrors: [
-      'I’m waiting since an hour.',
-      'I wait since one hour.',
-      'I’m waiting for an hour.',
-    ],
+    knownErrors: ['I’m waiting since an hour.', 'I wait since one hour.'],
     explanation: '_I’ve been waiting for an hour_ : present perfect continu + _for_.',
   }),
   translate(2, {
