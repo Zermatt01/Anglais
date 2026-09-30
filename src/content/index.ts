@@ -34,6 +34,7 @@ const LOADERS: Readonly<Partial<Record<NotionId, Loader>>> = {
     import('./notions/tense-present-perfect-vs-past-simple/index.ts').then(
       (module) => module.CONTENT,
     ),
+  'tense-future': () => import('./notions/tense-future/index.ts').then((module) => module.CONTENT),
 };
 
 /** Notions whose content exists, in any order. */
