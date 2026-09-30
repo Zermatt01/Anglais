@@ -20,6 +20,8 @@ const LOADERS: Readonly<Partial<Record<NotionId, Loader>>> = {
     import('./notions/tense-present-simple-vs-continuous/index.ts').then(
       (module) => module.CONTENT,
     ),
+  'tense-past-simple': () =>
+    import('./notions/tense-past-simple/index.ts').then((module) => module.CONTENT),
 };
 
 /** Notions whose content exists, in any order. */

@@ -1,0 +1,381 @@
+import { exercisesOf } from '../../builders.ts';
+import type { NotionContentInput } from '../../schema.ts';
+import { REVIEW } from './review.ts';
+
+const { choice, fill, transform, translate } = exercisesOf('tense-past-simple', REVIEW);
+
+const PAST_POINT = 'Action terminée à un moment précis du passé';
+const PAST_SEQUENCE = 'Suite d’actions dans un récit au passé';
+const PAST_HABIT = 'Habitude passée, qui n’existe plus';
+const PAST_STATE = 'État ou situation dans le passé';
+const PRESENT_HABIT = 'Habitude présente';
+const NOW = 'Action en cours maintenant';
+const Q_PAST = 'Question sur un moment précis du passé';
+const Q_PRESENT = 'Question sur une habitude présente';
+const Q_EXPERIENCE = 'Question sur une expérience, sans moment précis';
+
+export const EXERCISES: NotionContentInput['exercises'] = [
+  // Step 2: recognize
+  choice(1, {
+    sentence: 'I ___ the report to the client yesterday.',
+    options: ['sent', 'sended', 'have sent'],
+    answer: 'sent',
+    reasons: [PAST_POINT, PRESENT_HABIT, NOW],
+    reason: PAST_POINT,
+    explanation:
+      '_Yesterday_ : moment précis et terminé, donc prétérit. _Send_ est irrégulier : _sent_.',
+  }),
+  choice(2, {
+    sentence: 'Last year, our company ___ 20 new employees.',
+    options: ['hired', 'hires', 'has hired'],
+    answer: 'hired',
+    reasons: [PAST_POINT, PRESENT_HABIT, NOW],
+    reason: PAST_POINT,
+    explanation:
+      '_Last year_ : période terminée. Le present perfect est impossible avec ce repère.',
+  }),
+  choice(3, {
+    sentence: 'She ___ the meeting, checked her emails and left.',
+    options: ['ended', 'ends', 'has ended'],
+    answer: 'ended',
+    reasons: [PAST_SEQUENCE, PAST_HABIT, NOW],
+    reason: PAST_SEQUENCE,
+    explanation: 'Trois actions qui se suivent dans un récit : toutes au prétérit.',
+  }),
+  choice(4, {
+    sentence: 'When I was a student, I ___ in a café at weekends.',
+    options: ['worked', 'work', 'am working'],
+    answer: 'worked',
+    reasons: [PAST_HABIT, PRESENT_HABIT, NOW],
+    reason: PAST_HABIT,
+    explanation: '_When I was a student_ : une habitude passée, terminée.',
+  }),
+  choice(5, {
+    sentence: '___ you go to the conference last week?',
+    options: ['Did', 'Do', 'Have'],
+    answer: 'Did',
+    reasons: [Q_PAST, Q_PRESENT, Q_EXPERIENCE],
+    reason: Q_PAST,
+    explanation: '_Last week_ : moment passé précis. Question : _Did_ + sujet + base verbale.',
+  }),
+  choice(6, {
+    sentence: 'We ___ the contract on 3 March.',
+    options: ['signed', 'have signed', 'signing'],
+    answer: 'signed',
+    reasons: [PAST_POINT, NOW, PRESENT_HABIT],
+    reason: PAST_POINT,
+    explanation: 'Une date précise : prétérit.',
+  }),
+  choice(7, {
+    sentence: 'He ___ his job in 2021 and started his own firm.',
+    options: ['left', 'leaved', 'has left'],
+    answer: 'left',
+    reasons: [PAST_POINT, PRESENT_HABIT, NOW],
+    reason: PAST_POINT,
+    explanation: '_In 2021_ : année terminée. _Leave_ est irrégulier : _left_.',
+  }),
+  choice(8, {
+    sentence: 'I ___ the answer, so I asked my manager.',
+    options: ['didn’t know', 'didn’t knew', 'not knew'],
+    answer: 'didn’t know',
+    reasons: [PAST_STATE, PRESENT_HABIT, NOW],
+    reason: PAST_STATE,
+    explanation: 'Le récit est au passé (_asked_). Après _didn’t_, base verbale : _didn’t know_.',
+  }),
+  choice(9, {
+    sentence: 'The shares ___ 10% after the announcement.',
+    options: ['fell', 'falled', 'have fell'],
+    answer: 'fell',
+    reasons: [PAST_POINT, PRESENT_HABIT, NOW],
+    reason: PAST_POINT,
+    explanation: 'Un événement passé et daté par l’annonce. _Fall_ est irrégulier : _fell_.',
+  }),
+  choice(10, {
+    sentence: 'Two years ago, I ___ my master’s degree.',
+    options: ['got', 'have got', 'getted'],
+    answer: 'got',
+    reasons: [PAST_POINT, NOW, PRESENT_HABIT],
+    reason: PAST_POINT,
+    explanation: '_Ago_ situe l’action dans le passé : toujours le prétérit. _Get_ : _got_.',
+  }),
+  choice(11, {
+    sentence: 'They ___ late for the interview yesterday.',
+    options: ['were', 'was', 'have been'],
+    answer: 'were',
+    reasons: [PAST_POINT, PRESENT_HABIT, NOW],
+    reason: PAST_POINT,
+    explanation: '_Yesterday_ : prétérit. _They_ demande _were_.',
+  }),
+  choice(12, {
+    sentence: 'My manager ___ me an email at 9 a.m.',
+    options: ['wrote', 'writed', 'has written'],
+    answer: 'wrote',
+    reasons: [PAST_POINT, PRESENT_HABIT, NOW],
+    reason: PAST_POINT,
+    explanation: 'Une heure précise : prétérit. _Write_ est irrégulier : _wrote_.',
+  }),
+
+  // Step 3: practise
+  fill(1, {
+    sentence: 'Our team ___ the project last Friday.',
+    verb: 'finish',
+    meaningFr: 'Notre équipe a terminé le projet vendredi dernier.',
+    accepted: ['finished'],
+    knownErrors: ['finish', 'has finished', 'have finished'],
+    explanation: '_Last Friday_ : moment passé précis. Verbe régulier : _finished_.',
+  }),
+  fill(2, {
+    sentence: 'I ___ a new laptop last week.',
+    verb: 'buy',
+    meaningFr: 'J’ai acheté un nouvel ordinateur portable la semaine dernière.',
+    accepted: ['bought'],
+    knownErrors: ['buyed', 'buy', 'have bought'],
+    explanation: '_Buy_ est irrégulier : _bought_.',
+  }),
+  fill(3, {
+    sentence: 'She ___ to London for a job interview on Monday.',
+    verb: 'go',
+    meaningFr: 'Elle est allée à Londres lundi pour un entretien d’embauche.',
+    accepted: ['went'],
+    knownErrors: ['goed', 'go', 'has gone'],
+    explanation: '_Go_ est irrégulier : _went_. _On Monday_ fixe le moment.',
+  }),
+  fill(4, {
+    sentence: 'We ___ the invoice two days ago.',
+    verb: 'pay',
+    meaningFr: 'Nous avons payé la facture il y a deux jours.',
+    accepted: ['paid'],
+    knownErrors: ['payed', 'pay', 'have paid'],
+    explanation: '_Pay_ est irrégulier : _paid_. _Ago_ impose le prétérit.',
+  }),
+  fill(5, {
+    sentence: 'The meeting ___ at ten and lasted two hours.',
+    verb: 'begin',
+    meaningFr: 'La réunion a commencé à dix heures et a duré deux heures.',
+    accepted: ['began'],
+    knownErrors: ['begun', 'beginned'],
+    explanation: '_Begin_ : _began_ au prétérit (_begun_ est le participe passé).',
+  }),
+  fill(6, {
+    sentence: 'I ___ your email yesterday because I was on holiday.',
+    verb: 'see (à la forme négative)',
+    meaningFr: 'Je n’ai pas vu ton e-mail hier, parce que j’étais en vacances.',
+    accepted: ['didn’t see'],
+    knownErrors: ['didn’t saw', 'haven’t seen', 'not saw'],
+    explanation: 'Négation au prétérit : _didn’t_ + base verbale, _didn’t see_.',
+  }),
+  fill(7, {
+    sentence: 'Where ___ your last internship?',
+    verb: 'you / do',
+    meaningFr: 'Où as-tu fait ton dernier stage ?',
+    accepted: ['did you do'],
+    knownErrors: ['did you did', 'you did'],
+    explanation: 'Question au prétérit : _did_ + sujet + base verbale (_do_).',
+  }),
+  fill(8, {
+    sentence: 'My parents ___ in Spain for ten years, then moved back to France.',
+    verb: 'live',
+    meaningFr: 'Mes parents ont vécu en Espagne pendant dix ans, puis sont rentrés en France.',
+    accepted: ['lived'],
+    knownErrors: ['have lived', 'live'],
+    explanation: 'Une période terminée (ils sont repartis) : prétérit, même avec _for ten years_.',
+  }),
+  fill(9, {
+    sentence: 'The CEO ___ the results at 9 o’clock this morning.',
+    verb: 'present',
+    meaningFr: 'Le directeur général a présenté les résultats à 9 heures ce matin.',
+    accepted: ['presented'],
+    knownErrors: ['has presented', 'presents'],
+    explanation: 'Une heure précise, passée : prétérit.',
+  }),
+  fill(10, {
+    sentence: 'I ___ my first job in 2018.',
+    verb: 'get',
+    meaningFr: 'J’ai obtenu mon premier emploi en 2018.',
+    accepted: ['got'],
+    knownErrors: ['getted', 'have got', 'get'],
+    explanation: '_Get_ est irrégulier : _got_. _In 2018_ impose le prétérit.',
+  }),
+  transform(11, {
+    source: 'She called the client.',
+    instructionFr: 'Mets la phrase à la forme négative.',
+    accepted: ['She didn’t call the client.'],
+    knownErrors: ['She didn’t called the client.', 'She not called the client.'],
+    explanation: 'Négation : _didn’t_ + base verbale ; le passé est porté par _did_.',
+  }),
+  transform(12, {
+    source: 'They moved to Madrid.',
+    instructionFr: 'Mets la phrase à la forme interrogative.',
+    accepted: ['Did they move to Madrid?'],
+    knownErrors: ['Did they moved to Madrid?', 'Moved they to Madrid?'],
+    explanation: 'Question : _Did_ + sujet + base verbale.',
+  }),
+  transform(13, {
+    source: 'I write the minutes.',
+    instructionFr: 'Mets la phrase au prétérit.',
+    accepted: ['I wrote the minutes.'],
+    knownErrors: ['I writed the minutes.', 'I written the minutes.'],
+    explanation: '_Write_ est irrégulier : _wrote_ (prétérit), _written_ (participe passé).',
+  }),
+  transform(14, {
+    source: 'We meet the new CFO.',
+    instructionFr: 'Mets la phrase au prétérit.',
+    accepted: ['We met the new CFO.'],
+    knownErrors: ['We meeted the new CFO.'],
+    explanation: '_Meet_ est irrégulier : _met_.',
+  }),
+
+  // Step 4: translate
+  translate(1, {
+    sentenceFr: 'J’ai envoyé le rapport hier.',
+    hint: 'Un moment précis du passé : pas de _have_.',
+    difficulty: 1,
+    accepted: ['I sent the report yesterday.', 'Yesterday I sent the report.'],
+    knownErrors: ['I have sent the report yesterday.', 'I sended the report yesterday.'],
+    explanation: 'Le passé composé français devient un prétérit avec _yesterday_. _Send_ : _sent_.',
+  }),
+  translate(2, {
+    sentenceFr: 'Elle a acheté une voiture la semaine dernière.',
+    hint: 'Verbe irrégulier, moment passé précis.',
+    difficulty: 1,
+    accepted: ['She bought a car last week.', 'Last week she bought a car.'],
+    knownErrors: ['She buyed a car last week.', 'She has bought a car last week.'],
+    explanation: '_Last week_ impose le prétérit. _Buy_ : _bought_.',
+  }),
+  translate(3, {
+    sentenceFr: 'Nous n’avons pas gagné le contrat l’année dernière.',
+    hint: 'Négation au prétérit, avec un moment précis.',
+    difficulty: 1,
+    accepted: ['We didn’t win the contract last year.', 'Last year we didn’t win the contract.'],
+    knownErrors: [
+      'We didn’t won the contract last year.',
+      'We haven’t won the contract last year.',
+    ],
+    explanation: 'Négation : _didn’t_ + base verbale (_win_, et non _won_).',
+  }),
+  translate(4, {
+    sentenceFr: 'Est-ce que tu as vu le match hier soir ?',
+    hint: 'Question sur un moment précis du passé.',
+    difficulty: 1,
+    accepted: [
+      'Did you see the match last night?',
+      'Did you see the game last night?',
+      'Did you see the match yesterday evening?',
+      'Did you see the game yesterday evening?',
+      'Did you watch the match last night?',
+      'Did you watch the game last night?',
+    ],
+    knownErrors: ['Did you saw the match last night?', 'Have you seen the match last night?'],
+    explanation: 'Question au prétérit : _Did you see…?_ (base verbale après _did_).',
+  }),
+  translate(5, {
+    sentenceFr: 'Il a quitté la banque en 2020 et a créé sa propre entreprise.',
+    hint: 'Deux actions terminées, dans l’ordre, en 2020.',
+    difficulty: 2,
+    accepted: [
+      'He left the bank in 2020 and started his own company.',
+      'He left the bank in 2020 and set up his own company.',
+      'He left the bank in 2020 and founded his own company.',
+      'He left the bank in 2020 and created his own company.',
+      'He left the bank in 2020 and started his own business.',
+      'He left the bank in 2020 and set up his own business.',
+      'He left the bank in 2020 and started his own firm.',
+      'He left the bank in 2020 and launched his own company.',
+      'In 2020, he left the bank and started his own company.',
+      'In 2020, he left the bank and set up his own company.',
+    ],
+    knownErrors: [
+      'He has left the bank in 2020 and started his own company.',
+      'He leaved the bank in 2020 and started his own company.',
+    ],
+    explanation: '_In 2020_ : prétérit pour les deux actions. _Leave_ : _left_.',
+  }),
+  translate(6, {
+    sentenceFr: 'La réunion a duré deux heures.',
+    hint: 'Une durée terminée, au passé.',
+    difficulty: 2,
+    accepted: [
+      'The meeting lasted two hours.',
+      'The meeting lasted for two hours.',
+      'The meeting took two hours.',
+    ],
+    knownErrors: ['The meeting lasts two hours.'],
+    explanation: 'La réunion est finie : prétérit, _lasted_.',
+  }),
+  translate(7, {
+    sentenceFr: 'Où est-ce que tu as fait tes études ?',
+    hint: 'Question au prétérit : les études sont terminées.',
+    difficulty: 2,
+    accepted: [
+      'Where did you study?',
+      'Where did you go to university?',
+      'Where did you do your studies?',
+      'Where did you go to college?',
+    ],
+    knownErrors: ['Where you studied?', 'Where did you studied?'],
+    explanation: 'Question : _Where did you study?_ (base verbale après _did_).',
+  }),
+  translate(8, {
+    sentenceFr: 'Je ne savais pas que le marché était fermé.',
+    hint: 'Un état passé, à la forme négative.',
+    difficulty: 2,
+    accepted: ['I didn’t know that the market was closed.', 'I didn’t know the market was closed.'],
+    knownErrors: ['I didn’t knew that the market was closed.'],
+    explanation:
+      '_Know_ au passé négatif : _didn’t know_. L’imparfait français devient ici un prétérit.',
+  }),
+  translate(9, {
+    sentenceFr: 'Quand j’étais étudiant, je travaillais dans une banque le samedi.',
+    hint: 'Une habitude passée, qui n’existe plus.',
+    difficulty: 3,
+    accepted: [
+      'When I was a student, I worked in a bank on Saturdays.',
+      'When I was a student, I worked at a bank on Saturdays.',
+      'When I was a student, I used to work in a bank on Saturdays.',
+      'When I was a student, I used to work at a bank on Saturdays.',
+      'When I was a student I worked in a bank on Saturdays.',
+      'When I was a student, I worked in a bank on Saturday.',
+      'I worked in a bank on Saturdays when I was a student.',
+    ],
+    knownErrors: ['When I was a student, I work in a bank on Saturdays.'],
+    explanation:
+      'Habitude passée : prétérit (_worked_), ou _used to work_. L’imparfait français ne se traduit pas par le continu ici.',
+  }),
+  translate(10, {
+    sentenceFr: 'Les marchés ont chuté après l’annonce, puis ils ont remonté vendredi.',
+    hint: 'Deux événements passés qui se suivent ; deux verbes irréguliers.',
+    difficulty: 3,
+    accepted: [
+      'The markets fell after the announcement, then they rose on Friday.',
+      'The markets fell after the announcement, then rose on Friday.',
+      'The markets fell after the announcement, and then they rose on Friday.',
+      'The markets fell after the announcement, then they recovered on Friday.',
+      'The markets fell after the announcement, then recovered on Friday.',
+      'The markets fell after the announcement, then they went back up on Friday.',
+      'The markets fell after the announcement, then they rebounded on Friday.',
+      'The markets dropped after the announcement, then they rose on Friday.',
+      'The markets dropped after the announcement, then rose on Friday.',
+    ],
+    knownErrors: [
+      'The markets falled after the announcement, then they rose on Friday.',
+      'The markets fell after the announcement, then they raised on Friday.',
+    ],
+    explanation: '_Fall_ : _fell_ ; _rise_ : _rose_. _Raise_ demanderait un complément.',
+  }),
+  translate(11, {
+    sentenceFr: 'Est-ce qu’ils ont payé la facture avant la date limite ?',
+    hint: 'Question au prétérit ; verbe irrégulier.',
+    difficulty: 3,
+    accepted: [
+      'Did they pay the invoice before the deadline?',
+      'Did they pay the bill before the deadline?',
+      'Did they pay the invoice by the deadline?',
+      'Did they pay the bill by the deadline?',
+    ],
+    knownErrors: [
+      'Did they paid the invoice before the deadline?',
+      'Did they payed the invoice before the deadline?',
+    ],
+    explanation: 'Après _did_, base verbale : _pay_, et non _paid_.',
+  }),
+];
