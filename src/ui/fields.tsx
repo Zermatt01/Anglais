@@ -242,3 +242,54 @@ export function TextField({ label, hint, ...props }: TextFieldProps) {
     </div>
   );
 }
+
+interface TextSelectFieldProps<T extends string> {
+  readonly label: string;
+  readonly hint?: string;
+  readonly value: T;
+  readonly options: readonly { readonly value: T; readonly label: string }[];
+  readonly onChange: (value: T) => void;
+}
+
+/** Drop-down list of text values; a current value missing from the options is still shown. */
+export function TextSelectField<T extends string>({
+  label,
+  hint,
+  value,
+  options,
+  onChange,
+}: TextSelectFieldProps<T>) {
+  const id = useId();
+  const hintId = useId();
+  const allOptions = options.some((option) => option.value === value)
+    ? options
+    : [...options, { value, label: value }];
+  return (
+    <div className="field">
+      <label className="field__label" htmlFor={id}>
+        {label}
+      </label>
+      {hint === undefined ? null : (
+        <p id={hintId} className="field__hint">
+          {hint}
+        </p>
+      )}
+      <select
+        id={id}
+        className="field__control"
+        value={value}
+        aria-describedby={hint === undefined ? undefined : hintId}
+        onChange={(event) => {
+          const selected = allOptions.find((option) => option.value === event.currentTarget.value);
+          if (selected !== undefined) onChange(selected.value);
+        }}
+      >
+        {allOptions.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}

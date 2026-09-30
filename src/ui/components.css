@@ -305,3 +305,148 @@ textarea.field__control {
   width: 100%;
   height: 0.75rem;
 }
+
+/* Icon button (read aloud) ------------------------------------------------ */
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--target);
+  height: var(--target);
+  padding: 0;
+  color: var(--action);
+  background-color: transparent;
+  border: 2px solid var(--action);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  background-color: var(--action-soft);
+}
+
+/* Options: one choice among a few, as large touch targets (UI-01) -------- */
+
+.option-group {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: var(--target);
+  padding: 0.5rem 0.875rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background-color: var(--paper);
+  cursor: pointer;
+}
+
+.option input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  flex: none;
+  accent-color: var(--action);
+}
+
+.option--selected {
+  border-color: var(--action);
+  background-color: var(--action-soft);
+}
+
+.option--correct {
+  border: 2px solid var(--success);
+}
+
+.option--wrong {
+  border: 2px solid var(--danger);
+}
+
+.option__status {
+  margin-left: auto;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+.option-group:disabled .option {
+  cursor: default;
+}
+
+/* Progress bar ------------------------------------------------------------ */
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.progress__bar {
+  flex: 1;
+  height: 0.75rem;
+  accent-color: var(--action);
+}
+
+.progress__text {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Timeline of a tense (CUR-03) --------------------------------------------- */
+
+.timeline {
+  margin: 0;
+}
+
+.timeline__drawing {
+  display: block;
+  width: 100%;
+  max-width: 28rem;
+  height: auto;
+  margin: 0 auto;
+  font-family: var(--font-ui);
+}
+
+.timeline__axis,
+.timeline__guide {
+  stroke: var(--ink-muted);
+}
+
+.timeline__arrow {
+  fill: var(--ink-muted);
+}
+
+.timeline__now {
+  stroke: var(--margin);
+}
+
+.timeline__mark {
+  fill: var(--action);
+}
+
+.timeline__span {
+  stroke: var(--action);
+}
+
+.timeline__label {
+  fill: var(--ink);
+  font-family: var(--font-content);
+}
+
+.timeline__caption {
+  fill: var(--ink-muted);
+}
+
+.timeline__caption--now {
+  fill: var(--ink);
+  font-weight: 600;
+}

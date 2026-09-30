@@ -1,7 +1,7 @@
 import { useId, type ReactNode } from 'react';
 
 interface PageProps {
-  readonly title: string;
+  readonly title: ReactNode;
   readonly subtitle?: ReactNode;
   readonly children: ReactNode;
 }
@@ -20,7 +20,7 @@ export function Page({ title, subtitle, children }: PageProps) {
 }
 
 interface SheetProps {
-  readonly title: string;
+  readonly title: ReactNode;
   readonly children: ReactNode;
 }
 

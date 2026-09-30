@@ -33,3 +33,21 @@ export function SettingsIcon() {
     </svg>
   );
 }
+
+export function PathIcon() {
+  return (
+    <svg {...common}>
+      <path d="M4 19V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2Z" />
+      <path d="M8 7h7M8 11h5" />
+    </svg>
+  );
+}
+
+export function SpeakerIcon() {
+  return (
+    <svg {...common}>
+      <path d="M4 9v6h4l5 4V5L8 9H4Z" />
+      <path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" />
+    </svg>
+  );
+}
