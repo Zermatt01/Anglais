@@ -6,6 +6,11 @@
 import { createContext, useContext } from 'react';
 import type { AppDatabase } from '../data/database.ts';
 import {
+  createGeneratedExerciseRepository,
+  type GeneratedExerciseRepository,
+} from '../data/repositories/generated-exercise-repository.ts';
+import { createPathRepository, type PathRepository } from '../data/repositories/path-repository.ts';
+import {
   createDraftRepository,
   type DraftRepository,
 } from '../data/repositories/draft-repository.ts';
@@ -18,6 +23,7 @@ import {
   type UsageRepository,
 } from '../data/repositories/usage-repository.ts';
 import type { Clock } from '../domain/primitives.ts';
+import type { SpeechSynthesizer } from '../domain/speech.ts';
 import type { AiClient } from '../services/ai-client/ai-client.ts';
 import type { AccountService } from '../services/backend/account.ts';
 import type { SyncController } from './sync/sync-controller.ts';
@@ -35,6 +41,10 @@ export interface AppServices {
   readonly settings: SettingsRepository;
   readonly drafts: DraftRepository;
   readonly usage: UsageRepository;
+  readonly path: PathRepository;
+  readonly generatedExercises: GeneratedExerciseRepository;
+  /** `null`: this browser cannot read text aloud. */
+  readonly speech: SpeechSynthesizer | null;
   /** `null`: no server configured, everything stays on the device. */
   readonly server: ServerServices | null;
   /** Whether the device has network (navigator.onLine), replaced in tests. */
@@ -44,7 +54,11 @@ export interface AppServices {
 export function createAppServices(
   db: AppDatabase,
   clock: Clock,
-  options: { readonly server?: ServerServices | null; readonly isOnline?: () => boolean } = {},
+  options: {
+    readonly server?: ServerServices | null;
+    readonly isOnline?: () => boolean;
+    readonly speech?: SpeechSynthesizer | null;
+  } = {},
 ): AppServices {
   return {
     db,
@@ -52,6 +66,9 @@ export function createAppServices(
     settings: createSettingsRepository(db, clock),
     drafts: createDraftRepository(db, clock),
     usage: createUsageRepository(db),
+    path: createPathRepository(db, clock),
+    generatedExercises: createGeneratedExerciseRepository(db, clock),
+    speech: options.speech ?? null,
     server: options.server ?? null,
     isOnline: options.isOnline ?? (() => navigator.onLine),
   };

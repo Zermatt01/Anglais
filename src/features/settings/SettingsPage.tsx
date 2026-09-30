@@ -10,6 +10,7 @@ import { usePageTitle } from '../use-page-title.ts';
 import { CorrectionMarksPreview } from './CorrectionMarksPreview.tsx';
 import { DOMAIN_CHOICES, THEME_CHOICES, VARIANT_CHOICES } from './choices.ts';
 import { ProfileRemarksEditor } from './ProfileRemarksEditor.tsx';
+import { SpeechSection } from './SpeechSection.tsx';
 import { useSettings, useShownSettings } from './use-settings.ts';
 
 const minutes = (values: readonly number[]) =>
@@ -73,6 +74,8 @@ function SettingsForm({ loaded }: { readonly loaded: LoadedSettings }) {
           Les orthographes britannique et américaine sont toujours acceptées dans tes réponses.
         </p>
       </Sheet>
+
+      <SpeechSection values={values} change={change} />
 
       <Sheet title="Apparence">
         <ChoiceGroup

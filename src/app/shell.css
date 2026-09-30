@@ -84,3 +84,8 @@
 .boot-screen .button-row {
   justify-content: center;
 }
+
+.shell__loading {
+  padding: 1.5rem var(--gutter);
+  color: var(--ink-muted);
+}

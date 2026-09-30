@@ -1,0 +1,93 @@
+/* The path: notions, lessons and exercises (MOD-04, CUR-03). */
+
+.notion-link {
+  font-weight: 600;
+}
+
+.lesson-list {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.lesson-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.lesson-table caption {
+  text-align: left;
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+}
+
+.lesson-table th,
+.lesson-table td {
+  padding: 0.5rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--rule);
+}
+
+.lesson-table thead th {
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+.example {
+  align-items: center;
+}
+
+.example__en {
+  font-size: 1.0625rem;
+}
+
+.exercise {
+  display: grid;
+  gap: 1rem;
+}
+
+.exercise__sentence {
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+.gap {
+  display: inline-block;
+  min-width: 4rem;
+  margin: 0 0.25rem;
+  color: transparent;
+  border-bottom: 2px solid var(--ink);
+  line-height: 1;
+}
+
+.feedback {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border-left: 4px solid var(--action);
+  background-color: var(--action-soft);
+}
+
+.feedback--correct {
+  border-left-color: var(--success);
+}
+
+.feedback--incorrect {
+  border-left-color: var(--mark-medium);
+}
+
+.feedback__title {
+  font-weight: 700;
+}
+
+.feedback__answer {
+  font-weight: 600;
+}

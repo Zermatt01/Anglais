@@ -7,6 +7,7 @@ import {
   createAppServices,
   type AppServices,
 } from '../features/app-services.ts';
+import { createWebSpeechSynthesizer } from '../services/speech/web-speech-synthesizer.ts';
 import { Button } from '../ui/Button.tsx';
 import { AppRoutes } from './AppShell.tsx';
 import { ErrorBoundary } from './ErrorBoundary.tsx';
@@ -23,6 +24,7 @@ async function openServices(): Promise<AppServices> {
   ]);
   return createAppServices(db, systemClock, {
     server: server?.createServerServices(db, systemClock) ?? null,
+    speech: createWebSpeechSynthesizer(),
   });
 }
 

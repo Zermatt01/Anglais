@@ -9,6 +9,7 @@ import {
   type AppServices,
   type ServerServices,
 } from '../features/app-services.ts';
+import type { SpeechSynthesizer } from '../domain/speech.ts';
 import { createTestClock, createTestDatabase } from './database.ts';
 
 /**
@@ -16,11 +17,16 @@ import { createTestClock, createTestDatabase } from './database.ts';
  * and the device is online.
  */
 export async function createTestServices(
-  options: { readonly server?: ServerServices | null; readonly isOnline?: () => boolean } = {},
+  options: {
+    readonly server?: ServerServices | null;
+    readonly isOnline?: () => boolean;
+    readonly speech?: SpeechSynthesizer | null;
+  } = {},
 ): Promise<AppServices> {
   return createAppServices(await createTestDatabase(), createTestClock(), {
     server: options.server ?? null,
     isOnline: options.isOnline ?? (() => true),
+    speech: options.speech ?? null,
   });
 }
 

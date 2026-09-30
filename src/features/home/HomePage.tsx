@@ -7,7 +7,6 @@ import { usePageTitle } from '../use-page-title.ts';
 
 /** Modules of the application, in the order of the daily session (MOD-02). */
 const MODULES = [
-  { name: 'Parcours', description: 'Les temps verbaux, notion par notion, en cinq étapes.' },
   { name: 'Reprises', description: 'Tes cartes de révision, au bon moment.' },
   { name: 'Thème', description: 'Du français vers l’anglais, sans traduction mot à mot.' },
   { name: 'Journal', description: 'Quelques phrases sur ta journée, corrigées.' },
@@ -29,7 +28,19 @@ export function HomePage() {
         </p>
       </Sheet>
 
-      <Sheet title="Au programme">
+      <Sheet title="Parcours">
+        <p>
+          Les temps verbaux, notion par notion, en cinq étapes : comprendre, reconnaître, pratiquer,
+          traduire, produire. Tout fonctionne sans connexion.
+        </p>
+        <div className="button-row">
+          <Link className="button button--primary" to={PATHS.path}>
+            Ouvrir le parcours
+          </Link>
+        </div>
+      </Sheet>
+
+      <Sheet title="Bientôt">
         <ul className="plain-list">
           {MODULES.map((module) => (
             <li key={module.name} className="plain-list__item">
@@ -42,8 +53,8 @@ export function HomePage() {
           ))}
         </ul>
         <p className="muted">
-          Les modules arrivent au fil des prochaines versions. Tes réglages et ton profil sont déjà
-          enregistrés sur ce téléphone, et l’application fonctionne sans connexion.
+          Ces modules arrivent au fil des prochaines versions. Tes réglages, ton profil et ta
+          progression sont enregistrés sur ce téléphone.
         </p>
         <div className="button-row">
           <Link className="button button--secondary" to={PATHS.settings}>
