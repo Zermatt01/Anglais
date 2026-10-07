@@ -5,6 +5,19 @@
  */
 import { createContext, useContext } from 'react';
 import type { AppDatabase } from '../data/database.ts';
+import { createCardRepository, type CardRepository } from '../data/repositories/card-repository.ts';
+import {
+  createLexiconRepository,
+  type LexiconRepository,
+} from '../data/repositories/lexicon-repository.ts';
+import {
+  createProductionRepository,
+  type ProductionRepository,
+} from '../data/repositories/production-repository.ts';
+import {
+  createRuleNoteRepository,
+  type RuleNoteRepository,
+} from '../data/repositories/rule-note-repository.ts';
 import {
   createGeneratedExerciseRepository,
   type GeneratedExerciseRepository,
@@ -24,6 +37,7 @@ import {
 } from '../data/repositories/usage-repository.ts';
 import type { Clock } from '../domain/primitives.ts';
 import type { SpeechSynthesizer } from '../domain/speech.ts';
+import { createFsrsScheduler } from '../domain/srs/scheduler.ts';
 import type { AiClient } from '../services/ai-client/ai-client.ts';
 import type { AccountService } from '../services/backend/account.ts';
 import type { SyncController } from './sync/sync-controller.ts';
@@ -43,6 +57,10 @@ export interface AppServices {
   readonly usage: UsageRepository;
   readonly path: PathRepository;
   readonly generatedExercises: GeneratedExerciseRepository;
+  readonly cards: CardRepository;
+  readonly productions: ProductionRepository;
+  readonly lexicon: LexiconRepository;
+  readonly ruleNotes: RuleNoteRepository;
   /** `null`: this browser cannot read text aloud. */
   readonly speech: SpeechSynthesizer | null;
   /** `null`: no server configured, everything stays on the device. */
@@ -60,14 +78,20 @@ export function createAppServices(
     readonly speech?: SpeechSynthesizer | null;
   } = {},
 ): AppServices {
+  const path = createPathRepository(db, clock);
+  const cards = createCardRepository(db, clock, createFsrsScheduler());
   return {
     db,
     clock,
     settings: createSettingsRepository(db, clock),
     drafts: createDraftRepository(db, clock),
     usage: createUsageRepository(db),
-    path: createPathRepository(db, clock),
+    path,
     generatedExercises: createGeneratedExerciseRepository(db, clock),
+    cards,
+    productions: createProductionRepository(db, clock, { cards, path }),
+    lexicon: createLexiconRepository(db, clock, cards),
+    ruleNotes: createRuleNoteRepository(db, clock),
     speech: options.speech ?? null,
     server: options.server ?? null,
     isOnline: options.isOnline ?? (() => navigator.onLine),
