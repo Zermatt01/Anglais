@@ -5,6 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { MODELS, TASK_SETTINGS, type TaskSettings } from './models.ts';
+import { estimateInputTokens } from './pricing.ts';
 import { NOTION_GUIDES } from './prompts/notion-guides.ts';
 import { PROMPTS } from './prompts/index.ts';
 import {
@@ -14,9 +15,14 @@ import {
   AI_ERROR_CODES,
   timeZoneSchema,
 } from './protocol.ts';
+import { REASON_SETS } from './reasons.ts';
 import {
   AI_TASK_NAMES,
   GENERATABLE_NOTION_IDS,
+  GENERATE_EXERCISES_MAX_INPUT_TOKENS,
+  LEARNER_DOMAIN_IDS,
+  MAX_AVOIDED_SENTENCE,
+  MAX_AVOIDED_SENTENCES,
   TASK_CONTRACTS,
   type AiTaskInput,
 } from './tasks.ts';
@@ -154,6 +160,36 @@ describe('generate-exercises', () => {
     expect(message).toContain('Domains of the learner: all of them.');
     expect(message).toContain('- Line one line two');
     expect(prompt.system).not.toContain('tense-future');
+  });
+
+  it('gives the reviewed reason sets of the notion at step 2 only (D-081)', () => {
+    const prompt = PROMPTS['generate-exercises'];
+    expect(prompt.version).toBe('generate-exercises@2');
+    const stepTwo = prompt.userMessage({ ...input, step: 2 });
+    for (const set of REASON_SETS['tense-future']) expect(stepTwo).toContain(JSON.stringify(set));
+    expect(prompt.userMessage(input)).not.toContain('Reason sets');
+    expect(prompt.system).not.toContain(REASON_SETS['tense-future'][0]?.[0] ?? '');
+  });
+
+  it('shows a cost bound that covers the largest request the Edge Function may estimate', () => {
+    const largest = (notionId: (typeof GENERATABLE_NOTION_IDS)[number], step: 2 | 3 | 4) => ({
+      notionId,
+      step,
+      englishVariant: 'en-GB' as const,
+      domains: [...LEARNER_DOMAIN_IDS],
+      avoid: Array.from({ length: MAX_AVOIDED_SENTENCES }, () => 'x'.repeat(MAX_AVOIDED_SENTENCE)),
+    });
+    const prompt = PROMPTS['generate-exercises'];
+    for (const notionId of GENERATABLE_NOTION_IDS) {
+      for (const step of [2, 3, 4] as const) {
+        const estimate = estimateInputTokens(
+          prompt.system + prompt.userMessage(largest(notionId, step)),
+        );
+        expect(estimate, `${notionId}, step ${String(step)}`).toBeLessThanOrEqual(
+          GENERATE_EXERCISES_MAX_INPUT_TOKENS,
+        );
+      }
+    }
   });
 
   it('reads a generated exercise of each kind', () => {

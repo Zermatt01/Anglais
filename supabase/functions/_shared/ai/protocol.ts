@@ -87,6 +87,7 @@ export const aiSuccessSchema = z.strictObject({
   task: aiTaskNameSchema,
   model: z.enum([MODELS.fast, MODELS.capable]),
   promptVersion: z.string().min(1).max(100),
+  /** Cost of the request, every attempt included (D-081). */
   costUsd: usdSchema,
   /** Validated by the Edge Function, and again by the client with the task's output schema. */
   output: z.unknown(),

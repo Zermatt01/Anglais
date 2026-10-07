@@ -7,7 +7,7 @@ import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { createMigratedDatabase, createUser, rpcAs } from '../../tests/database.ts';
 import { MODELS, TASK_SETTINGS } from '../_shared/ai/models.ts';
-import { costOfUsage, estimateInputTokens, maxCostOfCall } from '../_shared/ai/pricing.ts';
+import { costOfUsage, estimateInputTokens, maxCostOfCall, sumUsd } from '../_shared/ai/pricing.ts';
 import { CONNECTION_CHECK_PROMPT } from '../_shared/ai/prompts/connection-check.ts';
 import { GENERATE_EXERCISES_PROMPT } from '../_shared/ai/prompts/generate-exercises.ts';
 import {
@@ -320,6 +320,10 @@ describe('a call', () => {
     expect(response.status).toBe(200);
     expect(reserved.map((call) => call.attempt)).toEqual([1, 2]);
     expect(completed.map((outcome) => outcome.status)).toEqual(['invalid_output', 'ok']);
+    // Both attempts are billed: the learner is told the cost of the whole request (D-081).
+    const body = (await response.json()) as { costUsd: number };
+    expect(body.costUsd).toBe(sumUsd(completed.map((outcome) => outcome.costUsd)));
+    expect(body.costUsd).toBe(2 * costOfUsage(MODELS.fast, USAGE));
   });
 
   it.each([
@@ -524,7 +528,7 @@ describe('exercise generation (D-079)', () => {
     expect(reserved[0]).toMatchObject({
       task: 'generate-exercises',
       model: MODELS.capable,
-      promptVersion: 'generate-exercises@1',
+      promptVersion: 'generate-exercises@2',
     });
   });
 

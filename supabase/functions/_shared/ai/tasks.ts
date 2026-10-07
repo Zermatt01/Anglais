@@ -57,6 +57,13 @@ export const GENERATED_EXERCISES_PER_CALL = 6;
 export const MAX_AVOIDED_SENTENCE = 300;
 export const MAX_AVOIDED_SENTENCES = 60;
 
+/**
+ * Upper bound of the input of one generation call, as the Edge Function
+ * estimates it for the largest possible request (contract test). The client
+ * shows the highest cost from it, without reading the prompts (D-017, D-081).
+ */
+export const GENERATE_EXERCISES_MAX_INPUT_TOKENS = 16_000;
+
 const generatedChoiceSchema = z.strictObject({
   kind: z.literal('choice-with-reason'),
   sentence: z.string(),

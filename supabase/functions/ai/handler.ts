@@ -14,7 +14,13 @@
  */
 import type { z } from 'zod';
 import { TASK_SETTINGS, type ModelId } from '../_shared/ai/models.ts';
-import { costOfUsage, estimateInputTokens, maxCostOfCall } from '../_shared/ai/pricing.ts';
+import {
+  ATTEMPTS,
+  costOfUsage,
+  estimateInputTokens,
+  maxCostOfCall,
+  sumUsd,
+} from '../_shared/ai/pricing.ts';
 import { PROMPTS } from '../_shared/ai/prompts/index.ts';
 import {
   aiRequestSchema,
@@ -131,7 +137,9 @@ async function runTask(
     cachePrefix: settings.cachePrefix,
   });
 
-  for (const attempt of [1, 2] as const) {
+  // Every attempt is billed: the learner is told the cost of the whole request.
+  const costs: number[] = [];
+  for (const attempt of ATTEMPTS) {
     const reservation = await ledger.reserve({
       userId: user.id,
       requestId: request.requestId,
@@ -172,6 +180,7 @@ async function runTask(
       latencyMs: Math.max(0, now() - started),
       errorCode: result.kind === 'error' ? result.errorCode : null,
     };
+    costs.push(outcome.costUsd);
     try {
       await ledger.complete(reservation.callId, outcome);
     } catch {
@@ -199,14 +208,14 @@ async function runTask(
             task,
             model: settings.model,
             promptVersion: prompt.version,
-            costUsd: outcome.costUsd,
+            costUsd: sumUsd(costs),
             output: result.output,
           },
         };
       case 'invalid_output':
       case 'refusal':
         // A single new attempt (AI-07, D-016).
-        if (attempt === 1) continue;
+        if (attempt < ATTEMPTS.length) continue;
         return { code: result.kind === 'refusal' ? 'model_refusal' : 'invalid_output' };
       case 'truncated':
         // The same request would be cut off again.

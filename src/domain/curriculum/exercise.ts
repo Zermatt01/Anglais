@@ -175,6 +175,8 @@ export type ExerciseIssue =
   | 'answer-contains-gap'
   | 'answer-not-in-options'
   | 'reason-not-in-reasons'
+  /** The reasons are not one of the reviewed sets of the notion (D-081). */
+  | 'reason-set-not-reviewed'
   /** Two options (or two reasons) are the same answer: the choice is ambiguous. */
   | 'duplicate-option'
   | 'duplicate-reason'
@@ -229,11 +231,40 @@ function typedAnswerIssues(
   return issues;
 }
 
+/** The right reason, then the wrong reasons shown with it. */
+export type ReasonSet = readonly [string, ...string[]];
+
+function usesReasonSet(
+  exercise: ExerciseOf<'choice-with-reason'>,
+  sets: readonly ReasonSet[],
+): boolean {
+  const wrong = exercise.reasons.filter((reason) => reason !== exercise.reason).sort();
+  return sets.some(([right, ...others]) => {
+    const expected = [...others].sort();
+    return (
+      right === exercise.reason &&
+      expected.length === wrong.length &&
+      expected.every((reason, index) => reason === wrong[index])
+    );
+  });
+}
+
+export interface CheckOptions {
+  /**
+   * Reviewed reason sets the exercise must use (D-081). Given for generated
+   * exercises: wording two reasons that both fit the answer is then impossible.
+   */
+  readonly reasonSets?: readonly ReasonSet[];
+}
+
 /** Everything that would make an exercise unfit for local grading; empty when fit. */
-export function checkExercise(exercise: Exercise): ExerciseIssue[] {
+export function checkExercise(exercise: Exercise, options: CheckOptions = {}): ExerciseIssue[] {
   const issues: ExerciseIssue[] = [];
   switch (exercise.kind) {
     case 'choice-with-reason':
+      if (options.reasonSets !== undefined && !usesReasonSet(exercise, options.reasonSets)) {
+        issues.push('reason-set-not-reviewed');
+      }
       if (countGaps(exercise.sentence) !== 1) issues.push('gap-count');
       if (exercise.options.some((option) => countGaps(option) > 0)) {
         issues.push('answer-contains-gap');

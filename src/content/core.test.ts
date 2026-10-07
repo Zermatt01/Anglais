@@ -5,6 +5,7 @@
  * exercises; lessons and placement questions are complete.
  */
 import { describe, expect, it } from 'vitest';
+import { reasonSetsOf } from '../../shared/ai/reasons.ts';
 import { GENERATABLE_NOTION_IDS } from '../../shared/ai/tasks.ts';
 import { countGaps } from '../domain/cards/content.ts';
 import { areEquivalent } from '../domain/correction/forms.ts';
@@ -99,6 +100,19 @@ describe.each(contents)('%s', (notionId: NotionId, content: NotionContent) => {
       expect(review.second ?? '', id).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect((review.second ?? '') >= review.first, id).toBe(true);
     }
+  });
+
+  it('gives the AI exactly the reason sets of its reviewed core (D-081)', () => {
+    const key = ([right, ...wrong]: readonly string[]) => [right, ...[...wrong].sort()].join(' | ');
+    const core = new Set<string>();
+    for (const exercise of content.exercises) {
+      if (exercise.kind !== 'choice-with-reason') continue;
+      const wrong = exercise.reasons.filter((reason) => reason !== exercise.reason);
+      core.add(key([exercise.reason, ...wrong]));
+    }
+    const shared = reasonSetsOf(notionId).map(key);
+    expect(new Set(shared).size).toBe(shared.length);
+    expect(new Set(shared)).toEqual(core);
   });
 
   it('never repeats a sentence', () => {

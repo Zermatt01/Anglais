@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest';
+import { REASON_SETS } from '../../../shared/ai/reasons.ts';
 import type { GeneratedExercise } from '../../../shared/ai/tasks.ts';
 import { exerciseSchema, type Exercise } from '../../domain/curriculum/exercise.ts';
 import { DEFAULT_SETTINGS } from '../../domain/settings.ts';
 import { checkGeneratedExercises, generationInput } from './generation.ts';
+
+const NOTION = 'tense-present-continuous';
+/** A reviewed set of the notion (D-081): "in progress now", then two wrong reasons. */
+const [NOW, ...WRONG] = REASON_SETS[NOTION][0] ?? [''];
 
 const choice: GeneratedExercise = {
   kind: 'choice-with-reason',
@@ -10,8 +15,8 @@ const choice: GeneratedExercise = {
   contextFr: null,
   options: ['is taking', 'are taking', 'taking'],
   answer: 'is taking',
-  reasons: ['Action en cours au moment où l’on parle', 'Habitude'],
-  reason: 'Action en cours au moment où l’on parle',
+  reasons: [NOW, ...WRONG],
+  reason: NOW,
   explanation: 'L’appel a lieu maintenant.',
 };
 
@@ -37,7 +42,7 @@ const existing: Exercise[] = [
 
 describe('generationInput', () => {
   it('sends the notion, the step, the learner’s variant and domains, and the sentences to avoid', () => {
-    expect(generationInput('tense-present-continuous', 2, DEFAULT_SETTINGS, existing)).toEqual({
+    expect(generationInput(NOTION, 2, DEFAULT_SETTINGS, existing)).toEqual({
       notionId: 'tense-present-continuous',
       step: 2,
       englishVariant: 'en-GB',
@@ -49,7 +54,7 @@ describe('generationInput', () => {
 
 describe('checkGeneratedExercises', () => {
   it('keeps a well-formed exercise of the step asked for', () => {
-    const result = checkGeneratedExercises([choice], 2, existing);
+    const result = checkGeneratedExercises([choice], NOTION, 2, existing);
     expect(result.dropped).toBe(0);
     expect(result.exercises[0]).toMatchObject({ kind: 'choice-with-reason', answer: 'is taking' });
     expect(result.exercises[0]).not.toHaveProperty('contextFr');
@@ -67,15 +72,36 @@ describe('checkGeneratedExercises', () => {
       knownErrors: [],
       explanation: 'x',
     };
-    const result = checkGeneratedExercises([wrongAnswer, noGap, translate], 2, existing);
+    const result = checkGeneratedExercises([wrongAnswer, noGap, translate], NOTION, 2, existing);
     expect(result).toEqual({ exercises: [], dropped: 3 });
-    expect(checkGeneratedExercises([translate], 4, existing).dropped).toBe(1);
+    expect(checkGeneratedExercises([translate], NOTION, 4, existing).dropped).toBe(1);
   });
 
   it('drops an exercise that repeats a sentence the learner already has', () => {
     const repeated = { ...choice, sentence: 'Listen! The alarm ___.' };
-    expect(checkGeneratedExercises([repeated, choice, choice], 2, existing).exercises).toHaveLength(
-      1,
+    expect(
+      checkGeneratedExercises([repeated, choice, choice], NOTION, 2, existing).exercises,
+    ).toHaveLength(1);
+  });
+
+  it('keeps reasons that are a reviewed set of the notion, in any order (D-081)', () => {
+    const reordered = { ...choice, reasons: [...WRONG].reverse().concat(NOW) };
+    expect(checkGeneratedExercises([reordered], NOTION, 2, existing).dropped).toBe(0);
+  });
+
+  it('drops reasons that are not a reviewed set of the notion (D-081)', () => {
+    // A reworded reason could be a second right reason: never shown.
+    const reworded = { ...choice, reasons: [NOW, 'Activité en cours en ce moment', ...WRONG] };
+    const fewer = { ...choice, reasons: [NOW, WRONG[0] ?? ''] };
+    const otherRight = { ...choice, reason: WRONG[0] ?? '' };
+    const otherNotion = REASON_SETS['tense-future'][0] ?? [''];
+    const fromAnotherNotion = { ...choice, reasons: [...otherNotion], reason: otherNotion[0] };
+    const result = checkGeneratedExercises(
+      [reworded, fewer, otherRight, fromAnotherNotion],
+      NOTION,
+      2,
+      existing,
     );
+    expect(result).toEqual({ exercises: [], dropped: 4 });
   });
 });

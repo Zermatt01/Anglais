@@ -6,13 +6,15 @@
  * stored, never generated twice (COST-09).
  *
  * The stable prefix (rules, formats, one example per kind) is cached (COST-03);
- * the notion, the step and the sentences to avoid come after it.
+ * the notion, the step, its reviewed reason sets (step 2, D-081) and the
+ * sentences to avoid come after it.
  */
 import {
   GENERATED_EXERCISES_PER_CALL,
   GENERATED_KIND_OF_STEP,
   type AiTaskInput,
 } from '../tasks.ts';
+import { REASON_SETS } from '../reasons.ts';
 import { NOTION_GUIDES } from './notion-guides.ts';
 import type { TaskPrompt } from './prompt.ts';
 
@@ -22,7 +24,7 @@ const SYSTEM = `You write practice exercises for a French-speaking adult who is 
 
 1. Original content only. Never reproduce sentences or exercises from textbooks, in particular Raymond Murphy's Grammar in Use books.
 2. Every expected answer is correct, natural English. Canonical answers follow the requested variant (British or American English).
-3. Decisive criterion for anything presented as wrong (a wrong option, an anticipated error): it must be wrong in every plausible reading of the sentence and its context. If one reading makes it correct (a timetable, a temporary situation, a habit, American usage such as "I just finished" or "Did you eat yet?"), it is not wrong: never use it as a wrong option or an anticipated error. When in doubt, leave it out.
+3. Decisive criterion for anything presented as wrong (a wrong option, an anticipated error): it must be wrong in every plausible reading of the sentence and its context. If one reading makes it correct (a timetable, a temporary situation, a habit, a live commentary, a demonstration or the description of a chart, American usage such as "I just finished" or "Did you eat yet?"), it is not wrong: never use it as a wrong option or an anticipated error. When in doubt, leave it out.
 4. List as accepted every answer a careful teacher would accept for the meaning given. You do not need to list contracted or expanded forms (don't, do not) or British and American spellings of the same word (organise, organize): they are matched automatically. Do not use the words practise, practice, licence, license, analyses or analyzes, whose spelling depends on grammar.
 5. French text (meaning, context, hint, reasons, explanation) is correct, natural French, short and concrete, addressed to the learner with "tu". Mark English words inside French text with single underscores, for example: le mot _yet_. Use the typographic apostrophe ’ in French text.
 6. An explanation states the rule in one or two French sentences and points to the cue in the sentence.
@@ -38,8 +40,8 @@ const SYSTEM = `You write practice exercises for a French-speaking adult who is 
 - contextFr: null, or one French sentence that fixes the meaning when the English sentence alone would allow two forms.
 - options: two to four short English fillers for the gap. Exactly one is correct. Every other option is wrong in every reading: a malformed form, a wrong agreement, a wrong auxiliary, or a tense excluded by an explicit cue.
 - answer: the correct option, copied exactly.
-- reasons: two to four short French reasons (uses of forms). Exactly one justifies the answer; the others are real uses of other forms that clearly do not apply here.
-- reason: the right reason, copied exactly.
+- reasons: one of the reason sets given with the notion, every reason copied exactly, in any order. Write a sentence where the first reason of the set justifies the answer and the others clearly do not apply.
+- reason: the first reason of that set, copied exactly.
 - explanation: French.
 
 ### Step 3, kind "fill-verb" (complete with the right form of the verb)
@@ -80,7 +82,7 @@ const DOMAIN_NAMES = {
 } as const;
 
 export const GENERATE_EXERCISES_PROMPT: TaskPrompt<AiTaskInput<'generate-exercises'>> = {
-  version: 'generate-exercises@1',
+  version: 'generate-exercises@2',
   system: SYSTEM,
   userMessage: ({ notionId, step, englishVariant, domains, avoid }) => {
     const variant =
@@ -93,9 +95,16 @@ export const GENERATE_EXERCISES_PROMPT: TaskPrompt<AiTaskInput<'generate-exercis
       avoid.length === 0
         ? 'None.'
         : avoid.map((sentence) => `- ${sentence.replace(/\s+/g, ' ')}`).join('\n');
+    // Each set as JSON, so that the reasons are copied exactly.
+    const reasonSets = REASON_SETS[notionId].map((set) => `- ${JSON.stringify(set)}`).join('\n');
     return [
       `Notion: ${NOTION_GUIDES[notionId]}`,
       `Step ${String(step)}: write ${String(GENERATED_EXERCISES_PER_CALL)} exercises of kind "${GENERATED_KIND_OF_STEP[step]}".`,
+      ...(step === 2
+        ? [
+            `Reason sets (the right reason first, then the wrong reasons shown with it):\n${reasonSets}`,
+          ]
+        : []),
       `Variant for the canonical answers: ${variant}.`,
       `Domains of the learner: ${learnerDomains}.`,
       `Sentences the learner already has (do not reuse them, nor close copies):\n${avoided}`,

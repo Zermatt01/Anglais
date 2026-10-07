@@ -6,7 +6,7 @@ import type { GeneratableNotionId } from '../tasks.ts';
 
 export const NOTION_GUIDES: Readonly<Record<GeneratableNotionId, string>> = {
   'tense-present-continuous':
-    'Present continuous (am/is/are + -ing): actions in progress at the moment of speaking, temporary situations (this week, at the moment) and changing trends (prices are rising). Cues must make the present continuous the only correct form (right now, Look!, Listen!, this week). Do not test its future use (arrangements), which belongs to another notion.',
+    'Present continuous (am/is/are + -ing): actions in progress at the moment of speaking, temporary situations (this week, at the moment) and changing trends (prices are rising). Cues must make the present continuous the only correct form (right now, at the moment, this week). Avoid describing a chart, a screen or a live scene, where a commentary in the present simple is possible. Do not test its future use (arrangements), which belongs to another notion.',
   'tense-present-simple':
     'Present simple: habits and routines, permanent situations, general truths, timetables and state verbs (know, belong, depend, prefer). Test the third-person -s, do/does/don’t/doesn’t in questions and negatives (base form after does), and the position of frequency adverbs (before the main verb, after be).',
   'tense-present-simple-vs-continuous':

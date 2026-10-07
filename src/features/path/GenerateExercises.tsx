@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { TASK_SETTINGS } from '../../../shared/ai/models.ts';
-import { maxCostOfCall } from '../../../shared/ai/pricing.ts';
-import { GENERATED_EXERCISES_PER_CALL } from '../../../shared/ai/tasks.ts';
+import { maxCostOfRequest } from '../../../shared/ai/pricing.ts';
+import {
+  GENERATE_EXERCISES_MAX_INPUT_TOKENS,
+  GENERATED_EXERCISES_PER_CALL,
+} from '../../../shared/ai/tasks.ts';
 import type { Exercise } from '../../domain/curriculum/exercise.ts';
 import type { NotionId } from '../../domain/curriculum/notion-id.ts';
 import type { Step } from '../../domain/curriculum/progress.ts';
@@ -19,15 +22,10 @@ import { useSettings } from '../settings/use-settings.ts';
 import { useOnline } from '../use-online.ts';
 import { checkGeneratedExercises, generationInput, isGeneratable } from './generation.ts';
 
-/**
- * Upper estimate of the input of one call, for the cost shown before it: the
- * stable prompt (about 2 000 tokens) and the sentences to avoid, generously.
- */
-const INPUT_TOKENS_UPPER_ESTIMATE = 8_000;
-
 const SETTINGS = TASK_SETTINGS['generate-exercises'];
-const MAX_COST_USD = maxCostOfCall(SETTINGS.model, {
-  inputTokens: INPUT_TOKENS_UPPER_ESTIMATE,
+/** Shown before the request: its highest cost, the new attempt included (D-081). */
+const MAX_COST_USD = maxCostOfRequest(SETTINGS.model, {
+  inputTokens: GENERATE_EXERCISES_MAX_INPUT_TOKENS,
   maxTokens: SETTINGS.maxTokens,
   cachePrefix: SETTINGS.cachePrefix,
 });
@@ -119,7 +117,12 @@ export function GenerateExercises({
         setGeneration({ state: 'failed', error: result.error });
         return;
       }
-      const checked = checkGeneratedExercises(result.output.exercises, generatedStep, existing);
+      const checked = checkGeneratedExercises(
+        result.output.exercises,
+        notionId,
+        generatedStep,
+        existing,
+      );
       try {
         const stored = await generatedExercises.add({
           notionId,

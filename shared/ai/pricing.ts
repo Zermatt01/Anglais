@@ -70,6 +70,29 @@ export function maxCostOfCall(
 }
 
 /**
+ * Calls made for one request: the first, and a single new attempt after an
+ * invalid output or a refusal (AI-07, D-016). Each one is reserved and logged.
+ */
+export const ATTEMPTS = [1, 2] as const;
+export type Attempt = (typeof ATTEMPTS)[number];
+
+/**
+ * Highest possible cost of a request, every attempt included: the amount the
+ * learner is shown before asking for it.
+ */
+export function maxCostOfRequest(
+  model: ModelId,
+  call: { readonly inputTokens: number; readonly maxTokens: number; readonly cachePrefix: boolean },
+): number {
+  return toUsd(maxCostOfCall(model, call) * 1_000_000 * ATTEMPTS.length);
+}
+
+/** Sum of costs in USD, each a whole number of millionths of a dollar. */
+export function sumUsd(costs: readonly number[]): number {
+  return Math.round(costs.reduce((total, cost) => total + cost * 1_000_000, 0)) / 1_000_000;
+}
+
+/**
  * Tokens added by the API around the prompt (message framing, and the system
  * instructions that describe the output schema). Deliberately generous.
  */

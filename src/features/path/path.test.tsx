@@ -231,6 +231,8 @@ describe('exercise generation (CUR-07)', () => {
       services,
     });
     expect(fake.calls.run).toEqual([]);
+    // The highest cost of the request, its new attempt included (D-081).
+    expect(screen.getByText(/Coût : au plus 0,16 USD environ/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Créer 6 exercices avec l’IA' }));
     expect(await screen.findByText(/1 exercice\(s\) ajouté\(s\)/)).toBeInTheDocument();

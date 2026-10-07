@@ -122,6 +122,28 @@ describe('checkExercise', () => {
     expect(checkExercise(choice({ reason: 'Autre raison' }))).toContain('reason-not-in-reasons');
   });
 
+  it('requires a reviewed reason set when sets are given, in any order (D-081)', () => {
+    const now = 'Action en cours au moment où l’on parle';
+    const habit = 'Habitude ou vérité générale';
+    const past = 'Action terminée dans le passé';
+    const reasonSets = [[now, habit, past]] as const;
+    const three = choice({ reasons: [past, now, habit] });
+    expect(checkExercise(three, { reasonSets })).toEqual([]);
+    // Without sets (the reviewed core), the reasons are free.
+    expect(checkExercise(choice())).toEqual([]);
+    // A missing or added reason, another right reason, or no set at all: refused.
+    expect(checkExercise(choice(), { reasonSets })).toEqual(['reason-set-not-reviewed']);
+    expect(
+      checkExercise(choice({ reasons: [now, habit, past, 'Activité en cours'] }), { reasonSets }),
+    ).toEqual(['reason-set-not-reviewed']);
+    expect(
+      checkExercise(choice({ reasons: [now, habit, past], reason: habit }), { reasonSets }),
+    ).toEqual(['reason-set-not-reviewed']);
+    expect(checkExercise(three, { reasonSets: [] })).toEqual(['reason-set-not-reviewed']);
+    // Typed exercises have no reasons: the sets do not apply.
+    expect(checkExercise(fillVerb(), { reasonSets: [] })).toEqual([]);
+  });
+
   it('refuses two options that are the same answer (contraction included)', () => {
     expect(
       checkExercise(

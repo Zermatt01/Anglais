@@ -1,7 +1,8 @@
 /**
  * Exercise generation (CUR-07, D-079): what is sent to the model, and how its
  * answer becomes stored exercises. Each generated exercise is checked like the
- * core (schema, then `checkExercise`); one that fails is dropped, never shown.
+ * core (schema, then `checkExercise`), and its reasons must be a reviewed set
+ * of the notion (D-081); one that fails is dropped, never shown.
  */
 import {
   GENERATABLE_NOTION_IDS,
@@ -12,12 +13,8 @@ import {
   type GeneratedExercise,
   type GeneratableNotionId,
 } from '../../../shared/ai/tasks.ts';
-import {
-  checkExercise,
-  exerciseSchema,
-  STEP_OF_KIND,
-  type Exercise,
-} from '../../domain/curriculum/exercise.ts';
+import { isFitGeneratedExercise } from '../../data/repositories/generated-exercise-repository.ts';
+import { exerciseSchema, STEP_OF_KIND, type Exercise } from '../../domain/curriculum/exercise.ts';
 import type { SettingsValues } from '../../domain/settings.ts';
 
 export function isGeneratable(notionId: string): notionId is GeneratableNotionId {
@@ -80,6 +77,7 @@ export interface CheckedGeneration {
 /** Keeps the generated exercises of the step asked for that pass every check. */
 export function checkGeneratedExercises(
   generated: readonly GeneratedExercise[],
+  notionId: GeneratableNotionId,
   step: 2 | 3 | 4,
   existing: readonly Exercise[],
 ): CheckedGeneration {
@@ -88,7 +86,7 @@ export function checkGeneratedExercises(
   for (const candidate of generated) {
     if (candidate.kind !== GENERATED_KIND_OF_STEP[step]) continue;
     const parsed = exerciseSchema.safeParse(toExerciseInput(candidate));
-    if (!parsed.success || checkExercise(parsed.data).length > 0) continue;
+    if (!parsed.success || !isFitGeneratedExercise(notionId, parsed.data)) continue;
     const sentence = promptSentenceOf(parsed.data).trim();
     if (known.has(sentence)) continue;
     known.add(sentence);

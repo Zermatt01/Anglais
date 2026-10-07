@@ -2,11 +2,14 @@
 import { describe, expect, it } from 'vitest';
 import { MODELS } from './models.ts';
 import {
+  ATTEMPTS,
   costOfUsage,
   estimateInputTokens,
   INPUT_OVERHEAD_TOKENS,
   maxCostOfCall,
+  maxCostOfRequest,
   MODEL_PRICES,
+  sumUsd,
 } from './pricing.ts';
 
 const noTokens = {
@@ -82,6 +85,23 @@ describe('maxCostOfCall (budget reservation, D-016)', () => {
     expect(
       maxCostOfCall(MODELS.fast, { inputTokens: 200, maxTokens: 64, cachePrefix: false }),
     ).toBeGreaterThanOrEqual(costOfUsage(MODELS.fast, usage));
+  });
+});
+
+describe('maxCostOfRequest and sumUsd', () => {
+  const call = { inputTokens: 10_000, maxTokens: 4_000, cachePrefix: true };
+
+  it('counts every attempt of a request: the first and the new one (D-016, D-081)', () => {
+    expect(ATTEMPTS).toEqual([1, 2]);
+    expect(maxCostOfRequest('claude-sonnet-5', call)).toBe(
+      2 * maxCostOfCall('claude-sonnet-5', call),
+    );
+  });
+
+  it('adds costs without floating-point noise', () => {
+    expect(sumUsd([0.000001, 0.000002])).toBe(0.000003);
+    expect(sumUsd([0.1, 0.2])).toBe(0.3);
+    expect(sumUsd([])).toBe(0);
   });
 });
 

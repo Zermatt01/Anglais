@@ -4,7 +4,7 @@
  * after it, and usage summary (COST-05 to COST-08, D-016).
  */
 import { z } from 'zod';
-import type { TokenUsage } from '../_shared/ai/pricing.ts';
+import type { Attempt, TokenUsage } from '../_shared/ai/pricing.ts';
 
 /** Calls a SQL function as PostgREST does; throws on a database error. */
 export type RpcCaller = (fn: string, args: Readonly<Record<string, unknown>>) => Promise<unknown>;
@@ -12,7 +12,7 @@ export type RpcCaller = (fn: string, args: Readonly<Record<string, unknown>>) =>
 export interface CallToReserve {
   readonly userId: string;
   readonly requestId: string;
-  readonly attempt: 1 | 2;
+  readonly attempt: Attempt;
   readonly task: string;
   readonly model: string;
   readonly promptVersion: string;
