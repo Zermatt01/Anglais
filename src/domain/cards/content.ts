@@ -95,6 +95,10 @@ export const pronunciationCardContentSchema = z.strictObject({
   soundCategory: soundCategorySchema,
 });
 
+export type ErrorCardContent = z.infer<typeof errorCardContentSchema>;
+export type CollocationCardContent = z.infer<typeof collocationCardContentSchema>;
+export type NotionCardContent = z.infer<typeof notionCardContentSchema>;
+
 export const cardContentSchema = z.discriminatedUnion('type', [
   errorCardContentSchema,
   clozeCardContentSchema,
