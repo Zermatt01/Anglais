@@ -30,6 +30,7 @@ import {
 } from '../../domain/curriculum/progress.ts';
 import { nextUpdatedAt, type Clock } from '../../domain/primitives.ts';
 import type { AnswerResult, Grader } from '../../domain/taxonomy.ts';
+import { recordActivity } from '../activity.ts';
 import type { AppDatabase } from '../database.ts';
 import { parseRecord, writeRecord } from '../records.ts';
 import type { ExerciseAttempt } from '../schemas/exercise-attempts.ts';
@@ -77,10 +78,15 @@ export interface PathRepository {
   /** "J'ai compris": step 1 → step 2. */
   finishLesson(notionId: NotionId): Promise<AnswerOutcome>;
   /**
-   * Records an answer given in the path, then applies the step criteria.
+   * Records an answer, then applies the step criteria to an answer of the path.
    * `draftKey`: the draft of the typed answer, removed in the same transaction.
+   * An answer of an immediate practice changes no step (D-075).
    */
-  recordAnswer(answer: NewAnswer, draftKey?: string): Promise<AnswerOutcome>;
+  recordAnswer(
+    answer: NewAnswer,
+    draftKey?: string,
+    context?: 'path' | 'immediate-practice',
+  ): Promise<AnswerOutcome>;
   /** Records the answers of a notion's placement, and starts it at step 4 if passed. */
   recordPlacement(
     notionId: NotionId,
@@ -101,7 +107,7 @@ const valuesOfDocument = z.object(notionProgressValuesSchema.shape);
 export function createPathRepository(db: AppDatabase, clock: Clock): PathRepository {
   const progressTable = db.table('notionProgress');
   const attemptsTable = db.table('exerciseAttempts');
-  const tables = [progressTable, attemptsTable, db.table('syncOutbox')];
+  const tables = [progressTable, attemptsTable, db.table('activity'), db.table('syncOutbox')];
   const drafts = createDraftRepository(db, clock);
   const draftTables = [db.table('drafts'), db.table('quarantine')];
 
@@ -202,19 +208,18 @@ export function createPathRepository(db: AppDatabase, clock: Clock): PathReposit
       return db.dexie.transaction('rw', tables, () => transition(notionId, finishLesson));
     },
 
-    recordAnswer(answer, draftKey) {
+    recordAnswer(answer, draftKey, context = 'path') {
       return db.dexie.transaction('rw', [...tables, ...draftTables], async () => {
         const now = clock.now();
-        await writeRecord(
-          db,
-          'exerciseAttempts',
-          attemptRecord({ ...answer, context: 'path' }, now),
-          now,
-        );
-        const answers = pathAnswersOf(await readAttempts(answer.notionId));
-        const outcome = await transition(answer.notionId, (progress, at) =>
-          progress === null ? null : afterPathAnswer(progress, answers, at),
-        );
+        await writeRecord(db, 'exerciseAttempts', attemptRecord({ ...answer, context }, now), now);
+        await recordActivity(db, 'path', answer.durationMs, now);
+        let outcome: AnswerOutcome = { transition: null, progressUnreadable: false };
+        if (context === 'path') {
+          const answers = pathAnswersOf(await readAttempts(answer.notionId));
+          outcome = await transition(answer.notionId, (progress, at) =>
+            progress === null ? null : afterPathAnswer(progress, answers, at),
+          );
+        }
         if (draftKey !== undefined) await drafts.remove(draftKey);
         return outcome;
       });

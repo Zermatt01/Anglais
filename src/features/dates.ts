@@ -1,12 +1,6 @@
 /** Dates as shown to the learner, in French, in the device's time zone. */
 
-const twoDigits = (value: number) => String(value).padStart(2, '0');
-
-/** Local calendar day of the device, `YYYY-MM-DD`. */
-export function localDay(epochMs: number): string {
-  const date = new Date(epochMs);
-  return `${String(date.getFullYear())}-${twoDigits(date.getMonth() + 1)}-${twoDigits(date.getDate())}`;
-}
+export { localDay, startOfLocalDay } from '../data/days.ts';
 
 const longDate = new Intl.DateTimeFormat('fr-FR', {
   weekday: 'long',

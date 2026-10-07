@@ -76,7 +76,7 @@ describe('createPathRepository', () => {
     });
   });
 
-  it('writes the answers and the progress to the synchronization outbox', async () => {
+  it('writes the answers, their activity and the progress to the synchronization outbox', async () => {
     const { db, path, clock } = await setup();
     await path.finishLesson(NOTION);
     clock.advance(1_000);
@@ -84,7 +84,22 @@ describe('createPathRepository', () => {
     const tables = ((await db.table('syncOutbox').toArray()) as { table: string }[]).map(
       (entry) => entry.table,
     );
-    expect(tables.sort()).toEqual(['exerciseAttempts', 'notionProgress']);
+    expect(tables.sort()).toEqual(['activity', 'exerciseAttempts', 'notionProgress']);
+  });
+
+  it('records an answer of an immediate practice without changing the step (D-075)', async () => {
+    const { path, clock } = await setup();
+    await path.finishLesson(NOTION);
+    let last = null;
+    for (let number = 1; number <= 10; number += 1) {
+      clock.advance(1_000);
+      last = await path.recordAnswer(answer(2, true, number), undefined, 'immediate-practice');
+    }
+    expect(last?.transition).toBeNull();
+    expect(await path.progress(NOTION)).toMatchObject({ values: { step: 2 } });
+    expect((await path.attempts(NOTION)).map((attempt) => attempt.context)).toEqual(
+      Array.from({ length: 10 }, () => 'immediate-practice'),
+    );
   });
 
   it('removes the draft of a typed answer with it, in one transaction (NO-06)', async () => {

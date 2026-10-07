@@ -13,6 +13,8 @@ export const errorDocumentSchema = z.strictObject({
   ...documentTimestamps,
   schemaVersion: z.literal(1),
   productionId: uuidSchema,
+  /** Position of the error in the reviewed correction of its production. */
+  index: z.int().nonnegative(),
   at: epochMsSchema,
   category: errorCategorySchema,
   notionId: notionIdSchema.nullable(),
