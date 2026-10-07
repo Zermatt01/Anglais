@@ -12,6 +12,7 @@ import type {
   translateSchema,
 } from '../domain/curriculum/exercise.ts';
 import type { NotionId } from '../domain/curriculum/notion-id.ts';
+import type { ThemeItemInput } from '../domain/theme/item.ts';
 import type { ReviewMarks } from './schema.ts';
 
 type Fields<Schema extends z.ZodType> = Omit<z.input<Schema>, 'kind'>;
@@ -55,5 +56,16 @@ export function exercisesOf(notionId: NotionId, review: ReviewMarks) {
       number: number,
       fields: { sentence: string; options: string[]; answer: string; contextFr?: string },
     ) => ({ id: `${notionId}/p/${pad(number)}`, review, ...fields }),
+  };
+}
+
+/** Thème sentences of a notion: `themeOf('tense-future', REVIEW).item(1, {…})` is `tense-future/t/01`. */
+export function themeOf(notionId: NotionId, review: ReviewMarks) {
+  return {
+    item: (number: number, fields: ThemeItemInput) => ({
+      id: `${notionId}/t/${pad(number)}`,
+      review,
+      ...fields,
+    }),
   };
 }

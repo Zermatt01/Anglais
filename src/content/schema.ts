@@ -17,6 +17,8 @@ import {
 } from '../domain/curriculum/exercise.ts';
 import { notionIdSchema } from '../domain/curriculum/notion-id.ts';
 import { visibleTextSchema } from '../domain/primitives.ts';
+import { learnerDomainSchema } from '../domain/settings.ts';
+import { themeItemSchema } from '../domain/theme/item.ts';
 
 const textSchema = visibleTextSchema.max(600);
 
@@ -27,9 +29,14 @@ export const reviewSchema = z.strictObject({
 });
 export type ReviewMarks = z.infer<typeof reviewSchema>;
 
-/** `<notion-id>/s<step>/<nn>` for exercises, `<notion-id>/p/<nn>` for placement. */
+/**
+ * `<notion-id>/s<step>/<nn>` for exercises, `<notion-id>/p/<nn>` for placement,
+ * `<notion-id>/t/<nn>` for Thème sentences.
+ */
 const EXERCISE_ID = /^[a-z0-9-]+\/s[2-4]\/\d{2}$/;
 const PLACEMENT_ID = /^[a-z0-9-]+\/p\/\d{2}$/;
+const THEME_ID = /^[a-z0-9-]+\/t\/\d{2}$/;
+const JOURNAL_ID = /^journal\/q\d{2}$/;
 
 const coreFields = {
   id: z.string().regex(EXERCISE_ID),
@@ -113,6 +120,23 @@ export const placementQuestionSchema = z.strictObject({
 });
 export type PlacementQuestion = z.infer<typeof placementQuestionSchema>;
 
+/** A sentence of the Thème (MOD-05), with its identifier and review marks. */
+export const coreThemeItemSchema = themeItemSchema.extend({
+  id: z.string().regex(THEME_ID),
+  review: reviewSchema,
+});
+export type CoreThemeItem = z.infer<typeof coreThemeItemSchema>;
+
+/** A question of the journal (MOD-07): asked in English, with its French meaning on request. */
+export const journalQuestionSchema = z.strictObject({
+  id: z.string().regex(JOURNAL_ID),
+  en: textSchema,
+  fr: textSchema,
+  domains: z.array(learnerDomainSchema).min(1).max(6),
+  review: reviewSchema,
+});
+export type JournalQuestion = z.infer<typeof journalQuestionSchema>;
+
 export const notionContentSchema = z.strictObject({
   notionId: notionIdSchema,
   lesson: lessonSchema,
@@ -122,6 +146,8 @@ export const notionContentSchema = z.strictObject({
   placement: z.array(placementQuestionSchema).min(3).max(5),
   /** Step 5: prompts for two or three personal sentences, in French. */
   producePrompts: z.array(textSchema).min(2).max(5),
+  /** Sentences of the Thème, at three tiers of instruction (MOD-05, PED-02). */
+  theme: z.array(coreThemeItemSchema).min(6),
 });
 export type NotionContent = z.infer<typeof notionContentSchema>;
 export type NotionContentInput = z.input<typeof notionContentSchema>;
