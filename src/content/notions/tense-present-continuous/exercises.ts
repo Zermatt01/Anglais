@@ -266,7 +266,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Ce que l’on voit en ce moment même.',
     difficulty: 1,
     accepted: ['Look, it’s raining!', 'It’s raining, look!'],
-    knownErrors: ['Look, it rains!', 'Look, it raining!'],
+    knownErrors: ['Look, it rains!', 'Look, it raining!', 'It rains!', 'It rains, look!'],
     explanation: 'On montre ce qui se passe à l’instant : _it’s raining_.',
   }),
   translate(3, {
