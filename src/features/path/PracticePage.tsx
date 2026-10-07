@@ -66,6 +66,11 @@ function corePool(content: NotionContent, step: Step): PoolItem[] {
     .map((exercise) => ({ id: exercise.id, exercise, source: 'core', generatedId: null }));
 }
 
+/** Draft of a typed answer: removed with the answer, in the same transaction. */
+function draftKeyOf(item: PoolItem): string {
+  return `path:${item.id}`;
+}
+
 function choose(
   pool: readonly PoolItem[],
   attempts: readonly ExerciseAttempt[],
@@ -218,14 +223,18 @@ function Session({
   // Resolves once the answer is stored: the exercise shows its result only then.
   const record: SaveAnswer = async (answer) => {
     if (shown === null) return;
-    const { transition } = await path.recordAnswer({
-      notionId,
-      exerciseId: shown.item.id,
-      source: shown.item.source,
-      step: STEP_OF_KIND[shown.item.exercise.kind],
-      durationMs: Math.max(0, clock.now() - shown.shownAt),
-      ...answer,
-    });
+    const typed = shown.item.exercise.kind !== 'choice-with-reason';
+    const { transition } = await path.recordAnswer(
+      {
+        notionId,
+        exerciseId: shown.item.id,
+        source: shown.item.source,
+        step: STEP_OF_KIND[shown.item.exercise.kind],
+        durationMs: Math.max(0, clock.now() - shown.shownAt),
+        ...answer,
+      },
+      typed ? draftKeyOf(shown.item) : undefined,
+    );
     setOutcome({ state: 'recorded', event: transition?.event ?? null });
   };
 
@@ -271,7 +280,7 @@ function Session({
               <TypedExercise
                 key={shown.seed}
                 exercise={shown.item.exercise}
-                draftKey={`path:${shown.item.id}`}
+                draftKey={draftKeyOf(shown.item)}
                 onAnswered={record}
               />
             )}

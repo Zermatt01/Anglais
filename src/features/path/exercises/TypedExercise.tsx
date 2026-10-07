@@ -21,7 +21,7 @@ const MAX_ANSWER_LENGTH = 500;
 
 interface TypedExerciseProps {
   readonly exercise: TypedExercise;
-  /** Where the draft of the answer is kept (UI-03). */
+  /** Where the draft of the answer is kept (UI-03); removed with the answer when stored. */
   readonly draftKey: string;
   /** Stores the answer; its result is shown once it is stored. */
   readonly onAnswered: SaveAnswer;
@@ -98,10 +98,12 @@ export function TypedExercise({ exercise, draftKey, onAnswered }: TypedExerciseP
   const [phase, setPhase] = useState<Phase>({ name: 'answering' });
   const [hintShown, setHintShown] = useState(false);
   const [empty, setEmpty] = useState(false);
-  // The draft is discarded only once the answer is stored: nothing typed is lost (NO-06).
+  // The draft is removed in the transaction that stores the answer (NO-06): the
+  // pending typing is saved first, so that no late save can bring it back.
   const { saving, submit, retry } = useAnswerSaving(async (answer) => {
+    await draft.flush();
     await onAnswered(answer);
-    void draft.discard(answer.answer);
+    draft.reset(answer.answer);
   });
   const accepted = acceptedAnswersOf(exercise);
   const canonical = accepted[0] ?? '';

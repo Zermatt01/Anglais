@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Step } from '../../domain/curriculum/progress.ts';
 import { createTestClock, createTestDatabase } from '../../test/database.ts';
+import { createDraftRepository } from './draft-repository.ts';
 import { createPathRepository, type NewAnswer } from './path-repository.ts';
 
 const NOTION = 'tense-just-already-yet-still';
@@ -84,6 +85,25 @@ describe('createPathRepository', () => {
       (entry) => entry.table,
     );
     expect(tables.sort()).toEqual(['exerciseAttempts', 'notionProgress']);
+  });
+
+  it('removes the draft of a typed answer with it, in one transaction (NO-06)', async () => {
+    const { db, clock, path } = await setup();
+    const drafts = createDraftRepository(db, clock);
+    await path.finishLesson(NOTION);
+    await drafts.save('path:typed', 'x');
+    await drafts.save('path:other', 'still typing');
+    await path.recordAnswer(answer(2, true, 1), 'path:typed');
+    expect(await drafts.get('path:typed')).toEqual({ state: 'absent' });
+    expect(await drafts.get('path:other')).toEqual({ state: 'present', text: 'still typing' });
+    expect(await path.attempts(NOTION)).toHaveLength(1);
+
+    // An answer that cannot be stored leaves its draft in place.
+    await expect(
+      path.recordAnswer({ ...answer(2, true, 2), durationMs: -1 }, 'path:other'),
+    ).rejects.toThrow();
+    expect(await drafts.get('path:other')).toEqual({ state: 'present', text: 'still typing' });
+    expect(await path.attempts(NOTION)).toHaveLength(1);
   });
 
   it('never overwrites an unreadable progress, but still records the answer (NO-06)', async () => {

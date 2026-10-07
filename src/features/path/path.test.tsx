@@ -11,6 +11,7 @@ import type { SpeechSynthesizer } from '../../domain/speech.ts';
 import type { AppServices } from '../app-services.ts';
 import { createTestServices, renderApp, renderWithServices } from '../../test/render.tsx';
 import { createFakeServer, TEST_ACCOUNT } from '../../test/server.ts';
+import { DRAFT_SAVE_DELAY_MS } from '../drafts/use-draft.ts';
 import { GenerateExercises } from './GenerateExercises.tsx';
 
 const NOTION = 'tense-present-continuous';
@@ -216,6 +217,23 @@ describe('exercises (steps 2 to 4)', () => {
     await waitFor(async () => {
       expect(await services.drafts.get(draftKey)).toEqual({ state: 'absent' });
     });
+  });
+
+  it('removes the draft with the answer, so that it never comes back (NO-06)', async () => {
+    const services = await createTestServices();
+    await seedProgress(services, { step: 3 });
+    await renderApp(`/parcours/${NOTION}/exercices`, services);
+    const field = await screen.findByRole('textbox', { name: 'Ce qui manque' });
+    await waitFor(() => {
+      expect(field).toBeEnabled();
+    });
+    // Checked before the typing pause: the pending draft save must not outlive the answer.
+    fireEvent.change(field, { target: { value: 'is talking' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Vérifier' }));
+    expect(await screen.findByText('Juste !')).toBeInTheDocument();
+    await new Promise((resolve) => setTimeout(resolve, DRAFT_SAVE_DELAY_MS + 200));
+    expect(await services.drafts.get(`path:${NOTION}/s3/01`)).toEqual({ state: 'absent' });
+    expect(await services.path.attempts(NOTION)).toMatchObject([{ answer: 'is talking' }]);
   });
 
   it('sends a notion not started back to its lesson', async () => {

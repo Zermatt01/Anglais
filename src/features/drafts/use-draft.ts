@@ -30,6 +30,8 @@ export interface Draft {
   flush(): Promise<void>;
   /** Forgets the draft (after a successful submission) and shows `text`. */
   discard(text: string): Promise<void>;
+  /** Shows `text`, the draft having been removed along with the submission. */
+  reset(text: string): void;
 }
 
 /**
@@ -129,20 +131,24 @@ export function useDraft(
     [delayMs, save],
   );
 
+  const reset = useCallback((value: string) => {
+    if (timer.current !== null) {
+      clearTimeout(timer.current);
+      timer.current = null;
+    }
+    dirty.current = false;
+    latestText.current = value;
+    setTextState(value);
+    setRestored(false);
+    setSaveState('idle');
+  }, []);
+
   const discard = useCallback(
     async (value: string) => {
-      if (timer.current !== null) {
-        clearTimeout(timer.current);
-        timer.current = null;
-      }
-      dirty.current = false;
-      latestText.current = value;
-      setTextState(value);
-      setRestored(false);
-      setSaveState('idle');
+      reset(value);
       await drafts.remove(key);
     },
-    [drafts, key],
+    [drafts, key, reset],
   );
 
   // Save before the page is hidden or closed, before an update, and on unmount.
@@ -164,5 +170,5 @@ export function useDraft(
     };
   }, [flush]);
 
-  return { text, ready, restored, unreadable, saveState, setText, flush, discard };
+  return { text, ready, restored, unreadable, saveState, setText, flush, discard, reset };
 }

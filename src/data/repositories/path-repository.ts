@@ -3,8 +3,10 @@
  * notion and the answers given to exercises.
  *
  * An answer and the progress it changes are written in one transaction, with
- * their outbox entries (docs/ARCHITECTURE.md §7). The transitions themselves
- * are the pure functions of `domain/curriculum/engine.ts`.
+ * their outbox entries (docs/ARCHITECTURE.md §7), and so is the removal of the
+ * draft of a typed answer: a recorded answer never leaves its draft behind,
+ * and a draft is never removed without its answer (NO-06). The transitions
+ * themselves are the pure functions of `domain/curriculum/engine.ts`.
  *
  * A progress document that cannot be read (written by a newer version of the
  * app, for instance) is never overwritten: answers are still recorded, but the
@@ -32,6 +34,7 @@ import type { AppDatabase } from '../database.ts';
 import { parseRecord, writeRecord } from '../records.ts';
 import type { ExerciseAttempt } from '../schemas/exercise-attempts.ts';
 import type { NotionProgressDocument } from '../schemas/notion-progress.ts';
+import { createDraftRepository } from './draft-repository.ts';
 
 /** Stored progress of a notion: absent, readable, or unreadable (kept as is). */
 export type StoredProgress =
@@ -73,8 +76,11 @@ export interface PathRepository {
   start(notionId: NotionId): Promise<AnswerOutcome>;
   /** "J'ai compris": step 1 → step 2. */
   finishLesson(notionId: NotionId): Promise<AnswerOutcome>;
-  /** Records an answer given in the path, then applies the step criteria. */
-  recordAnswer(answer: NewAnswer): Promise<AnswerOutcome>;
+  /**
+   * Records an answer given in the path, then applies the step criteria.
+   * `draftKey`: the draft of the typed answer, removed in the same transaction.
+   */
+  recordAnswer(answer: NewAnswer, draftKey?: string): Promise<AnswerOutcome>;
   /** Records the answers of a notion's placement, and starts it at step 4 if passed. */
   recordPlacement(
     notionId: NotionId,
@@ -96,6 +102,8 @@ export function createPathRepository(db: AppDatabase, clock: Clock): PathReposit
   const progressTable = db.table('notionProgress');
   const attemptsTable = db.table('exerciseAttempts');
   const tables = [progressTable, attemptsTable, db.table('syncOutbox')];
+  const drafts = createDraftRepository(db, clock);
+  const draftTables = [db.table('drafts'), db.table('quarantine')];
 
   async function readProgress(notionId: NotionId): Promise<{
     stored: StoredProgress;
@@ -194,8 +202,8 @@ export function createPathRepository(db: AppDatabase, clock: Clock): PathReposit
       return db.dexie.transaction('rw', tables, () => transition(notionId, finishLesson));
     },
 
-    recordAnswer(answer) {
-      return db.dexie.transaction('rw', tables, async () => {
+    recordAnswer(answer, draftKey) {
+      return db.dexie.transaction('rw', [...tables, ...draftTables], async () => {
         const now = clock.now();
         await writeRecord(
           db,
@@ -204,9 +212,11 @@ export function createPathRepository(db: AppDatabase, clock: Clock): PathReposit
           now,
         );
         const answers = pathAnswersOf(await readAttempts(answer.notionId));
-        return transition(answer.notionId, (progress, at) =>
+        const outcome = await transition(answer.notionId, (progress, at) =>
           progress === null ? null : afterPathAnswer(progress, answers, at),
         );
+        if (draftKey !== undefined) await drafts.remove(draftKey);
+        return outcome;
       });
     },
 
