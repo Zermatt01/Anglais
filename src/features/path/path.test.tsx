@@ -187,6 +187,37 @@ describe('exercises (steps 2 to 4)', () => {
     expect(screen.getByText(/Réponse attendue/)).toBeInTheDocument();
   });
 
+  it('shows the result only once the answer is stored, and keeps it to try again (NO-06)', async () => {
+    const services = await createTestServices();
+    await seedProgress(services, { step: 3 });
+    const record = vi.spyOn(services.path, 'recordAnswer');
+    record.mockRejectedValueOnce(new Error('QuotaExceededError'));
+    await renderApp(`/parcours/${NOTION}/exercices`, services);
+
+    const field = await screen.findByRole('textbox', { name: 'Ce qui manque' });
+    await waitFor(() => {
+      expect(field).toBeEnabled();
+    });
+    fireEvent.change(field, { target: { value: 'is talking' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Vérifier' }));
+
+    expect(await screen.findByText('Réponse non enregistrée')).toBeInTheDocument();
+    expect(screen.queryByText('Juste !')).not.toBeInTheDocument();
+    // What the learner typed is still kept as a draft.
+    const draftKey = `path:${NOTION}/s3/01`;
+    await waitFor(async () => {
+      expect(await services.drafts.get(draftKey)).toEqual({ state: 'present', text: 'is talking' });
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Réessayer' }));
+    expect(await screen.findByText('Juste !')).toBeInTheDocument();
+    expect(record).toHaveBeenCalledTimes(2);
+    expect(await services.path.attempts(NOTION)).toMatchObject([{ answer: 'is talking' }]);
+    await waitFor(async () => {
+      expect(await services.drafts.get(draftKey)).toEqual({ state: 'absent' });
+    });
+  });
+
   it('sends a notion not started back to its lesson', async () => {
     await renderApp(`/parcours/${NOTION}/exercices`);
     expect(await screen.findByText('Commence par la leçon')).toBeInTheDocument();
@@ -267,6 +298,27 @@ describe('placement test (CUR-08)', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
     }
     expect(await screen.findByText('Notion à consolider')).toBeInTheDocument();
+    expect(await services.path.progress(NOTION)).toMatchObject({
+      values: { status: 'to_consolidate', step: 4 },
+    });
+  });
+
+  it('keeps the answers and offers to try again when the result cannot be stored', async () => {
+    const services = await createTestServices();
+    const record = vi.spyOn(services.path, 'recordPlacement');
+    record.mockRejectedValueOnce(new Error('QuotaExceededError'));
+    await renderApp('/parcours/positionnement/temps-verbaux', services);
+    fireEvent.click(await screen.findByRole('button', { name: 'Commencer le test' }));
+    const { placement } = await contentOf(NOTION);
+    for (const question of placement) {
+      fireEvent.click(await screen.findByRole('radio', { name: question.answer }));
+      fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
+    }
+
+    expect(await screen.findByText('Résultat non enregistré')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Réessayer' }));
+    expect(await screen.findByText('Notion à consolider')).toBeInTheDocument();
+    expect(record).toHaveBeenCalledTimes(2);
     expect(await services.path.progress(NOTION)).toMatchObject({
       values: { status: 'to_consolidate', step: 4 },
     });

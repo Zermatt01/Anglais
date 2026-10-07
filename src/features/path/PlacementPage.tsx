@@ -210,7 +210,8 @@ function NotionTest({
   const { path } = useAppServices();
   const [answers, setAnswers] = useState<{ question: PlacementQuestion; answer: string }[]>([]);
   const [choice, setChoice] = useState<string | null>(null);
-  const [failed, setFailed] = useState(false);
+  /** Once every question is answered: the result is being stored, or could not be. */
+  const [saving, setSaving] = useState<'saving' | 'failed' | null>(null);
   const heading = (
     <>
       {`Notion ${String(position.index + 1)} sur ${String(position.count)} : `}
@@ -234,14 +235,9 @@ function NotionTest({
 
   const questions = content.content.placement;
   const question = questions[answers.length];
-  if (question === undefined) return null;
 
-  const validate = () => {
-    if (choice === null) return;
-    const all = [...answers, { question, answer: choice }];
-    setAnswers(all);
-    setChoice(null);
-    if (all.length < questions.length) return;
+  const save = (all: readonly { question: PlacementQuestion; answer: string }[]) => {
+    setSaving('saving');
     path
       .recordPlacement(
         notionId,
@@ -256,14 +252,50 @@ function NotionTest({
           onDone(passed);
         },
         () => {
-          setFailed(true);
+          setSaving('failed');
         },
       );
   };
 
+  if (question === undefined) {
+    return (
+      <Sheet title={heading}>
+        {saving === 'failed' ? (
+          <>
+            <Notice tone="error" title="Résultat non enregistré">
+              <p>
+                Tes réponses sont gardées tant que tu restes sur cet écran. Le stockage du téléphone
+                est peut-être plein : libère de la place, puis réessaie.
+              </p>
+            </Notice>
+            <div className="button-row">
+              <Button
+                onClick={() => {
+                  save(answers);
+                }}
+              >
+                Réessayer
+              </Button>
+            </div>
+          </>
+        ) : (
+          <p role="status">Enregistrement du résultat…</p>
+        )}
+      </Sheet>
+    );
+  }
+
+  const validate = () => {
+    if (choice === null) return;
+    const all = [...answers, { question, answer: choice }];
+    setAnswers(all);
+    setChoice(null);
+    if (all.length === questions.length) save(all);
+  };
+
   return (
     <Sheet title={heading}>
-      <p className="muted">{`Question ${String(Math.min(answers.length + 1, questions.length))} sur ${String(questions.length)}`}</p>
+      <p className="muted">{`Question ${String(answers.length + 1)} sur ${String(questions.length)}`}</p>
       {question.contextFr === undefined ? null : (
         <p className="muted">
           <RichText text={question.contextFr} />
@@ -281,11 +313,6 @@ function NotionTest({
         value={choice}
         onChange={setChoice}
       />
-      {failed ? (
-        <Notice tone="error" title="Résultat non enregistré">
-          <p>Réessaie. Si le problème continue, exporte tes données puis recharge l’application.</p>
-        </Notice>
-      ) : null}
       <div className="button-row">
         <Button disabled={choice === null} onClick={validate}>
           Valider

@@ -7,3 +7,6 @@ export interface ExerciseAnswer {
   readonly grader: Grader;
   readonly hintUsed: boolean;
 }
+
+/** Stores an answer: resolves once it is stored, rejects when it could not be. */
+export type SaveAnswer = (answer: ExerciseAnswer) => Promise<void>;

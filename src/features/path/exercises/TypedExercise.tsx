@@ -10,8 +10,10 @@ import { Notice } from '../../../ui/Notice.tsx';
 import { RichText } from '../../../ui/RichText.tsx';
 import { useDraft } from '../../drafts/use-draft.ts';
 import { Feedback } from './Feedback.tsx';
+import { SavingStatus } from './SavingStatus.tsx';
 import { SentenceWithGap } from './SentenceWithGap.tsx';
-import type { ExerciseAnswer } from './types.ts';
+import type { SaveAnswer } from './types.ts';
+import { useAnswerSaving } from './use-answer-saving.ts';
 
 type TypedExercise = Exclude<Exercise, { kind: 'choice-with-reason' }>;
 
@@ -21,7 +23,8 @@ interface TypedExerciseProps {
   readonly exercise: TypedExercise;
   /** Where the draft of the answer is kept (UI-03). */
   readonly draftKey: string;
-  readonly onAnswered: (answer: ExerciseAnswer) => void;
+  /** Stores the answer; its result is shown once it is stored. */
+  readonly onAnswered: SaveAnswer;
 }
 
 type Phase =
@@ -95,13 +98,17 @@ export function TypedExercise({ exercise, draftKey, onAnswered }: TypedExerciseP
   const [phase, setPhase] = useState<Phase>({ name: 'answering' });
   const [hintShown, setHintShown] = useState(false);
   const [empty, setEmpty] = useState(false);
+  // The draft is discarded only once the answer is stored: nothing typed is lost (NO-06).
+  const { saving, submit, retry } = useAnswerSaving(async (answer) => {
+    await onAnswered(answer);
+    void draft.discard(answer.answer);
+  });
   const accepted = acceptedAnswersOf(exercise);
   const canonical = accepted[0] ?? '';
 
   function finish(answer: string, correct: boolean, matched: string | null, selfAssessed: boolean) {
     setPhase({ name: 'done', answer, correct, matched, selfAssessed });
-    void draft.discard(answer);
-    onAnswered({
+    submit({
       answer,
       result: correct ? 'correct' : 'incorrect',
       grader: selfAssessed ? 'user' : 'local',
@@ -214,7 +221,8 @@ export function TypedExercise({ exercise, draftKey, onAnswered }: TypedExerciseP
         </div>
       ) : null}
 
-      {phase.name === 'done' ? (
+      <SavingStatus saving={saving} onRetry={retry} />
+      {phase.name === 'done' && saving.state === 'saved' ? (
         <Feedback
           verdict={phase.correct ? 'correct' : 'incorrect'}
           expected={

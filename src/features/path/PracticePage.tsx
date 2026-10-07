@@ -25,7 +25,7 @@ import { pathTo } from '../paths.ts';
 import { usePageTitle } from '../use-page-title.ts';
 import { ChoiceExercise } from './exercises/ChoiceExercise.tsx';
 import { TypedExercise } from './exercises/TypedExercise.tsx';
-import type { ExerciseAnswer } from './exercises/types.ts';
+import type { SaveAnswer } from './exercises/types.ts';
 import { GenerateExercises } from './GenerateExercises.tsx';
 import { eventMessage, stepName } from './labels.ts';
 import { useNotionAttempts, useNotionContent, useNotionProgress } from './use-path.ts';
@@ -207,7 +207,6 @@ function Session({
   const [outcome, setOutcome] = useState<
     | { readonly state: 'idle' }
     | { readonly state: 'recorded'; readonly event: ProgressEvent | null }
-    | { readonly state: 'failed' }
   >({ state: 'idle' });
 
   const next = () => {
@@ -216,25 +215,18 @@ function Session({
     setShown(choose(pool, attempts, shown?.item.id ?? null, clock.now()));
   };
 
-  const record = (answer: ExerciseAnswer) => {
+  // Resolves once the answer is stored: the exercise shows its result only then.
+  const record: SaveAnswer = async (answer) => {
     if (shown === null) return;
-    path
-      .recordAnswer({
-        notionId,
-        exerciseId: shown.item.id,
-        source: shown.item.source,
-        step: STEP_OF_KIND[shown.item.exercise.kind],
-        durationMs: Math.max(0, clock.now() - shown.shownAt),
-        ...answer,
-      })
-      .then(
-        ({ transition }) => {
-          setOutcome({ state: 'recorded', event: transition?.event ?? null });
-        },
-        () => {
-          setOutcome({ state: 'failed' });
-        },
-      );
+    const { transition } = await path.recordAnswer({
+      notionId,
+      exerciseId: shown.item.id,
+      source: shown.item.source,
+      step: STEP_OF_KIND[shown.item.exercise.kind],
+      durationMs: Math.max(0, clock.now() - shown.shownAt),
+      ...answer,
+    });
+    setOutcome({ state: 'recorded', event: transition?.event ?? null });
   };
 
   const standing = progress === null ? null : stepStanding(progress, pathAnswersOf(attempts));
@@ -285,13 +277,6 @@ function Session({
             )}
           </>
         )}
-        {outcome.state === 'failed' ? (
-          <Notice tone="error" title="Réponse non enregistrée">
-            <p>
-              Réessaie. Si le problème continue, exporte tes données puis recharge l’application.
-            </p>
-          </Notice>
-        ) : null}
         {message === null ? null : (
           <Notice tone="success" title={message.title}>
             <p>{message.body}</p>

@@ -5,14 +5,17 @@ import { OptionGroup } from '../../../ui/OptionGroup.tsx';
 import { RichText } from '../../../ui/RichText.tsx';
 import { shuffled } from '../shuffle.ts';
 import { Feedback } from './Feedback.tsx';
+import { SavingStatus } from './SavingStatus.tsx';
 import { SentenceWithGap } from './SentenceWithGap.tsx';
-import type { ExerciseAnswer } from './types.ts';
+import type { SaveAnswer } from './types.ts';
+import { useAnswerSaving } from './use-answer-saving.ts';
 
 interface ChoiceExerciseProps {
   readonly exercise: ExerciseOf<'choice-with-reason'>;
   /** Seed of the order of the options: changes each time the exercise comes back. */
   readonly seed: string;
-  readonly onAnswered: (answer: ExerciseAnswer) => void;
+  /** Stores the answer; its result is shown once it is stored. */
+  readonly onAnswered: SaveAnswer;
 }
 
 /** Step 2: choose the form, then the reason; both must be right (PEDAGOGY §3.3). */
@@ -20,10 +23,12 @@ export function ChoiceExercise({ exercise, seed, onAnswered }: ChoiceExercisePro
   const [form, setForm] = useState<string | null>(null);
   const [reason, setReason] = useState<string | null>(null);
   const [checked, setChecked] = useState<boolean | null>(null);
+  const { saving, submit, retry } = useAnswerSaving(onAnswered);
 
   const options = shuffled(exercise.options, `${seed}:options`);
   const reasons = shuffled(exercise.reasons, `${seed}:reasons`);
-  const done = checked !== null;
+  const locked = checked !== null;
+  const done = locked && saving.state === 'saved';
 
   return (
     <div className="exercise">
@@ -38,7 +43,7 @@ export function ChoiceExercise({ exercise, seed, onAnswered }: ChoiceExercisePro
         options={options.map((option) => ({ value: option, label: option, lang: 'en' }))}
         value={form}
         onChange={setForm}
-        disabled={done}
+        disabled={locked}
         {...(done ? { correct: exercise.answer } : {})}
       />
       {form === null ? null : (
@@ -47,17 +52,18 @@ export function ChoiceExercise({ exercise, seed, onAnswered }: ChoiceExercisePro
           options={reasons.map((entry) => ({ value: entry, label: <RichText text={entry} /> }))}
           value={reason}
           onChange={setReason}
-          disabled={done}
+          disabled={locked}
           {...(done ? { correct: exercise.reason } : {})}
         />
       )}
+      <SavingStatus saving={saving} onRetry={retry} />
       {done ? (
         <Feedback
           verdict={checked ? 'correct' : 'incorrect'}
           expected={checked ? null : exercise.answer}
           explanation={exercise.explanation}
         />
-      ) : (
+      ) : locked ? null : (
         <div className="button-row">
           <Button
             disabled={form === null || reason === null}
@@ -65,7 +71,7 @@ export function ChoiceExercise({ exercise, seed, onAnswered }: ChoiceExercisePro
               if (form === null || reason === null) return;
               const correct = isChoiceCorrect(exercise, form, reason);
               setChecked(correct);
-              onAnswered({
+              submit({
                 answer: `${form} — ${reason}`,
                 result: correct ? 'correct' : 'incorrect',
                 grader: 'local',

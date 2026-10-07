@@ -24,8 +24,8 @@ test('reads a lesson, passes to recognition and answers an exercise', async ({ p
   await page.getByRole('radio', { name: FIRST_CHOICE.reason }).check();
   await page.getByRole('button', { name: 'Vérifier' }).click();
   await expect(page.getByText('Juste !')).toBeVisible();
-  // The feedback shows as soon as the answer is checked; this button only once
-  // it is stored. Reloading before then could interrupt the write.
+  // The result and this button show once the answer is stored (D-081): the
+  // reload below cannot interrupt the write.
   await expect(page.getByRole('button', { name: 'Exercice suivant' })).toBeVisible();
 
   // The progress survives a reload: it is stored on the device.
