@@ -8,7 +8,10 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { createMigratedDatabase, createUser, rpcAs } from '../../tests/database.ts';
 import { MODELS, TASK_SETTINGS } from '../_shared/ai/models.ts';
 import { costOfUsage, estimateInputTokens, maxCostOfCall, sumUsd } from '../_shared/ai/pricing.ts';
+import { CHECK_CARD_ANSWER_PROMPT } from '../_shared/ai/prompts/check-card-answer.ts';
 import { CONNECTION_CHECK_PROMPT } from '../_shared/ai/prompts/connection-check.ts';
+import { CORRECTION_EXAMPLES } from '../_shared/ai/prompts/correction-examples.ts';
+import { CORRECT_PRODUCTION_PROMPT } from '../_shared/ai/prompts/correct-production.ts';
 import { GENERATE_EXERCISES_PROMPT } from '../_shared/ai/prompts/generate-exercises.ts';
 import {
   aiFailureSchema,
@@ -549,5 +552,104 @@ describe('exercise generation (D-079)', () => {
     );
     expect(response.status).toBe(400);
     expect(modelCalls).toEqual([]);
+  });
+});
+
+describe('correction of a production (D-083)', () => {
+  const CORRECT = {
+    task: 'correct-production',
+    requestId: REQUEST_ID,
+    input: {
+      module: 'journal',
+      instruction: { text: 'What did you do at work last week?', language: 'en' },
+      reference: null,
+      targetNotionId: null,
+      learner: {
+        englishVariant: 'en-GB',
+        domains: ['finance'],
+        level: null,
+        weakCategories: [],
+        weakNotions: [],
+        remarks: '',
+      },
+      text: 'Last week I have presented the results.',
+    },
+  };
+
+  it('sends the versioned prompt to the capable model, prefix cached, and validates the output', async () => {
+    const requests: ModelRequest<unknown>[] = [];
+    const output = CORRECTION_EXAMPLES[0]?.output;
+    const { deps, reserved } = harness();
+    const model: ModelCaller = {
+      call(request) {
+        requests.push(request);
+        // Safe: the fake answers with the output of this task.
+        return Promise.resolve({ kind: 'ok', output, usage: USAGE } as ModelResult<never>);
+      },
+    };
+    const response = await handleRequest(post(CORRECT), { ...deps, model });
+    expect(response.status).toBe(200);
+    const [request] = requests;
+    expect(request?.settings).toEqual(TASK_SETTINGS['correct-production']);
+    expect(request?.settings.cachePrefix).toBe(true);
+    expect(request?.system).toBe(CORRECT_PRODUCTION_PROMPT.system);
+    expect(request?.userMessage).toContain('<<<\nLast week I have presented the results.\n>>>');
+    expect(request?.outputSchema.safeParse(output).success).toBe(true);
+    expect(request?.outputSchema.safeParse({ errors: [] }).success).toBe(false);
+    expect(reserved[0]).toMatchObject({
+      task: 'correct-production',
+      model: MODELS.capable,
+      promptVersion: 'correct-production@1',
+    });
+  });
+
+  it.each([
+    ['an empty text', { text: ' ' }],
+    ['a notion outside the closed list', { targetNotionId: 'tense-imaginary' }],
+    ['a text that is too long', { text: 'x'.repeat(2_001) }],
+  ])('refuses %s, without calling the model', async (_label, change) => {
+    const { deps, modelCalls } = harness();
+    const response = await handleRequest(
+      post({ ...CORRECT, input: { ...CORRECT.input, ...change } }),
+      deps,
+    );
+    expect(response.status).toBe(400);
+    expect(modelCalls).toEqual([]);
+  });
+});
+
+describe('check of a card answer (D-083)', () => {
+  it('sends the short prompt to the fast model, without cache', async () => {
+    const requests: ModelRequest<unknown>[] = [];
+    const { deps, reserved } = harness();
+    const model: ModelCaller = {
+      call(request) {
+        requests.push(request);
+        const output = { verdict: 'correct', reasonFr: 'Même sens, bien formulé.' };
+        // Safe: the fake answers with the output of this task.
+        return Promise.resolve({ kind: 'ok', output, usage: USAGE } as ModelResult<never>);
+      },
+    };
+    const response = await handleRequest(
+      post({
+        task: 'check-card-answer',
+        requestId: REQUEST_ID,
+        input: {
+          cardType: 'error',
+          meaningFr: 'J’ai fini le rapport hier.',
+          textWithGap: null,
+          infinitive: null,
+          expected: ['I finished the report yesterday.'],
+          answer: 'I completed the report yesterday.',
+          englishVariant: 'en-GB',
+        },
+      }),
+      { ...deps, model },
+    );
+    expect(response.status).toBe(200);
+    expect(requests[0]?.system).toBe(CHECK_CARD_ANSWER_PROMPT.system);
+    expect(requests[0]?.settings).toEqual(TASK_SETTINGS['check-card-answer']);
+    expect(requests[0]?.settings.model).toBe(MODELS.fast);
+    expect(reserved[0]).toMatchObject({ task: 'check-card-answer', model: MODELS.fast });
   });
 });

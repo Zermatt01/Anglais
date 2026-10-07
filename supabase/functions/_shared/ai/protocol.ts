@@ -30,9 +30,23 @@ export const generateExercisesRequestSchema = z.strictObject({
   input: TASK_CONTRACTS['generate-exercises'].input,
 });
 
+export const correctProductionRequestSchema = z.strictObject({
+  task: z.literal('correct-production'),
+  requestId: z.uuid(),
+  input: TASK_CONTRACTS['correct-production'].input,
+});
+
+export const checkCardAnswerRequestSchema = z.strictObject({
+  task: z.literal('check-card-answer'),
+  requestId: z.uuid(),
+  input: TASK_CONTRACTS['check-card-answer'].input,
+});
+
 export const aiRequestSchema = z.discriminatedUnion('task', [
   connectionCheckRequestSchema,
   generateExercisesRequestSchema,
+  correctProductionRequestSchema,
+  checkCardAnswerRequestSchema,
 ]);
 export type AiRequest = z.infer<typeof aiRequestSchema>;
 

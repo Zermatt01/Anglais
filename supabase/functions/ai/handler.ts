@@ -116,6 +116,10 @@ function userMessageOf(request: AiRequest): string {
       return PROMPTS['connection-check'].userMessage(request.input);
     case 'generate-exercises':
       return PROMPTS['generate-exercises'].userMessage(request.input);
+    case 'correct-production':
+      return PROMPTS['correct-production'].userMessage(request.input);
+    case 'check-card-answer':
+      return PROMPTS['check-card-answer'].userMessage(request.input);
   }
 }
 

@@ -48,4 +48,22 @@ export const TASK_SETTINGS = {
     thinking: { effort: 'low' },
     cachePrefix: true,
   },
+  // A journal entry with several errors needs about 1 500 tokens of output;
+  // the rest leaves room for a short reasoning at low effort, which makes
+  // false positives rarer (NO-05, D-012, D-083). To be calibrated with the
+  // benchmark (phase 5).
+  'correct-production': {
+    model: MODELS.capable,
+    maxTokens: 4_000,
+    thinking: { effort: 'low' },
+    cachePrefix: true,
+  },
+  // A verdict and one French sentence (CARD-05). Its prompt is far shorter
+  // than Haiku's minimum cacheable prefix (D-011).
+  'check-card-answer': {
+    model: MODELS.fast,
+    maxTokens: 300,
+    thinking: 'off',
+    cachePrefix: false,
+  },
 } as const satisfies Record<AiTaskName, TaskSettings>;
