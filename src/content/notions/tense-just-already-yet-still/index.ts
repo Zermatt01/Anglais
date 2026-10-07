@@ -2,6 +2,7 @@ import type { NotionContentInput } from '../../schema.ts';
 import { EXERCISES } from './exercises.ts';
 import { LESSON } from './lesson.ts';
 import { PLACEMENT } from './placement.ts';
+import { THEME } from './theme.ts';
 
 export const CONTENT: NotionContentInput = {
   notionId: 'tense-just-already-yet-still',
@@ -13,4 +14,5 @@ export const CONTENT: NotionContentInput = {
     'Écris à un collègue que tu attends toujours une réponse ou un document, poliment mais avec une pointe d’impatience.',
     'Décris ce qui n’a pas changé dans ta vie ou ton travail depuis longtemps (_still_), et ce qui vient de changer (_just_).',
   ],
+  theme: THEME,
 };

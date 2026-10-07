@@ -2,6 +2,7 @@ import type { NotionContentInput } from '../../schema.ts';
 import { EXERCISES } from './exercises.ts';
 import { LESSON } from './lesson.ts';
 import { PLACEMENT } from './placement.ts';
+import { THEME } from './theme.ts';
 
 export const CONTENT: NotionContentInput = {
   notionId: 'tense-present-perfect-vs-past-simple',
@@ -13,4 +14,5 @@ export const CONTENT: NotionContentInput = {
     'Fais le bilan de ton année : ce que tu as accompli jusqu’ici, et un événement précis du mois dernier.',
     'Réponds à _What have you learned from your studies?_ en citant un exemple daté.',
   ],
+  theme: THEME,
 };

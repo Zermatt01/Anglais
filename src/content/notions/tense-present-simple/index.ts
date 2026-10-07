@@ -2,6 +2,7 @@ import type { NotionContentInput } from '../../schema.ts';
 import { EXERCISES } from './exercises.ts';
 import { LESSON } from './lesson.ts';
 import { PLACEMENT } from './placement.ts';
+import { THEME } from './theme.ts';
 
 export const CONTENT: NotionContentInput = {
   notionId: 'tense-present-simple',
@@ -13,4 +14,5 @@ export const CONTENT: NotionContentInput = {
     'Présente ton poste ou ta formation, et ce que fait ton entreprise ou ton école.',
     'Énonce deux ou trois faits généraux de ton domaine (finance, données, enseignement…).',
   ],
+  theme: THEME,
 };

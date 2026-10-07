@@ -10,6 +10,7 @@ import { GENERATABLE_NOTION_IDS } from '../../shared/ai/tasks.ts';
 import { countGaps } from '../domain/cards/content.ts';
 import { areEquivalent } from '../domain/correction/forms.ts';
 import { checkExercise, exerciseSchema, STEP_OF_KIND } from '../domain/curriculum/exercise.ts';
+import { checkThemeItem, themeItemSchema } from '../domain/theme/item.ts';
 import { PHASE_3_NOTION_IDS, phaseOf, type NotionId } from '../domain/curriculum/notion-id.ts';
 import { loadNotionContent, NOTIONS_WITH_CONTENT } from './index.ts';
 import type { NotionContent } from './schema.ts';
@@ -38,6 +39,12 @@ function markedTexts(content: NotionContent): string[] {
     ...lesson.pitfalls,
     ...content.producePrompts,
     ...content.placement.flatMap((question) => question.contextFr ?? []),
+    ...content.theme.flatMap((item) => [
+      item.sentenceFr,
+      item.situationFr,
+      item.hint,
+      item.explanation,
+    ]),
     ...content.exercises.flatMap((exercise) => {
       switch (exercise.kind) {
         case 'choice-with-reason':
@@ -151,6 +158,29 @@ describe.each(contents)('%s', (notionId: NotionId, content: NotionContent) => {
       expect(question.review.first, question.id).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(question.review.second ?? '', question.id).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     });
+  });
+
+  it('has at least six Thème sentences, numbered, fit for local grading and reviewed twice (MOD-05)', () => {
+    expect(content.theme.length).toBeGreaterThanOrEqual(6);
+    content.theme.forEach(({ id, review, ...item }, index) => {
+      expect(id).toBe(`${notionId}/t/${String(index + 1).padStart(2, '0')}`);
+      const parsed = themeItemSchema.parse(item);
+      expect({ id, issues: checkThemeItem(parsed) }).toEqual({ id, issues: [] });
+      expect(review.first, id).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(review.second ?? '', id).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect((review.second ?? '') >= review.first, id).toBe(true);
+    });
+  });
+
+  it('never repeats a sentence of its core in the Thème', () => {
+    const translations = new Set(
+      content.exercises.flatMap((exercise) =>
+        exercise.kind === 'translate' ? [exercise.sentenceFr] : [],
+      ),
+    );
+    const sentences = content.theme.map((item) => item.sentenceFr);
+    expect(new Set(sentences).size).toBe(sentences.length);
+    expect(sentences.filter((sentence) => translations.has(sentence))).toEqual([]);
   });
 
   it('has a timeline in its lesson, except for the review notion (CUR-03)', () => {

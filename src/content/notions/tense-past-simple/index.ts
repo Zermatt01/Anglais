@@ -2,6 +2,7 @@ import type { NotionContentInput } from '../../schema.ts';
 import { EXERCISES } from './exercises.ts';
 import { LESSON } from './lesson.ts';
 import { PLACEMENT } from './placement.ts';
+import { THEME } from './theme.ts';
 
 export const CONTENT: NotionContentInput = {
   notionId: 'tense-past-simple',
@@ -13,4 +14,5 @@ export const CONTENT: NotionContentInput = {
     'Présente une étape passée de ton parcours : tes études, un stage ou un premier emploi, avec des dates.',
     'Décris un événement récent de ton domaine (une décision, un lancement, une crise), à un moment précis du passé.',
   ],
+  theme: THEME,
 };

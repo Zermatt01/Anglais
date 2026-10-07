@@ -2,6 +2,7 @@ import type { NotionContentInput } from '../../schema.ts';
 import { EXERCISES } from './exercises.ts';
 import { LESSON } from './lesson.ts';
 import { PLACEMENT } from './placement.ts';
+import { THEME } from './theme.ts';
 
 export const CONTENT: NotionContentInput = {
   notionId: 'tense-present-perfect',
@@ -13,4 +14,5 @@ export const CONTENT: NotionContentInput = {
     'Fais le bilan de ta semaine ou de ton mois, qui n’est pas terminé : ce que tu as déjà fait, ce que tu as appris.',
     'Décris une action récente dont le résultat compte maintenant (un problème, un changement, une bonne nouvelle).',
   ],
+  theme: THEME,
 };

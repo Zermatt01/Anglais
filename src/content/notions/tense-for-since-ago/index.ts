@@ -2,6 +2,7 @@ import type { NotionContentInput } from '../../schema.ts';
 import { EXERCISES } from './exercises.ts';
 import { LESSON } from './lesson.ts';
 import { PLACEMENT } from './placement.ts';
+import { THEME } from './theme.ts';
 
 export const CONTENT: NotionContentInput = {
   notionId: 'tense-for-since-ago',
@@ -13,4 +14,5 @@ export const CONTENT: NotionContentInput = {
     'Raconte deux moments clés de ton parcours avec _ago_ (il y a…).',
     'Réponds à la question d’un recruteur : _How long have you been interested in finance?_',
   ],
+  theme: THEME,
 };

@@ -2,6 +2,7 @@ import type { NotionContentInput } from '../../schema.ts';
 import { EXERCISES } from './exercises.ts';
 import { LESSON } from './lesson.ts';
 import { PLACEMENT } from './placement.ts';
+import { THEME } from './theme.ts';
 
 export const CONTENT: NotionContentInput = {
   notionId: 'tense-present-perfect-continuous',
@@ -13,4 +14,5 @@ export const CONTENT: NotionContentInput = {
     'Explique à un recruteur ce sur quoi tu travailles ces derniers temps, en insistant sur la durée.',
     'Décris la trace visible d’une activité récente (fatigue, bureau en désordre…) et ce que tu as fait.',
   ],
+  theme: THEME,
 };

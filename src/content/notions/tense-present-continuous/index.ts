@@ -2,6 +2,7 @@ import type { NotionContentInput } from '../../schema.ts';
 import { EXERCISES } from './exercises.ts';
 import { LESSON } from './lesson.ts';
 import { PLACEMENT } from './placement.ts';
+import { THEME } from './theme.ts';
 
 export const CONTENT: NotionContentInput = {
   notionId: 'tense-present-continuous',
@@ -13,4 +14,5 @@ export const CONTENT: NotionContentInput = {
     'Explique sur quoi tu travailles ou ce que tu étudies ces temps-ci, pour une période limitée.',
     'Décris une évolution en cours dans ton domaine (marchés, données, enseignement…).',
   ],
+  theme: THEME,
 };
