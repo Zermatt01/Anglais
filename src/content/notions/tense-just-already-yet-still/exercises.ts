@@ -347,9 +347,11 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'The meeting hasn’t started yet, but the manager has already arrived.',
       'The meeting hasn’t yet started, but the director is already here.',
       'The meeting hasn’t started yet but the director is already here.',
+      'The meeting didn’t start yet, but the director is already here.',
+      'The meeting didn’t start yet, but the manager is already here.',
     ],
     knownErrors: ['The meeting hasn’t started already, but the director is already here.'],
-    explanation: '_Hasn’t started yet_ (pas encore), _is already here_ (déjà).',
+    explanation: '_Hasn’t started yet_ (pas encore), _is already here_ (déjà).' + AMERICAN_PAST,
   }),
   translate(10, {
     sentenceFr: 'Nous n’avons toujours pas reçu les chiffres, alors que tu les as déjà envoyés.',
@@ -363,9 +365,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'We still haven’t received the numbers, although you’ve already sent them.',
       'We still haven’t got the figures, although you’ve already sent them.',
       'We have still not received the figures, although you’ve already sent them.',
+      'We still haven’t received the figures, although you already sent them.',
+      'We still haven’t received the figures, even though you already sent them.',
     ],
     knownErrors: ['We haven’t still received the figures, although you’ve already sent them.'],
-    explanation: '_Still haven’t received_ (toujours pas), _have already sent_ (déjà).',
+    explanation:
+      '_Still haven’t received_ (toujours pas), _have already sent_ (déjà).' + AMERICAN_PAST,
   }),
   translate(11, {
     sentenceFr: 'Est-ce que les résultats sont déjà sortis ? — Non, pas encore.',
@@ -378,8 +383,11 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Have the results been released yet? — No, not yet.',
       'Are the results out already? — No, not yet.',
       'Have the results already come out? — No, not yet.',
+      'Did the results come out yet? — No, not yet.',
+      'Did the results already come out? — No, not yet.',
     ],
     knownErrors: ['Have the results come out yet? — No, not already.'],
-    explanation: 'Question avec _yet_ en fin de phrase ; « pas encore » se dit _not yet_.',
+    explanation:
+      'Question avec _yet_ en fin de phrase ; « pas encore » se dit _not yet_.' + AMERICAN_PAST,
   }),
 ];

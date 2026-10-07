@@ -6,7 +6,7 @@ export const LESSON: NotionContentInput['lesson'] = {
   usage: [
     '_Will_ : décision prise au moment où l’on parle, promesse, offre, prévision. _I’ll call you back._ ; _I think rates will fall._',
     '_Be going to_ : intention déjà décidée, ou prédiction fondée sur un indice présent. _I’m going to apply for the job._ ; _Look at the traffic: we’re going to be late._',
-    'Présent continu : rendez-vous ou arrangement fixé avec d’autres personnes. _I’m meeting the client tomorrow._',
+    'Présent continu : rendez-vous ou arrangement déjà fixé. _I’m meeting the client tomorrow._ ; _I’m leaving on Friday._',
     'Présent simple : horaires et programmes officiels. _The train leaves at 7:32._',
     'Après _when_, _if_, _as soon as_, _before_, _after_ et _until_, on emploie le présent pour parler du futur : _I’ll call you when I arrive._',
   ],

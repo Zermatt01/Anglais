@@ -348,7 +348,6 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I usually work at the office, but I’m working from home this week.',
       'I usually work in the office, but I’m working from home this week.',
     ],
-    knownErrors: ['I usually am working at the office, but this week I’m working from home.'],
     explanation: 'Habitude : _I usually work_. Exception temporaire : _I’m working_.',
   }),
   translate(10, {

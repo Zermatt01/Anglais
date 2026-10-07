@@ -82,12 +82,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     explanation: 'Une expérience : present perfect, participe _been_.',
   }),
   choice(9, {
-    sentence: 'Look! The price ___ again.',
-    options: ['is falling', 'falls', 'falling'],
-    answer: 'is falling',
+    sentence: 'Fuel prices ___ at the moment, so transport costs more than last year.',
+    options: ['are rising', 'rise', 'rising'],
+    answer: 'are rising',
     reasons: [PRESENT_CONTINUOUS, PRESENT_SIMPLE, PAST],
     reason: PRESENT_CONTINUOUS,
-    explanation: '_Look!_ : ce qui se passe maintenant, présent continu.',
+    explanation: '_At the moment_ : une évolution en cours en ce moment, présent continu.',
   }),
   choice(10, {
     sentence: 'I ___ him yesterday at the conference.',
@@ -319,7 +319,6 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'She usually works in Geneva, but she’s working in London this week.',
       'She normally works in Geneva, but this week she’s working in London.',
     ],
-    knownErrors: ['She usually is working in Geneva, but this week she’s working in London.'],
     explanation: 'Habitude : présent simple. Exception temporaire : présent continu.',
   }),
   translate(9, {

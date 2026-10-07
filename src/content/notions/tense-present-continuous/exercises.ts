@@ -28,12 +28,13 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'On demande de rappeler plus tard : la présentation a lieu en ce moment. Forme : _is_ + _giving_.',
   }),
   choice(2, {
-    sentence: 'Look at the screen: the share price ___ very quickly.',
+    sentence: 'The share price ___ steadily at the moment, so we’re waiting before we buy.',
     options: ['is falling', 'falls', 'falling'],
     answer: 'is falling',
     reasons: [TREND, HABIT, FINISHED],
     reason: TREND,
-    explanation: 'Le cours baisse peu à peu, sous nos yeux : c’est une évolution en cours.',
+    explanation:
+      '_At the moment_ : le cours baisse peu à peu, en ce moment. C’est une évolution en cours.',
   }),
   choice(3, {
     sentence: 'I ___ from home this week because our office is closed.',
