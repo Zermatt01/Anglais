@@ -6,7 +6,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 **Revues** (D-059) : chaque phase reçoit une revue de Codex, puis au plus une contre-revue des corrections, sauf s'il reste un point bloquant.
 
-**Phase en cours : phase 3, à l'arrêt.** Le développement est terminé (lancé le 2026-09-30, avec l'accord de l'utilisateur), les deux revues de Codex sont traitées et l'échantillon est relu (D-081). Reste au plus une contre-revue des corrections (D-059). La phase 4 attend l'accord de l'utilisateur.
+**Phase en cours : aucune.** La phase 3 est terminée (lancée le 2026-09-30, close le 2026-10-07) : revues et contre-revues de Codex traitées (D-081, D-082), échantillon relu par l'utilisateur. La phase 4 attend l'accord de l'utilisateur.
 
 ---
 
@@ -78,7 +78,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 - [x] Revue de Codex dédiée à la justesse de l'anglais traitée (D-081) : présent simple de commentaire, présent continu d'habitude, variantes américaines, leçon du futur
 - [x] Relecture par l'utilisateur d'un échantillon d'exercices : rien à signaler (2026-10-07)
 - [x] Résultat d'un exercice affiché seulement une fois la réponse enregistrée, brouillon gardé jusque-là (D-081)
-- [ ] Contre-revue de Codex des corrections, si nécessaire (D-059)
+- [x] Contre-revues de Codex traitées (D-082) : _It rains!_ en erreur anticipée, brouillon d'une réponse tapée supprimé dans la transaction de la réponse
 
 ## Phase 4 — Production écrite
 

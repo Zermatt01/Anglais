@@ -89,6 +89,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-079 | Génération d'exercices par l'IA                          | IA et coûts | À calibrer (P5)  |
 | D-080 | Relecture séparée du socle de la phase 3                 | Pédagogie   | Précisée (D-081) |
 | D-081 | Revues de la phase 3                                     | Transverse  | Actée            |
+| D-082 | Contre-revues de la phase 3                              | Transverse  | Actée            |
 
 ---
 
@@ -820,3 +821,10 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 - **Résultat affiché seulement une fois la réponse enregistrée (NO-06).** Question de l'utilisateur. « Juste ! » s'affichait avant la fin de l'écriture, et le brouillon d'une réponse tapée était effacé au même moment. Fermer l'app dans cet intervalle (quelques millisecondes, davantage sur un téléphone lent) pouvait perdre la réponse et le texte tapé. Un échec d'écriture laissait « Juste ! » affiché, sans enregistrement ni moyen de réessayer. Désormais, le résultat ne s'affiche qu'une fois la réponse enregistrée, le brouillon n'est effacé qu'ensuite, et un échec affiche « Réponse non enregistrée » avec « Réessayer ».
 - **Test e2e instable sur la CI.** Le test du parcours rechargeait la page dès « Juste ! ». Sur la CI, le rechargement a pu interrompre l'écriture (cause probable, non reproduite en local). Le test attend désormais l'enregistrement, et le point précédent supprime la cause dans l'app elle-même.
 - **Taille.** Le plus gros fichier JavaScript passe de 287 à 298 kB, car les combinaisons de raisons sont lues par le dépôt ; il reste sous le seuil de Vite, qui n'est pas relevé.
+
+### D-082 — Contre-revues de la phase 3 (2026-10-07, complète D-081)
+
+- **Contexte.** Les deux contre-revues de Codex, code et anglais, valident les corrections de D-081 et relèvent deux points mineurs, vérifiés puis corrigés sans nouvelle revue.
+- **Décision.**
+  1. **« Regarde, il pleut ! »** (`tense-present-continuous/s4/02`). _It rains!_, sans _Look_, était « non prévu » alors que _Look, it rains!_ était une erreur anticipée. _It rains!_ et _It rains, look!_ deviennent des erreurs anticipées : dans une phrase ordinaire sur la météo, le présent simple ne décrit pas la pluie qui tombe en ce moment, quelle que soit la lecture (D-035, avec la précision de l'utilisateur de D-081).
+  2. **Brouillon d'une réponse tapée (NO-06).** Après l'enregistrement de la réponse, le brouillon était supprimé à part, sans traitement d'un échec. Une suppression ratée, ou l'app fermée entre les deux écritures, laissait le brouillon, qui réapparaissait quand le même exercice revenait. Une sauvegarde différée de la frappe pouvait aussi le recréer juste après. Désormais, le brouillon est supprimé **dans la même transaction** que la réponse et la progression : les deux réussissent ou échouent ensemble, et une fermeture ne peut plus les séparer. La frappe en attente est enregistrée avant cette transaction, pour qu'aucune sauvegarde tardive ne recrée le brouillon. Ensuite, le champ est seulement remis à zéro, sans nouvelle écriture. Un échec n'enregistre rien, ni réponse ni suppression. « Réessayer » relance donc une réponse qui n'a pas été enregistrée, sans risque de doublon.
