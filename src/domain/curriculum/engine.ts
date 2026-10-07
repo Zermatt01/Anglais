@@ -50,6 +50,8 @@ export type ProgressEvent =
   /** Repeated failures at step 2: the lesson is suggested, nothing is imposed. */
   | { readonly type: 'lesson-suggested' }
   | { readonly type: 'acquired' }
+  /** A lacuna on a notion to consolidate or acquired: back to step 3 (PEDAGOGY §4.2). */
+  | { readonly type: 'regressed' }
   | { readonly type: 'placed' }
   | { readonly type: 'started' };
 
@@ -239,6 +241,48 @@ export function afterProduction(
   return {
     progress: { ...progress, status: 'acquired', recall: null, acquiredAt: now },
     event: { type: 'acquired' },
+    changed: true,
+  };
+}
+
+/**
+ * A notion is studied from step 4 on: it is practised in production, like on
+ * a card or in the Thème (PEDAGOGY §4.1, D-023, D-025).
+ */
+export function isNotionStudied(progress: NotionProgressValues | null | undefined): boolean {
+  if (progress === null || progress === undefined) return false;
+  switch (progress.status) {
+    case 'not_started':
+      return false;
+    case 'to_consolidate':
+    case 'acquired':
+      return true;
+    case 'in_progress':
+      return progress.step >= 4;
+  }
+}
+
+/**
+ * A lacuna on a notion to consolidate or acquired sends it back to step 3
+ * (PEDAGOGY §4.2). A notion in progress keeps its step: its own fallback
+ * criteria apply.
+ */
+export function regressAfterLacuna(
+  progress: NotionProgressValues | null,
+  now: number,
+): Transition | null {
+  if (progress === null) return null;
+  if (progress.status !== 'to_consolidate' && progress.status !== 'acquired') return null;
+  return {
+    progress: {
+      ...progress,
+      status: 'in_progress',
+      step: 3,
+      recall: null,
+      stepEnteredAt: now,
+      lastRegressionAt: now,
+    },
+    event: { type: 'regressed' },
     changed: true,
   };
 }

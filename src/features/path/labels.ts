@@ -63,6 +63,11 @@ export function eventMessage(event: ProgressEvent): { title: string; body: strin
       };
     case 'acquired':
       return { title: 'Notion acquise', body: 'Elle entre dans tes révisions.' };
+    case 'regressed':
+      return {
+        title: 'Une révision guidée',
+        body: 'Cette notion mérite une révision guidée ; elle est remise en tête de ton parcours.',
+      };
     case 'placed':
     case 'started':
       return null;
