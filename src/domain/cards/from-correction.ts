@@ -152,3 +152,39 @@ export function errorCardDrafts({
   }
   return drafts;
 }
+
+/**
+ * Card of an answer that matches an anticipated error of a reviewed sentence
+ * (a Thème sentence): its meaning, hint and answers are reviewed content, and
+ * the previous attempt is the learner's answer. `null` when not solvable.
+ */
+export function knownErrorCardContent({
+  meaningFr,
+  hint,
+  attempt,
+  category,
+  notionId,
+  accepted,
+}: {
+  readonly meaningFr: string;
+  readonly hint: string;
+  readonly attempt: string;
+  readonly category: ErrorCategory;
+  readonly notionId: ErrorCardContent['notionId'];
+  /** Canonical answer first. */
+  readonly accepted: readonly string[];
+}): ErrorCardContent | null {
+  const [canonical, ...variants] = accepted;
+  if (canonical === undefined) return null;
+  const content: ErrorCardContent = {
+    type: 'error',
+    meaningFr,
+    hint,
+    previousAttempt: attempt,
+    highlights: [],
+    category,
+    notionId,
+    answers: { canonical, variants: distinctAnswers(canonical, variants) },
+  };
+  return isCardSolvable(content).solvable ? content : null;
+}
