@@ -96,7 +96,8 @@ vercel.json       En-têtes de sécurité et réécritures (§9)
 shared/
   ai/             Contrat IA partagé client ↔ Edge Function : tasks.ts (tâches, schémas
                   d'entrée et de sortie), protocol.ts (requêtes, réponses, erreurs, consommation),
-                  models.ts, pricing.ts, prompts/ (versionnés, jamais importés par le client)
+                  models.ts, pricing.ts, reasons.ts (combinaisons de raisons relues, D-081),
+                  prompts/ (versionnés, jamais importés par le client)
 supabase/
   config.toml     Réglages de la CLI : fonction « ai », carte d'imports
   migrations/     SQL versionné : synchronisation, journal des appels IA (RLS, droits, fonctions)
@@ -446,7 +447,7 @@ Détails :
 - **Erreurs.** Chaque refus a un code (`protocol.ts`) et un message en français (`src/features/ai/messages.ts`).
 - **Hors ligne.** Le bouton d'action IA reste visible mais inactif, avec la mention : « Connexion nécessaire pour la correction. Ta réponse est enregistrée. »
 - **Phase 2.** La tâche `connection-check` : un appel minimal, lancé par le bouton « Tester la connexion » de l'écran Consommation, qui vérifie toute la chaîne (D-066).
-- **Phase 3.** La tâche `generate-exercises` (D-079), sur le bouton « Créer 6 exercices avec l'IA », proposé quand tous les exercices d'une étape sont faits. Le client envoie la notion, l'étape, la variante, les domaines et les phrases déjà vues ; il vérifie chaque exercice reçu et ne garde que ceux qui passent `checkExercise`, stockés dans `generatedExercises` avec le modèle et la version du prompt.
+- **Phase 3.** La tâche `generate-exercises` (D-079), sur le bouton « Créer 6 exercices avec l'IA », proposé quand tous les exercices d'une étape sont faits. Le client envoie la notion, l'étape, la variante, les domaines et les phrases déjà vues ; il vérifie chaque exercice reçu et ne garde que ceux qui passent `checkExercise`, avec, pour un choix, l'une des combinaisons de raisons relues du socle (D-081). Ils sont stockés dans `generatedExercises` avec le modèle et la version du prompt, et revérifiés à chaque lecture : un exercice importé ou synchronisé qui échoue n'est jamais montré. Le coût affiché avant la demande est son maximum, nouvelle tentative comprise, et la réponse rapporte le coût de toutes les tentatives (D-081).
 
 ## 9. Sécurité
 

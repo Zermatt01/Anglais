@@ -6,7 +6,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 **Revues** (D-059) : chaque phase reçoit une revue de Codex, puis au plus une contre-revue des corrections, sauf s'il reste un point bloquant.
 
-**Phase en cours : phase 3, à l'arrêt.** Le développement est terminé (lancé le 2026-09-30, avec l'accord de l'utilisateur) ; restent les deux revues de Codex (code, puis justesse de l'anglais) et la relecture d'un échantillon par l'utilisateur. La phase 4 attend son accord.
+**Phase en cours : phase 3, à l'arrêt.** Le développement est terminé (lancé le 2026-09-30, avec l'accord de l'utilisateur), les deux revues de Codex sont traitées et l'échantillon est relu (D-081). Reste au plus une contre-revue des corrections (D-059). La phase 4 attend l'accord de l'utilisateur.
 
 ---
 
@@ -74,9 +74,11 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 - [x] Test automatique du socle (bien formé, résoluble, ≥ 1 réponse attendue, deux relectures ; les deux graphies de `CONTEXT_DEPENDENT_SPELLINGS` exigées dans les variantes, D-057)
 - [x] Relecture séparée de tout le contenu pédagogique (D-080)
 - [x] **Arrêt** : rapport de fin de phase ; actions de l'utilisateur : pousser le code, redéployer l'Edge Function, relire un échantillon (DEPLOYMENT.md, section 16)
-- [ ] Revue de Codex du code
-- [ ] Revue de Codex dédiée à la justesse de l'anglais (leçons, exemples, réponses attendues et variantes), distincte de la revue du code (D-059)
-- [ ] Relecture par l'utilisateur d'un échantillon d'exercices, avant de clore la phase (D-059)
+- [x] Revue de Codex du code traitée (D-081) : exercices générés vérifiés aussi à la lecture, combinaisons de raisons relues imposées à l'IA, positionnement qu'un échec d'enregistrement ne vide plus, coût affiché de la génération qui compte la nouvelle tentative
+- [x] Revue de Codex dédiée à la justesse de l'anglais traitée (D-081) : présent simple de commentaire, présent continu d'habitude, variantes américaines, leçon du futur
+- [x] Relecture par l'utilisateur d'un échantillon d'exercices : rien à signaler (2026-10-07)
+- [x] Résultat d'un exercice affiché seulement une fois la réponse enregistrée, brouillon gardé jusque-là (D-081)
+- [ ] Contre-revue de Codex des corrections, si nécessaire (D-059)
 
 ## Phase 4 — Production écrite
 

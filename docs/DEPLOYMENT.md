@@ -276,4 +276,4 @@ La phase 3 n'ajoute aucune migration ni aucun secret. Elle ajoute une tâche à 
    - En mode avion, les leçons et les exercices s'affichent, même ceux jamais ouverts : après la mise à jour, tout le Parcours est enregistré sur le téléphone.
 5. **Relire un échantillon** (D-059) : faire au moins la leçon et une dizaine d'exercices de trois notions, dont « _Just_, _already_, _yet_ et _still_ », et noter toute réponse attendue ou variante douteuse, avec la phrase concernée.
 
-La création d'exercices par l'IA n'apparaît qu'une fois tous les exercices d'une étape faits (au moins dix par étape). Chaque création coûte au plus 0,06 USD environ et apparaît dans **Réglages → Voir la consommation** (« Exercices générés »).
+La création d'exercices par l'IA n'apparaît qu'une fois tous les exercices d'une étape faits (au moins dix par étape). Chaque création coûte au plus 0,16 USD, nouvelle tentative comprise (en pratique bien moins), et apparaît dans **Réglages → Voir la consommation** (« Exercices générés »).
