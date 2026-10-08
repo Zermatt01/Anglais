@@ -8,7 +8,8 @@ import type { MessageCreateParamsNonStreaming } from '@anthropic-ai/sdk/resource
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { MODELS, TASK_SETTINGS, type TaskSettings } from '../_shared/ai/models.ts';
-import { TASK_CONTRACTS } from '../_shared/ai/tasks.ts';
+import { CORRECTION_EXAMPLES } from '../_shared/ai/prompts/correction-examples.ts';
+import { AI_TASK_NAMES, TASK_CONTRACTS } from '../_shared/ai/tasks.ts';
 import { createModelCaller, type MessageLike } from './model.ts';
 
 const USAGE = {
@@ -89,6 +90,42 @@ describe('parameters sent to the API', () => {
       output_config: { effort: 'low' },
     });
   });
+});
+
+/** Every object of a JSON schema forbids other properties, as structured outputs require. */
+function objectsAreClosed(node: unknown): boolean {
+  if (typeof node !== 'object' || node === null) return true;
+  if (Array.isArray(node)) return node.every(objectsAreClosed);
+  if (
+    Reflect.get(node, 'type') === 'object' &&
+    Reflect.get(node, 'additionalProperties') !== false
+  ) {
+    return false;
+  }
+  return Object.values(node).every(objectsAreClosed);
+}
+
+describe('output formats of every task (D-010, D-083)', () => {
+  it.each(AI_TASK_NAMES)('%s gives the API a closed JSON schema', async (task) => {
+    const { caller, received } = fakeApi(answer('{}'));
+    const outputOfTask: z.ZodType = TASK_CONTRACTS[task].output;
+    await caller.call({ ...request(TASK_SETTINGS[task]), outputSchema: outputOfTask });
+    const format: unknown = JSON.parse(JSON.stringify(received[0]?.output_config?.format));
+    expect(format).toMatchObject({ type: 'json_schema', schema: { type: 'object' } });
+    expect(objectsAreClosed(format)).toBe(true);
+  });
+
+  it.each(CORRECTION_EXAMPLES.map((example) => [example.title, example] as const))(
+    'reads the example "%s" as a valid correction',
+    async (_title, example) => {
+      const { caller } = fakeApi(answer(JSON.stringify(example.output)));
+      const result = await caller.call({
+        ...request(TASK_SETTINGS['correct-production']),
+        outputSchema: TASK_CONTRACTS['correct-production'].output,
+      });
+      expect(result.kind).toBe('ok');
+    },
+  );
 });
 
 describe('reading of the answer', () => {
