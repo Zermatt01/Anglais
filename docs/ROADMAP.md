@@ -6,7 +6,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 **Revues** (D-059) : chaque phase reçoit une revue de Codex, puis au plus une contre-revue des corrections, sauf s'il reste un point bloquant.
 
-**Phase en cours : 4, livrée et en attente de revue.** La phase 4 a été lancée le 2026-10-07 ; ses fonctionnalités sont livrées et toutes les vérifications passent. Restent la revue de Codex, les actions de l'utilisateur (section 17 de DEPLOYMENT.md) et la clôture.
+**Phase en cours : 4, revues traitées.** La phase 4 a été lancée le 2026-10-07 ; ses fonctionnalités sont livrées, les revues de Codex sont traitées (D-088) et toutes les vérifications passent. Restent la décision de l'utilisateur sur le point ouvert de D-088 et son accord pour la phase 5.
 
 ---
 
@@ -92,7 +92,10 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 - [x] Carnet de règles et Mon lexique (D-085)
 - [x] Tests : contrat IA, domaine, dépôts, écrans avec un faux serveur, e2e (journal corrigé puis carte revue, Thème hors ligne)
 - [x] **Arrêt** : rapport de fin de phase ; actions de l'utilisateur : pousser le code, redéployer l'Edge Function, essayer une correction (DEPLOYMENT.md, section 17)
-- [ ] Revue de Codex de la phase 4
+- [x] Revue de Codex du code traitée (D-088) : principe général (ce que dit l'IA ne change la progression qu'une fois vérifié par l'app), emploi de la notion de l'étape 5 prouvé par des motifs fermés, erreur introuvable sans effet, cartes faites de phrases entières avec une réponse calculée par l'app, enregistrement réessayé sans nouvel appel, temps d'une traduction compté une fois, coûts maximaux arrondis vers le haut ; prompt `correct-production@2`
+- [x] Revue de Codex dédiée à la justesse de l'anglais traitée (D-088) : consigne de for/since/ago t/02, réponse _How long have you been waiting for?_ retirée, virgules entre deux propositions, confiance et titre d'exemple du prompt ; erreurs anticipées avec _at the moment_ gardées
+- [x] Essai du Journal par l'utilisateur : rien à signaler (2026-10-08)
+- [ ] Décision de l'utilisateur sur les exercices créés par l'IA et les critères d'étape (D-088, point ouvert)
 
 ## Phase 5 — Qualité des corrections
 

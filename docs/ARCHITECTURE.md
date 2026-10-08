@@ -77,7 +77,8 @@ src/
                     curriculum/   catalogue fermé des notions, états, schéma des exercices et
                                   checkExercise, moteur des cinq étapes et du positionnement (P3),
                                   pratique immédiate (P4)
-                    production/   revue de la sortie du modèle, erreurs comptées, texte annoté (P4)
+                    production/   revue de la sortie du modèle, erreurs comptées, emploi de la
+                                  notion prouvé (notion-use.ts), texte annoté (P4)
                     errors/       règle lapsus/lacune, carnet de règles, points faibles (P4)
                     theme/        phrases du Thème, paliers, choix des phrases (P4)
                     session/      séance du jour (P4)
@@ -283,6 +284,7 @@ src/content/
     index.ts                Contenu de la notion, avec ses amorces de l'étape 5
   journal.ts                Questions du journal, en anglais avec leur sens en français (MOD-07, P4)
   taxonomy.ts               Libellé, définition et indice relu de chaque catégorie d'erreur (P4)
+  notion-use.ts             Constructions qui prouvent l'emploi d'une notion à l'étape 5 (D-088)
   index.ts                  Registre : ajouter une notion = ajouter un dossier + une ligne ici ; chaque
                             notion est un fichier séparé, chargé à la demande et validé (D-078)
 ```
@@ -356,13 +358,13 @@ Corriger localement tout ce qui peut l'être (COST-02) repose sur un moteur pur 
    - `incorrect` si la réponse correspond à une erreur connue de l'exercice ;
    - sinon `unknown`, réponse vide comprise. Seule une réponse `unknown` peut, **sur action explicite**, être envoyée au modèle (étape 4, cartes, CARD-05).
 
-Le même module fournit `containsInflectedPhrase` (`inflections.ts`), qui vérifie qu'un indice ne contient pas la réponse, même sous une autre forme (_meetings_ pour _meeting_, _go_ pour _went_) ; `isCardSolvable` et `checkExercise` s'en servent (DECISIONS D-047 et D-057). Deux mots ne sont rapprochés que s'ils appartiennent à une même famille d'une liste fermée (`word-families.ts`, D-072) : aucune terminaison n'est retirée par une règle.
+Le même module fournit `containsInflectedPhrase` (`inflections.ts`), qui vérifie qu'un indice ne contient pas la réponse, même sous une autre forme (_meetings_ pour _meeting_, _go_ pour _went_) ; `isCardSolvable` et `checkExercise` s'en servent (DECISIONS D-047 et D-057). Deux mots ne sont rapprochés que s'ils appartiennent à une même famille d'une liste fermée (`word-families.ts`, D-072) : aucune terminaison n'est retirée par une règle. `verb-forms.ts` lit les verbes de ces familles par rôle (base, troisième personne, prétérit, participe, forme en _-ing_) pour reconnaître une construction de l'étape 5 (D-088), jamais pour accepter une réponse.
 
 La **réparation des segments** IA (AI-07) vit aussi dans ce module. Un segment signalé par le modèle est recherché tel quel dans le texte :
 
 - s'il n'est pas trouvé tel quel, il est cherché en unifiant les apostrophes et guillemets typographiques, ce qui ne décale aucune position ;
 - s'il y a plusieurs occurrences, on retient la plus proche de la position proposée ;
-- s'il est introuvable, l'erreur est affichée sans surlignage ;
+- s'il est introuvable, l'erreur est affichée sans surlignage, comme un point à vérifier qui ne compte nulle part (D-088) ;
 - les positions sont des index en unités UTF-16, ceux des chaînes JavaScript.
 
 ## 7. Synchronisation
@@ -457,7 +459,7 @@ Détails :
 - **Hors ligne.** Le bouton d'action IA reste visible mais inactif, avec la mention : « Connexion nécessaire pour la correction. Ta réponse est enregistrée. »
 - **Phase 2.** La tâche `connection-check` : un appel minimal, lancé par le bouton « Tester la connexion » de l'écran Consommation, qui vérifie toute la chaîne (D-066).
 - **Phase 4.** Deux tâches (D-083), chacune sur un bouton, avec son coût maximal affiché :
-  - `correct-production` (« Corriger », Journal, Thème, étape 5, traduction non prévue de l'étape 4). La production est enregistrée avant l'appel ; le client envoie la consigne, la référence relue s'il y en a une, la notion visée, le profil de l'apprenant et le texte. La sortie est revalidée, puis revue (`src/domain/production`) : segments retrouvés dans le texte, « erreurs » qui sont la même réponse écartées, notes ramenées à leur échelle. Le dépôt des productions écrit ensuite, dans une seule transaction, la correction, les erreurs avec leur diagnostic, les cartes, la progression qui change et l'activité.
+  - `correct-production` (« Corriger », Journal, Thème, étape 5, traduction non prévue de l'étape 4). La production est enregistrée avant l'appel ; le client envoie la consigne, la référence relue s'il y en a une, la notion visée, le profil de l'apprenant et le texte. La sortie est revalidée, puis revue (`src/domain/production`) : segments retrouvés dans le texte, « erreurs » qui sont la même réponse écartées, phrases des cartes gardées seulement si elles sont entières et corrigées exactement de leurs erreurs (la réponse de la carte est calculée par le client), emploi de la notion de l'étape 5 prouvé par des motifs fermés (`notion-use.ts`, motifs dans `src/content/notion-use.ts`), notes ramenées à leur échelle. Rien de ce que dit le modèle ne change la progression sans cette vérification (D-088). Le dépôt des productions écrit ensuite, dans une seule transaction, la correction, les erreurs avec leur diagnostic, les cartes, la progression qui change et l'activité.
   - `check-card-answer` (« Faire vérifier par l'IA » dans les Reprises) : le modèle rapide classe une réponse inattendue ; l'apprenant confirme ensuite la note.
 - **Phase 3.** La tâche `generate-exercises` (D-079), sur le bouton « Créer 6 exercices avec l'IA », proposé quand tous les exercices d'une étape sont faits. Le client envoie la notion, l'étape, la variante, les domaines et les phrases déjà vues ; il vérifie chaque exercice reçu et ne garde que ceux qui passent `checkExercise`, avec, pour un choix, l'une des combinaisons de raisons relues du socle (D-081). Ils sont stockés dans `generatedExercises` avec le modèle et la version du prompt, et revérifiés à chaque lecture : un exercice importé ou synchronisé qui échoue n'est jamais montré. Le coût affiché avant la demande est son maximum, nouvelle tentative comprise, et la réponse rapporte le coût de toutes les tentatives (D-081).
 

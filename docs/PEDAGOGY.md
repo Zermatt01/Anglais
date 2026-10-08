@@ -90,7 +90,7 @@ Les valeurs par défaut sont les suivantes.
   - À l'étape 2, une réponse n'est bonne que si la forme **et** la raison sont justes.
   - À l'étape 4, une réponse compte comme bonne si elle ne contient **aucune erreur sur la notion ciblée** (réponse correcte ou acceptable). Les erreurs d'autres catégories sont traitées normalement (cartes, §4), mais ne bloquent pas la progression de la notion.
   - Une réponse obtenue après avoir demandé un indice compte comme **à moitié bonne** (0,5).
-- **Étape 5 → acquise** : **deux productions consécutives** qui emploient effectivement la notion **sans erreur sur cette notion** de gravité moyenne ou majeure. Les tournures « correctes mais pas naturelles » ne comptent jamais comme des erreurs.
+- **Étape 5 → acquise** : **deux productions consécutives** qui emploient effectivement la notion **sans erreur sur cette notion** de gravité moyenne ou majeure. Les tournures « correctes mais pas naturelles » ne comptent jamais comme des erreurs. L'emploi de la notion est **prouvé par l'application** : elle retrouve dans le texte les mots que lui indique le modèle et y reconnaît une construction de la notion (liste fermée). Une production dont l'emploi n'est pas prouvé ne compte ni pour ni contre la série (DECISIONS D-088).
 
 **Retour en arrière (échecs répétés) :**
 
@@ -135,7 +135,7 @@ Chaque erreur confirmée porte une catégorie et éventuellement un identifiant 
 
 Les erreurs d'une même production sur une même notion comptent pour **une seule** occurrence : trois fautes de temps dans un paragraphe relèvent d'un seul épisode, pas de trois.
 
-**Cartes** (DECISIONS D-085) : une carte par phrase fautive, qui surligne toutes ses erreurs comptées. Seule une erreur comptée fait une carte : gravité moyenne ou majeure, confiance moyenne ou élevée. Une faute mineure ou douteuse est montrée, sans carte.
+**Cartes** (DECISIONS D-085, D-088) : une carte par phrase fautive, qui surligne toutes ses erreurs comptées. Seule une erreur comptée fait une carte : gravité moyenne ou majeure, confiance moyenne ou élevée, segment retrouvé dans le texte. Une faute mineure, douteuse ou introuvable est montrée, sans carte ; une erreur douteuse ou introuvable est un « point à vérifier », qui ne compte nulle part. La réponse de la carte est calculée par l'application : la phrase entière de l'apprenant, avec les corrections de ses erreurs.
 
 ## 5. Feedback correctif et pratique immédiate
 

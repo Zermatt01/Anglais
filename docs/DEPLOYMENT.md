@@ -299,5 +299,13 @@ La phase 4 n'ajoute aucune migration ni aucun secret. Elle ajoute deux tâches �
    - **Accueil → Journal** : écris trois phrases, puis **Corriger mon texte**. Les passages à revoir s'affichent avec un indice ; corrige-les, puis **Vérifier mes corrections** : la correction, la version naturelle et l'expression du jour apparaissent. **Réglages → Voir la consommation** montre la ligne « Corrections ».
    - **Reprises** : une carte issue d'une erreur apparaît (sauf si sa notion n'est pas encore étudiée : elle attend l'étape « Traduire »). Réponds, puis confirme la note.
    - **Thème** : il s'ouvre dès qu'une notion atteint l'étape « Traduire » (ou après un test de positionnement réussi). Une réponse attendue est corrigée sans réseau.
-5. **Coûts** : une correction coûte en général 0,02 à 0,04 USD ; l'écran affiche avant chaque demande son maximum (0,18 USD, nouvelle tentative comprise). Une vérification de carte coûte moins d'un centime. Le plafond mensuel de l'Edge Function (10 USD par défaut, section 10) s'applique toujours.
+5. **Coûts** : une correction coûte en général 0,02 à 0,04 USD ; l'écran affiche avant chaque demande son maximum (0,18 USD, nouvelle tentative comprise). Une vérification de carte coûte moins d'un centime (affiché : au plus 0,05 USD). Le plafond mensuel de l'Edge Function (10 USD par défaut, section 10) s'applique toujours.
 6. **À relever pour la suite** : les corrections qui te semblent fausses (une phrase juste signalée, une mauvaise règle), avec la phrase concernée. Le bouton « Signaler » arrive en phase 5 ; d'ici là, note-les pour le banc d'essai.
+
+### Après la revue de la phase 4
+
+La revue passe le prompt de correction en version 2 (`correct-production@2`, DECISIONS D-088) : l'application et l'Edge Function doivent être mises à jour ensemble. Une ancienne Edge Function répondrait au format de la version 1, que la nouvelle application refuse (« La demande n'a pas été acceptée par le serveur »).
+
+1. `git push`, puis redéployer l'Edge Function : `npx supabase@2.118.0 functions deploy ai --use-api`.
+2. Sur le téléphone, **Mettre à jour**. Les corrections déjà reçues restent lisibles.
+3. **Étape « Produire »** : une production réussie l'est parce que l'application a reconnu la notion dans tes phrases. Sinon, l'écran dit que l'emploi n'a pas pu être vérifié, et la production ne compte ni pour ni contre l'étape. Si cela arrive alors que tu as bien employé la notion, note la phrase : la liste des formes reconnues s'étendra.
