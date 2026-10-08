@@ -24,7 +24,7 @@ import { NotFoundPage } from '../not-found/NotFoundPage.tsx';
 import { pathTo } from '../paths.ts';
 import { usePageTitle } from '../use-page-title.ts';
 import { ChoiceExercise } from './exercises/ChoiceExercise.tsx';
-import { TypedExercise } from './exercises/TypedExercise.tsx';
+import { TypedExercise, type AiCheckProps } from './exercises/TypedExercise.tsx';
 import type { SaveAnswer } from './exercises/types.ts';
 import { AiTranslationCheck } from './AiTranslationCheck.tsx';
 import { GenerateExercises } from './GenerateExercises.tsx';
@@ -247,6 +247,29 @@ function Session({
   const message =
     outcome.state === 'recorded' && outcome.event !== null ? eventMessage(outcome.event) : null;
   const reachedProduce = progress?.step === 5 && progress.status !== 'acquired';
+  // A translation that matches no expected answer may be checked by the model (D-076).
+  const translation =
+    shown?.item.exercise.kind === 'translate'
+      ? { item: shown.item, exercise: shown.item.exercise }
+      : null;
+  const aiCheck =
+    translation === null || shown === null
+      ? undefined
+      : (check: AiCheckProps) => (
+          <AiTranslationCheck
+            {...check}
+            notionId={notionId}
+            exercise={translation.exercise}
+            exerciseId={translation.item.id}
+            source={translation.item.source}
+            shownAt={shown.shownAt}
+            draftKey={draftKeyOf(translation.item)}
+            context="path"
+            onRecorded={(events) => {
+              setOutcome({ state: 'recorded', event: events.at(-1) ?? null });
+            }}
+          />
+        );
 
   return (
     <>
@@ -283,26 +306,7 @@ function Session({
                 exercise={shown.item.exercise}
                 draftKey={draftKeyOf(shown.item)}
                 onAnswered={record}
-                aiCheck={
-                  shown.item.exercise.kind === 'translate'
-                    ? (check) =>
-                        shown.item.exercise.kind === 'translate' ? (
-                          <AiTranslationCheck
-                            {...check}
-                            notionId={notionId}
-                            exercise={shown.item.exercise}
-                            exerciseId={shown.item.id}
-                            source={shown.item.source}
-                            shownAt={shown.shownAt}
-                            draftKey={draftKeyOf(shown.item)}
-                            context="path"
-                            onRecorded={(events) => {
-                              setOutcome({ state: 'recorded', event: events.at(-1) ?? null });
-                            }}
-                          />
-                        ) : null
-                    : undefined
-                }
+                aiCheck={aiCheck}
               />
             )}
           </>
