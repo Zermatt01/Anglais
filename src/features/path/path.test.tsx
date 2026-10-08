@@ -5,6 +5,7 @@ import { loadNotionContent } from '../../content/index.ts';
 import type { NotionContent } from '../../content/schema.ts';
 import { writeRecord } from '../../data/records.ts';
 import { notStartedProgress } from '../../domain/curriculum/engine.ts';
+import { STEP_OF_KIND, type Exercise } from '../../domain/curriculum/exercise.ts';
 import type { NotionId } from '../../domain/curriculum/notion-id.ts';
 import type { NotionProgressValues } from '../../domain/curriculum/progress.ts';
 import type { SpeechSynthesizer } from '../../domain/speech.ts';
@@ -325,6 +326,63 @@ describe('exercise generation (CUR-07)', () => {
     );
     expect(await screen.findByText(/1 exercice\(s\) ajouté\(s\)/)).toBeInTheDocument();
     expect(fake.calls.run).toEqual(['generate-exercises']);
+  });
+
+  it('makes a failure on a created exercise a point to check, never counted (D-089)', async () => {
+    const services = await createTestServices();
+    await seedProgress(services, { step: 3 });
+    const exercise: Exercise = {
+      kind: 'fill-verb',
+      sentence: 'The analysts ___ the new dashboard this week.',
+      verb: 'test',
+      meaningFr: 'Les analystes testent le nouveau tableau de bord cette semaine.',
+      accepted: ['are testing'],
+      knownErrors: ['is testing'],
+      explanation: '_This week_ : situation temporaire.',
+    };
+    const stored = await services.generatedExercises.add({
+      notionId: NOTION,
+      exercises: [exercise],
+      model: 'claude-sonnet-5',
+      promptVersion: 'generate-exercises@1',
+    });
+    expect(stored).toHaveLength(1);
+    // Every core exercise of the step already seen: the created one comes first.
+    const { exercises } = await contentOf(NOTION);
+    for (const core of exercises.filter((entry) => entry.kind !== 'choice-with-reason')) {
+      await services.path.recordAnswer(
+        {
+          notionId: NOTION,
+          exerciseId: core.id,
+          source: 'core',
+          step: STEP_OF_KIND[core.kind],
+          answer: 'x',
+          result: 'correct',
+          grader: 'local',
+          hintUsed: false,
+          durationMs: 1_000,
+        },
+        undefined,
+        'immediate-practice',
+      );
+    }
+    await renderApp(`/parcours/${NOTION}/exercices`, services);
+    expect(await screen.findByText('Exercice créé par l’IA')).toBeInTheDocument();
+    const field = await screen.findByRole('textbox', { name: 'Ce qui manque' });
+    await waitFor(() => {
+      expect(field).toBeEnabled();
+    });
+    fireEvent.change(field, { target: { value: 'is testing' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Vérifier' }));
+    expect(await screen.findByText('Point à vérifier')).toBeInTheDocument();
+    expect(screen.getByText(/Réponse attendue/)).toBeInTheDocument();
+    expect(screen.getByText(/are testing/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Signaler cet exercice' })).toBeInTheDocument();
+    // The failure is kept, but the score of the step does not count it.
+    expect(screen.getByText(/Score : 0 sur 0/)).toBeInTheDocument();
+    expect(await services.path.attempts(NOTION)).toContainEqual(
+      expect.objectContaining({ source: 'generated', result: 'incorrect', context: 'path' }),
+    );
   });
 
   it('needs the network', async () => {

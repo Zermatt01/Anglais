@@ -15,6 +15,7 @@ import {
 import { STEP_OF_KIND, type Exercise } from '../../domain/curriculum/exercise.ts';
 import type { NotionId } from '../../domain/curriculum/notion-id.ts';
 import type { NotionProgressValues, Step } from '../../domain/curriculum/progress.ts';
+import type { AnswerResult } from '../../domain/taxonomy.ts';
 import { Button } from '../../ui/Button.tsx';
 import { Notice } from '../../ui/Notice.tsx';
 import { Page, Sheet } from '../../ui/Page.tsx';
@@ -28,6 +29,7 @@ import { TypedExercise, type AiCheckProps } from './exercises/TypedExercise.tsx'
 import type { SaveAnswer } from './exercises/types.ts';
 import { AiTranslationCheck } from './AiTranslationCheck.tsx';
 import { GenerateExercises } from './GenerateExercises.tsx';
+import { GeneratedFailureNotice } from './GeneratedFailureNotice.tsx';
 import { eventMessage, stepName } from './labels.ts';
 import { useNotionAttempts, useNotionContent, useNotionProgress } from './use-path.ts';
 import { useNotionParam } from './use-notion-param.ts';
@@ -108,10 +110,16 @@ function PracticeView({ notionId }: { readonly notionId: NotionId }) {
   const progress = stored?.state === 'valid' ? stored.values : null;
   const target = targetOf(progress);
   const step = 'step' in target ? target.step : null;
-  const generated = useLiveQuery(
-    () => (step === null ? [] : generatedExercises.active(notionId, step)),
+  // Tagged with its step: a list read before the progress, or for another step, is
+  // never taken for this one, and the first exercise is chosen among all of them.
+  const created = useLiveQuery(
+    async () => ({
+      step,
+      documents: step === null ? [] : await generatedExercises.active(notionId, step),
+    }),
     [generatedExercises, notionId, step],
   );
+  const generated = stored === undefined || created?.step !== step ? undefined : created.documents;
   const title = <RichText text={NOTION_TITLES[notionId]} />;
   const back = <Link to={pathTo.notion(notionId)}>Retour à la notion</Link>;
 
@@ -212,7 +220,11 @@ function Session({
   const [generated, setGenerated] = useState<string | null>(null);
   const [outcome, setOutcome] = useState<
     | { readonly state: 'idle' }
-    | { readonly state: 'recorded'; readonly event: ProgressEvent | null }
+    | {
+        readonly state: 'recorded';
+        readonly event: ProgressEvent | null;
+        readonly result: AnswerResult;
+      }
   >({ state: 'idle' });
 
   const next = () => {
@@ -236,7 +248,7 @@ function Session({
       },
       typed ? draftKeyOf(shown.item) : undefined,
     );
-    setOutcome({ state: 'recorded', event: transition?.event ?? null });
+    setOutcome({ state: 'recorded', event: transition?.event ?? null, result: answer.result });
   };
 
   const standing = progress === null ? null : stepStanding(progress, pathAnswersOf(attempts));
@@ -265,8 +277,8 @@ function Session({
             shownAt={shown.shownAt}
             draftKey={draftKeyOf(translation.item)}
             context="path"
-            onRecorded={(events) => {
-              setOutcome({ state: 'recorded', event: events.at(-1) ?? null });
+            onRecorded={(events, result) => {
+              setOutcome({ state: 'recorded', event: events.at(-1) ?? null, result });
             }}
           />
         );
@@ -311,6 +323,11 @@ function Session({
             )}
           </>
         )}
+        {outcome.state === 'recorded' &&
+        outcome.result === 'incorrect' &&
+        shown?.item.source === 'generated' ? (
+          <GeneratedFailureNotice />
+        ) : null}
         {message === null ? null : (
           <Notice tone="success" title={message.title}>
             <p>{message.body}</p>

@@ -17,6 +17,11 @@
  *
  * Only answers given in the path count (context `path`); the counter of a step
  * is the set of its answers given since `stepEnteredAt`.
+ *
+ * Asymmetric trust in the exercises created by the model (D-089): their
+ * expected answers are not reviewed, so a success counts, but a failure never
+ * counts against the learner. It is left out of every rule: the pass, the
+ * repeated failures and the recall only read verifiable answers.
  */
 import type { AnswerResult } from '../taxonomy.ts';
 import type { NotionProgressValues, Step } from './progress.ts';
@@ -36,6 +41,16 @@ export interface PathAnswer {
   readonly step: Step;
   readonly result: AnswerResult;
   readonly hintUsed: boolean;
+  /** A core exercise, reviewed, or one created by the model. */
+  readonly source: 'core' | 'generated';
+}
+
+/**
+ * Whether an answer counts in the rules of the steps: always, except a failure
+ * on an exercise created by the model, which is a point to check (D-089).
+ */
+export function isVerifiableAnswer(answer: Pick<PathAnswer, 'result' | 'source'>): boolean {
+  return answer.source === 'core' || answer.result !== 'incorrect';
 }
 
 export type ProgressEvent =
@@ -115,19 +130,22 @@ export function finishLesson(
   };
 }
 
-/** Answers of the current step's counter, oldest first. */
+/** Verifiable answers of the current step's counter, oldest first. */
 export function answersOfCurrentStep(
   progress: NotionProgressValues,
   answers: readonly PathAnswer[],
 ): PathAnswer[] {
   return sortByTime(
     answers.filter(
-      (answer) => answer.step === progress.step && answer.at >= progress.stepEnteredAt,
+      (answer) =>
+        answer.step === progress.step &&
+        answer.at >= progress.stepEnteredAt &&
+        isVerifiableAnswer(answer),
     ),
   );
 }
 
-/** Answers of the current recall series, oldest first. */
+/** Verifiable answers of the current recall series, oldest first. */
 export function answersOfRecallSeries(
   progress: NotionProgressValues,
   answers: readonly PathAnswer[],
@@ -135,7 +153,10 @@ export function answersOfRecallSeries(
   const { recall } = progress;
   if (recall === null) return [];
   return sortByTime(
-    answers.filter((answer) => answer.step === recall.step && answer.at > recall.startedAt),
+    answers.filter(
+      (answer) =>
+        answer.step === recall.step && answer.at > recall.startedAt && isVerifiableAnswer(answer),
+    ),
   );
 }
 

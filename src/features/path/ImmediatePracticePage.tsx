@@ -17,6 +17,7 @@ import { NotFoundPage } from '../not-found/NotFoundPage.tsx';
 import { pathTo } from '../paths.ts';
 import { usePageTitle } from '../use-page-title.ts';
 import { AiTranslationCheck } from './AiTranslationCheck.tsx';
+import { GeneratedFailureNotice } from './GeneratedFailureNotice.tsx';
 import { TypedExercise } from './exercises/TypedExercise.tsx';
 import type { SaveAnswer } from './exercises/types.ts';
 import { useNotionAttempts, useNotionContent, useNotionProgress } from './use-path.ts';
@@ -27,6 +28,8 @@ interface PracticeItem {
   readonly id: string;
   readonly exercise: Exclude<Exercise, { kind: 'choice-with-reason' }>;
   readonly source: 'core' | 'generated';
+  /** Identifier of an exercise created by the model, to report it. */
+  readonly generatedId: string | null;
 }
 
 /**
@@ -88,6 +91,7 @@ function PracticeNow({ notionId }: { readonly notionId: NotionId }) {
       generated.map((document) => ({
         id: `generated/${document.id}`,
         exercise: document.exercise,
+        generatedId: document.id,
       })),
       attempts,
       clock.now(),
@@ -112,7 +116,11 @@ function PracticeNow({ notionId }: { readonly notionId: NotionId }) {
 
 function choosePlan(
   content: NotionContent,
-  generated: readonly { readonly id: string; readonly exercise: Exercise }[],
+  generated: readonly {
+    readonly id: string;
+    readonly exercise: Exercise;
+    readonly generatedId: string;
+  }[],
   attempts: readonly ExerciseAttempt[],
   now: number,
 ): PracticeItem[] {
@@ -121,12 +129,20 @@ function choosePlan(
       id: exercise.id,
       exercise,
       source: 'core' as const,
+      generatedId: null,
     })),
     ...generated.map((entry) => ({ ...entry, source: 'generated' as const })),
   ].flatMap((entry) =>
     entry.exercise.kind === 'choice-with-reason'
       ? []
-      : [{ id: entry.id, exercise: entry.exercise, source: entry.source }],
+      : [
+          {
+            id: entry.id,
+            exercise: entry.exercise,
+            source: entry.source,
+            generatedId: entry.generatedId,
+          },
+        ],
   );
   const ofStep = (step: number) =>
     all.filter((entry) => STEP_OF_KIND[entry.exercise.kind] === step).map((entry) => entry.id);
@@ -146,10 +162,11 @@ function Run({
   readonly notionId: NotionId;
   readonly items: readonly PracticeItem[];
 }) {
-  const { path, clock } = useAppServices();
+  const { path, generatedExercises, clock } = useAppServices();
   const navigate = useNavigate();
   const [index, setIndex] = useState(0);
   const [recorded, setRecorded] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [shownAt, setShownAt] = useState(() => clock.now());
   const item = items[index];
 
@@ -187,11 +204,20 @@ function Run({
       draftKey,
       'immediate-practice',
     );
+    setFailed(answer.result === 'incorrect');
     setRecorded(true);
+  };
+
+  const nextExercise = () => {
+    setRecorded(false);
+    setFailed(false);
+    setShownAt(clock.now());
+    setIndex(index + 1);
   };
 
   return (
     <Sheet title={`Exercice ${String(index + 1)} sur ${String(items.length)}`}>
+      {item.source === 'generated' ? <p className="badge">Exercice créé par l’IA</p> : null}
       <TypedExercise
         key={item.id}
         exercise={item.exercise}
@@ -210,7 +236,8 @@ function Run({
                     shownAt={shownAt}
                     draftKey={draftKey}
                     context="immediate-practice"
-                    onRecorded={() => {
+                    onRecorded={(_events, result) => {
+                      setFailed(result === 'incorrect');
                       setRecorded(true);
                     }}
                   />
@@ -218,15 +245,10 @@ function Run({
             : undefined
         }
       />
+      {recorded && failed && item.source === 'generated' ? <GeneratedFailureNotice /> : null}
       <div className="button-row">
         {recorded ? (
-          <Button
-            onClick={() => {
-              setRecorded(false);
-              setShownAt(clock.now());
-              setIndex(index + 1);
-            }}
-          >
+          <Button onClick={nextExercise}>
             {index + 1 < items.length ? 'Exercice suivant' : 'Terminer'}
           </Button>
         ) : (
@@ -239,6 +261,17 @@ function Run({
             Passer la pratique
           </Button>
         )}
+        {recorded && item.generatedId !== null ? (
+          <Button
+            variant="secondary"
+            onClick={() => {
+              const id = item.generatedId;
+              if (id !== null) void generatedExercises.report(id).then(nextExercise);
+            }}
+          >
+            Signaler cet exercice
+          </Button>
+        ) : null}
       </div>
     </Sheet>
   );

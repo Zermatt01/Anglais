@@ -178,8 +178,9 @@ export function GenerateExercises({
         {`L’IA peut en créer ${String(GENERATED_EXERCISES_PER_CALL)} nouveaux. Chacun est vérifié automatiquement, puis conservé sur ce téléphone : il ne sera jamais recréé. Coût : au plus ${formatMaxUsd(MAX_COST_USD)} environ.`}
       </p>
       <p className="muted">
-        Contrairement aux autres exercices, ceux-ci n’ont pas été relus par une personne : tu
-        pourras signaler ceux qui te semblent faux.
+        Contrairement aux autres exercices, ceux-ci n’ont pas été relus par une personne : une
+        réussite compte pour l’étape, un échec jamais, et tu pourras signaler ceux qui te semblent
+        faux.
       </p>
       {generation.state === 'done' ? (
         <Notice tone={generation.added > 0 ? 'success' : 'info'} title="Exercices créés">

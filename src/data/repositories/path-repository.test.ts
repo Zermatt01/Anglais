@@ -58,6 +58,25 @@ describe('createPathRepository', () => {
     expect(await path.attempts(NOTION)).toHaveLength(10);
   });
 
+  it('keeps the failures on exercises created by the model, but never counts them (D-089)', async () => {
+    const { path, clock } = await setup();
+    await path.finishLesson(NOTION);
+    let last = null;
+    for (let number = 1; number <= 6; number += 1) {
+      clock.advance(1_000);
+      last = await path.recordAnswer({ ...answer(2, false, number), source: 'generated' });
+    }
+    // Six failures: no lesson suggested, since none of them is verifiable.
+    expect(last?.transition).toBeNull();
+    expect(await path.attempts(NOTION)).toHaveLength(6);
+    for (let number = 1; number <= 10; number += 1) {
+      clock.advance(1_000);
+      last = await path.recordAnswer({ ...answer(2, true, number), source: 'generated' });
+    }
+    // Its successes count: ten good answers pass the step.
+    expect(last?.transition?.event).toEqual({ type: 'step-passed', from: 2, to: 3 });
+  });
+
   it('starts a recall of the previous step after repeated failures', async () => {
     const { path, clock } = await setup();
     await path.finishLesson(NOTION);

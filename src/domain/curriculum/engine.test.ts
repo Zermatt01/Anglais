@@ -7,6 +7,7 @@ import {
   applyPlacement,
   finishLesson,
   isPlacementPassed,
+  isVerifiableAnswer,
   isPoolExhausted,
   isStep5Complete,
   notStartedProgress,
@@ -26,13 +27,17 @@ function progressAt(
   return { ...notStartedProgress(T0), status: 'in_progress', step, ...overrides };
 }
 
-/** Answers of `step`, one per second after `start`: `1` right, `0` wrong, `h` right with a hint. */
+/**
+ * Answers of `step`, one per second after `start`: `1` right, `0` wrong, `h`
+ * right with a hint; `G` right and `X` wrong on an exercise created by the model.
+ */
 function answers(step: Step, pattern: string, start = T0 + 1_000): PathAnswer[] {
   return Array.from(pattern, (mark, index) => ({
     at: start + index * 1_000,
     step,
-    result: mark === '0' ? 'incorrect' : 'correct',
+    result: mark === '0' || mark === 'X' ? 'incorrect' : 'correct',
     hintUsed: mark === 'h',
+    source: mark === 'G' || mark === 'X' ? 'generated' : 'core',
   }));
 }
 
@@ -64,10 +69,57 @@ describe('starting a notion and reading its lesson', () => {
 
 describe('answerScore', () => {
   it('counts a hinted answer as half a good answer (PEDAGOGY §3.3)', () => {
-    expect(answerScore({ at: 0, step: 4, result: 'correct', hintUsed: false })).toBe(1);
-    expect(answerScore({ at: 0, step: 4, result: 'acceptable', hintUsed: false })).toBe(1);
-    expect(answerScore({ at: 0, step: 4, result: 'correct', hintUsed: true })).toBe(0.5);
-    expect(answerScore({ at: 0, step: 4, result: 'incorrect', hintUsed: true })).toBe(0);
+    const base = { at: 0, step: 4, source: 'core' } as const;
+    expect(answerScore({ ...base, result: 'correct', hintUsed: false })).toBe(1);
+    expect(answerScore({ ...base, result: 'acceptable', hintUsed: false })).toBe(1);
+    expect(answerScore({ ...base, result: 'correct', hintUsed: true })).toBe(0.5);
+    expect(answerScore({ ...base, result: 'incorrect', hintUsed: true })).toBe(0);
+  });
+});
+
+describe('asymmetric trust in the exercises created by the model (D-089)', () => {
+  it('counts a success on a created exercise, never a failure', () => {
+    expect(isVerifiableAnswer({ source: 'generated', result: 'correct' })).toBe(true);
+    expect(isVerifiableAnswer({ source: 'generated', result: 'acceptable' })).toBe(true);
+    expect(isVerifiableAnswer({ source: 'generated', result: 'incorrect' })).toBe(false);
+    expect(isVerifiableAnswer({ source: 'core', result: 'incorrect' })).toBe(true);
+  });
+
+  it('passes a step with successes on created exercises, whatever their failures', () => {
+    // Eight core successes and two created ones, among four failures on created exercises.
+    const result = afterPathAnswer(progressAt(3), answers(3, '1111XX1111XXGG'), NOW);
+    expect(result?.event).toEqual({ type: 'step-passed', from: 3, to: 4 });
+  });
+
+  it('never counts the failures on created exercises in the window of the pass', () => {
+    // Core: 7 good out of the last 10 verifiable answers; the created failures change nothing.
+    expect(afterPathAnswer(progressAt(3), answers(3, '1110111X0X1X0'), NOW)).toBeNull();
+    expect(stepStanding(progressAt(3), answers(3, '11XX0'))).toEqual({
+      counted: 3,
+      window: 10,
+      score: 2,
+      needed: 8,
+    });
+  });
+
+  it('never starts a recall, nor suggests the lesson, from failures on created exercises', () => {
+    expect(afterPathAnswer(progressAt(3), answers(3, 'XXXXXX'), NOW)).toBeNull();
+    expect(afterPathAnswer(progressAt(2), answers(2, 'XXXX11'), NOW)).toBeNull();
+    // Core failures still count: four among the last six verifiable answers.
+    expect(afterPathAnswer(progressAt(3), answers(3, '1X00X001'), NOW)?.event).toEqual({
+      type: 'recall-started',
+      step: 2,
+    });
+  });
+
+  it('leaves the failures on created exercises out of a recall series', () => {
+    const recallStart = T0 + 50_000;
+    const inRecall = progressAt(4, { recall: { step: 3, startedAt: recallStart } });
+    expect(afterPathAnswer(inRecall, answers(3, '11X1X', recallStart + 1), NOW)).toBeNull();
+    expect(afterPathAnswer(inRecall, answers(3, '11X1XG1', recallStart + 1), NOW)?.event).toEqual({
+      type: 'recall-passed',
+      step: 4,
+    });
   });
 });
 

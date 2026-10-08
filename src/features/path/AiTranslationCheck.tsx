@@ -3,6 +3,7 @@ import { fallbackHintOf } from '../../content/taxonomy.ts';
 import type { ProgressEvent } from '../../domain/curriculum/engine.ts';
 import type { ExerciseOf } from '../../domain/curriculum/exercise.ts';
 import type { NotionId } from '../../domain/curriculum/notion-id.ts';
+import type { AnswerResult } from '../../domain/taxonomy.ts';
 import { Notice } from '../../ui/Notice.tsx';
 import { useAppServices } from '../app-services.ts';
 import { CorrectionAction } from '../correction/CorrectionAction.tsx';
@@ -18,8 +19,8 @@ interface AiTranslationCheckProps extends AiCheckProps {
   readonly shownAt: number;
   readonly draftKey: string;
   readonly context: 'path' | 'immediate-practice';
-  /** The answer is stored with its correction: the changes of the path it made. */
-  readonly onRecorded: (events: readonly ProgressEvent[]) => void;
+  /** The answer is stored with its correction: its result, and the changes of the path it made. */
+  readonly onRecorded: (events: readonly ProgressEvent[], result: AnswerResult) => void;
 }
 
 /**
@@ -80,7 +81,7 @@ export function AiTranslationCheck({
       },
     );
     if (run.state === 'done' && run.outcome.result !== null) {
-      onRecorded(run.outcome.events);
+      onRecorded(run.outcome.events, run.outcome.result);
       onChecked(run.outcome.result, id);
     }
   };

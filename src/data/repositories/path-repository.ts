@@ -100,7 +100,7 @@ export interface PathRepository {
 export function pathAnswersOf(attempts: readonly ExerciseAttempt[]): PathAnswer[] {
   return attempts
     .filter((attempt) => attempt.context === 'path')
-    .map(({ at, step, result, hintUsed }) => ({ at, step, result, hintUsed }));
+    .map(({ at, step, result, hintUsed, source }) => ({ at, step, result, hintUsed, source }));
 }
 
 /** Keeps the progress values of a document, without its storage envelope. */
