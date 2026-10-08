@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { NOTION_TITLES } from '../../content/catalog.ts';
+import { countableOf } from '../../data/schemas/errors.ts';
 import type { NotionId } from '../../domain/curriculum/notion-id.ts';
 import { RECENT_WINDOW_MS } from '../../domain/errors/statistics.ts';
 import { isCountedError } from '../../domain/production/correction.ts';
@@ -85,7 +86,7 @@ export function ThemePage() {
   }
   const recentErrors = new Map<NotionId, number>();
   for (const error of errors) {
-    if (error.notionId === null || !isCountedError(error) || error.reported) continue;
+    if (error.notionId === null || !isCountedError(countableOf(error)) || error.reported) continue;
     recentErrors.set(error.notionId, (recentErrors.get(error.notionId) ?? 0) + 1);
   }
   return (

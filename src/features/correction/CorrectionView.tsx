@@ -5,7 +5,7 @@ import { hasContent } from '../../content/index.ts';
 import { CATEGORY_TEXTS } from '../../content/taxonomy.ts';
 import { reviewedCorrectionOf } from '../../data/repositories/production-repository.ts';
 import type { CardDocument } from '../../data/schemas/cards.ts';
-import type { ErrorDocument } from '../../data/schemas/errors.ts';
+import { countableOf, type ErrorDocument } from '../../data/schemas/errors.ts';
 import type { ProductionDocument } from '../../data/schemas/productions.ts';
 import type { NotionId } from '../../domain/curriculum/notion-id.ts';
 import {
@@ -61,7 +61,8 @@ function errorMarks(correction: ReviewedCorrection, withUnnatural: boolean): Tex
 function practiceNotions(errors: readonly ErrorDocument[]) {
   const notions = new Map<NotionId, ErrorDocument['diagnosis']>();
   for (const error of errors) {
-    if (error.notionId === null || !isCountedError(error) || !hasContent(error.notionId)) continue;
+    if (error.notionId === null || !hasContent(error.notionId)) continue;
+    if (!isCountedError(countableOf(error))) continue;
     if (!notions.has(error.notionId)) notions.set(error.notionId, error.diagnosis);
   }
   return [...notions.entries()];
@@ -307,7 +308,12 @@ function Answer({
                   error={error}
                   attempt={attempts?.find((entry) => entry.errorIndex === error.index)?.text}
                 />
-                {error.confidence === 'low' ? (
+                {error.range === null ? (
+                  <p className="muted">
+                    Point à vérifier : ce passage n’a pas été retrouvé tel quel dans ton texte. Il
+                    ne compte pas dans tes erreurs.
+                  </p>
+                ) : error.confidence === 'low' ? (
                   <p className="muted">
                     Point à vérifier : l’IA n’en est pas sûre. Il ne compte pas dans tes erreurs.
                   </p>

@@ -3,9 +3,11 @@
  * category (MOD-10), and the weak spots given to the correction prompt so
  * that the model knows the learner (AI-02).
  *
- * Only counted errors are used (medium or major, not doubtful), never a
- * reported one: a false positive must not shape the learner's priorities.
+ * Only counted errors are used (medium or major, neither doubtful nor out of
+ * the text), never a reported one: a false positive must not shape the
+ * learner's priorities.
  */
+import type { TextRange } from '../correction/segments.ts';
 import type { NotionId } from '../curriculum/notion-id.ts';
 import { isCountedError } from '../production/correction.ts';
 import type { Confidence, ErrorCategory, Severity } from '../taxonomy.ts';
@@ -23,6 +25,8 @@ export interface ErrorRecord {
   readonly category: ErrorCategory;
   readonly notionId: NotionId | null;
   readonly segment: string;
+  /** Where the segment is in its production, or `null` when it was not found. */
+  readonly range: TextRange | null;
   readonly correction: string;
   readonly rule: string;
   readonly severity: Severity;

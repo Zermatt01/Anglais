@@ -39,6 +39,7 @@ import { diagnoseNotion, LACUNA_RULE, type Diagnosis } from '../../domain/errors
 import { nextUpdatedAt, type Clock } from '../../domain/primitives.ts';
 import {
   isCountedError,
+  isPointToCheck,
   isQualifyingError,
   productionCheckOf,
   reviewCorrection,
@@ -57,7 +58,7 @@ import type {
 import { recordActivity } from '../activity.ts';
 import type { AppDatabase } from '../database.ts';
 import { parseRecord, readRecord, writeRecord, type ParsedRecord } from '../records.ts';
-import type { ErrorDocument } from '../schemas/errors.ts';
+import { countableOf, type ErrorDocument } from '../schemas/errors.ts';
 import type { NotionProgressDocument } from '../schemas/notion-progress.ts';
 import type { ProductionDocument, ProductionModule } from '../schemas/productions.ts';
 import type { CardRepository } from './card-repository.ts';
@@ -192,9 +193,9 @@ interface CardToCreate {
   readonly primaryErrorIndex: number;
 }
 
-/** Result of a production graded by the model, outside the path. */
+/** Result of a production graded by the model, outside the path; points to check are left out. */
 function productionResult(correction: ReviewedCorrection): AnswerResult {
-  const errors = correction.errors.filter((error) => error.confidence !== 'low');
+  const errors = correction.errors.filter((error) => !isPointToCheck(error));
   if (errors.some(isCountedError)) return 'incorrect';
   return errors.length > 0 ? 'acceptable' : 'correct';
 }
@@ -311,7 +312,7 @@ export function createProductionRepository(
     for (const raw of raws) {
       const parsed = parseRecord('errors', raw);
       if (!parsed.ok || parsed.value.deletedAt !== null) continue;
-      if (isQualifyingError(parsed.value)) {
+      if (isQualifyingError(countableOf(parsed.value))) {
         occurrences.push({ productionId: parsed.value.productionId, at: parsed.value.at });
       }
     }

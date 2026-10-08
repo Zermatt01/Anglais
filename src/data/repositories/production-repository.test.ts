@@ -194,6 +194,26 @@ describe('production repository', () => {
     expect(await path.progress(NOTION)).toMatchObject({ values: { status: 'to_consolidate' } });
   });
 
+  it('keeps an error the app cannot find in the text as a point to check, counted nowhere (D-088)', async () => {
+    const { productions, path, clock } = await setup();
+    await path.recordPlacement(NOTION, [
+      { questionId: `${NOTION}/p/01`, answer: 'a', correct: true },
+      { questionId: `${NOTION}/p/02`, answer: 'a', correct: true },
+      { questionId: `${NOTION}/p/03`, answer: 'a', correct: true },
+    ]);
+    const unfound = output({ errors: [error({ segment: 'has finish' })], sentences: [] });
+    let last = null;
+    for (let day = 0; day < 3; day += 1) {
+      clock.advance(DAY);
+      const stored = await productions.submit(production({ module: 'theme' }));
+      last = await productions.applyCorrection(stored.id, received(unfound), context);
+      const [kept] = await productions.errorsOf(stored.id);
+      expect(kept).toMatchObject({ segment: { text: 'has finish', range: null }, diagnosis: null });
+    }
+    expect(last).toMatchObject({ result: 'correct', events: [], cardsCreated: 0 });
+    expect(await path.progress(NOTION)).toMatchObject({ values: { status: 'to_consolidate' } });
+  });
+
   it('applies a correction once only', async () => {
     const { productions, cards } = await setup();
     const stored = await productions.submit(production());

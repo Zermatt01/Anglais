@@ -36,3 +36,8 @@ export const errorDocumentSchema = z.strictObject({
   reported: z.boolean(),
 });
 export type ErrorDocument = z.infer<typeof errorDocumentSchema>;
+
+/** The facts of a stored error that decide whether it counts (`isCountedError`). */
+export function countableOf(error: ErrorDocument) {
+  return { ...error, range: error.segment.range };
+}

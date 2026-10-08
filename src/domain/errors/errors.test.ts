@@ -103,6 +103,7 @@ function record(fields: Partial<ErrorRecord>): ErrorRecord {
     category: 'temps_verbaux',
     notionId: 'tense-for-since-ago',
     segment: 'I work',
+    range: { start: 0, end: 6 },
     correction: 'I have worked',
     rule: 'Present perfect avec _since_.',
     severity: 'medium',
@@ -136,10 +137,15 @@ describe('ruleBook (MOD-10)', () => {
     expect(sheets[0]?.notions).toEqual(['nouns-articles']);
   });
 
-  it('leaves out minor, doubtful and reported errors', () => {
+  it('leaves out minor, doubtful, unfound and reported errors', () => {
     expect(
       ruleBook(
-        [record({ severity: 'minor' }), record({ confidence: 'low' }), record({ reported: true })],
+        [
+          record({ severity: 'minor' }),
+          record({ confidence: 'low' }),
+          record({ range: null }),
+          record({ reported: true }),
+        ],
         NOW,
       ),
     ).toEqual([]);

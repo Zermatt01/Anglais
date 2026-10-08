@@ -3,6 +3,7 @@ import {
   checkSelfCorrection,
   clampScore,
   isCountedError,
+  isPointToCheck,
   isQualifyingError,
   isSameAnswer,
   productionCheckOf,
@@ -212,19 +213,36 @@ describe('reviewCorrection (AI-07)', () => {
 });
 
 describe('counted and qualifying errors (PEDAGOGY §4.1, D-024)', () => {
+  const range = { start: 0, end: 4 };
+
   it.each([
     ['minor', 'high', false],
     ['medium', 'high', true],
     ['major', 'medium', true],
     ['major', 'low', false],
   ] as const)('a %s error of %s confidence counts: %s', (severity, confidence, counted) => {
-    expect(isCountedError({ severity, confidence })).toBe(counted);
+    expect(isCountedError({ severity, confidence, range })).toBe(counted);
+  });
+
+  it('never counts an error the app cannot find in the text, however sure the model is (D-088)', () => {
+    expect(isPointToCheck({ severity: 'major', confidence: 'high', range: null })).toBe(true);
+    expect(isCountedError({ severity: 'major', confidence: 'high', range: null })).toBe(false);
+    expect(
+      isQualifyingError({
+        severity: 'major',
+        confidence: 'high',
+        range: null,
+        confirmedByUser: true,
+        reported: false,
+      }),
+    ).toBe(false);
   });
 
   it('qualifies only a medium or major error that is certain or confirmed, and not reported', () => {
     const base = {
       severity: 'medium',
       confidence: 'high',
+      range,
       confirmedByUser: false,
       reported: false,
     } as const;
@@ -265,6 +283,11 @@ describe('results of the path', () => {
       }),
     );
     expect(translationResult(doubtful, target)).toBe('correct');
+    const unfound = reviewCorrection(
+      TEXT,
+      correction({ errors: [error({ segment: 'has present', correction: 'presented' })] }),
+    );
+    expect(translationResult(unfound, target)).toBe('correct');
     const minor = reviewCorrection(
       TEXT,
       correction({

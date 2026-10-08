@@ -8,7 +8,8 @@
  *   apostrophe) is not an error: dropped. A change of case or punctuation
  *   only is kept: it is what spelling and punctuation errors are about;
  * - a segment is searched in the learner's text, never taken from the model's
- *   offsets; one that cannot be found is shown without highlighting;
+ *   offsets; one that cannot be found is shown without highlighting, as a
+ *   point to check that counts nowhere (D-088);
  * - a sentence that cannot be found is kept out of the cards;
  * - scores are brought back to their scale.
  *
@@ -226,31 +227,41 @@ export function reviewCorrection(text: string, output: ModelCorrection): Reviewe
   };
 }
 
-/**
- * An error that counts: medium or major, and not doubtful. It makes cards and
- * counts in the statistics and the step criteria. A low-confidence error is
- * shown as a point to check, and never counts (AI-05).
- */
-export function isCountedError(error: {
+/** What decides whether an error counts: its severity, its confidence, and where it is. */
+export interface CountableError {
   readonly severity: Severity;
   readonly confidence: Confidence;
-}): boolean {
-  return error.severity !== 'minor' && error.confidence !== 'low';
+  /** `null` when the segment cannot be found in the text. */
+  readonly range: TextRange | null;
 }
 
 /**
- * A qualifying error (docs/PEDAGOGY.md §4.1, D-024): medium or major, with a
+ * A point to check: an error the model is not sure of (AI-05), or whose
+ * segment the app cannot find in the text (D-088). It is shown, and it counts
+ * nowhere: neither in a result, nor in the statistics, nor in a diagnosis.
+ */
+export function isPointToCheck(error: CountableError): boolean {
+  return error.range === null || error.confidence === 'low';
+}
+
+/**
+ * An error that counts: medium or major, and not a point to check. It makes
+ * cards and counts in the statistics and the step criteria.
+ */
+export function isCountedError(error: CountableError): boolean {
+  return error.severity !== 'minor' && !isPointToCheck(error);
+}
+
+/**
+ * A qualifying error (docs/PEDAGOGY.md §4.1, D-024): a counted error, with a
  * high confidence or confirmed by the learner, and not reported. Only these
  * can reveal a lacuna: a false positive never sends the learner back.
  */
-export function isQualifyingError(error: {
-  readonly severity: Severity;
-  readonly confidence: Confidence;
-  readonly confirmedByUser: boolean;
-  readonly reported: boolean;
-}): boolean {
+export function isQualifyingError(
+  error: CountableError & { readonly confirmedByUser: boolean; readonly reported: boolean },
+): boolean {
   return (
-    error.severity !== 'minor' &&
+    isCountedError(error) &&
     (error.confidence === 'high' || error.confirmedByUser) &&
     !error.reported
   );
@@ -259,13 +270,14 @@ export function isQualifyingError(error: {
 /**
  * Result of a translation of step 4 graded by the model (PEDAGOGY §3.3): good
  * when it has no counted error on the target notion. Errors of other notions
- * or minor ones make it "acceptable"; they are handled by the cards.
+ * or minor ones make it "acceptable"; they are handled by the cards. Points to
+ * check are left out.
  */
 export function translationResult(
   correction: ReviewedCorrection,
   targetNotionId: NotionId,
 ): AnswerResult {
-  const errors = correction.errors.filter((error) => error.confidence !== 'low');
+  const errors = correction.errors.filter((error) => !isPointToCheck(error));
   if (errors.some((error) => error.notionId === targetNotionId && isCountedError(error))) {
     return 'incorrect';
   }

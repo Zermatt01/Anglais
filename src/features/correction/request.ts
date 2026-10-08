@@ -37,6 +37,7 @@ export function errorRecordOf(error: ErrorDocument): ErrorRecord {
     category: error.category,
     notionId: error.notionId,
     segment: error.segment.text,
+    range: error.segment.range,
     correction: error.correction,
     rule: error.rule,
     severity: error.severity,
