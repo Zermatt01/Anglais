@@ -33,6 +33,8 @@ export function CorrectionAction({
   onCorrect,
 }: CorrectionActionProps) {
   const online = useOnline();
+  // A correction that came but could not be stored is stored again, without the network.
+  const answerKept = run.state === 'not-saved' && run.answerKept;
   if (!available) {
     return (
       <p className="muted">
@@ -51,24 +53,32 @@ export function CorrectionAction({
       ) : null}
       {run.state === 'not-saved' ? (
         <Notice tone="error" title="Correction non enregistrée">
-          <p>Le stockage du téléphone est peut-être plein. Libère de la place, puis réessaie.</p>
+          <p>
+            {answerKept
+              ? 'La correction est arrivée, mais le stockage du téléphone est peut-être plein. Libère de la place, puis réessaie : elle est gardée tant que cette page reste ouverte, et ne sera pas redemandée.'
+              : 'Le stockage du téléphone est peut-être plein. Libère de la place, puis réessaie.'}
+          </p>
         </Notice>
       ) : null}
-      {online ? (
+      {answerKept ? (
+        <p className="muted">Sans nouveau coût : la correction reçue est seulement enregistrée.</p>
+      ) : online ? (
         <p className="muted">{`Coût : au plus ${formatUsd(CORRECTION_MAX_COST_USD)}, en général bien moins.`}</p>
       ) : (
         <p className="muted">Connexion nécessaire pour la correction. Ton texte est enregistré.</p>
       )}
       <div className="button-row">
         <Button
-          disabled={disabled || !online || sending || run.state === 'running'}
+          disabled={disabled || (!online && !answerKept) || sending || run.state === 'running'}
           onClick={onCorrect}
         >
           {run.state === 'running' || sending
             ? 'Correction en cours…'
-            : run.state === 'failed' || run.state === 'not-saved'
-              ? 'Réessayer'
-              : label}
+            : answerKept
+              ? 'Réessayer l’enregistrement'
+              : run.state === 'failed' || run.state === 'not-saved'
+                ? 'Réessayer'
+                : label}
         </Button>
       </div>
     </>

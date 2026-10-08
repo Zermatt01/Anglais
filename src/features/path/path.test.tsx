@@ -296,6 +296,37 @@ describe('exercise generation (CUR-07)', () => {
     ]);
   });
 
+  it('stores again exercises it could not store, without asking the model again', async () => {
+    const run = vi.fn(() =>
+      Promise.resolve({
+        ok: true as const,
+        output: { exercises: generated },
+        costUsd: 0.021,
+        model: 'claude-sonnet-5',
+        promptVersion: 'generate-exercises@1',
+      }),
+    );
+    const fake = createFakeServer({ account: TEST_ACCOUNT, run });
+    const services = await createTestServices({ server: fake.server });
+    const add = services.generatedExercises.add.bind(services.generatedExercises);
+    let failures = 1;
+    const generatedExercises = {
+      ...services.generatedExercises,
+      add: (...args: Parameters<typeof add>) =>
+        failures-- > 0 ? Promise.reject(new Error('QuotaExceededError')) : add(...args),
+    };
+    await renderWithServices(<GenerateExercises notionId={NOTION} step={3} existing={[]} />, {
+      services: { ...services, generatedExercises },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Créer 6 exercices avec l’IA' }));
+    expect(await screen.findByText('Exercices non enregistrés')).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Réessayer l’enregistrement, sans nouveau coût' }),
+    );
+    expect(await screen.findByText(/1 exercice\(s\) ajouté\(s\)/)).toBeInTheDocument();
+    expect(fake.calls.run).toEqual(['generate-exercises']);
+  });
+
   it('needs the network', async () => {
     const fake = createFakeServer({ account: TEST_ACCOUNT });
     const services = await createTestServices({ server: fake.server, isOnline: () => false });

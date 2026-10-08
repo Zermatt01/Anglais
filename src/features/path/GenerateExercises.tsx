@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { TASK_SETTINGS } from '../../../shared/ai/models.ts';
 import { maxCostOfRequest } from '../../../shared/ai/pricing.ts';
@@ -57,7 +57,17 @@ type Generation =
       readonly costUsd: number;
     }
   | { readonly state: 'failed'; readonly error: AiClientError }
-  | { readonly state: 'not-saved' };
+  /** The exercises came, but could not be stored: they are kept, to store them again for free. */
+  | { readonly state: 'not-saved'; readonly received: Received };
+
+/** Exercises received and checked, before they are stored. */
+interface Received {
+  readonly exercises: readonly Exercise[];
+  readonly dropped: number;
+  readonly model: string;
+  readonly promptVersion: string;
+  readonly costUsd: number;
+}
 
 interface GenerateExercisesProps {
   readonly notionId: NotionId;
@@ -85,6 +95,8 @@ export function GenerateExercises({
   const settings = useSettings()?.values ?? DEFAULT_SETTINGS;
   const online = useOnline();
   const [generation, setGeneration] = useState<Generation>({ state: 'idle' });
+  // Set synchronously: a second tap on "Réessayer" never stores the exercises twice.
+  const storing = useRef(false);
 
   const generatedStep = step === 2 || step === 3 || step === 4 ? step : null;
   if (!isGeneratable(notionId) || generatedStep === null) return null;
@@ -123,25 +135,40 @@ export function GenerateExercises({
         generatedStep,
         existing,
       );
-      try {
-        const stored = await generatedExercises.add({
-          notionId,
-          exercises: checked.exercises,
-          model: result.model,
-          promptVersion: result.promptVersion,
-        });
-        const done = {
-          state: 'done',
-          added: stored.length,
-          dropped: result.output.exercises.length - stored.length,
-          costUsd: result.costUsd,
-        } as const;
-        setGeneration(done);
-        onGenerated?.(generationMessage(done));
-      } catch {
-        setGeneration({ state: 'not-saved' });
-      }
+      await store({
+        exercises: checked.exercises,
+        dropped: result.output.exercises.length - checked.exercises.length,
+        model: result.model,
+        promptVersion: result.promptVersion,
+        costUsd: result.costUsd,
+      });
     })();
+  };
+
+  /** Stores received exercises; after a failure they are kept, never asked for again. */
+  const store = async (received: Received) => {
+    if (storing.current) return;
+    storing.current = true;
+    try {
+      const stored = await generatedExercises.add({
+        notionId,
+        exercises: received.exercises,
+        model: received.model,
+        promptVersion: received.promptVersion,
+      });
+      const done = {
+        state: 'done',
+        added: stored.length,
+        dropped: received.dropped + received.exercises.length - stored.length,
+        costUsd: received.costUsd,
+      } as const;
+      setGeneration(done);
+      onGenerated?.(generationMessage(done));
+    } catch {
+      setGeneration({ state: 'not-saved', received });
+    } finally {
+      storing.current = false;
+    }
   };
 
   return (
@@ -166,16 +193,32 @@ export function GenerateExercises({
       ) : null}
       {generation.state === 'not-saved' ? (
         <Notice tone="error" title="Exercices non enregistrés">
-          <p>Le stockage du téléphone est peut-être plein. Libère de la place, puis réessaie.</p>
+          <p>
+            Les exercices sont arrivés, mais le stockage du téléphone est peut-être plein. Libère de
+            la place, puis réessaie : ils sont gardés tant que cette page reste ouverte, et ne
+            seront pas redemandés.
+          </p>
         </Notice>
       ) : null}
-      {online ? null : <p className="muted">Connexion nécessaire pour créer des exercices.</p>}
+      {online || generation.state === 'not-saved' ? null : (
+        <p className="muted">Connexion nécessaire pour créer des exercices.</p>
+      )}
       <div className="button-row">
-        <Button disabled={!online || generation.state === 'running'} onClick={generate}>
-          {generation.state === 'running'
-            ? 'Création en cours…'
-            : `Créer ${String(GENERATED_EXERCISES_PER_CALL)} exercices avec l’IA`}
-        </Button>
+        {generation.state === 'not-saved' ? (
+          <Button
+            onClick={() => {
+              void store(generation.received);
+            }}
+          >
+            Réessayer l’enregistrement, sans nouveau coût
+          </Button>
+        ) : (
+          <Button disabled={!online || generation.state === 'running'} onClick={generate}>
+            {generation.state === 'running'
+              ? 'Création en cours…'
+              : `Créer ${String(GENERATED_EXERCISES_PER_CALL)} exercices avec l’IA`}
+          </Button>
+        )}
       </div>
     </Sheet>
   );

@@ -116,6 +116,29 @@ describe('journal (MOD-07)', () => {
     expect(fake.calls.run).toEqual(['correct-production', 'correct-production']);
   });
 
+  it('stores again a correction it could not store, without asking the model again', async () => {
+    const { fake, services } = await servicesWith(() =>
+      Promise.resolve(answered(correctionOf(JOURNAL_TEXT, null))),
+    );
+    const apply = services.productions.applyCorrection.bind(services.productions);
+    let failures = 1;
+    const productions = {
+      ...services.productions,
+      applyCorrection: (...args: Parameters<typeof apply>) =>
+        failures-- > 0 ? Promise.reject(new Error('QuotaExceededError')) : apply(...args),
+    };
+    await renderApp('/journal', { ...services, productions });
+    await typeIn('Ton texte, en anglais', JOURNAL_TEXT);
+    fireEvent.click(screen.getByRole('button', { name: 'Corriger mon texte' }));
+    expect(await screen.findByText('Correction non enregistrée')).toBeInTheDocument();
+    expect(
+      screen.getByText('Sans nouveau coût : la correction reçue est seulement enregistrée.'),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Réessayer l’enregistrement' }));
+    expect(await screen.findByText('Aucune erreur : bravo.')).toBeInTheDocument();
+    expect(fake.calls.run).toEqual(['correct-production']);
+  });
+
   it('stores one production and asks once, even after a double tap', async () => {
     const { fake, services } = await servicesWith(() =>
       Promise.resolve(answered(correctionOf(JOURNAL_TEXT, null))),
