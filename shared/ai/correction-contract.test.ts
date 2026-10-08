@@ -12,8 +12,12 @@ import { estimateInputTokens } from './pricing.ts';
 import { CORRECTION_EXAMPLES, type CorrectionExample } from './prompts/correction-examples.ts';
 import { PROMPTS } from './prompts/index.ts';
 import {
+  CHECK_CARD_ANSWER_MAX_INPUT_TOKENS,
   CORRECT_PRODUCTION_MAX_INPUT_TOKENS,
   LEARNER_DOMAIN_IDS,
+  MAX_CARD_ANSWER,
+  MAX_CARD_ANSWERS,
+  MAX_CARD_TEXT,
   MAX_INSTRUCTION_TEXT,
   MAX_PRODUCTION_TEXT,
   MAX_PROFILE_REMARKS_SENT,
@@ -221,6 +225,22 @@ describe('check-card-answer', () => {
     expect(message).toContain('Learner\'s answer: "so far"');
     expect(message).not.toContain('Verb to use');
     expect(cardPrompt.system).not.toContain('so far');
+  });
+
+  it('shows a cost bound that covers the largest check the Edge Function may estimate', () => {
+    const longest: AiTaskInput<'check-card-answer'> = {
+      cardType: 'cloze',
+      meaningFr: 'x'.repeat(MAX_CARD_TEXT),
+      textWithGap: 'x'.repeat(MAX_CARD_TEXT),
+      infinitive: 'x'.repeat(MAX_CARD_TEXT),
+      expected: Array.from({ length: MAX_CARD_ANSWERS }, () => 'x'.repeat(MAX_CARD_TEXT)),
+      answer: 'x'.repeat(MAX_CARD_ANSWER),
+      englishVariant: 'en-GB',
+    };
+    expect(TASK_CONTRACTS['check-card-answer'].input.safeParse(longest).success).toBe(true);
+    expect(
+      estimateInputTokens(cardPrompt.system + cardPrompt.userMessage(longest)),
+    ).toBeLessThanOrEqual(CHECK_CARD_ANSWER_MAX_INPUT_TOKENS);
   });
 
   it('refuses a card without an expected answer', () => {

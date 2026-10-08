@@ -208,6 +208,9 @@ export const MAX_CARD_TEXT = 1_000;
 export const MAX_CARD_ANSWERS = 31;
 export const MAX_CARD_ANSWER = 500;
 
+/** Upper bound of the input of one card check, as the Edge Function estimates it (contract test). */
+export const CHECK_CARD_ANSWER_MAX_INPUT_TOKENS = 20_000;
+
 export const TASK_CONTRACTS = {
   'connection-check': {
     input: z.strictObject({}),
