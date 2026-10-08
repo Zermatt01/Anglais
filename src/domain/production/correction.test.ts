@@ -6,6 +6,7 @@ import {
   isPointToCheck,
   isQualifyingError,
   isSameAnswer,
+  isWholeSentence,
   productionCheckOf,
   reviewCorrection,
   translationResult,
@@ -135,20 +136,15 @@ describe('reviewCorrection (AI-07)', () => {
     expect(reviewed.errors).toHaveLength(1);
   });
 
-  it('keeps only the sentences found in the text and really corrected, with distinct variants', () => {
+  it('keeps only the sentences found in the text and really corrected, with the answer applied by the app', () => {
     const reviewed = reviewCorrection(
       TEXT,
       correction({
         sentences: [
           {
             original: 'Last week I have presented the results.',
-            corrected: 'Last week I presented the results.',
-            variants: [
-              'Last week, I presented the results.',
-              'Last week I have presented the results.',
-              'I presented the results last week.',
-              '  ',
-            ],
+            corrected: 'Last week, I presented the results.',
+            variants: ['I like pizza.'],
             meaningFr: 'x',
           },
           {
@@ -166,11 +162,107 @@ describe('reviewCorrection (AI-07)', () => {
         ],
       }),
     );
-    expect(reviewed.sentences.map((sentence) => sentence.original)).toEqual([
-      'Last week I have presented the results.',
+    expect(reviewed.sentences).toEqual([
+      {
+        original: 'Last week I have presented the results.',
+        range: { start: 0, end: 39 },
+        meaningFr: 'x',
+        // The model's other versions are never kept (D-088).
+        answer: 'Last week I presented the results.',
+      },
     ]);
-    // Same words as the corrected sentence, or the original itself: not a variant.
-    expect(reviewed.sentences[0]?.variants).toEqual(['I presented the results last week.']);
+  });
+
+  it('keeps out of the cards a part of a sentence (D-088)', () => {
+    const text = 'I work here since 2023.';
+    const reviewed = reviewCorrection(
+      text,
+      correction({
+        errors: [
+          error({
+            segment: 'I work',
+            correction: 'I have worked',
+            notionId: 'tense-for-since-ago',
+          }),
+        ],
+        sentences: [
+          { original: 'I work', corrected: 'I have worked', variants: [], meaningFr: 'x' },
+        ],
+      }),
+    );
+    expect(reviewed.errors).toHaveLength(1);
+    expect(reviewed.sentences).toEqual([]);
+  });
+
+  it('keeps out of the cards a sentence the model changed beyond its errors (D-088)', () => {
+    const reviewed = reviewCorrection(
+      TEXT,
+      correction({
+        sentences: [
+          {
+            original: 'Last week I have presented the results.',
+            corrected: 'Last week I presented the final results.',
+            variants: [],
+            meaningFr: 'x',
+          },
+        ],
+      }),
+    );
+    expect(reviewed.sentences).toEqual([]);
+  });
+
+  it('leaves doubtful corrections out of the answer, whether the model applied them or not', () => {
+    const text = 'I am agree with you, it is a nice idea.';
+    const errors = [
+      error({
+        segment: 'am agree',
+        correction: 'agree',
+        notionId: null,
+        category: 'calques_du_francais',
+      }),
+      error({ segment: 'nice', correction: 'good', notionId: null, confidence: 'low' }),
+    ];
+    for (const corrected of [
+      'I agree with you, it is a good idea.',
+      'I agree with you, it is a nice idea.',
+    ]) {
+      const reviewed = reviewCorrection(
+        text,
+        correction({
+          errors,
+          sentences: [{ original: text, corrected, variants: [], meaningFr: 'x' }],
+        }),
+      );
+      expect(reviewed.sentences[0]?.answer).toBe('I agree with you, it is a nice idea.');
+    }
+  });
+
+  it('keeps out of the cards a sentence whose errors overlap or cross its limits', () => {
+    const text = 'Last week I have presented the results. She gave me many advices.';
+    const reviewed = reviewCorrection(
+      text,
+      correction({
+        errors: [
+          error({ segment: 'have presented', correction: 'presented' }),
+          error({ segment: 'presented the', correction: 'showed the' }),
+        ],
+      }),
+    );
+    expect(reviewed.sentences).toEqual([]);
+  });
+
+  it('cleans the spaces left by a deleted word', () => {
+    const text = 'He explained me the plan .';
+    const reviewed = reviewCorrection(
+      text,
+      correction({
+        errors: [error({ segment: 'me', correction: '', notionId: null })],
+        sentences: [
+          { original: text, corrected: 'He explained the plan.', variants: [], meaningFr: 'x' },
+        ],
+      }),
+    );
+    expect(reviewed.sentences[0]?.answer).toBe('He explained the plan.');
   });
 
   it('drops an unnatural phrase whose alternative is the same answer', () => {
@@ -209,6 +301,34 @@ describe('reviewCorrection (AI-07)', () => {
         correction({ expressionOfTheDay: { expression: ' ', meaningFr: 'x', example: 'x' } }),
       ).expressionOfTheDay,
     ).toBeNull();
+  });
+});
+
+describe('isWholeSentence (D-088)', () => {
+  const rangeOf = (text: string, part: string) => {
+    const start = text.indexOf(part);
+    return { start, end: start + part.length };
+  };
+
+  it.each([
+    ['the whole text', 'I work here.', 'I work here.'],
+    ['the whole text without its full stop', 'I work here.', 'I work here'],
+    ['a second sentence', 'Hello. I work here! Bye.', 'I work here!'],
+    ['a sentence after a line break', 'Dear Sam,\nI work here\nBest', 'I work here'],
+    ['a sentence closed by a quote', 'He said “I agree.” Then he left.', 'He said “I agree.”'],
+    ['two sentences', 'I work. You rest. We win.', 'I work. You rest.'],
+  ])('accepts %s', (_label, text, part) => {
+    expect(isWholeSentence(text, rangeOf(text, part))).toBe(true);
+  });
+
+  it.each([
+    ['the start of a sentence', 'I work here since 2023.', 'I work'],
+    ['the end of a sentence', 'I work here since 2023.', 'here since 2023.'],
+    ['a clause before a comma', 'Be quiet, the baby sleeps.', 'Be quiet'],
+    ['a clause before a semicolon', 'I agree; it works.', 'I agree'],
+    ['the middle of a sentence', 'Yesterday I go to the office.', 'I go'],
+  ])('rejects %s', (_label, text, part) => {
+    expect(isWholeSentence(text, rangeOf(text, part))).toBe(false);
   });
 });
 

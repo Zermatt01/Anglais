@@ -10,7 +10,9 @@
  * - a segment is searched in the learner's text, never taken from the model's
  *   offsets; one that cannot be found is shown without highlighting, as a
  *   point to check that counts nowhere (D-088);
- * - a sentence that cannot be found is kept out of the cards;
+ * - a sentence becomes a card only if it is a whole sentence of the text, and
+ *   if the model's corrected sentence is the original with the corrections of
+ *   its errors applied; the card's answer is then computed by the app (D-088);
  * - scores are brought back to their scale.
  *
  * The shape mirrors the `correct-production` output schema of `shared/ai`,
@@ -86,8 +88,16 @@ export interface ReviewedPhrase extends ModelUnnaturalPhrase {
   readonly range: TextRange | null;
 }
 
-export interface ReviewedSentence extends ModelSentence {
+/** A whole sentence of the text, with its correction checked by the app (D-088). */
+export interface ReviewedSentence {
+  readonly original: string;
   readonly range: TextRange;
+  readonly meaningFr: string;
+  /**
+   * The original with the corrections of its errors applied, except those the
+   * model is not sure of: the answer of its card.
+   */
+  readonly answer: string;
 }
 
 export interface ReviewedCorrection {
@@ -104,8 +114,6 @@ export interface ReviewedCorrection {
 
 /** Longest stored text of an error (`errors` table). */
 export const MAX_ERROR_TEXT = 1_000;
-/** Other correct versions of a sentence kept for its card. */
-export const MAX_SENTENCE_VARIANTS = 10;
 
 const hasText = (text: string): boolean => /\S/.test(text);
 
@@ -169,24 +177,87 @@ function reviewError(text: string, error: ModelError): Omit<ReviewedError, 'inde
   };
 }
 
-function uniqueVariants(sentence: ModelSentence): string[] {
-  const kept: string[] = [];
-  for (const variant of sentence.variants) {
-    if (!hasText(variant) || areEquivalent(variant, sentence.original)) continue;
-    if (areEquivalent(variant, sentence.corrected)) continue;
-    if (kept.some((other) => areEquivalent(other, variant))) continue;
-    kept.push(variant);
-    if (kept.length === MAX_SENTENCE_VARIANTS) break;
-  }
-  return kept;
+/** Final punctuation of a sentence, with the quotes or brackets that may close it. */
+const SENTENCE_END = /[.!?…]["'’”)\]]*$/u;
+
+/**
+ * Whether `range` covers whole sentences of `text`: it starts the text, a
+ * line or a sentence, and it ends with its own final punctuation, just before
+ * the final punctuation, or at the end of a line or of the text. "I work" in
+ * "I work here since 2023." is not a sentence.
+ */
+export function isWholeSentence(text: string, range: TextRange): boolean {
+  const before = text.slice(0, range.start).replace(/[^\S\n]+$/u, '');
+  const starts = before === '' || before.endsWith('\n') || SENTENCE_END.test(before);
+  const covered = text.slice(range.start, range.end).trimEnd();
+  const after = text.slice(range.end);
+  const ends =
+    SENTENCE_END.test(covered) ||
+    !hasText(after) ||
+    /^[.!?…]/u.test(after) ||
+    /^[^\S\n]*\n/u.test(after);
+  return starts && ends;
 }
 
-function reviewSentence(text: string, sentence: ModelSentence): ReviewedSentence | null {
+/**
+ * The text of `range` with the corrections of `errors` applied, or `null`
+ * when an error straddles its limits or overlaps another one.
+ */
+function applyCorrections(
+  text: string,
+  range: TextRange,
+  errors: readonly ReviewedError[],
+): string | null {
+  const located = errors.flatMap((error) =>
+    error.range === null || error.range.end <= range.start || error.range.start >= range.end
+      ? []
+      : [{ range: error.range, correction: error.correction }],
+  );
+  located.sort((a, b) => a.range.start - b.range.start);
+  let result = '';
+  let cursor = range.start;
+  for (const error of located) {
+    if (error.range.start < cursor || error.range.end > range.end) return null;
+    result += text.slice(cursor, error.range.start) + error.correction;
+    cursor = error.range.end;
+  }
+  result += text.slice(cursor, range.end);
+  // A deleted word leaves two spaces, or a space before a punctuation mark.
+  return result
+    .replace(/[^\S\n]{2,}/gu, ' ')
+    .replace(/[^\S\n]+([.,;:!?…])/gu, '$1')
+    .trim();
+}
+
+/**
+ * Keeps a sentence for the cards only when the app can check it (D-088): it
+ * is a whole sentence of the text, and the model's corrected sentence is the
+ * original with the corrections of its errors applied (with or without those
+ * the model is not sure of). Any other change could be a wrong answer.
+ */
+function reviewSentence(
+  text: string,
+  sentence: ModelSentence,
+  errors: readonly ReviewedError[],
+): ReviewedSentence | null {
   if (!hasText(sentence.original) || !hasText(sentence.corrected)) return null;
-  if (areEquivalent(sentence.original, sentence.corrected)) return null;
   const range = locateSegment(text, sentence.original);
-  if (range === null) return null;
-  return { ...sentence, variants: uniqueVariants(sentence), range };
+  if (range === null || !isWholeSentence(text, range)) return null;
+  const answer = applyCorrections(
+    text,
+    range,
+    errors.filter((error) => error.confidence !== 'low'),
+  );
+  const withDoubtful = applyCorrections(text, range, errors);
+  if (answer === null || withDoubtful === null) return null;
+  if (areEquivalent(answer, sentence.original)) return null;
+  if (
+    !areEquivalent(sentence.corrected, answer) &&
+    !areEquivalent(sentence.corrected, withDoubtful)
+  ) {
+    return null;
+  }
+  return { original: sentence.original, range, meaningFr: sentence.meaningFr, answer };
 }
 
 function reviewPhrase(text: string, phrase: ModelUnnaturalPhrase): ReviewedPhrase | null {
@@ -209,7 +280,7 @@ export function reviewCorrection(text: string, output: ModelCorrection): Reviewe
       .map((phrase) => reviewPhrase(text, phrase))
       .filter((phrase) => phrase !== null),
     sentences: output.sentences
-      .map((sentence) => reviewSentence(text, sentence))
+      .map((sentence) => reviewSentence(text, sentence, errors))
       .filter((sentence) => sentence !== null),
     correctedText: output.correctedText,
     naturalVersion: output.naturalVersion,

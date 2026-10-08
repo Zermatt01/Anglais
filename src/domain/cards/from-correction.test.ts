@@ -108,11 +108,48 @@ describe('errorCardDrafts (CARD-02)', () => {
       category: 'temps_verbaux',
       notionId: 'tense-present-perfect-vs-past-simple',
       highlights: [{ start: 12, end: 26 }],
-      answers: {
-        canonical: 'Last week I presented the results to the board.',
-        variants: ['I presented the results to the board last week.'],
-      },
+      // The model's other version is not an accepted answer: nothing checks it (D-088).
+      answers: { canonical: 'Last week I presented the results to the board.', variants: [] },
     });
+  });
+
+  it('never accepts a version of the model unrelated to the sentence (D-088)', () => {
+    const text = 'Yesterday I finish the report.';
+    const cards = drafts(
+      output({
+        errors: [error({ segment: 'finish', correction: 'finished', start: 12 })],
+        sentences: [
+          {
+            original: text,
+            corrected: 'Yesterday I finished the report.',
+            variants: ['I like pizza.'],
+            meaningFr: 'Hier, j’ai fini le rapport.',
+          },
+        ],
+      }),
+      text,
+    );
+    expect(cards[0]?.content.answers).toEqual({
+      canonical: 'Yesterday I finished the report.',
+      variants: [],
+    });
+  });
+
+  it('makes no card from a part of a sentence (D-088)', () => {
+    const text = 'I work here since 2023.';
+    expect(
+      drafts(
+        output({
+          errors: [
+            error({ segment: 'I work', correction: 'I have worked', start: 0, notionId: null }),
+          ],
+          sentences: [
+            { original: 'I work', corrected: 'I have worked', variants: [], meaningFr: 'x' },
+          ],
+        }),
+        text,
+      ),
+    ).toEqual([]);
   });
 
   it('highlights every counted error of a sentence and takes the most severe as its primary', () => {
@@ -229,6 +266,10 @@ describe('errorCardDrafts (CARD-02)', () => {
       fallbackHint,
     });
     expect(cards[0]?.content.meaningFr).toBe('Je travaille ici depuis 2023.');
-    expect(cards[0]?.content.answers.variants).toEqual(["I've been working here since 2023."]);
+    // The reviewed answers are accepted; the model's version is not.
+    expect(cards[0]?.content.answers).toEqual({
+      canonical: 'I have worked here since 2023.',
+      variants: ['I have been working here since 2023.'],
+    });
   });
 });

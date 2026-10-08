@@ -2,11 +2,14 @@
  * Cards made from a corrected production (CARD-02, PED-04, D-083).
  *
  * One card per sentence of the learner's text that contains a counted error
- * (medium or major, not doubtful): its errors are highlighted in the previous
- * attempt, and the answer is the corrected sentence with its variants. The
- * meaning is the learner's intention for that sentence; when the text is a
- * single sentence answering a reviewed reference (a Thème sentence, a
- * translation), the reference's French meaning and answers are used.
+ * (medium or major, neither doubtful nor out of the text): its errors are
+ * highlighted in the previous attempt. The answer is the sentence corrected by
+ * the app, which applies the corrections of its errors (`reviewCorrection`);
+ * the model's other versions are never accepted answers, since nothing checks
+ * them (D-088). The meaning is the learner's intention for that sentence;
+ * when the text is a single sentence answering a reviewed reference (a Thème
+ * sentence, a translation), the reference's French meaning and reviewed
+ * answers are used.
  *
  * The hint is the model's self-correction hint, unless it gives away the
  * correction: then a reviewed hint of the error's category is used. Every
@@ -95,11 +98,8 @@ function draftOf(
   const whole = reference !== null && isWholeText(text, sentence.range);
   const meaningFr = whole ? reference.meaningFr : sentence.meaningFr;
   const answers = {
-    canonical: sentence.corrected,
-    variants: distinctAnswers(sentence.corrected, [
-      ...sentence.variants,
-      ...(whole ? reference.answers : []),
-    ]),
+    canonical: sentence.answer,
+    variants: distinctAnswers(sentence.answer, whole ? reference.answers : []),
   };
   const base = {
     type: 'error' as const,
