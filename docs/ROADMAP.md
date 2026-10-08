@@ -6,7 +6,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 **Revues** (D-059) : chaque phase reçoit une revue de Codex, puis au plus une contre-revue des corrections, sauf s'il reste un point bloquant.
 
-**Phase en cours : aucune.** La phase 3 est terminée (lancée le 2026-09-30, close le 2026-10-07) : revues et contre-revues de Codex traitées (D-081, D-082), échantillon relu par l'utilisateur. La phase 4 attend l'accord de l'utilisateur.
+**Phase en cours : 4, livrée et en attente de revue.** La phase 4 a été lancée le 2026-10-07 ; ses fonctionnalités sont livrées et toutes les vérifications passent. Restent la revue de Codex, les actions de l'utilisateur (section 17 de DEPLOYMENT.md) et la clôture.
 
 ---
 
@@ -82,14 +82,17 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 ## Phase 4 — Production écrite
 
-- [ ] Prompts de correction versionnés (exemples contrastés, cas entièrement correct)
-- [ ] Thème (trois paliers de consigne) et Journal
-- [ ] Correction en deux temps, tournures non naturelles, version naturelle
-- [ ] Rattachement des erreurs aux notions, règle lapsus ou lacune, pratique immédiate
-- [ ] Création de cartes résolubles ; Reprises
-- [ ] Séance du jour
-- [ ] Carnet de règles et Mon lexique
-- [ ] **Arrêt**
+- [x] Prompts de correction versionnés (exemples contrastés, cas entièrement correct) : `correct-production@1` et `check-card-answer@1`, schémas dans les limites des sorties structurées, vérifiés par test (D-083)
+- [x] Thème (trois paliers de consigne, 78 phrases relues deux fois) et Journal (24 questions) (D-084)
+- [x] Correction en deux temps, tournures non naturelles, version naturelle ; sortie du modèle revue avant tout affichage (D-083)
+- [x] Rattachement des erreurs aux notions, règle lapsus ou lacune, pratique immédiate (D-085, D-086)
+- [x] Création de cartes résolubles ; Reprises, avec vérification d'une réponse inattendue par le modèle rapide (D-085)
+- [x] Étapes 4 et 5 corrigées par l'IA, acquisition des notions et cartes de notion (D-086, remplace D-076)
+- [x] Séance du jour, lue dans l'activité du jour (D-084)
+- [x] Carnet de règles et Mon lexique (D-085)
+- [x] Tests : contrat IA, domaine, dépôts, écrans avec un faux serveur, e2e (journal corrigé puis carte revue, Thème hors ligne)
+- [x] **Arrêt** : rapport de fin de phase ; actions de l'utilisateur : pousser le code, redéployer l'Edge Function, essayer une correction (DEPLOYMENT.md, section 17)
+- [ ] Revue de Codex de la phase 4
 
 ## Phase 5 — Qualité des corrections
 

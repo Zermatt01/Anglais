@@ -6,90 +6,95 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 
 ## Index
 
-| ID    | Sujet                                                    | Thème       | Statut           |
-| ----- | -------------------------------------------------------- | ----------- | ---------------- |
-| D-001 | Langues du projet                                        | Outillage   | Actée            |
-| D-002 | npm et Node 24                                           | Outillage   | Actée            |
-| D-003 | TypeScript 6.0.x plutôt que 7                            | Outillage   | Actée            |
-| D-004 | ESLint plutôt qu'oxlint, fork d'accessibilité            | Outillage   | Actée            |
-| D-005 | Vitest 5 et jsdom 29                                     | Outillage   | Actée            |
-| D-006 | Options TypeScript                                       | Outillage   | Actée            |
-| D-007 | Playwright sur le build de production                    | Outillage   | Actée            |
-| D-008 | Scan de secrets en plus d'ESLint                         | Sécurité    | Actée            |
-| D-009 | Identifiants de modèles et prix                          | IA et coûts | Actée            |
-| D-010 | Sortie JSON garantie                                     | IA et coûts | Actée            |
-| D-011 | Cache de prompts                                         | IA et coûts | Actée            |
-| D-012 | Réflexion de Sonnet 5 réglée par tâche                   | IA et coûts | À calibrer (P5)  |
-| D-013 | Authentification par code à usage unique                 | Serveur     | Vérifiée (D-060) |
-| D-014 | Magasin de documents générique côté serveur              | Serveur     | Actée            |
-| D-015 | Résolution des conflits                                  | Données     | Actée            |
-| D-016 | Réservation budgétaire et nouvelle tentative             | IA et coûts | Actée            |
-| D-017 | Prompts uniquement côté serveur                          | IA et coûts | Actée            |
-| D-018 | Mise à jour du service worker sur demande                | PWA         | Actée            |
-| D-019 | Stockage persistant et migrations sûres                  | Données     | Actée            |
-| D-020 | Aucune donnée personnelle identifiante dans le dépôt     | Sécurité    | Actée            |
-| D-021 | Taxonomie à deux dimensions et règles de départage       | Pédagogie   | Actée            |
-| D-022 | Notion « à consolider »                                  | Pédagogie   | Actée            |
-| D-023 | Notions admises dans le Thème                            | Pédagogie   | Actée            |
-| D-024 | Seules les erreurs qualifiantes déclenchent une lacune   | Pédagogie   | Actée            |
-| D-025 | Erreur sur une notion non étudiée                        | Pédagogie   | Actée            |
-| D-026 | Autocorrection vérifiée localement                       | Pédagogie   | Actée            |
-| D-027 | Critères de passage par défaut                           | Pédagogie   | Précisée (D-075) |
-| D-028 | Limites de la reconnaissance vocale                      | Parole      | À revoir (P6)    |
-| D-029 | Mise en pause des projets Supabase gratuits              | Serveur     | Vérifiée (P2)    |
-| D-030 | Code partagé entre le client et l'Edge Function          | Serveur     | Tranchée (D-061) |
-| D-031 | Nom des clés Supabase côté client                        | Serveur     | Tranchée (D-060) |
-| D-032 | Profil générique renforcé, historique conservé           | Sécurité    | Actée            |
-| D-033 | Scan de l'index Git et gitleaks sur tout l'historique    | Sécurité    | Actée            |
-| D-034 | Serveur e2e dédié, jamais réutilisé                      | Outillage   | Actée            |
-| D-035 | Critère décisif : erreur ou non                          | Pédagogie   | Actée            |
-| D-036 | Programme aligné sur Murphy, en 9 pistes                 | Pédagogie   | Actée            |
-| D-037 | Ajouts de phase 8 dans la piste Temps verbaux            | Pédagogie   | Actée            |
-| D-038 | Références « Pour aller plus loin », livrées en phase 3  | Pédagogie   | Actée            |
-| D-039 | Libellés des livres : rouge et bleu                      | Pédagogie   | Actée            |
-| D-040 | Taxonomie : définitions élargies aux nouvelles notions   | Pédagogie   | Actée            |
-| D-041 | Contenu original, sans reprise des livres                | Pédagogie   | Actée            |
-| D-042 | Revue de la mise à jour Murphy                           | Pédagogie   | Actée            |
-| D-043 | Toutes les tables locales déclarées dès la version 1     | Données     | Actée            |
-| D-044 | Clés naturelles communes à tous les appareils            | Données     | Vérifiée (D-063) |
-| D-045 | File de synchronisation alimentée à partir de la phase 2 | Données     | Actée            |
-| D-046 | Règles d'équivalence de la correction locale             | Pédagogie   | Actée            |
-| D-047 | Résolubilité des cartes : règles et prudence             | Pédagogie   | Actée            |
-| D-048 | Paramètres de répétition espacée                         | Pédagogie   | À calibrer (P4)  |
-| D-049 | React Router 8 et adresses en français                   | Outillage   | Actée            |
-| D-050 | Règles de couches par `no-restricted-imports`            | Outillage   | Actée            |
-| D-051 | Direction visuelle : polices système et `light-dark()`   | Interface   | Actée            |
-| D-052 | Réglages livrés en phase 1                               | Interface   | Actée            |
-| D-053 | Brouillons de saisie                                     | Données     | Actée            |
-| D-054 | Export, import et sauvegardes automatiques               | Données     | Actée            |
-| D-055 | PWA : icônes générées, pas d'annonce « hors ligne »      | PWA         | Actée            |
-| D-056 | En-têtes de sécurité, tests sous la CSP de production    | Sécurité    | Actée            |
-| D-057 | Revue de la phase 1                                      | Transverse  | Actée            |
-| D-058 | Règles sur l'anglais : listes fermées et cas négatifs    | Pédagogie   | Actée            |
-| D-059 | Revues : une par phase, revue de l'anglais en phase 3    | Processus   | Actée            |
-| D-060 | Compte : clé publique, code par e-mail, compte unique    | Serveur     | Actée            |
-| D-061 | Contrat IA copié dans `supabase/functions/_shared`       | Serveur     | Actée            |
-| D-062 | Authentification et CORS de l'Edge Function              | Sécurité    | Actée            |
-| D-063 | Protocole de synchronisation                             | Données     | Actée            |
-| D-064 | Droits SQL explicites, migrations testées avec PGlite    | Serveur     | Actée            |
-| D-065 | CSP : adresse exacte du projet Supabase                  | Sécurité    | Actée            |
-| D-066 | Chaîne d'appel IA et test de connexion                   | IA et coûts | Actée            |
-| D-067 | Écran « Consommation »                                   | IA et coûts | Actée            |
-| D-068 | Client Supabase dans un fichier JavaScript séparé        | Outillage   | Actée            |
-| D-069 | Revue de la phase 2                                      | Transverse  | Actée            |
-| D-070 | Contre-revue de la phase 2                               | Transverse  | Actée            |
-| D-071 | Envoi des codes de connexion par Resend                  | Serveur     | Actée            |
-| D-072 | Correction locale : traits d'union et familles de mots   | Pédagogie   | Actée            |
-| D-073 | Catalogue fermé des notions, contenu par notion          | Pédagogie   | Actée            |
-| D-074 | Exercices : schéma, correction locale et relectures      | Pédagogie   | Actée            |
-| D-075 | Moteur du parcours et test de positionnement             | Pédagogie   | À ajuster (P5)   |
-| D-076 | Étapes 4 et 5 avant la correction par l'IA               | Pédagogie   | Provisoire (P4)  |
-| D-077 | Lecture audio des exemples                               | Parole      | Actée            |
-| D-078 | Écrans et notions chargés à la demande                   | Outillage   | Actée            |
-| D-079 | Génération d'exercices par l'IA                          | IA et coûts | À calibrer (P5)  |
-| D-080 | Relecture séparée du socle de la phase 3                 | Pédagogie   | Précisée (D-081) |
-| D-081 | Revues de la phase 3                                     | Transverse  | Actée            |
-| D-082 | Contre-revues de la phase 3                              | Transverse  | Actée            |
+| ID    | Sujet                                                    | Thème       | Statut                  |
+| ----- | -------------------------------------------------------- | ----------- | ----------------------- |
+| D-001 | Langues du projet                                        | Outillage   | Actée                   |
+| D-002 | npm et Node 24                                           | Outillage   | Actée                   |
+| D-003 | TypeScript 6.0.x plutôt que 7                            | Outillage   | Actée                   |
+| D-004 | ESLint plutôt qu'oxlint, fork d'accessibilité            | Outillage   | Actée                   |
+| D-005 | Vitest 5 et jsdom 29                                     | Outillage   | Actée                   |
+| D-006 | Options TypeScript                                       | Outillage   | Actée                   |
+| D-007 | Playwright sur le build de production                    | Outillage   | Actée                   |
+| D-008 | Scan de secrets en plus d'ESLint                         | Sécurité    | Actée                   |
+| D-009 | Identifiants de modèles et prix                          | IA et coûts | Actée                   |
+| D-010 | Sortie JSON garantie                                     | IA et coûts | Actée                   |
+| D-011 | Cache de prompts                                         | IA et coûts | Actée                   |
+| D-012 | Réflexion de Sonnet 5 réglée par tâche                   | IA et coûts | À calibrer (P5)         |
+| D-013 | Authentification par code à usage unique                 | Serveur     | Vérifiée (D-060)        |
+| D-014 | Magasin de documents générique côté serveur              | Serveur     | Actée                   |
+| D-015 | Résolution des conflits                                  | Données     | Actée                   |
+| D-016 | Réservation budgétaire et nouvelle tentative             | IA et coûts | Actée                   |
+| D-017 | Prompts uniquement côté serveur                          | IA et coûts | Actée                   |
+| D-018 | Mise à jour du service worker sur demande                | PWA         | Actée                   |
+| D-019 | Stockage persistant et migrations sûres                  | Données     | Actée                   |
+| D-020 | Aucune donnée personnelle identifiante dans le dépôt     | Sécurité    | Actée                   |
+| D-021 | Taxonomie à deux dimensions et règles de départage       | Pédagogie   | Actée                   |
+| D-022 | Notion « à consolider »                                  | Pédagogie   | Actée                   |
+| D-023 | Notions admises dans le Thème                            | Pédagogie   | Actée                   |
+| D-024 | Seules les erreurs qualifiantes déclenchent une lacune   | Pédagogie   | Actée                   |
+| D-025 | Erreur sur une notion non étudiée                        | Pédagogie   | Actée                   |
+| D-026 | Autocorrection vérifiée localement                       | Pédagogie   | Actée                   |
+| D-027 | Critères de passage par défaut                           | Pédagogie   | Précisée (D-075)        |
+| D-028 | Limites de la reconnaissance vocale                      | Parole      | À revoir (P6)           |
+| D-029 | Mise en pause des projets Supabase gratuits              | Serveur     | Vérifiée (P2)           |
+| D-030 | Code partagé entre le client et l'Edge Function          | Serveur     | Tranchée (D-061)        |
+| D-031 | Nom des clés Supabase côté client                        | Serveur     | Tranchée (D-060)        |
+| D-032 | Profil générique renforcé, historique conservé           | Sécurité    | Actée                   |
+| D-033 | Scan de l'index Git et gitleaks sur tout l'historique    | Sécurité    | Actée                   |
+| D-034 | Serveur e2e dédié, jamais réutilisé                      | Outillage   | Actée                   |
+| D-035 | Critère décisif : erreur ou non                          | Pédagogie   | Actée                   |
+| D-036 | Programme aligné sur Murphy, en 9 pistes                 | Pédagogie   | Actée                   |
+| D-037 | Ajouts de phase 8 dans la piste Temps verbaux            | Pédagogie   | Actée                   |
+| D-038 | Références « Pour aller plus loin », livrées en phase 3  | Pédagogie   | Actée                   |
+| D-039 | Libellés des livres : rouge et bleu                      | Pédagogie   | Actée                   |
+| D-040 | Taxonomie : définitions élargies aux nouvelles notions   | Pédagogie   | Actée                   |
+| D-041 | Contenu original, sans reprise des livres                | Pédagogie   | Actée                   |
+| D-042 | Revue de la mise à jour Murphy                           | Pédagogie   | Actée                   |
+| D-043 | Toutes les tables locales déclarées dès la version 1     | Données     | Actée                   |
+| D-044 | Clés naturelles communes à tous les appareils            | Données     | Vérifiée (D-063)        |
+| D-045 | File de synchronisation alimentée à partir de la phase 2 | Données     | Actée                   |
+| D-046 | Règles d'équivalence de la correction locale             | Pédagogie   | Actée                   |
+| D-047 | Résolubilité des cartes : règles et prudence             | Pédagogie   | Actée                   |
+| D-048 | Paramètres de répétition espacée                         | Pédagogie   | À calibrer (usage réel) |
+| D-049 | React Router 8 et adresses en français                   | Outillage   | Actée                   |
+| D-050 | Règles de couches par `no-restricted-imports`            | Outillage   | Actée                   |
+| D-051 | Direction visuelle : polices système et `light-dark()`   | Interface   | Actée                   |
+| D-052 | Réglages livrés en phase 1                               | Interface   | Actée                   |
+| D-053 | Brouillons de saisie                                     | Données     | Actée                   |
+| D-054 | Export, import et sauvegardes automatiques               | Données     | Actée                   |
+| D-055 | PWA : icônes générées, pas d'annonce « hors ligne »      | PWA         | Actée                   |
+| D-056 | En-têtes de sécurité, tests sous la CSP de production    | Sécurité    | Actée                   |
+| D-057 | Revue de la phase 1                                      | Transverse  | Actée                   |
+| D-058 | Règles sur l'anglais : listes fermées et cas négatifs    | Pédagogie   | Actée                   |
+| D-059 | Revues : une par phase, revue de l'anglais en phase 3    | Processus   | Actée                   |
+| D-060 | Compte : clé publique, code par e-mail, compte unique    | Serveur     | Actée                   |
+| D-061 | Contrat IA copié dans `supabase/functions/_shared`       | Serveur     | Actée                   |
+| D-062 | Authentification et CORS de l'Edge Function              | Sécurité    | Actée                   |
+| D-063 | Protocole de synchronisation                             | Données     | Actée                   |
+| D-064 | Droits SQL explicites, migrations testées avec PGlite    | Serveur     | Actée                   |
+| D-065 | CSP : adresse exacte du projet Supabase                  | Sécurité    | Actée                   |
+| D-066 | Chaîne d'appel IA et test de connexion                   | IA et coûts | Actée                   |
+| D-067 | Écran « Consommation »                                   | IA et coûts | Actée                   |
+| D-068 | Client Supabase dans un fichier JavaScript séparé        | Outillage   | Actée                   |
+| D-069 | Revue de la phase 2                                      | Transverse  | Actée                   |
+| D-070 | Contre-revue de la phase 2                               | Transverse  | Actée                   |
+| D-071 | Envoi des codes de connexion par Resend                  | Serveur     | Actée                   |
+| D-072 | Correction locale : traits d'union et familles de mots   | Pédagogie   | Actée                   |
+| D-073 | Catalogue fermé des notions, contenu par notion          | Pédagogie   | Actée                   |
+| D-074 | Exercices : schéma, correction locale et relectures      | Pédagogie   | Actée                   |
+| D-075 | Moteur du parcours et test de positionnement             | Pédagogie   | À ajuster (P5)          |
+| D-076 | Étapes 4 et 5 avant la correction par l'IA               | Pédagogie   | Remplacée (D-086)       |
+| D-077 | Lecture audio des exemples                               | Parole      | Actée                   |
+| D-078 | Écrans et notions chargés à la demande                   | Outillage   | Actée                   |
+| D-079 | Génération d'exercices par l'IA                          | IA et coûts | À calibrer (P5)         |
+| D-080 | Relecture séparée du socle de la phase 3                 | Pédagogie   | Précisée (D-081)        |
+| D-081 | Revues de la phase 3                                     | Transverse  | Actée                   |
+| D-082 | Contre-revues de la phase 3                              | Transverse  | Actée                   |
+| D-083 | Correction d'une production et vérification d'une carte  | IA et coûts | À calibrer (P5)         |
+| D-084 | Thème, Journal et séance du jour                         | Pédagogie   | Actée                   |
+| D-085 | Erreurs, cartes, Reprises, lexique et carnet de règles   | Pédagogie   | Actée                   |
+| D-086 | Étapes 4 et 5 corrigées par l'IA, pratique immédiate     | Pédagogie   | Actée                   |
+| D-087 | Données de la phase 4                                    | Données     | Actée                   |
 
 ---
 
@@ -775,6 +780,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - Étape 4 : une traduction non prévue est comparée par l'apprenant (D-074) et compte pour le critère de passage.
   - Étape 5 : l'écran « Produire » propose les amorces et garde le texte dans un brouillon (`path-produce:<notion>`), exporté, jamais perdu ; il annonce que la correction arrive avec la prochaine version. La règle de l'étape 5 (deux productions consécutives sans erreur sur la notion) est codée et testée ; elle sera branchée en phase 4. **Aucune notion ne peut donc être « acquise » en phase 3.**
 - **Raison.** Option la plus prudente (PROC-04) : aucun prompt de correction sans les exemples contrastés exigés par AI-04, aucun coût, aucune saisie perdue.
+- **Suite (2026-10-07).** Remplacée par D-086 : les étapes 4 et 5 sont corrigées par l'IA, sur demande.
 
 ### D-077 — Lecture audio des exemples (2026-09-30, complète D-052 ; ARCHITECTURE §12)
 
@@ -828,3 +834,57 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 - **Décision.**
   1. **« Regarde, il pleut ! »** (`tense-present-continuous/s4/02`). _It rains!_, sans _Look_, était « non prévu » alors que _Look, it rains!_ était une erreur anticipée. _It rains!_ et _It rains, look!_ deviennent des erreurs anticipées : dans une phrase ordinaire sur la météo, le présent simple ne décrit pas la pluie qui tombe en ce moment, quelle que soit la lecture (D-035, avec la précision de l'utilisateur de D-081).
   2. **Brouillon d'une réponse tapée (NO-06).** Après l'enregistrement de la réponse, le brouillon était supprimé à part, sans traitement d'un échec. Une suppression ratée, ou l'app fermée entre les deux écritures, laissait le brouillon, qui réapparaissait quand le même exercice revenait. Une sauvegarde différée de la frappe pouvait aussi le recréer juste après. Désormais, le brouillon est supprimé **dans la même transaction** que la réponse et la progression : les deux réussissent ou échouent ensemble, et une fermeture ne peut plus les séparer. La frappe en attente est enregistrée avant cette transaction, pour qu'aucune sauvegarde tardive ne recrée le brouillon. Ensuite, le champ est seulement remis à zéro, sans nouvelle écriture. Un échec n'enregistre rien, ni réponse ni suppression. « Réessayer » relance donc une réponse qui n'a pas été enregistrée, sans risque de doublon.
+
+### D-083 — Correction d'une production et vérification d'une réponse de carte par l'IA (2026-10-07, complète D-010, D-012, D-016, D-017 et D-066 ; à calibrer en phase 5)
+
+- **Contexte.** La phase 4 livre la correction des productions (PED-05, PED-06, AI-02 à AI-08) et la vérification d'une réponse de carte inattendue (CARD-05). La documentation des sorties structurées a été vérifiée le 2026-10-07 (PROC-03) : au plus 16 paramètres à union (un champ `nullable` compte), au plus 24 paramètres optionnels, `additionalProperties: false` sur chaque objet, pas de contrainte de longueur ni d'intervalle, `minItems` limité à 0 ou 1, et la casse des valeurs d'`enum` n'est pas garantie.
+- **Décision.**
+  - **`correct-production`** : Sonnet 5, réflexion adaptative à effort bas, `max_tokens` 4 000 (au lieu des 2 000 prévus : une entrée du journal avec plusieurs erreurs demande environ 1 500 tokens de sortie, et la réflexion compte dans le plafond ; un peu de réflexion rend les faux positifs plus rares, NO-05), préfixe mis en cache. Entrée : le module (`theme`, `journal`, `path-produce`, `path-translate`), la consigne affichée, la référence relue d'une phrase du Thème ou d'une traduction (jamais présentée comme la seule réponse juste), la notion visée, le profil de l'apprenant (AI-02 : variante, domaines, niveau `null` jusqu'à la phase 5, catégories et notions de ses erreurs comptées des 30 derniers jours, remarques du profil tronquées à 500 caractères) et le texte (2 000 caractères au plus). Sortie : intention en français, erreurs (segment exact, position proposée, catégorie, notion de la liste fermée ou `null`, gravité, confiance, indice, correction, règle), tournures non naturelles, une entrée par phrase fautive (phrase d'origine, phrase corrigée, variantes, sens en français : les cartes proposées d'AI-08), texte corrigé, version naturelle, emploi de la notion visée, expression du jour, évaluation. Le schéma compte 4 unions et aucun champ optionnel ; un test le vérifie, et un autre que l'adaptateur de l'Edge Function en tire un format fermé pour chaque tâche.
+  - **Prompt `correct-production@1`** : le préfixe stable porte le rôle, le critère décisif de D-035 (dont les lectures qui rendent une forme juste : situation temporaire, habitude, horaire, commentaire, forme polie, usage américain), les 15 catégories avec leurs frontières et les règles de départage de PEDAGOGY §7, la liste fermée des 50 notions décrites en anglais, l'échelle de gravité, les règles de chaque champ et trois exemples complets et contrastés (AI-04) : quatre erreurs de catégories différentes ; une phrase du Thème juste mais différente de la référence, sans aucune erreur ; une tournure correcte mais peu naturelle, une faute mineure et un présent continu juste pour une situation temporaire. Les exemples sont vérifiés par les tests : sortie valide, segments et phrases recopiés exactement.
+  - **`check-card-answer`** : Haiku 4.5, sans réflexion, 300 tokens, sans cache (prompt bien plus court que le minimum de 4 096 tokens, D-011). Verdict `correct`, `acceptable` ou `incorrect` et une phrase en français ; en cas de doute, le verdict le plus favorable.
+  - **Côté client** (AI-07), avant tout affichage ou enregistrement : un segment est cherché dans le texte, jamais pris aux positions du modèle ; une « erreur » dont la correction est la même réponse (contraction, graphie des listes fermées, autre apostrophe) est écartée, mais une différence de casse ou de ponctuation seule est gardée, puisque c'est l'objet des fautes d'orthographe et de ponctuation (cas positifs et négatifs testés, D-058) ; une phrase introuvable ne fait pas de carte ; les notes sont ramenées entre 1 et 5.
+  - **Erreurs comptées** : gravité moyenne ou majeure et confiance moyenne ou élevée. Elles seules font des cartes et comptent dans les statistiques et les critères d'étape. Une erreur de confiance faible est affichée comme « point à vérifier » et ne compte jamais (AI-05). La règle des erreurs qualifiantes de D-024 (confiance élevée ou confirmée, non signalée) reste celle de la lacune.
+  - **Coûts affichés** (COST-10) : avant « Corriger », le maximum de la demande, nouvelle tentative comprise, calculé sur une borne d'entrée de 20 000 tokens que les tests comparent à l'estimation du serveur pour la plus grosse demande possible : 0,18 USD. Pour la vérification d'une carte : 0,04 USD. En pratique, une correction coûte environ 0,03 à 0,04 USD au premier appel (écriture du préfixe d'environ 6 500 tokens en cache), puis 0,02 USD dans les cinq minutes ; c'est plus que l'ordre de grandeur estimé en phase 0 (0,016 puis 0,008 USD), car le préfixe est plus long et la sortie plus riche. Le plafond de 10 USD couvre encore plusieurs centaines de corrections par mois.
+  - **Un seul envoi par action** : la production est enregistrée avant l'appel ; un verrou synchrone ignore un second appui pendant l'envoi, pour qu'un double appui n'enregistre jamais deux productions ni ne paie deux corrections.
+- **Raison.** NO-05 est l'exigence absolue : tout ce que le modèle affirme est vérifié ou réparé localement avant d'être montré, et le doute ne compte jamais contre l'apprenant.
+- **À calibrer en phase 5** avec le banc d'essai : effort et plafond de sortie, rappel et précision des erreurs, coût réel.
+
+### D-084 — Thème, Journal et séance du jour (2026-10-07, complète D-023, D-052 et PEDAGOGY §9 et §10)
+
+- **Décision.**
+  - **Phrases du Thème** : six phrases originales par notion de la phase 3 (78), dans le contenu (`theme.ts` de chaque notion), relues deux fois. Chacune donne le même sens aux trois paliers (PED-02) : la phrase française à traduire, une situation décrite en français, une consigne en anglais. Les réponses acceptées sont justes aux trois paliers ; les erreurs anticipées sont fausses dans toutes les lectures des trois (D-035) et relèvent d'une seule catégorie, celle de la phrase. Le test du socle leur applique les vérifications des traductions, plus deux : la consigne anglaise et la situation ne contiennent aucune réponse. La relecture séparée a retiré trois erreurs anticipées qui admettaient une lecture d'habitude temporaire (_What do you read at the moment?_, _she learns Japanese_, _I stay with a friend_) et des variantes qui ajoutaient un destinataire absent de la phrase française.
+  - **Palier proposé** : le palier de base suit le niveau écrit (PEDAGOGY §9.1) ; **tant que le niveau n'est pas estimé (phase 5), il vaut 1**. Le calibrage de §6.2 l'avance ou le retarde d'un cran au plus, après chaque bloc de 20 réponses (au-dessus de 85 % ou en dessous de 75 % de réussite). Le palier proposé est donc 1 ou 2 en phase 4 ; l'apprenant peut choisir n'importe quel palier pour une série. C'est la lecture la plus prudente de « le calibrage peut avancer ou retarder le palier d'un cran » (PROC-04).
+  - **Choix des phrases** (MOD-05, D-023) : séries de cinq phrases tirées des notions étudiées, celles en cours ou à consolider d'abord, puis pondérées par les erreurs récentes et l'ancienneté de la dernière pratique ; une notion choisie pèse moitié moins ensuite, et deux phrases consécutives ne viennent jamais de la même notion quand une autre reste. Une phrase d'une notion pas encore étudiée apparaît au plus une fois sur dix, jamais en premier ni deux fois de suite, son indice affiché. Sans notion étudiée, le Thème explique qu'il s'ouvre à l'étape « Traduire ».
+  - **Correction d'une phrase du Thème** : locale d'abord. Une réponse attendue est juste ; une erreur anticipée est fausse, et fait une erreur (gravité moyenne, confiance élevée : elle est relue) et une carte faite du contenu relu. Sinon, rien n'est déclaré faux : l'IA corrige sur demande, ou l'apprenant compare avec la référence. Chaque réponse est une production (`theme`), avec son palier et son résultat, qui sert au calibrage.
+  - **Journal** : 24 questions originales posées en anglais, avec leur sens en français sur demande, choisies dans les domaines de l'apprenant, jamais posée d'abord, puis la plus ancienne. Trois à cinq phrases, corrigées par l'IA en deux temps.
+  - **Autocorrection** (PED-05) : l'apprenant corrige chaque passage souligné dans un champ à part, plutôt que dans le texte entier. Sur un téléphone, c'est plus simple, et la comparaison locale de D-026 se fait passage par passage, sans calcul de différences. L'étape se saute, ou se désactive dans les Réglages ; elle n'est décidée qu'une fois les réglages lus.
+  - **Séance du jour** (MOD-02) : rien n'est enregistré pour la séance elle-même ; où elle en est se lit dans ce que l'apprenant a fait aujourd'hui, si bien qu'elle reprend là où elle s'est arrêtée, sur tout appareil, et qu'un module fait seul compte aussi. Reprises : faites quand aucune carte n'est due ; Parcours : 8 réponses du parcours, ou une production de l'étape 5 corrigée ; Thème : 5 phrases ; Journal : une entrée. L'oral arrive en phase 6 et l'e-mail guidé en phase 7 : en phase 4, le Journal occupe seul la dernière étape. Un module impossible (Thème sans notion étudiée, Journal sans compte) est sauté.
+  - **Activité** (`activity`) : chaque réponse, révision ou production enregistrée écrit un événement dans la même transaction, d'au plus 600 secondes : un écran laissé ouvert ne compte pas. L'accueil affiche les minutes du jour face à l'objectif. La série et le joker, calculés à partir de ces événements, arrivent avec le tableau de bord (phase 5, PED-13).
+- **Raison.** Des phrases relues, corrigées localement quand c'est possible, réduisent le coût (COST-02) et ne déclarent jamais fausse une réponse juste (NO-05).
+
+### D-085 — Erreurs, cartes, Reprises, lexique et carnet de règles (2026-10-07, complète D-024, D-025, D-047, D-048 et D-063)
+
+- **Décision.**
+  - **Lapsus ou lacune** (PEDAGOGY §4) : par notion et par production. Une notion pas encore étudiée donne « notion non étudiée » ; sinon, une deuxième production avec une erreur qualifiante sur la notion en sept jours donne une lacune, et une notion à consolider ou acquise repasse « en cours » à l'étape 3 (message non culpabilisant, notion mise en tête du parcours). Une progression illisible n'est jamais écrasée : sa notion compte comme non étudiée.
+  - **Cartes d'une correction** (CARD-02) : une carte par phrase du texte qui contient une erreur comptée, toutes ses erreurs comptées surlignées dans la tentative précédente ; l'erreur la plus grave donne la catégorie, la notion et l'indice. L'indice du modèle est remplacé par un indice relu de la catégorie (en français, sans mot anglais) s'il contient la correction. Le sens est l'intention de l'apprenant pour cette phrase, ou, quand le texte est une seule phrase répondant à une référence relue, le sens et les réponses de cette référence. Toute carte passe `isCardSolvable` ; une erreur mineure ou douteuse ne fait pas de carte.
+  - **Carte d'une notion non étudiée** : créée suspendue (D-025), elle redevient présentable dès que la notion est étudiée, sans écriture : la file la traite comme active, et la révision suivante enregistre son statut. Une synchronisation qui fait progresser la notion sur un autre appareil suffit donc à l'activer.
+  - **Cartes de notion** (CUR-09) : à l'acquisition, trois cartes faites des traductions relues de la notion, les plus difficiles d'abord.
+  - **Reprises** (MOD-03, CARD-04 à CARD-06) : cartes dues, dans les plafonds des Réglages, plus au plus trois révisions de maintien par jour, mélangées. La réponse est toujours produite. Une réponse attendue est juste ; sinon, le modèle rapide la vérifie sur demande, ou l'apprenant la compare. L'apprenant confirme la note proposée (PEDAGOGY §6.1), ou en choisit une autre. Les journaux de révision gardent désormais le statut de la carte à la révision (pour compter les révisions de maintien) et l'usage de l'indice. Les paramètres de FSRS (D-048) ne changent pas : ils se calibreront avec l'usage réel des Reprises.
+  - **Mon lexique** (MOD-09) : l'identifiant d'une entrée est un UUID de version 8 tiré de l'empreinte SHA-256 de l'expression normalisée, comme le prévoyait D-063 : deux appareils créent le même document. Une entrée retirée revient sous son identifiant. La carte de collocation est faite de l'exemple, l'expression remplacée par un blanc ; sans exemple qui la contienne exactement une fois, l'entrée est gardée sans carte, ce que l'écran dit. **Collecte** : l'expression du jour s'ajoute d'un geste de l'apprenant, jamais d'office (lecture prudente de « collectées automatiquement ») ; les tournures non naturelles ne sont pas proposées, faute de sens en français fourni par la correction.
+  - **Carnet de règles** (MOD-10) : calculé à partir des erreurs comptées et non signalées : une fiche par catégorie, triée par erreurs des 30 derniers jours, avec la définition de la catégorie, les trois exemples les plus récents, les leçons des notions concernées et une note personnelle (`ruleNotes`, brouillon à chaque pause de frappe).
+- **Raison.** NO-03 et NO-05 : une carte vient de ce qui est sûr, et le doute ne fait ni carte ni lacune.
+
+### D-086 — Étapes 4 et 5 corrigées par l'IA, pratique immédiate (2026-10-07, remplace D-076)
+
+- **Décision.**
+  - **Étape 4** : une traduction non prévue peut être vérifiée par l'IA, sur demande, à côté de la comparaison par l'apprenant, qui reste possible. La production (`path-translate`) est enregistrée avant l'appel ; la réponse de l'exercice, sa notation et la suppression de son brouillon sont écrites dans la transaction de la correction. Elle est bonne sans erreur comptée sur la notion visée ; ses autres erreurs, ou une erreur mineure, la rendent « acceptable » (bonne pour le critère) et font des cartes comme toute production (PEDAGOGY §3.3).
+  - **Étape 5** : les phrases sont corrigées par l'IA ; une production réussie emploie la notion sans erreur comptée sur elle. Deux productions réussies d'affilée depuis l'entrée dans l'étape rendent la notion acquise, avec ses cartes de notion. Les brouillons gardés en phase 3 (`path-produce:<notion>`) réapparaissent dans le champ.
+  - **Pratique immédiate** (PED-07, PEDAGOGY §5.2) : proposée après une correction pour chaque notion d'une erreur comptée ; trois exercices de l'étape 3, les moins vus récemment, puis une traduction de l'étape 4. Pour une notion non étudiée, la leçon est proposée d'abord. Ses réponses ne changent jamais l'étape (D-075). Elle se saute à tout moment.
+- **Raison.** Le provisoire de D-076 tenait à l'absence de prompt de correction aux exemples contrastés (AI-04) ; il existe désormais.
+
+### D-087 — Données de la phase 4 (2026-10-07, complète D-043, D-053 et D-078)
+
+- **Décision.**
+  - **Schémas ajustés sans migration** (D-043) : `productions` (ce que la production répond : notion, phrase ou question, palier, notion non étudiée, indice ; résultat et correcteur ; autocorrections passage par passage ; durée ; module `path-translate` ajouté ; coût de la correction), `errors` (position de l'erreur dans la correction revue), `reviewLogs` (statut de la carte, indice). Aucune de ces tables ne contenait de données.
+  - **Sortie du modèle** : gardée telle que reçue, revalidée contre le schéma de sortie et revue à chaque lecture ; une sortie illisible est gardée et signalée, jamais perdue.
+  - **Taille** : le plus gros fichier JavaScript passe de 298 à 284 kB ; le fichier partagé de Dexie et Zod fait 230 kB (227 kB en phase 3), sans avertissement de Vite ni seuil relevé. Le service worker précache 64 fichiers (1 256 KiB, contre 1 060).

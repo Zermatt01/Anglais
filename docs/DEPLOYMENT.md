@@ -244,7 +244,7 @@ Une fois connecté, les données sont copiées sur le serveur à chaque synchron
 
 L'export reste recommandé de temps en temps, surtout avant de changer de téléphone :
 
-- **Réglages → Données → Exporter mes données** produit un fichier à garder (Drive, ordinateur…). Il ne contient aucune clé ni aucun mot de passe, seulement les données de l'application : réglages, profil, brouillons, progression dans le Parcours, réponses aux exercices, exercices créés par l'IA et, plus tard, cartes et productions. Les brouillons ne sont jamais synchronisés : seul l'export les sauvegarde.
+- **Réglages → Données → Exporter mes données** produit un fichier à garder (Drive, ordinateur…). Il ne contient aucune clé ni aucun mot de passe, seulement les données de l'application : réglages, profil, brouillons, progression dans le Parcours, réponses aux exercices, exercices créés par l'IA, textes écrits et leurs corrections, erreurs, cartes et révisions, lexique et notes du carnet de règles. Les brouillons ne sont jamais synchronisés : seul l'export les sauvegarde.
 - Pour restaurer, ou pour passer sur un autre appareil : **Importer** ce fichier. Rien n'est effacé ; pour chaque élément présent des deux côtés, la version la plus récente est gardée.
 
 **Versions remplacées.** Si une modification semble avoir disparu après une synchronisation entre deux appareils, deux copies existent :
@@ -256,7 +256,12 @@ L'export reste recommandé de temps en temps, surtout avant de changer de télé
 
 - L'adresse `*.vercel.app` est publique : quiconque la connaît peut ouvrir l'application, mais sans compte, il n'y voit que les données de son propre appareil. Les inscriptions sont fermées.
 - Les données synchronisées sont stockées dans le projet Supabase (région choisie à la section 6), protégées par la RLS : seul le compte connecté y a accès.
-- L'IA ne reçoit que ce qu'une action demande : le test de connexion n'envoie rien de personnel ; la création d'exercices envoie la notion, l'étape, la variante d'anglais, les domaines choisis dans le profil et les phrases des exercices déjà vus, jamais un texte écrit par l'apprenant. À partir de la phase 4, « Corriger » enverra le texte à corriger. Le journal des appels (`ai_calls`) ne contient jamais de texte, seulement des compteurs et des codes.
+- L'IA ne reçoit que ce qu'une action demande :
+  - le test de connexion n'envoie rien de personnel ;
+  - la création d'exercices envoie la notion, l'étape, la variante d'anglais, les domaines choisis dans le profil et les phrases des exercices déjà vus ;
+  - « Corriger » envoie le texte à corriger, la consigne, la phrase de référence s'il y en a une, la variante d'anglais, les domaines et les 500 premiers caractères des remarques libres du profil, ainsi que les catégories et notions de tes erreurs récentes ;
+  - « Faire vérifier par l'IA », dans les Reprises, envoie la carte (sens, réponses attendues) et ta réponse.
+- Le journal des appels (`ai_calls`) ne contient jamais de texte, seulement des compteurs et des codes. Les textes et leurs corrections sont synchronisés comme le reste de tes données, dans le projet Supabase, protégés par la RLS.
 
 ## 16. Mise à jour de la phase 3 (Parcours)
 
@@ -277,3 +282,22 @@ La phase 3 n'ajoute aucune migration ni aucun secret. Elle ajoute une tâche à 
 5. **Relire un échantillon** (D-059) : faire au moins la leçon et une dizaine d'exercices de trois notions, dont « _Just_, _already_, _yet_ et _still_ », et noter toute réponse attendue ou variante douteuse, avec la phrase concernée.
 
 La création d'exercices par l'IA n'apparaît qu'une fois tous les exercices d'une étape faits (au moins dix par étape). Chaque création coûte au plus 0,16 USD, nouvelle tentative comprise (en pratique bien moins), et apparaît dans **Réglages → Voir la consommation** (« Exercices générés »).
+
+## 17. Mise à jour de la phase 4 (production écrite)
+
+La phase 4 n'ajoute aucune migration ni aucun secret. Elle ajoute deux tâches à l'Edge Function : la correction d'un texte et la vérification d'une réponse de carte.
+
+1. **Publier le code** : `git push`. Vercel redéploie l'application (section 1), et la CI doit être verte.
+2. **Redéployer l'Edge Function**, sans quoi « Corriger » répondrait « La demande n'a pas été acceptée par le serveur » :
+
+   ```sh
+   npx supabase@2.118.0 functions deploy ai --use-api
+   ```
+
+3. **Sur le téléphone** : « Nouvelle version disponible » → **Mettre à jour**. La barre du bas affiche désormais **Reprises**, et l'accueil la **séance du jour**.
+4. **Vérifier** :
+   - **Accueil → Journal** : écris trois phrases, puis **Corriger mon texte**. Les passages à revoir s'affichent avec un indice ; corrige-les, puis **Vérifier mes corrections** : la correction, la version naturelle et l'expression du jour apparaissent. **Réglages → Voir la consommation** montre la ligne « Corrections ».
+   - **Reprises** : une carte issue d'une erreur apparaît (sauf si sa notion n'est pas encore étudiée : elle attend l'étape « Traduire »). Réponds, puis confirme la note.
+   - **Thème** : il s'ouvre dès qu'une notion atteint l'étape « Traduire » (ou après un test de positionnement réussi). Une réponse attendue est corrigée sans réseau.
+5. **Coûts** : une correction coûte en général 0,02 à 0,04 USD ; l'écran affiche avant chaque demande son maximum (0,18 USD, nouvelle tentative comprise). Une vérification de carte coûte moins d'un centime. Le plafond mensuel de l'Edge Function (10 USD par défaut, section 10) s'applique toujours.
+6. **À relever pour la suite** : les corrections qui te semblent fausses (une phrase juste signalée, une mauvaise règle), avec la phrase concernée. Le bouton « Signaler » arrive en phase 5 ; d'ici là, note-les pour le banc d'essai.

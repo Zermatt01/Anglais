@@ -135,6 +135,8 @@ Chaque erreur confirmée porte une catégorie et éventuellement un identifiant 
 
 Les erreurs d'une même production sur une même notion comptent pour **une seule** occurrence : trois fautes de temps dans un paragraphe relèvent d'un seul épisode, pas de trois.
 
+**Cartes** (DECISIONS D-085) : une carte par phrase fautive, qui surligne toutes ses erreurs comptées. Seule une erreur comptée fait une carte : gravité moyenne ou majeure, confiance moyenne ou élevée. Une faute mineure ou douteuse est montrée, sans carte.
+
 ## 5. Feedback correctif et pratique immédiate
 
 ### 5.1 Correction en deux temps (PED-05, PED-06)
@@ -142,7 +144,7 @@ Les erreurs d'une même production sur une même notion comptent pour **une seul
 1. **Temps 1, autocorrection** (par défaut ; peut être désactivée dans les Réglages, ou sautée au cas par cas).
    - Les segments fautifs sont soulignés d'une couleur qui dépend de la gravité.
    - Chacun porte l'étiquette de sa catégorie (par exemple « Temps verbal ») et un indice d'autocorrection qui ne donne pas la réponse.
-   - L'apprenant corrige directement dans le texte.
+   - L'apprenant corrige chaque passage souligné, dans un champ à part : c'est plus simple sur un téléphone, et la comparaison se fait passage par passage (DECISIONS D-084).
    - La tentative est vérifiée **localement** : on compare le segment corrigé, après normalisation, à la correction proposée et aux variantes. Il n'y a pas de second appel au modèle (DECISIONS D-026). Une autocorrection différente de la correction proposée n'est pas déclarée fausse : elle est simplement montrée à côté de la correction au temps 2.
 2. **Temps 2, correction.** Pour chaque erreur, on affiche :
    - la correction ;
@@ -475,7 +477,7 @@ Les identifiants de notions (colonne de droite) sont ceux du programme (CUR-02),
 - palier 2 à partir de B1 ;
 - palier 3 à partir de B2.
 
-Le calibrage (§6.2) peut avancer ou retarder le palier d'un cran.
+Le calibrage (§6.2) peut avancer ou retarder le palier d'un cran, après chaque bloc de 20 réponses du Thème. Tant que le niveau n'est pas estimé (phase 5), le palier de base est 1 : le palier proposé est donc 1 ou 2, et l'apprenant peut en choisir un autre pour une série (DECISIONS D-084).
 
 ### 9.2 Choix des notions du Thème (MOD-05)
 
@@ -501,7 +503,7 @@ Le calibrage (§6.2) peut avancer ou retarder le palier d'un cran.
 | 3     | Thème                          | 5–6 min     | Environ 4 à 6 phrases.                                              |
 | 4     | Oral **ou** Journal (rotation) | 4–5 min     | L'E-mail guidé remplace le Journal une fois par semaine (réglable). |
 
-Chaque module est aussi accessible seul, en 2 à 5 minutes. Une séance interrompue reprend là où elle s'est arrêtée, et rien de ce qui a été saisi n'est perdu (NO-06).
+Chaque module est aussi accessible seul, en 2 à 5 minutes. Une séance interrompue reprend là où elle s'est arrêtée, et rien de ce qui a été saisi n'est perdu (NO-06) : où en est la séance se lit dans ce qui a été fait aujourd'hui. Tant que l'oral (phase 6) et l'e-mail guidé (phase 7) n'existent pas, le Journal occupe seul la dernière étape (DECISIONS D-084).
 
 ### 10.2 Motivation sans culpabilisation (PED-13, NO-07)
 
