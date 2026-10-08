@@ -8,7 +8,10 @@ const FIRST_CHOICE = {
 
 test('reads a lesson, passes to recognition and answers an exercise', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('link', { name: 'Parcours', exact: true }).click();
+  await page
+    .getByRole('navigation', { name: 'Navigation principale' })
+    .getByRole('link', { name: 'Parcours' })
+    .click();
   await expect(page.getByRole('heading', { level: 1, name: 'Parcours' })).toBeVisible();
 
   await page.getByRole('link', { name: 'Présent continu', exact: true }).click();
