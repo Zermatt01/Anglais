@@ -90,6 +90,7 @@ Les valeurs par défaut sont les suivantes.
   - À l'étape 2, une réponse n'est bonne que si la forme **et** la raison sont justes.
   - À l'étape 4, une réponse compte comme bonne si elle ne contient **aucune erreur sur la notion ciblée** (réponse correcte ou acceptable). Les erreurs d'autres catégories sont traitées normalement (cartes, §4), mais ne bloquent pas la progression de la notion.
   - Une réponse obtenue après avoir demandé un indice compte comme **à moitié bonne** (0,5).
+  - **Exercices créés par l'IA** (DECISIONS D-089) : leur réponse attendue n'est pas relue. Une réussite compte ; un échec ne compte jamais, ni pour le seuil, ni pour le retour en arrière, ni dans une série de rappel. Il est montré comme un point à vérifier, avec la réponse attendue et le bouton « Signaler ».
 - **Étape 5 → acquise** : **deux productions consécutives** qui emploient effectivement la notion **sans erreur sur cette notion** de gravité moyenne ou majeure. Les tournures « correctes mais pas naturelles » ne comptent jamais comme des erreurs. L'emploi de la notion est **prouvé par l'application** : elle retrouve dans le texte les mots que lui indique le modèle et y reconnaît une construction de la notion (liste fermée). Une production dont l'emploi n'est pas prouvé ne compte ni pour ni contre la série (DECISIONS D-088).
 
 **Retour en arrière (échecs répétés) :**

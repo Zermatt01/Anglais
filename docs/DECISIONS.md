@@ -95,7 +95,8 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-085 | Erreurs, cartes, Reprises, lexique et carnet de règles   | Pédagogie   | Précisée (D-088)        |
 | D-086 | Étapes 4 et 5 corrigées par l'IA, pratique immédiate     | Pédagogie   | Précisée (D-088)        |
 | D-087 | Données de la phase 4                                    | Données     | Actée                   |
-| D-088 | Sorties de l'IA vérifiées par l'app ; revues de phase 4  | Transverse  | Actée (un point ouvert) |
+| D-088 | Sorties de l'IA vérifiées par l'app ; revues de phase 4  | Transverse  | Complétée (D-089)       |
+| D-089 | Confiance asymétrique dans les exercices créés par l'IA  | Pédagogie   | Actée                   |
 
 ---
 
@@ -917,5 +918,18 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - Expression du jour : elle n'entre dans le lexique que d'un geste de l'apprenant, et sa carte n'est faite que si l'exemple contient l'expression exactement une fois ; son sens reste celui du modèle. Inchangé : c'est un choix explicite, pas une progression.
   - Évaluation (notes, niveau du texte) : enregistrée, sans effet aujourd'hui. L'estimation du niveau de la phase 5 devra suivre ce principe.
   - Intention et sens d'une phrase : textes du modèle, montrés au recto d'une carte à côté de la tentative de l'apprenant ; ils ne décident d'aucune réponse acceptée.
-  - **Point ouvert, à trancher par l'utilisateur** : les exercices créés par l'IA (D-079). Leurs réponses attendues viennent du modèle ; l'app vérifie leur forme (schéma, `checkExercise`, ensembles de raisons relus, phrase déjà vue), pas leur justesse, et leurs réponses comptent pour les critères des étapes 2 à 4. Appliquer le principe à la lettre voudrait qu'elles n'y comptent plus (entraînement libre, le socle relu restant seul juge du passage d'étape). Rien n'est changé avant sa décision, parce que cela reviendrait sur D-079 et que le socle, revu en boucle, pourrait alors être appris par cœur.
+  - **Point ouvert, à trancher par l'utilisateur** : les exercices créés par l'IA (D-079). Leurs réponses attendues viennent du modèle ; l'app vérifie leur forme (schéma, `checkExercise`, ensembles de raisons relus, phrase déjà vue), pas leur justesse, et leurs réponses comptent pour les critères des étapes 2 à 4. Appliquer le principe à la lettre voudrait qu'elles n'y comptent plus (entraînement libre, le socle relu restant seul juge du passage d'étape). Rien n'est changé avant sa décision, parce que cela reviendrait sur D-079 et que le socle, revu en boucle, pourrait alors être appris par cœur. **Tranché par D-089.**
 - **Raison.** NO-05 et règle 1 : une affirmation du modèle ne compte que si l'app peut la vérifier, et une réponse déjà payée n'est jamais redemandée.
+
+### D-089 — Confiance asymétrique dans les exercices créés par l'IA (2026-10-08, complète D-079 et D-088)
+
+- **Contexte.** Le point ouvert de D-088 : les réponses attendues des exercices créés par l'IA ne sont pas relues, et leurs réponses comptaient pour les critères des étapes 2 à 4, dans les deux sens.
+- **Décision (de l'utilisateur).**
+  - **Une réussite compte** pour passer l'étape, comme celle d'un exercice du socle (et dans une série de rappel).
+  - **Un échec ne compte jamais contre l'apprenant.** Il est enregistré, mais c'est un point à vérifier : l'écran affiche la réponse attendue, un avis « Point à vérifier » qui le dit, et le bouton « Signaler cet exercice ». C'est vrai dans le Parcours et dans la pratique immédiate, qui n'avait encore ni l'étiquette « Exercice créé par l'IA » ni le bouton.
+  - **Les règles ne lisent que les réponses vérifiables** : toutes celles des exercices du socle, et les réussites des exercices créés. C'est le cas du seuil de passage (8 sur les 10 dernières), du déclencheur des échecs répétés (4 sur les 6 dernières, qui ouvre le rappel de l'étape précédente ou, à l'étape 2, propose la leçon) et de la série de rappel (4 sur 5). Le score affiché suit la même règle.
+  - Un échec est un échec quel que soit le correcteur : la correction locale (réponse attendue ou erreur anticipée par l'IA), le jugement de l'apprenant, ou la vérification par l'IA d'une traduction.
+  - La règle vit dans le moteur des étapes (`isVerifiableAnswer`, `src/domain/curriculum/engine.ts`), testée avec des cas positifs et négatifs.
+- **Articulation avec D-079.** La génération, ses vérifications de forme (schéma, `checkExercise`, ensembles de raisons relus, phrase déjà vue), l'étiquette et le signalement ne changent pas : un exercice signalé n'est plus jamais montré, mais il est gardé. Seule change la façon dont ses réponses comptent.
+- **Articulation avec D-088.** C'est l'application du principe, avec une exception choisie par l'utilisateur pour les réussites. Un échec repose sur une réponse attendue que l'app ne peut pas vérifier : il reste un point à vérifier, sans effet sur la progression. Une réussite est prise comme preuve, bien qu'elle ne soit pas vérifiable non plus : son risque, passer une étape un peu tôt, est rattrapé par l'étape suivante, par la règle lapsus ou lacune et par les cartes ; un échec injuste, lui, retiendrait ou renverrait en arrière l'apprenant sur une réponse juste (NO-05). Cela clôt le point ouvert de D-088.
+- **Défaut corrigé au passage.** À l'ouverture des exercices, la liste des exercices créés pouvait être lue avant la progression : le premier exercice était alors choisi sans eux. La liste est désormais attachée à son étape, et l'écran attend la bonne.
