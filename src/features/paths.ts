@@ -6,6 +6,11 @@ export const PATHS = {
   settings: '/reglages',
   usage: '/consommation',
   path: '/parcours',
+  review: '/reprises',
+  theme: '/theme',
+  journal: '/journal',
+  lexicon: '/lexique',
+  ruleBook: '/carnet',
 } as const;
 
 /** French slugs of the tracks in addresses. */
@@ -30,5 +35,7 @@ export const pathTo = {
   lesson: (notionId: NotionId) => `${PATHS.path}/${notionId}/lecon`,
   practice: (notionId: NotionId) => `${PATHS.path}/${notionId}/exercices`,
   produce: (notionId: NotionId) => `${PATHS.path}/${notionId}/production`,
+  /** Immediate practice after an error (PED-07). */
+  practiceNow: (notionId: NotionId) => `${PATHS.path}/${notionId}/pratique`,
   placement: (trackId: TrackId) => `${PATHS.path}/positionnement/${TRACK_SLUGS[trackId]}`,
 };

@@ -1,0 +1,106 @@
+/* The correction in two steps (PED-05, UI-02). */
+
+.correction {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.correction__summary {
+  font-weight: 600;
+  margin: 0;
+}
+
+.marked-text {
+  font-family: var(--font-content);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.marked-text__number {
+  color: var(--ink-muted);
+  font-family: var(--font-ui);
+  font-size: 0.7em;
+  margin-left: 0.1em;
+}
+
+.correction__list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.correction__item {
+  border-left: 3px solid var(--line);
+  padding-left: 0.75rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.correction__item > p {
+  margin: 0;
+}
+
+.correction__item--minor {
+  border-left-color: var(--mark-minor);
+}
+
+.correction__item--medium {
+  border-left-color: var(--mark-medium);
+}
+
+.correction__item--major {
+  border-left-color: var(--mark-major);
+}
+
+.correction__label {
+  color: var(--ink-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.correction__segment,
+.correction__change {
+  font-family: var(--font-content);
+  overflow-wrap: anywhere;
+}
+
+.correction__self {
+  font-size: 0.9375rem;
+}
+
+.correction__self--found {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.correction__section {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.correction__section > p {
+  margin: 0;
+}
+
+.correction__heading {
+  font-size: 1rem;
+  margin: 0.5rem 0 0;
+}
+
+.correction__natural {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-content);
+  margin: 0;
+}
+
+/* A list item whose content takes the whole width (a correction under its title). */
+.plain-list__item--stacked {
+  flex-direction: column;
+  align-items: stretch;
+}
