@@ -81,7 +81,6 @@ export const THEME: NotionContentInput['theme'] = [
     hint: 'Une question sur la durée d’une activité, jusqu’à maintenant.',
     accepted: [
       'How long have you been waiting?',
-      'How long have you been waiting for?',
       'For how long have you been waiting?',
       'How long have you waited?',
       'Have you been waiting long?',

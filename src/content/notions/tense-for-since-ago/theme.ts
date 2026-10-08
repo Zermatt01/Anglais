@@ -34,7 +34,7 @@ export const THEME: NotionContentInput['theme'] = [
     situationFr:
       'Tu écris au fournisseur : la livraison promise n’est toujours pas arrivée, et cela fait trois semaines que vous l’attendez.',
     instructionEn:
-      'Write to the supplier: the promised delivery is now three weeks late, and your team is losing patience.',
+      'Write to the supplier: tell them that your team’s wait for the delivery started three weeks ago and continues today.',
     hint: 'Une attente qui dure depuis une certaine durée, jusqu’à maintenant.',
     accepted: [
       'We have been waiting for the delivery for three weeks.',

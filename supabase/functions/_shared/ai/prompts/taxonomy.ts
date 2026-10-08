@@ -35,7 +35,7 @@ export const CATEGORY_DEFINITIONS: Readonly<Record<ContractErrorCategory, string
   orthographe:
     'Spelling of an existing word: typing errors, compulsory capitals (days, months, languages, nationalities, I), homophones (its/it’s, your/you’re, their/there), the apostrophe of the genitive (the company’s results). Boundary: a wrong verb form or a wrong plural belongs to the grammatical category.',
   ponctuation:
-    'Punctuation and English typography: no space before ? ! : ;, English quotation marks, a comma after a connector at the start of a sentence, no comma before a defining relative clause, two independent clauses joined by a mere comma (comma splice).',
+    'Punctuation and English typography: no space before ? ! : ;, English quotation marks, a comma after a connector at the start of a sentence, no comma before a defining relative clause, two long independent clauses joined by a mere comma in formal writing (comma splice, always minor). A comma after a short imperative or an interjection ("Don’t worry, I’ll call you."), or between two short, closely linked clauses ("It’s late, let’s go."), is not an error.',
   prononciation: 'Reserved for the oral modules. Never use it for a written text.',
 };
 
