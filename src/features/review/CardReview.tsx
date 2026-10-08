@@ -146,7 +146,10 @@ export function CardReview({ card, onReviewed }: CardReviewProps) {
       cardType: content.type,
       meaningFr: content.meaningFr,
       textWithGap: gapped,
-      infinitive: content.type === 'cloze' ? content.infinitive : null,
+      infinitive:
+        content.type === 'cloze' && content.infinitive !== null && /\S/.test(content.infinitive)
+          ? content.infinitive
+          : null,
       expected: acceptedCardAnswers(content).filter((text) => /\S/.test(text)),
       answer,
       englishVariant: settings.englishVariant,
