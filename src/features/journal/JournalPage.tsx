@@ -18,6 +18,7 @@ import { formatDateTime } from '../dates.ts';
 import { useDraft, type DraftSaveState } from '../drafts/use-draft.ts';
 import { useSettings } from '../settings/use-settings.ts';
 import { usePageTitle } from '../use-page-title.ts';
+import '../path/path.css';
 
 const STATUS: Readonly<Record<DraftSaveState, string>> = {
   idle: '',
@@ -138,7 +139,7 @@ function Entry({
   const [french, setFrench] = useState(false);
   const [empty, setEmpty] = useState(false);
   const [storeFailed, setStoreFailed] = useState(false);
-  const { run, correct, available } = correction;
+  const { run, correct, available, once, sending } = correction;
 
   const submit = async () => {
     const text = draft.text.trim();
@@ -228,11 +229,12 @@ function Entry({
       ) : null}
       <CorrectionAction
         run={run}
+        sending={sending}
         available={available}
         disabled={!draft.ready}
         label="Corriger mon texte"
         onCorrect={() => {
-          void submit();
+          void once(submit);
         }}
       />
     </Sheet>
@@ -279,7 +281,7 @@ function PendingCorrection({
   readonly production: ProductionDocument;
   readonly correction: Correction;
 }) {
-  const { run, correct, available } = correction;
+  const { run, correct, available, once, sending } = correction;
   return (
     <>
       <p lang="en" className="marked-text">
@@ -290,13 +292,16 @@ function PendingCorrection({
       ) : (
         <CorrectionAction
           run={run}
+          sending={sending}
           available={available}
           label="Réessayer la correction"
           onCorrect={() => {
-            void correct(production.id, journalRequest(production), {
-              reference: null,
-              fallbackHint: fallbackHintOf,
-            });
+            void once(() =>
+              correct(production.id, journalRequest(production), {
+                reference: null,
+                fallbackHint: fallbackHintOf,
+              }),
+            );
           }}
         />
       )}

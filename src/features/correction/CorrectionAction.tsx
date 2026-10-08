@@ -10,6 +10,8 @@ import type { CorrectionRun } from './use-correction.ts';
 
 interface CorrectionActionProps {
   readonly run: CorrectionRun;
+  /** An action is being sent (`useCorrection().sending`): the button waits. */
+  readonly sending?: boolean;
   /** False without a server: the AI cannot be used on this device. */
   readonly available: boolean;
   readonly disabled?: boolean;
@@ -24,6 +26,7 @@ interface CorrectionActionProps {
  */
 export function CorrectionAction({
   run,
+  sending = false,
   available,
   disabled = false,
   label = 'Corriger avec l’IA',
@@ -57,8 +60,11 @@ export function CorrectionAction({
         <p className="muted">Connexion nécessaire pour la correction. Ton texte est enregistré.</p>
       )}
       <div className="button-row">
-        <Button disabled={disabled || !online || run.state === 'running'} onClick={onCorrect}>
-          {run.state === 'running'
+        <Button
+          disabled={disabled || !online || sending || run.state === 'running'}
+          onClick={onCorrect}
+        >
+          {run.state === 'running' || sending
             ? 'Correction en cours…'
             : run.state === 'failed' || run.state === 'not-saved'
               ? 'Réessayer'

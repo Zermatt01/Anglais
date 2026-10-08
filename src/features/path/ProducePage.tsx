@@ -251,11 +251,12 @@ function Produce({
         ) : null}
         <CorrectionAction
           run={shown === null ? correction.run : { state: 'idle' }}
+          sending={correction.sending}
           available={correction.available}
           disabled={!draft.ready || correction.run.state === 'running'}
           label="Corriger mes phrases"
           onCorrect={() => {
-            void submit();
+            void correction.once(submit);
           }}
         />
         <div className="button-row">
@@ -272,7 +273,7 @@ function Produce({
             production={shownEntry}
             correction={correction}
             onRetry={() => {
-              void send(shownEntry);
+              void correction.once(() => send(shownEntry));
             }}
           />
           {events.map((event) => {
@@ -317,6 +318,7 @@ function ProductionResult({
         ) : (
           <CorrectionAction
             run={correction.run}
+            sending={correction.sending}
             available={correction.available}
             label="Réessayer la correction"
             onCorrect={onRetry}
@@ -367,7 +369,9 @@ function PreviousProductions({
                 production={entry}
                 correction={correction}
                 onRetry={() => {
-                  void correction.correct(entry.id, requestOf(notionId, entry), context);
+                  void correction.once(() =>
+                    correction.correct(entry.id, requestOf(notionId, entry), context),
+                  );
                 }}
               />
             ) : (

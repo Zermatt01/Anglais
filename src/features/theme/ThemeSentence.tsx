@@ -68,7 +68,7 @@ export function ThemeSentence({
   const [hintShown, setHintShown] = useState(unstudied);
   const [empty, setEmpty] = useState(false);
   const [phase, setPhase] = useState<Phase>({ name: 'answering' });
-  const { run, correct, available } = useCorrection();
+  const { run, correct, available, once, sending } = useCorrection();
   const instruction = themeInstruction(item, tier);
   const canonical = item.accepted[0] ?? '';
   const reference = referenceOf(item.sentenceFr, item.accepted);
@@ -216,7 +216,9 @@ export function ThemeSentence({
   };
 
   return (
-    <Sheet title={tier === 1 ? 'Traduis' : tier === 2 ? 'Exprime la situation' : 'In English'}>
+    <Sheet
+      title={tier === 1 ? 'Traduis' : tier === 2 ? 'Exprime la situation' : 'Consigne en anglais'}
+    >
       {unstudied ? (
         <p className="badge">
           Notion pas encore étudiée : <RichText text={notionTitle} />
@@ -308,12 +310,13 @@ export function ThemeSentence({
           </p>
           <CorrectionAction
             run={run}
+            sending={sending}
             available={available}
             onCorrect={() => {
-              void askModel(phase.answer, phase.productionId);
+              void once(() => askModel(phase.answer, phase.productionId));
             }}
           />
-          {run.state === 'running' ? null : (
+          {run.state === 'running' || sending ? null : (
             <>
               <p>Ou bien : ta phrase a-t-elle le même sens, sans faute ?</p>
               <div className="button-row">

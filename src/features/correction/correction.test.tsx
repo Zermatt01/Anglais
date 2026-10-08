@@ -116,6 +116,20 @@ describe('journal (MOD-07)', () => {
     expect(fake.calls.run).toEqual(['correct-production', 'correct-production']);
   });
 
+  it('stores one production and asks once, even after a double tap', async () => {
+    const { fake, services } = await servicesWith(() =>
+      Promise.resolve(answered(correctionOf(JOURNAL_TEXT, null))),
+    );
+    await renderApp('/journal', services);
+    await typeIn('Ton texte, en anglais', JOURNAL_TEXT);
+    const button = screen.getByRole('button', { name: 'Corriger mon texte' });
+    fireEvent.click(button);
+    fireEvent.click(button);
+    expect(await screen.findByText('Aucune erreur : bravo.')).toBeInTheDocument();
+    expect(fake.calls.run).toEqual(['correct-production']);
+    expect(await services.productions.list('journal')).toHaveLength(1);
+  });
+
   it('shows the correction at once when self-correction is turned off in the settings', async () => {
     const { services } = await servicesWith(() =>
       Promise.resolve(

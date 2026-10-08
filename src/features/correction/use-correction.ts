@@ -7,7 +7,7 @@
  * loses nothing; it is marked as such and can be tried again.
  */
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type {
   CorrectionContext,
   CorrectionOutcome,
@@ -32,6 +32,26 @@ export function useCorrection() {
   const { server, productions, clock } = useAppServices();
   const settings = useSettings()?.values ?? DEFAULT_SETTINGS;
   const [run, setRun] = useState<CorrectionRun>({ state: 'idle' });
+  // Set synchronously: a second tap, before the screen updates, is ignored.
+  const busy = useRef(false);
+  const [sending, setSending] = useState(false);
+
+  /**
+   * Runs an action of the learner once at a time: storing the production then
+   * asking for its correction. A double tap never stores two productions, nor
+   * pays for two corrections.
+   */
+  async function once(action: () => Promise<unknown>): Promise<void> {
+    if (busy.current) return;
+    busy.current = true;
+    setSending(true);
+    try {
+      await action();
+    } finally {
+      busy.current = false;
+      setSending(false);
+    }
+  }
 
   /** Sends the production to the model, then stores the correction with everything it changes. */
   async function correct(
@@ -78,7 +98,7 @@ export function useCorrection() {
     setRun({ state: 'idle' });
   };
 
-  return { run, correct, available: server !== null, reset };
+  return { run, correct, once, sending, available: server !== null, reset };
 }
 
 /** A stored production, its errors and the cards made from them, kept up to date. */

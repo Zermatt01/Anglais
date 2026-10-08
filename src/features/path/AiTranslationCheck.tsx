@@ -94,10 +94,11 @@ export function AiTranslationCheck({
       ) : null}
       <CorrectionAction
         run={correction.run}
+        sending={correction.sending}
         available={correction.available}
         label="Faire vérifier par l’IA"
         onCorrect={() => {
-          void check();
+          void correction.once(check);
         }}
       />
     </>
