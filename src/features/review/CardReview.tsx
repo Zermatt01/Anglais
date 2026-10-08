@@ -24,7 +24,7 @@ import { TextAreaField, TextField } from '../../ui/fields.tsx';
 import { Notice } from '../../ui/Notice.tsx';
 import { RichText } from '../../ui/RichText.tsx';
 import { Sheet } from '../../ui/Page.tsx';
-import { formatUsd } from '../ai/format.ts';
+import { formatMaxUsd } from '../ai/format.ts';
 import { aiErrorMessage } from '../ai/messages.ts';
 import { useAppServices } from '../app-services.ts';
 import { MarkedText } from '../correction/MarkedText.tsx';
@@ -278,7 +278,7 @@ export function CardReview({ card, onReviewed }: CardReviewProps) {
             <>
               <p className="muted">
                 {online
-                  ? `Vérification rapide par l’IA : au plus ${formatUsd(CHECK_MAX_COST_USD)}.`
+                  ? `Vérification rapide par l’IA : au plus ${formatMaxUsd(CHECK_MAX_COST_USD)}.`
                   : 'Connexion nécessaire pour la vérification par l’IA.'}
               </p>
               <div className="button-row">

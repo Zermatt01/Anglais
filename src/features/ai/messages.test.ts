@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AI_ERROR_CODES } from '../../../shared/ai/protocol.ts';
-import { formatCap, formatDay, formatUsd } from './format.ts';
+import { formatCap, formatDay, formatMaxUsd, formatUsd } from './format.ts';
 import { aiErrorMessage } from './messages.ts';
 
 describe('formatUsd and formatCap', () => {
@@ -11,6 +11,13 @@ describe('formatUsd and formatCap', () => {
     expect(formatUsd(0.00013)).toBe('0,0001 USD');
     expect(formatCap(10)).toBe('10 USD');
     expect(formatCap(2.5)).toBe('2,5 USD');
+  });
+
+  it('round a highest cost up, never down', () => {
+    expect(formatMaxUsd(0.0412)).toBe('0,05 USD');
+    expect(formatMaxUsd(0.18)).toBe('0,18 USD');
+    expect(formatMaxUsd(0.1801)).toBe('0,19 USD');
+    expect(formatMaxUsd(0.00413)).toBe('0,0042 USD');
   });
 });
 

@@ -1,7 +1,7 @@
 import { Link } from 'react-router';
 import { Button } from '../../ui/Button.tsx';
 import { Notice } from '../../ui/Notice.tsx';
-import { formatUsd } from '../ai/format.ts';
+import { formatMaxUsd } from '../ai/format.ts';
 import { aiErrorMessage } from '../ai/messages.ts';
 import { PATHS } from '../paths.ts';
 import { useOnline } from '../use-online.ts';
@@ -63,7 +63,7 @@ export function CorrectionAction({
       {answerKept ? (
         <p className="muted">Sans nouveau coût : la correction reçue est seulement enregistrée.</p>
       ) : online ? (
-        <p className="muted">{`Coût : au plus ${formatUsd(CORRECTION_MAX_COST_USD)}, en général bien moins.`}</p>
+        <p className="muted">{`Coût : au plus ${formatMaxUsd(CORRECTION_MAX_COST_USD)}, en général bien moins.`}</p>
       ) : (
         <p className="muted">Connexion nécessaire pour la correction. Ton texte est enregistré.</p>
       )}

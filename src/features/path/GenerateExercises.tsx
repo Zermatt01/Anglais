@@ -14,7 +14,7 @@ import type { AiClientError } from '../../services/ai-client/ai-client.ts';
 import { Button } from '../../ui/Button.tsx';
 import { Notice } from '../../ui/Notice.tsx';
 import { Sheet } from '../../ui/Page.tsx';
-import { formatUsd } from '../ai/format.ts';
+import { formatMaxUsd, formatUsd } from '../ai/format.ts';
 import { aiErrorMessage } from '../ai/messages.ts';
 import { useAppServices } from '../app-services.ts';
 import { PATHS } from '../paths.ts';
@@ -175,7 +175,7 @@ export function GenerateExercises({
     <Sheet title="Plus d’exercices">
       {intro}
       <p>
-        {`L’IA peut en créer ${String(GENERATED_EXERCISES_PER_CALL)} nouveaux. Chacun est vérifié automatiquement, puis conservé sur ce téléphone : il ne sera jamais recréé. Coût : au plus ${formatUsd(MAX_COST_USD)} environ.`}
+        {`L’IA peut en créer ${String(GENERATED_EXERCISES_PER_CALL)} nouveaux. Chacun est vérifié automatiquement, puis conservé sur ce téléphone : il ne sera jamais recréé. Coût : au plus ${formatMaxUsd(MAX_COST_USD)} environ.`}
       </p>
       <p className="muted">
         Contrairement aux autres exercices, ceux-ci n’ont pas été relus par une personne : tu
