@@ -46,7 +46,6 @@ export interface ModelUnnaturalPhrase {
 export interface ModelSentence {
   readonly original: string;
   readonly corrected: string;
-  readonly variants: readonly string[];
   readonly meaningFr: string;
 }
 
@@ -72,7 +71,8 @@ export interface ModelCorrection {
   readonly sentences: readonly ModelSentence[];
   readonly correctedText: string;
   readonly naturalVersion: string;
-  readonly usesTargetNotion: boolean | null;
+  /** Words of the text that use the target notion; `null` without a target notion. */
+  readonly targetNotionUses: readonly string[] | null;
   readonly expressionOfTheDay: ExpressionOfTheDay | null;
   readonly evaluation: Evaluation;
 }
@@ -107,7 +107,8 @@ export interface ReviewedCorrection {
   readonly sentences: readonly ReviewedSentence[];
   readonly correctedText: string;
   readonly naturalVersion: string;
-  readonly usesTargetNotion: boolean | null;
+  /** As the model gives them: proven or not by `notion-use.ts` (D-088). */
+  readonly targetNotionUses: readonly string[] | null;
   readonly expressionOfTheDay: ExpressionOfTheDay | null;
   readonly evaluation: Evaluation;
 }
@@ -284,7 +285,7 @@ export function reviewCorrection(text: string, output: ModelCorrection): Reviewe
       .filter((sentence) => sentence !== null),
     correctedText: output.correctedText,
     naturalVersion: output.naturalVersion,
-    usesTargetNotion: output.usesTargetNotion,
+    targetNotionUses: output.targetNotionUses,
     expressionOfTheDay:
       expression !== null && hasText(expression.expression) && hasText(expression.meaningFr)
         ? expression
@@ -353,19 +354,6 @@ export function translationResult(
     return 'incorrect';
   }
   return errors.length > 0 ? 'acceptable' : 'correct';
-}
-
-/** What step 5 needs to know of a corrected production (PEDAGOGY §3.3). */
-export function productionCheckOf(
-  correction: ReviewedCorrection,
-  targetNotionId: NotionId,
-): { readonly usesNotion: boolean; readonly hasNotionError: boolean } {
-  return {
-    usesNotion: correction.usesTargetNotion === true,
-    hasNotionError: correction.errors.some(
-      (error) => error.notionId === targetNotionId && isCountedError(error),
-    ),
-  };
 }
 
 export type SelfCorrectionCheck =

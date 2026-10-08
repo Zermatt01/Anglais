@@ -125,7 +125,8 @@ describe('correct-production', () => {
       for (const score of [accuracy, naturalness, complexity]) {
         expect(Number.isInteger(score) && score >= 1 && score <= 5).toBe(true);
       }
-      expect(example.output.usesTargetNotion === null).toBe(targetNotionId === null);
+      expect(example.output.targetNotionUses === null).toBe(targetNotionId === null);
+      for (const words of example.output.targetNotionUses ?? []) expect(text).toContain(words);
     },
   );
 

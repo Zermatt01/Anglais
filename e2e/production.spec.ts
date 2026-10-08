@@ -25,13 +25,12 @@ function correctionOutput() {
       {
         original: TEXT,
         corrected: 'I agree with the plan.',
-        variants: [],
         meaningFr: 'Je suis d’accord avec le plan.',
       },
     ],
     correctedText: 'I agree with the plan.',
     naturalVersion: 'I agree with the plan.',
-    usesTargetNotion: null,
+    targetNotionUses: null,
     expressionOfTheDay: null,
     evaluation: { accuracy: 3, naturalness: 3, complexity: 1, level: 'A2', commentFr: 'Bien.' },
   };
@@ -50,7 +49,7 @@ test.describe('correction and review', () => {
           requestId,
           task: 'correct-production',
           model: 'claude-sonnet-5',
-          promptVersion: 'correct-production@1',
+          promptVersion: 'correct-production@2',
           costUsd: 0.012,
           output: correctionOutput(),
         };

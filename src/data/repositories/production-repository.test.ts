@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { z } from 'zod';
 import type { NotionCardContent } from '../../domain/cards/content.ts';
 import type { NotionId } from '../../domain/curriculum/notion-id.ts';
 import type { ModelCorrection, ModelError } from '../../domain/production/correction.ts';
+import type { NotionUse } from '../../domain/production/notion-use.ts';
 import { createFsrsScheduler } from '../../domain/srs/scheduler.ts';
 import { createTestClock, createTestDatabase } from '../../test/database.ts';
 import { createCardRepository } from './card-repository.ts';
@@ -68,13 +70,12 @@ function output(fields: Partial<ModelCorrection> = {}): ModelCorrection {
       {
         original: TEXT,
         corrected: 'Yesterday I finished the report.',
-        variants: ['I finished the report yesterday.'],
         meaningFr: 'Hier, j’ai fini le rapport.',
       },
     ],
     correctedText: 'Yesterday I finished the report.',
     naturalVersion: 'Yesterday I finished the report.',
-    usesTargetNotion: null,
+    targetNotionUses: null,
     expressionOfTheDay: null,
     evaluation: { accuracy: 3, naturalness: 3, complexity: 2, level: 'A2', commentFr: 'Bien.' },
     ...fields,
@@ -84,11 +85,17 @@ function output(fields: Partial<ModelCorrection> = {}): ModelCorrection {
 const received = (model: ModelCorrection = output()) => ({
   output: model,
   model: 'claude-sonnet-5',
-  promptVersion: 'correct-production@1',
+  promptVersion: 'correct-production@2',
   costUsd: 0.012,
 });
 
 const context = { reference: null, fallbackHint };
+
+/** Constructions of the contrast of NOTION (content/notion-use.ts). */
+const PERFECT_OR_PAST: NotionUse = {
+  groups: [['have|has {participle}'], ['{past}', 'did {base}']],
+  required: 2,
+};
 
 describe('production repository', () => {
   it('stores a production before the call, with its activity, and removes its draft', async () => {
@@ -117,7 +124,7 @@ describe('production repository', () => {
     expect(outcome.production).toMatchObject({
       status: 'corrected',
       intentFr: 'Hier, j’ai fini le rapport.',
-      correction: { promptVersion: 'correct-production@1', costUsd: 0.012 },
+      correction: { promptVersion: 'correct-production@2', costUsd: 0.012 },
       // A journal entry has no result of its own.
       result: null,
     });
@@ -273,7 +280,7 @@ describe('production repository', () => {
     expect(await drafts.get('path:x/s4/01')).toEqual({ state: 'absent' });
   });
 
-  it('makes a notion acquired after two good productions of step 5, with its cards (CUR-09)', async () => {
+  it('makes a notion acquired after two productions of step 5 whose use is proven, with its cards (CUR-09, D-088)', async () => {
     const { db, productions, path, cards, clock } = await setup();
     await db.table('notionProgress').put({
       notionId: NOTION,
@@ -297,28 +304,114 @@ describe('production repository', () => {
         answers: { canonical: 'I finished yesterday.', variants: [] },
       },
     ];
-    const good = output({ errors: [], sentences: [], usesTargetNotion: true });
+    const text = 'I have finished the report. I sent it to my manager yesterday.';
+    const good = output({ errors: [], sentences: [], targetNotionUses: ['have finished', 'sent'] });
+    // The model says the notion is used, but its words show only one of the two tenses.
+    const unproven = output({ errors: [], sentences: [], targetNotionUses: ['have finished'] });
     const produce = production({
       module: 'path-produce',
       context: { notionId: NOTION, itemId: null, tier: null, unstudied: false, hintUsed: false },
+      text,
     });
+    const step5 = { ...context, notionCards, notionUse: PERFECT_OR_PAST };
     clock.advance(1_000);
     const first = await productions.submit(produce);
-    const one = await productions.applyCorrection(first.id, received(good), {
-      ...context,
-      notionCards,
-    });
+    const one = await productions.applyCorrection(first.id, received(good), step5);
     expect(one.result).toBe('correct');
     expect(one.events).toEqual([]);
     clock.advance(1_000);
+    const between = await productions.submit(produce);
+    const unprovenOutcome = await productions.applyCorrection(
+      between.id,
+      received(unproven),
+      step5,
+    );
+    // Neither good nor bad: it does not break the series.
+    expect(unprovenOutcome).toMatchObject({ result: null, events: [] });
+    expect(unprovenOutcome.production.grader).toBeNull();
+    clock.advance(1_000);
     const second = await productions.submit(produce);
-    const two = await productions.applyCorrection(second.id, received(good), {
-      ...context,
-      notionCards,
-    });
+    const two = await productions.applyCorrection(second.id, received(good), step5);
     expect(two.events).toEqual([{ type: 'acquired' }]);
     expect(await path.progress(NOTION)).toMatchObject({ values: { status: 'acquired' } });
     expect((await cards.all()).map((card) => card.origin)).toEqual(['notion']);
+  });
+
+  it('never makes a notion acquired from what the model says without proof (D-088)', async () => {
+    const { db, productions, path, clock } = await setup();
+    await db.table('notionProgress').put({
+      notionId: NOTION,
+      status: 'in_progress',
+      step: 5,
+      recall: null,
+      stepEnteredAt: clock.now(),
+      acquiredAt: null,
+      lastRegressionAt: null,
+      createdAt: clock.now(),
+      updatedAt: clock.now(),
+      deletedAt: null,
+      schemaVersion: 1,
+    });
+    const text = 'I like my job. I work in Geneva.';
+    const produce = production({
+      module: 'path-produce',
+      context: { notionId: NOTION, itemId: null, tier: null, unstudied: false, hintUsed: false },
+      text,
+    });
+    for (const uses of [['I like my job', 'I work'], ['have finished', 'sent'], []]) {
+      clock.advance(1_000);
+      const stored = await productions.submit(produce);
+      const outcome = await productions.applyCorrection(
+        stored.id,
+        received(output({ errors: [], sentences: [], targetNotionUses: uses })),
+        { ...context, notionUse: PERFECT_OR_PAST },
+      );
+      expect(outcome).toMatchObject({ result: null, events: [] });
+    }
+    // Without the constructions of the notion, nothing can be proven.
+    clock.advance(1_000);
+    const stored = await productions.submit({ ...produce, text: 'I have finished. I sent it.' });
+    const outcome = await productions.applyCorrection(
+      stored.id,
+      received(output({ errors: [], sentences: [], targetNotionUses: ['have finished', 'sent'] })),
+      context,
+    );
+    expect(outcome.result).toBeNull();
+    expect(await path.progress(NOTION)).toMatchObject({ values: { status: 'in_progress' } });
+  });
+
+  it('still reads a correction of the first version of the prompt, whose words prove nothing', async () => {
+    const { productions } = await setup();
+    const stored = await productions.submit(production());
+    const outcome = await productions.applyCorrection(stored.id, received(), context);
+    const current = output();
+    // Plain JSON, as stored: the round trip drops the key of the current version.
+    const firstVersion = z.json().parse(
+      JSON.parse(
+        JSON.stringify({
+          ...current,
+          targetNotionUses: undefined,
+          usesTargetNotion: true,
+          sentences: current.sentences.map((sentence) => ({
+            ...sentence,
+            variants: ['I like pizza.'],
+          })),
+        }),
+      ),
+    );
+    const reviewed = reviewedCorrectionOf({
+      ...outcome.production,
+      correction: {
+        promptVersion: 'correct-production@1',
+        model: 'claude-sonnet-5',
+        receivedAt: 0,
+        costUsd: 0.01,
+        output: firstVersion,
+      },
+    });
+    expect(reviewed?.targetNotionUses).toEqual([]);
+    expect(reviewed?.sentences[0]).toMatchObject({ answer: 'Yesterday I finished the report.' });
+    expect(reviewed?.sentences[0]).not.toHaveProperty('variants');
   });
 
   it('records a Thème sentence graded locally, with the card of an anticipated error', async () => {

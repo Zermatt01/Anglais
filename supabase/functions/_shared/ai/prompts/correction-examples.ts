@@ -28,7 +28,7 @@ const UNNATURAL =
 
 export const CORRECTION_EXAMPLES: readonly CorrectionExample[] = [
   {
-    title: 'A journal entry with errors of four different categories',
+    title: 'A journal entry with four errors across three categories',
     module: 'journal',
     instruction: { text: 'What did you do at work last week?', language: 'en' },
     reference: null,
@@ -92,7 +92,6 @@ export const CORRECTION_EXAMPLES: readonly CorrectionExample[] = [
         {
           original: 'Last week I have presented the quarterly results to the board.',
           corrected: 'Last week I presented the quarterly results to the board.',
-          variants: [],
           meaningFr:
             'La semaine dernière, j’ai présenté les résultats trimestriels au conseil d’administration.',
         },
@@ -101,16 +100,12 @@ export const CORRECTION_EXAMPLES: readonly CorrectionExample[] = [
             'I work in this team since 2023 and I am agree with my manager about the new strategy.',
           corrected:
             'I have worked in this team since 2023 and I agree with my manager about the new strategy.',
-          variants: [
-            "I've been working in this team since 2023 and I agree with my manager about the new strategy.",
-          ],
           meaningFr:
             'Je travaille dans cette équipe depuis 2023 et je suis d’accord avec ma responsable sur la nouvelle stratégie.',
         },
         {
           original: 'She gave me many advices.',
           corrected: 'She gave me a lot of advice.',
-          variants: ['She gave me lots of advice.'],
           meaningFr: 'Elle m’a donné beaucoup de conseils.',
         },
       ],
@@ -118,7 +113,7 @@ export const CORRECTION_EXAMPLES: readonly CorrectionExample[] = [
         'Last week I presented the quarterly results to the board. I have worked in this team since 2023 and I agree with my manager about the new strategy. She gave me a lot of advice.',
       naturalVersion:
         "Last week I presented the quarterly results to the board. I've been working in this team since 2023, and I agree with my manager on the new strategy. She gave me a lot of advice.",
-      usesTargetNotion: null,
+      targetNotionUses: null,
       expressionOfTheDay: {
         expression: 'to be on the same page',
         meaningFr: 'être sur la même longueur d’onde',
@@ -156,7 +151,7 @@ export const CORRECTION_EXAMPLES: readonly CorrectionExample[] = [
       sentences: [],
       correctedText: NO_ERROR,
       naturalVersion: NO_ERROR,
-      usesTargetNotion: true,
+      targetNotionUses: ["still haven't got"],
       expressionOfTheDay: null,
       evaluation: {
         accuracy: 5,
@@ -210,9 +205,6 @@ export const CORRECTION_EXAMPLES: readonly CorrectionExample[] = [
             'At the moment I am working on a new project, but usually I prepare the monthly reports every monday.',
           corrected:
             'At the moment I am working on a new project, but usually I prepare the monthly reports every Monday.',
-          variants: [
-            'At the moment I am working on a new project, but I usually prepare the monthly reports every Monday.',
-          ],
           meaningFr:
             'En ce moment, je travaille sur un nouveau projet, mais d’habitude je prépare les rapports mensuels tous les lundis.',
         },
@@ -221,7 +213,7 @@ export const CORRECTION_EXAMPLES: readonly CorrectionExample[] = [
         'According to me, the market is changing a lot this year. At the moment I am working on a new project, but usually I prepare the monthly reports every Monday.',
       naturalVersion:
         "In my opinion, the market is changing a lot this year. At the moment I'm working on a new project, but I usually prepare the monthly reports every Monday.",
-      usesTargetNotion: true,
+      targetNotionUses: ['is changing', 'I am working', 'I prepare'],
       expressionOfTheDay: {
         expression: 'to keep track of',
         meaningFr: 'suivre, garder une trace de',

@@ -37,13 +37,12 @@ export function correctionOf(
             {
               original: text,
               corrected,
-              variants: [],
               meaningFr: 'Hier, j’ai rencontré le client.',
             },
           ],
     correctedText: corrected,
     naturalVersion: corrected,
-    usesTargetNotion: null,
+    targetNotionUses: null,
     expressionOfTheDay: {
       expression: 'to follow up',
       meaningFr: 'relancer, donner suite',
@@ -67,6 +66,6 @@ export function answered(output: CorrectionOutput): AiRunResult<AiTaskName> {
     output,
     costUsd: 0.012,
     model: 'claude-sonnet-5',
-    promptVersion: 'correct-production@1',
+    promptVersion: 'correct-production@2',
   };
 }

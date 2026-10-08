@@ -14,7 +14,12 @@
  * everything is stored, or nothing.
  *
  * The stored output is the model's, validated again against the output schema
- * each time it is read, then reviewed by `reviewCorrection`.
+ * each time it is read (or against that of `correct-production@1`), then
+ * reviewed by `reviewCorrection`.
+ *
+ * Nothing the model says changes the progress unless the app checks it
+ * (D-088): an error counts only once found in the text, and a production of
+ * step 5 is good only when the app proves that it uses the notion.
  */
 import { z } from 'zod';
 import { correctionOutputSchema } from '../../../shared/ai/tasks.ts';
@@ -41,12 +46,12 @@ import {
   isCountedError,
   isPointToCheck,
   isQualifyingError,
-  productionCheckOf,
   reviewCorrection,
   translationResult,
   type ModelCorrection,
   type ReviewedCorrection,
 } from '../../domain/production/correction.ts';
+import { stepFiveResult, type NotionUse } from '../../domain/production/notion-use.ts';
 import type { TextRange } from '../../domain/correction/segments.ts';
 import type {
   AnswerResult,
@@ -105,6 +110,8 @@ export interface CorrectionContext {
   readonly pathAnswer?: PathAnswerToRecord;
   /** Cards of the target notion, created if the production makes it acquired (CUR-09). */
   readonly notionCards?: readonly NotionCardContent[];
+  /** Constructions of the target notion of step 5: without them, its use is never proven. */
+  readonly notionUse?: NotionUse;
 }
 
 /** An answer to a reviewed sentence that matches one of its anticipated errors. */
@@ -153,10 +160,41 @@ export interface ProductionRepository {
   errorsSince(since?: number): Promise<ErrorDocument[]>;
 }
 
+/**
+ * An output of `correct-production@1`, read as one of the current version: it
+ * said whether the text used the target notion, without the words, which
+ * prove nothing (D-088), and gave other versions of each sentence, which are
+ * never accepted answers.
+ */
+const firstVersionOutputSchema = correctionOutputSchema
+  .omit({ targetNotionUses: true, sentences: true })
+  .extend({
+    usesTargetNotion: z.boolean().nullable(),
+    sentences: z.array(
+      z.strictObject({
+        original: z.string(),
+        corrected: z.string(),
+        variants: z.array(z.string()),
+        meaningFr: z.string(),
+      }),
+    ),
+  })
+  .transform(({ usesTargetNotion, sentences, ...output }) => ({
+    ...output,
+    targetNotionUses: usesTargetNotion === null ? null : [],
+    sentences: sentences.map(({ original, corrected, meaningFr }) => ({
+      original,
+      corrected,
+      meaningFr,
+    })),
+  }));
+
+const storedOutputSchema = z.union([correctionOutputSchema, firstVersionOutputSchema]);
+
 /** The reviewed correction of a stored production, or `null` (none, or unreadable). */
 export function reviewedCorrectionOf(production: ProductionDocument): ReviewedCorrection | null {
   if (production.correction === null) return null;
-  const output = correctionOutputSchema.safeParse(production.correction.output);
+  const output = storedOutputSchema.safeParse(production.correction.output);
   return output.success ? reviewCorrection(production.text, output.data) : null;
 }
 
@@ -431,7 +469,9 @@ export function createProductionRepository(
       )
       .sort((a, b) => a.createdAt - b.createdAt);
     for (const production of corrected) {
-      // `correct` means the notion was used without a counted error on it.
+      // `correct`: the use of the notion is proven, without a counted error on it. A
+      // production whose use is not proven (`null`) counts neither way (D-088).
+      if (production.result === null) continue;
       const good = production.result === 'correct';
       checks.push({ usesNotion: good, hasNotionError: !good });
     }
@@ -471,8 +511,12 @@ export function createProductionRepository(
         if (module === 'path-translate' && targetNotionId !== null) {
           result = translationResult(correction, targetNotionId);
         } else if (module === 'path-produce' && targetNotionId !== null) {
-          const check = productionCheckOf(correction, targetNotionId);
-          result = check.usesNotion && !check.hasNotionError ? 'correct' : 'incorrect';
+          result = stepFiveResult(
+            stored.text,
+            correction,
+            targetNotionId,
+            context.notionUse ?? null,
+          );
         } else if (module === 'theme') {
           result = productionResult(correction);
         }

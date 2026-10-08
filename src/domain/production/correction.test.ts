@@ -7,7 +7,6 @@ import {
   isQualifyingError,
   isSameAnswer,
   isWholeSentence,
-  productionCheckOf,
   reviewCorrection,
   translationResult,
   type ModelCorrection,
@@ -40,13 +39,12 @@ function correction(fields: Partial<ModelCorrection> = {}): ModelCorrection {
       {
         original: 'Last week I have presented the results.',
         corrected: 'Last week I presented the results.',
-        variants: [],
         meaningFr: 'La semaine dernière, j’ai présenté les résultats.',
       },
     ],
     correctedText: 'Last week I presented the results. She gave me a lot of advice.',
     naturalVersion: 'Last week I presented the results. She gave me a lot of advice.',
-    usesTargetNotion: null,
+    targetNotionUses: null,
     expressionOfTheDay: null,
     evaluation: { accuracy: 3, naturalness: 3, complexity: 2, level: 'A2', commentFr: 'Bien.' },
     ...fields,
@@ -144,19 +142,16 @@ describe('reviewCorrection (AI-07)', () => {
           {
             original: 'Last week I have presented the results.',
             corrected: 'Last week, I presented the results.',
-            variants: ['I like pizza.'],
             meaningFr: 'x',
           },
           {
             original: 'A sentence I never wrote.',
             corrected: 'Another.',
-            variants: [],
             meaningFr: 'x',
           },
           {
             original: 'She gave me many advices.',
             corrected: 'She gave me many advices',
-            variants: [],
             meaningFr: 'x',
           },
         ],
@@ -167,7 +162,6 @@ describe('reviewCorrection (AI-07)', () => {
         original: 'Last week I have presented the results.',
         range: { start: 0, end: 39 },
         meaningFr: 'x',
-        // The model's other versions are never kept (D-088).
         answer: 'Last week I presented the results.',
       },
     ]);
@@ -185,9 +179,7 @@ describe('reviewCorrection (AI-07)', () => {
             notionId: 'tense-for-since-ago',
           }),
         ],
-        sentences: [
-          { original: 'I work', corrected: 'I have worked', variants: [], meaningFr: 'x' },
-        ],
+        sentences: [{ original: 'I work', corrected: 'I have worked', meaningFr: 'x' }],
       }),
     );
     expect(reviewed.errors).toHaveLength(1);
@@ -202,7 +194,6 @@ describe('reviewCorrection (AI-07)', () => {
           {
             original: 'Last week I have presented the results.',
             corrected: 'Last week I presented the final results.',
-            variants: [],
             meaningFr: 'x',
           },
         ],
@@ -230,7 +221,7 @@ describe('reviewCorrection (AI-07)', () => {
         text,
         correction({
           errors,
-          sentences: [{ original: text, corrected, variants: [], meaningFr: 'x' }],
+          sentences: [{ original: text, corrected, meaningFr: 'x' }],
         }),
       );
       expect(reviewed.sentences[0]?.answer).toBe('I agree with you, it is a nice idea.');
@@ -257,9 +248,7 @@ describe('reviewCorrection (AI-07)', () => {
       text,
       correction({
         errors: [error({ segment: 'me', correction: '', notionId: null })],
-        sentences: [
-          { original: text, corrected: 'He explained the plan.', variants: [], meaningFr: 'x' },
-        ],
+        sentences: [{ original: text, corrected: 'He explained the plan.', meaningFr: 'x' }],
       }),
     );
     expect(reviewed.sentences[0]?.answer).toBe('He explained the plan.');
@@ -418,18 +407,6 @@ describe('results of the path', () => {
     expect(translationResult(reviewCorrection(TEXT, correction({ errors: [] })), target)).toBe(
       'correct',
     );
-  });
-
-  it('step 5 needs the notion used and no counted error on it', () => {
-    expect(
-      productionCheckOf(reviewCorrection(TEXT, correction({ usesTargetNotion: true })), target),
-    ).toEqual({ usesNotion: true, hasNotionError: true });
-    expect(
-      productionCheckOf(
-        reviewCorrection(TEXT, correction({ errors: [], usesTargetNotion: false })),
-        target,
-      ),
-    ).toEqual({ usesNotion: false, hasNotionError: false });
   });
 });
 

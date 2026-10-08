@@ -170,9 +170,8 @@ const unnaturalPhraseSchema = z.strictObject({
 const correctedSentenceSchema = z.strictObject({
   /** The learner's sentence, copied exactly. */
   original: z.string(),
+  /** The sentence with its errors corrected: checked by the client against the errors (D-088). */
   corrected: z.string(),
-  /** Other correct versions with the same meaning. */
-  variants: z.array(z.string()),
   /** What the learner meant, in French: the card's meaning (CARD-02). */
   meaningFr: z.string(),
 });
@@ -187,8 +186,11 @@ export const correctionOutputSchema = z.strictObject({
   correctedText: z.string(),
   /** How a native speaker would say it, with the same meaning. */
   naturalVersion: z.string(),
-  /** Whether the text uses the target notion; `null` without a target notion. */
-  usesTargetNotion: z.boolean().nullable(),
+  /**
+   * Words of the text that use the target notion, copied exactly; `null`
+   * without a target notion. The client proves the use from them (D-088).
+   */
+  targetNotionUses: z.array(z.string()).nullable(),
   expressionOfTheDay: z
     .strictObject({ expression: z.string(), meaningFr: z.string(), example: z.string() })
     .nullable(),

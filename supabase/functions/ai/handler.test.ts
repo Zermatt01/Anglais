@@ -599,7 +599,7 @@ describe('correction of a production (D-083)', () => {
     expect(reserved[0]).toMatchObject({
       task: 'correct-production',
       model: MODELS.capable,
-      promptVersion: 'correct-production@1',
+      promptVersion: 'correct-production@2',
     });
   });
 

@@ -204,7 +204,7 @@ describe('step 5 (production, D-076)', () => {
     const notionId: NotionId = 'tense-present-continuous';
     const text = 'I am preparing for an interview this week.';
     const { services } = await servicesWith(() =>
-      Promise.resolve(answered(correctionOf(text, null, { usesTargetNotion: true }))),
+      Promise.resolve(answered(correctionOf(text, null, { targetNotionUses: ['am preparing'] }))),
     );
     await seedProgress(services, notionId, { step: 5 });
     await renderApp(`/parcours/${notionId}/production`, services);
@@ -233,12 +233,37 @@ describe('step 5 (production, D-076)', () => {
   });
 });
 
+describe('step 5, use of the notion not proven (D-088)', () => {
+  it('counts a production whose use the app cannot prove neither for nor against the step', async () => {
+    const notionId: NotionId = 'tense-present-continuous';
+    const text = 'I like my new job a lot.';
+    const { services } = await servicesWith(() =>
+      Promise.resolve(answered(correctionOf(text, null, { targetNotionUses: ['I like'] }))),
+    );
+    await seedProgress(services, notionId, { step: 5 });
+    await renderApp(`/parcours/${notionId}/production`, services);
+    await typeIn('Tes phrases', text);
+    fireEvent.click(screen.getByRole('button', { name: 'Corriger mes phrases' }));
+    expect(
+      await screen.findByText(/L’application n’a pas pu vérifier que ton texte emploie la notion/),
+    ).toBeInTheDocument();
+    expect(await screen.findByText(/Productions réussies d’affilée : 0 sur 2/)).toBeInTheDocument();
+    expect((await services.productions.list('path-produce'))[0]).toMatchObject({
+      status: 'corrected',
+      result: null,
+    });
+    expect(await services.path.progress(notionId)).toMatchObject({
+      values: { status: 'in_progress', step: 5 },
+    });
+  });
+});
+
 describe('step 4 checked by the model (D-076)', () => {
   it('records an unexpected translation graded by the model, on request', async () => {
     const notionId: NotionId = 'tense-present-continuous';
     const answer = 'These days I am busy with a new project.';
     const { fake, services } = await servicesWith(() =>
-      Promise.resolve(answered(correctionOf(answer, null, { usesTargetNotion: true }))),
+      Promise.resolve(answered(correctionOf(answer, null))),
     );
     await seedProgress(services, notionId, { step: 4 });
     await renderApp(`/parcours/${notionId}/exercices`, services);

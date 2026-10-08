@@ -2,15 +2,14 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { NOTION_TITLES } from '../../content/catalog.ts';
+import { NOTION_USES } from '../../content/notion-use.ts';
 import type { NotionContent } from '../../content/schema.ts';
 import { fallbackHintOf } from '../../content/taxonomy.ts';
-import { reviewedCorrectionOf } from '../../data/repositories/production-repository.ts';
 import type { ProductionDocument } from '../../data/schemas/productions.ts';
 import { notionCardContents } from '../../domain/cards/notion-cards.ts';
 import type { ProgressEvent } from '../../domain/curriculum/engine.ts';
 import type { NotionId } from '../../domain/curriculum/notion-id.ts';
 import type { NotionProgressValues } from '../../domain/curriculum/progress.ts';
-import { productionCheckOf } from '../../domain/production/correction.ts';
 import { TextAreaField } from '../../ui/fields.tsx';
 import { Notice } from '../../ui/Notice.tsx';
 import { Page, Sheet } from '../../ui/Page.tsx';
@@ -63,14 +62,22 @@ function requestOf(notionId: NotionId, production: ProductionDocument) {
   };
 }
 
-/** Good productions in a row since the notion entered step 5, the most recent last. */
+/**
+ * Good productions in a row since the notion entered step 5, the most recent
+ * last. A production whose use of the notion is not proven counts neither way (D-088).
+ */
 function goodInARow(
   productions: readonly ProductionDocument[],
   progress: NotionProgressValues | null,
 ): number {
   if (progress === null) return 0;
   const counted = productions
-    .filter((entry) => entry.status === 'corrected' && entry.createdAt >= progress.stepEnteredAt)
+    .filter(
+      (entry) =>
+        entry.status === 'corrected' &&
+        entry.result !== null &&
+        entry.createdAt >= progress.stepEnteredAt,
+    )
     .sort((a, b) => a.createdAt - b.createdAt);
   let streak = 0;
   for (const entry of counted) streak = entry.result === 'correct' ? streak + 1 : 0;
@@ -166,6 +173,7 @@ function Produce({
     reference: null,
     fallbackHint: fallbackHintOf,
     notionCards: notionCardContents(notionId, sources),
+    notionUse: NOTION_USES[notionId],
   };
 
   const send = async (production: ProductionDocument) => {
@@ -269,7 +277,6 @@ function Produce({
       {shownEntry === undefined ? null : (
         <Sheet title="Correction">
           <ProductionResult
-            notionId={notionId}
             production={shownEntry}
             correction={correction}
             onRetry={() => {
@@ -297,12 +304,10 @@ function Produce({
 }
 
 function ProductionResult({
-  notionId,
   production,
   correction,
   onRetry,
 }: {
-  readonly notionId: NotionId;
   readonly production: ProductionDocument;
   readonly correction: ReturnType<typeof useCorrection>;
   readonly onRetry: () => void;
@@ -327,17 +332,15 @@ function ProductionResult({
       </>
     );
   }
-  const reviewed = reviewedCorrectionOf(production);
-  const check = reviewed === null ? null : productionCheckOf(reviewed, notionId);
   return (
     <>
-      {check === null ? null : (
+      {production.correction === null ? null : (
         <p className="correction__summary">
-          {check.usesNotion && !check.hasNotionError
+          {production.result === 'correct'
             ? 'Production réussie : la notion est bien employée, sans erreur sur elle.'
-            : check.usesNotion
-              ? 'La notion est employée, mais avec une erreur : on la revoit dans la correction.'
-              : 'Ton texte n’emploie pas encore cette notion : essaie de l’y faire apparaître.'}
+            : production.result === null
+              ? 'L’application n’a pas pu vérifier que ton texte emploie la notion : cette production ne compte pas pour l’étape, ni en bien ni en mal. Emploie-la clairement, comme dans les exemples de la leçon.'
+              : 'La notion a une erreur dans ton texte : on la revoit dans la correction.'}
         </p>
       )}
       <CorrectionView productionId={production.id} />
@@ -365,7 +368,6 @@ function PreviousProductions({
             <span className="muted">{formatDateTime(entry.createdAt)}</span>
             {open === entry.id ? (
               <ProductionResult
-                notionId={notionId}
                 production={entry}
                 correction={correction}
                 onRetry={() => {

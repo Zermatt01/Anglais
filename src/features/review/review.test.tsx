@@ -153,7 +153,7 @@ describe('rule book (MOD-10)', () => {
       {
         output: correctionOf(text, { segment: 'have met', correction: 'met' }),
         model: 'claude-sonnet-5',
-        promptVersion: 'correct-production@1',
+        promptVersion: 'correct-production@2',
         costUsd: 0.01,
       },
       { reference: null, fallbackHint: () => 'Vérifie le temps.' },

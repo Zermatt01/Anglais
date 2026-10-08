@@ -36,7 +36,7 @@ function output(fields: Partial<ModelCorrection>): ModelCorrection {
     sentences: [],
     correctedText: '',
     naturalVersion: '',
-    usesTargetNotion: null,
+    targetNotionUses: null,
     expressionOfTheDay: null,
     evaluation: { accuracy: 3, naturalness: 3, complexity: 3, level: 'A2', commentFr: '' },
     ...fields,
@@ -47,19 +47,16 @@ const SENTENCES: ModelCorrection['sentences'] = [
   {
     original: 'Last week I have presented the results to the board.',
     corrected: 'Last week I presented the results to the board.',
-    variants: ['I presented the results to the board last week.'],
     meaningFr: 'La semaine dernière, j’ai présenté les résultats au conseil.',
   },
   {
     original: 'I work here since 2023.',
     corrected: 'I have worked here since 2023.',
-    variants: ["I've been working here since 2023."],
     meaningFr: 'Je travaille ici depuis 2023.',
   },
   {
     original: 'Thanks for you help.',
     corrected: 'Thanks for your help.',
-    variants: [],
     meaningFr: 'Merci pour ton aide.',
   },
 ];
@@ -113,23 +110,18 @@ describe('errorCardDrafts (CARD-02)', () => {
     });
   });
 
-  it('never accepts a version of the model unrelated to the sentence (D-088)', () => {
+  it('never accepts a sentence of the model that its errors do not explain (D-088)', () => {
     const text = 'Yesterday I finish the report.';
-    const cards = drafts(
-      output({
-        errors: [error({ segment: 'finish', correction: 'finished', start: 12 })],
-        sentences: [
-          {
-            original: text,
-            corrected: 'Yesterday I finished the report.',
-            variants: ['I like pizza.'],
-            meaningFr: 'Hier, j’ai fini le rapport.',
-          },
-        ],
-      }),
-      text,
-    );
-    expect(cards[0]?.content.answers).toEqual({
+    const cardsFor = (corrected: string) =>
+      drafts(
+        output({
+          errors: [error({ segment: 'finish', correction: 'finished', start: 12 })],
+          sentences: [{ original: text, corrected, meaningFr: 'Hier, j’ai fini le rapport.' }],
+        }),
+        text,
+      );
+    expect(cardsFor('I like pizza.')).toEqual([]);
+    expect(cardsFor('Yesterday I finished the report.')[0]?.content.answers).toEqual({
       canonical: 'Yesterday I finished the report.',
       variants: [],
     });
@@ -143,9 +135,7 @@ describe('errorCardDrafts (CARD-02)', () => {
           errors: [
             error({ segment: 'I work', correction: 'I have worked', start: 0, notionId: null }),
           ],
-          sentences: [
-            { original: 'I work', corrected: 'I have worked', variants: [], meaningFr: 'x' },
-          ],
+          sentences: [{ original: 'I work', corrected: 'I have worked', meaningFr: 'x' }],
         }),
         text,
       ),
@@ -176,7 +166,6 @@ describe('errorCardDrafts (CARD-02)', () => {
           {
             original: text,
             corrected: 'Yesterday I saw the client.',
-            variants: [],
             meaningFr: 'Hier, j’ai vu le client.',
           },
         ],
@@ -232,9 +221,7 @@ describe('errorCardDrafts (CARD-02)', () => {
       drafts(
         output({
           errors: [error({ segment: 'organise', correction: 'organize', start: 2 })],
-          sentences: [
-            { original: text, corrected: 'I organize the meetings.', variants: [], meaningFr: 'x' },
-          ],
+          sentences: [{ original: text, corrected: 'I organize the meetings.', meaningFr: 'x' }],
         }),
         text,
       ),
@@ -256,7 +243,7 @@ describe('errorCardDrafts (CARD-02)', () => {
               notionId: 'tense-for-since-ago',
             }),
           ],
-          sentences: [SENTENCES[1] ?? { original: '', corrected: '', variants: [], meaningFr: '' }],
+          sentences: [SENTENCES[1] ?? { original: '', corrected: '', meaningFr: '' }],
         }),
       ),
       reference: {

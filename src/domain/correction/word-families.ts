@@ -11,10 +11,15 @@
  * are compared after that canonicalization ("travelled" is read "traveled").
  * A form may belong to several families ("left", "found", "lay"): two words are
  * related when they share a family, never through a third word.
+ *
+ * The verbs are also read by role (base, past…) in `verb-forms.ts` (D-088).
  */
 
-/** Irregular verbs: base, third person, past, past participle, -ing form. */
-const IRREGULAR_VERBS = [
+/**
+ * Irregular verbs: base, third person, past, past participle, -ing form; a
+ * form equal to an earlier one is not repeated ("cut cuts cutting").
+ */
+export const IRREGULAR_VERBS = [
   'be am is are was were been being',
   'have has had having',
   'do does did done doing',
@@ -144,7 +149,7 @@ const IRREGULAR_VERBS = [
 const MODALS = ['can cannot could', 'will would', 'shall should', 'may might'];
 
 /** Regular verbs (several are also nouns: "report", "email", "offer"). */
-const REGULAR_VERBS = [
+export const REGULAR_VERBS = [
   'accept accepts accepted accepting',
   'agree agrees agreed agreeing',
   'allow allows allowed allowing',
@@ -298,6 +303,7 @@ const REGULAR_VERBS = [
   'serve serves served serving',
   'share shares shared sharing',
   'sign signs signed signing',
+  'smile smiles smiled smiling',
   'snow snows snowed snowing',
   'solve solves solved solving',
   'spell spells spelled spelling',

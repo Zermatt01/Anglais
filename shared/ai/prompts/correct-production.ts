@@ -52,7 +52,7 @@ const SYSTEM = `You correct texts written in English by a French-speaking adult 
 2. British and American spellings and usages are both correct, whatever the learner's variant: never report one of them. Contractions are always correct. Write your own corrections and versions in the learner's variant.
 3. A correct sentence that differs from the reference, or from what you would have written, is never an error and never unnatural for that reason alone.
 4. A phrase that is grammatical and understandable, but that a native speaker would not choose (a literal transposition of French, a clumsy word choice, a register slightly off), is not an error: list it in "unnatural", with a better alternative. It never counts as an error.
-5. When you doubt that something is an error, do not report it as an error; at most list it in "unnatural". Confidence describes how sure you are of the error you report: "high" when it is wrong in every reading and your correction is certainly right, "medium" when you are almost sure, "low" otherwise (a low-confidence error is shown as a point to check and never counts).
+5. When you doubt that something is an error at all, leave it out of "errors"; at most list it in "unnatural". Report only errors you are sure of. Confidence then describes how sure you are of their category and of your correction: "high" when your correction is certainly right and the category certain, "medium" when you are almost sure of them, "low" when another category or another correction could be better (a low-confidence error is shown as a point to check and never counts).
 6. Never invent a rule. Do not report the missing full stop at the very end of the text, a double space, or a missing capital at the very beginning of the text.
 7. In a Thème or a translation, a missing or different piece of meaning is an error only when it comes from a language error of one of the categories (for example a tense that changes the meaning). Otherwise, mention it in the comment.
 
@@ -79,10 +79,10 @@ ${notions}
 - intentFr: what the learner meant in the whole text, in French, faithfully.
 - errors: every error, in the order of the text. segment: the erroneous words copied exactly from the learner's text (same letters, spaces, apostrophes and punctuation), as short as possible; start: the position of its first character in the text, counting from 0; correction: what replaces the segment, and nothing more; hintFr: a French hint that helps the learner find the correction without giving it: it never contains the corrected words, in any form; ruleFr: the rule in one or two short, concrete French sentences.
 - unnatural: correct but unnatural phrases: original (copied exactly), alternative, whyFr (one short French sentence), category (the closest category, or null).
-- sentences: one entry for each sentence of the learner's text that contains at least one error, and only for those. original: the learner's sentence copied exactly; corrected: the same sentence with only its errors corrected; variants: zero to three other correct versions of the whole sentence with the same meaning; meaningFr: what the learner meant in this sentence, in natural French.
+- sentences: one entry for each sentence of the learner's text that contains at least one error, and only for those. original: the whole sentence copied exactly, from its first word to its final punctuation; corrected: the same sentence with exactly the corrections of its errors applied, and no other change; meaningFr: what the learner meant in this sentence, in natural French.
 - correctedText: the whole text with only its errors corrected (unnatural phrases unchanged); the text itself when it has no error.
 - naturalVersion: the whole text as a native professional would write it, with the same meaning and register; the text itself when it is already natural.
-- usesTargetNotion: with a target notion, true when the text uses it at least once, even with an error, and false otherwise; null without a target notion.
+- targetNotionUses: with a target notion, the words of the text that use it correctly, each copied exactly: the verb group of the tense, with the word of the notion when there is one ("have been working", "didn't go", "moved here two years ago", "have already sent"). One entry per use, at most five; [] when the text does not use the notion correctly; null without a target notion.
 - expressionOfTheDay: for "journal" and "path-produce", a useful natural expression or collocation linked to the text and the learner's domains, with its French meaning and an English example sentence that contains the expression exactly; null for "theme" and "path-translate".
 - evaluation: accuracy, naturalness and complexity, each an integer from 1 (lowest) to 5 (highest); level: the CEFR level this text shows; commentFr: one or two encouraging and concrete French sentences, without guilt.
 
@@ -115,7 +115,7 @@ function listOrNone(values: readonly string[]): string {
 }
 
 export const CORRECT_PRODUCTION_PROMPT: TaskPrompt<Input> = {
-  version: 'correct-production@1',
+  version: 'correct-production@2',
   system: SYSTEM,
   userMessage: ({ module, instruction, reference, targetNotionId, learner, text }) => {
     const domains =
