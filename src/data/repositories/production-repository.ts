@@ -198,7 +198,7 @@ export function reviewedCorrectionOf(production: ProductionDocument): ReviewedCo
   return output.success ? reviewCorrection(production.text, output.data) : null;
 }
 
-/** Module of the activity a production counts for. */
+/** Module of the activity a production counts for (a translation of the path: with its answer). */
 function activityModule(module: CorrectedModule): 'theme' | 'journal' | 'path' {
   return module === 'theme' || module === 'journal' ? module : 'path';
 }
@@ -300,11 +300,16 @@ export function createProductionRepository(
     };
   }
 
-  /** Stores a new production, its activity, and removes its draft. */
+  /**
+   * Stores a new production, its activity, and removes its draft. A translation
+   * of the path counts its time with its answer (`recordAnswer`), once.
+   */
   async function store(production: NewProduction, now: number): Promise<ProductionDocument> {
     const document = newDocument(production, now);
     await writeRecord(db, 'productions', document, now);
-    await recordActivity(db, activityModule(production.module), production.durationMs, now);
+    if (production.module !== 'path-translate') {
+      await recordActivity(db, activityModule(production.module), production.durationMs, now);
+    }
     if (production.draftKey !== undefined) await drafts.remove(production.draftKey);
     return document;
   }

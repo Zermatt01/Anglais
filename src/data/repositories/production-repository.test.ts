@@ -231,8 +231,8 @@ describe('production repository', () => {
     expect(await cards.all()).toHaveLength(1);
   });
 
-  it('records a translation of the path graded by the model, with its draft', async () => {
-    const { productions, path, drafts } = await setup();
+  it('records a translation of the path graded by the model, with its draft and its time once', async () => {
+    const { db, productions, path, drafts } = await setup();
     await path.recordPlacement(NOTION, [
       { questionId: `${NOTION}/p/01`, answer: 'a', correct: true },
       { questionId: `${NOTION}/p/02`, answer: 'a', correct: true },
@@ -278,6 +278,8 @@ describe('production repository', () => {
       }),
     );
     expect(await drafts.get('path:x/s4/01')).toEqual({ state: 'absent' });
+    // Its answer records its time: the production does not record it again.
+    expect(await db.table('activity').count()).toBe(1);
   });
 
   it('makes a notion acquired after two productions of step 5 whose use is proven, with its cards (CUR-09, D-088)', async () => {
