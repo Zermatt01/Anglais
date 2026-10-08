@@ -1,3 +1,4 @@
+import { useLiveQuery } from 'dexie-react-hooks';
 import { Link } from 'react-router';
 import { hasContent } from '../../content/index.ts';
 import { NOTION_TITLES, TRACK_TITLES } from '../../content/catalog.ts';
@@ -10,10 +11,12 @@ import {
 } from '../../domain/curriculum/notion-id.ts';
 import type { NotionProgressValues } from '../../domain/curriculum/progress.ts';
 import { trackCompletion } from '../../domain/curriculum/summary.ts';
+import { notionsToPrioritize, RECENT_WINDOW_MS } from '../../domain/errors/statistics.ts';
 import { Page, Sheet } from '../../ui/Page.tsx';
 import { ProgressBar } from '../../ui/ProgressBar.tsx';
 import { RichText } from '../../ui/RichText.tsx';
 import { useAppServices } from '../app-services.ts';
+import { errorRecordOf } from '../correction/request.ts';
 import { pathTo } from '../paths.ts';
 import { usePageTitle } from '../use-page-title.ts';
 import { describeProgress } from './labels.ts';
@@ -23,9 +26,12 @@ import './path.css';
 function NotionItem({
   notionId,
   progress,
+  priority,
 }: {
   readonly notionId: NotionId;
   readonly progress: NotionProgressValues | undefined;
+  /** Recent errors revealed a gap on it, or were made before it was studied (PEDAGOGY §4.2). */
+  readonly priority: boolean;
 }) {
   const { path } = useAppServices();
   const title = <RichText text={NOTION_TITLES[notionId]} />;
@@ -54,7 +60,8 @@ function NotionItem({
         </Link>
         <span className="muted">{describeProgress(progress)}</span>
       </span>
-      {progress?.status === 'acquired' ? <span className="badge">Acquise</span> : null}
+      {priority ? <span className="badge">À revoir en priorité</span> : null}
+      {progress?.status === 'acquired' && !priority ? <span className="badge">Acquise</span> : null}
     </li>
   );
 }
@@ -62,9 +69,11 @@ function NotionItem({
 function TrackSheet({
   trackId,
   progress,
+  priority,
 }: {
   readonly trackId: TrackId;
   readonly progress: ReadonlyMap<NotionId, NotionProgressValues>;
+  readonly priority: ReadonlySet<NotionId>;
 }) {
   const notions = notionsOfTrack(trackId);
   const delivered = notions.filter(hasContent);
@@ -79,7 +88,12 @@ function TrackSheet({
       </div>
       <ul className="plain-list">
         {notions.map((notionId) => (
-          <NotionItem key={notionId} notionId={notionId} progress={progress.get(notionId)} />
+          <NotionItem
+            key={notionId}
+            notionId={notionId}
+            progress={progress.get(notionId)}
+            priority={priority.has(notionId)}
+          />
         ))}
       </ul>
     </Sheet>
@@ -90,6 +104,15 @@ function TrackSheet({
 export function PathPage() {
   usePageTitle('Parcours');
   const progress = useAllProgress();
+  const { productions, clock } = useAppServices();
+  const priority = useLiveQuery(
+    async () =>
+      notionsToPrioritize(
+        (await productions.errorsSince(clock.now() - RECENT_WINDOW_MS)).map(errorRecordOf),
+        clock.now(),
+      ),
+    [productions, clock],
+  );
   const upcoming = TRACK_IDS.filter((trackId) =>
     notionsOfTrack(trackId).every((notionId) => phaseOf(notionId) === 8),
   );
@@ -103,7 +126,14 @@ export function PathPage() {
       {progress === undefined ? (
         <p role="status">Chargement du parcours…</p>
       ) : (
-        current.map((trackId) => <TrackSheet key={trackId} trackId={trackId} progress={progress} />)
+        current.map((trackId) => (
+          <TrackSheet
+            key={trackId}
+            trackId={trackId}
+            progress={progress}
+            priority={priority ?? new Set()}
+          />
+        ))
       )}
       <Sheet title="Prochaines pistes">
         <ul className="plain-list">

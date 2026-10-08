@@ -36,6 +36,28 @@ const PracticePage = lazy(() =>
 const ProducePage = lazy(() =>
   import('../features/path/ProducePage.tsx').then((module) => ({ default: module.ProducePage })),
 );
+const ImmediatePracticePage = lazy(() =>
+  import('../features/path/ImmediatePracticePage.tsx').then((module) => ({
+    default: module.ImmediatePracticePage,
+  })),
+);
+const ReviewPage = lazy(() =>
+  import('../features/review/ReviewPage.tsx').then((module) => ({ default: module.ReviewPage })),
+);
+const ThemePage = lazy(() =>
+  import('../features/theme/ThemePage.tsx').then((module) => ({ default: module.ThemePage })),
+);
+const JournalPage = lazy(() =>
+  import('../features/journal/JournalPage.tsx').then((module) => ({ default: module.JournalPage })),
+);
+const LexiconPage = lazy(() =>
+  import('../features/lexicon/LexiconPage.tsx').then((module) => ({ default: module.LexiconPage })),
+);
+const RuleBookPage = lazy(() =>
+  import('../features/rule-book/RuleBookPage.tsx').then((module) => ({
+    default: module.RuleBookPage,
+  })),
+);
 const PlacementPage = lazy(() =>
   import('../features/path/PlacementPage.tsx').then((module) => ({
     default: module.PlacementPage,
@@ -86,6 +108,12 @@ export function AppRoutes() {
         <Route path={`${PATHS.path}/:notionId/lecon`} element={<LessonPage />} />
         <Route path={`${PATHS.path}/:notionId/exercices`} element={<PracticePage />} />
         <Route path={`${PATHS.path}/:notionId/production`} element={<ProducePage />} />
+        <Route path={`${PATHS.path}/:notionId/pratique`} element={<ImmediatePracticePage />} />
+        <Route path={PATHS.review} element={<ReviewPage />} />
+        <Route path={PATHS.theme} element={<ThemePage />} />
+        <Route path={PATHS.journal} element={<JournalPage />} />
+        <Route path={PATHS.lexicon} element={<LexiconPage />} />
+        <Route path={PATHS.ruleBook} element={<RuleBookPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

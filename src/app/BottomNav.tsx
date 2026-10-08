@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router';
 import { PATHS } from '../features/paths.ts';
-import { HomeIcon, PathIcon, SettingsIcon } from '../ui/icons.tsx';
+import { HomeIcon, PathIcon, ReviewIcon, SettingsIcon } from '../ui/icons.tsx';
 
 const ITEMS = [
   { to: PATHS.home, label: 'Accueil', Icon: HomeIcon, end: true },
   { to: PATHS.path, label: 'Parcours', Icon: PathIcon, end: false },
+  { to: PATHS.review, label: 'Reprises', Icon: ReviewIcon, end: true },
   { to: PATHS.settings, label: 'Réglages', Icon: SettingsIcon, end: true },
 ] as const;
 
