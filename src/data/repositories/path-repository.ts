@@ -73,6 +73,8 @@ export interface PathRepository {
   allProgress(): Promise<ReadonlyMap<NotionId, NotionProgressValues>>;
   /** Readable answers given to the exercises of a notion, in any context, oldest first. */
   attempts(notionId: NotionId): Promise<ExerciseAttempt[]>;
+  /** Readable answers of every notion given since `since`, in any context. */
+  attemptsSince(since: number): Promise<ExerciseAttempt[]>;
   /** Opening a notion from the path: not started → in progress, step 1. */
   start(notionId: NotionId): Promise<AnswerOutcome>;
   /** "J'ai compris": step 1 → step 2. */
@@ -199,6 +201,13 @@ export function createPathRepository(db: AppDatabase, clock: Clock): PathReposit
     },
 
     attempts: readAttempts,
+
+    async attemptsSince(since) {
+      const raws: unknown[] = await attemptsTable.where('at').aboveOrEqual(since).toArray();
+      return raws
+        .map((raw) => parseRecord('exerciseAttempts', raw))
+        .flatMap((parsed) => (parsed.ok ? [parsed.value] : []));
+    },
 
     start(notionId) {
       return db.dexie.transaction('rw', tables, () => transition(notionId, startNotion));

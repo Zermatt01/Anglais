@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   acceptedAnswersOf,
   evaluateTypedAnswer,
@@ -8,6 +8,8 @@ import { Button } from '../../../ui/Button.tsx';
 import { TextAreaField, TextField } from '../../../ui/fields.tsx';
 import { Notice } from '../../../ui/Notice.tsx';
 import { RichText } from '../../../ui/RichText.tsx';
+import type { AnswerResult } from '../../../domain/taxonomy.ts';
+import { CorrectionView } from '../../correction/CorrectionView.tsx';
 import { useDraft } from '../../drafts/use-draft.ts';
 import { Feedback } from './Feedback.tsx';
 import { SavingStatus } from './SavingStatus.tsx';
@@ -19,12 +21,24 @@ type TypedExercise = Exclude<Exercise, { kind: 'choice-with-reason' }>;
 
 const MAX_ANSWER_LENGTH = 500;
 
+/** What a check of an unexpected translation by the model needs (D-076, D-083). */
+export interface AiCheckProps {
+  readonly answer: string;
+  readonly hintUsed: boolean;
+  /** Saves the pending typing first, so that no late save brings the draft back. */
+  readonly prepare: () => Promise<void>;
+  /** The answer is stored with its correction, the draft removed in the same transaction. */
+  readonly onChecked: (result: AnswerResult, productionId: string) => void;
+}
+
 interface TypedExerciseProps {
   readonly exercise: TypedExercise;
   /** Where the draft of the answer is kept (UI-03); removed with the answer when stored. */
   readonly draftKey: string;
   /** Stores the answer; its result is shown once it is stored. */
   readonly onAnswered: SaveAnswer;
+  /** For a translation: asking the model, offered next to the comparison (on request only). */
+  readonly aiCheck?: ((props: AiCheckProps) => ReactNode) | undefined;
 }
 
 type Phase =
@@ -37,6 +51,13 @@ type Phase =
       readonly correct: boolean;
       readonly matched: string | null;
       readonly selfAssessed: boolean;
+    }
+  /** Graded by the model, and already stored with its correction. */
+  | {
+      readonly name: 'checked';
+      readonly answer: string;
+      readonly result: AnswerResult;
+      readonly productionId: string;
     };
 
 function Prompt({ exercise }: { readonly exercise: TypedExercise }) {
@@ -92,7 +113,7 @@ const FIELD_LABELS: Readonly<Record<TypedExercise['kind'], string>> = {
 };
 
 /** Steps 3 and 4: the answer is typed, then graded locally (CUR-05). */
-export function TypedExercise({ exercise, draftKey, onAnswered }: TypedExerciseProps) {
+export function TypedExercise({ exercise, draftKey, onAnswered, aiCheck }: TypedExerciseProps) {
   const initial = exercise.kind === 'place-word' ? exercise.sentence : '';
   const draft = useDraft(draftKey, initial);
   const [phase, setPhase] = useState<Phase>({ name: 'answering' });
@@ -202,6 +223,17 @@ export function TypedExercise({ exercise, draftKey, onAnswered }: TypedExerciseP
           <p lang="en" className="feedback__answer">
             {canonical}
           </p>
+          {aiCheck === undefined
+            ? null
+            : aiCheck({
+                answer: phase.answer,
+                hintUsed: hintShown,
+                prepare: () => draft.flush(),
+                onChecked: (result, productionId) => {
+                  draft.reset(phase.answer);
+                  setPhase({ name: 'checked', answer: phase.answer, result, productionId });
+                },
+              })}
           <p>Ta réponse a-t-elle le même sens, avec la forme travaillée ici bien employée ?</p>
           <div className="button-row">
             <Button
@@ -233,6 +265,16 @@ export function TypedExercise({ exercise, draftKey, onAnswered }: TypedExerciseP
           explanation={exercise.explanation}
           selfAssessed={phase.selfAssessed}
         />
+      ) : null}
+      {phase.name === 'checked' ? (
+        <>
+          <Feedback
+            verdict={phase.result === 'incorrect' ? 'incorrect' : 'correct'}
+            expected={phase.result === 'correct' ? null : canonical}
+            explanation={exercise.explanation}
+          />
+          <CorrectionView productionId={phase.productionId} />
+        </>
       ) : null}
     </div>
   );

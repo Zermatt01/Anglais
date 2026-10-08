@@ -344,7 +344,7 @@ describe('placement test (CUR-08)', () => {
 });
 
 describe('step 5 (production)', () => {
-  it('keeps the learner’s sentences on the device until they can be corrected', async () => {
+  it('keeps the learner’s sentences on the device, and needs an account to correct them', async () => {
     const services = await createTestServices();
     await seedProgress(services, { step: 5 });
     await renderApp(`/parcours/${NOTION}/production`, services);
@@ -362,7 +362,9 @@ describe('step 5 (production)', () => {
       },
       { timeout: 3_000 },
     );
-    expect(screen.getByText('Correction à venir')).toBeInTheDocument();
+    expect(
+      screen.getByText(/La correction par l’IA demande un compte connecté/),
+    ).toBeInTheDocument();
   });
 });
 
