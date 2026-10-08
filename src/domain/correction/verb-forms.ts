@@ -19,6 +19,18 @@ const PARTICIPLE_IS_BASE: ReadonlySet<string> = new Set(['come', 'become', 'over
 const PAST_IS_BASE: ReadonlySet<string> = new Set(['beat']);
 /** Irregular verbs written without their third person ("mean meant meaning"). */
 const THIRD_LEFT_OUT: ReadonlySet<string> = new Set(['mean']);
+/**
+ * -ing forms of the families that are mostly adjectives after "be" ("the file
+ * is missing", "the results are promising"): never read as -ing forms, so that
+ * they never prove a continuous tense (D-090).
+ */
+const ADJECTIVES_IN_ING: ReadonlySet<string> = new Set([
+  'missing',
+  'misleading',
+  'promising',
+  'upsetting',
+  'worrying',
+]);
 /** Attested forms that the families leave out: the British participle "got". */
 const EXTRA_FORMS: readonly (readonly [VerbFormRole, string])[] = [['participle', 'got']];
 
@@ -88,6 +100,7 @@ const FORMS_BY_ROLE: Readonly<Record<VerbFormRole, ReadonlySet<string>>> = (() =
     for (const role of VERB_FORM_ROLES) for (const form of roles[role]) sets[role].add(form);
   }
   for (const [role, form] of EXTRA_FORMS) sets[role].add(form);
+  for (const form of ADJECTIVES_IN_ING) sets.ing.delete(form);
   return sets;
 })();
 

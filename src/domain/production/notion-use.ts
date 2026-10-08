@@ -15,8 +15,10 @@
  *
  * Pattern syntax: words separated by spaces, each one a slot; a slot is a
  * list of canonical words separated by "|" ("have|has"), or a role of verb
- * form in braces ("{ing}", "{participle}"). Between two slots, only words of
- * `INSERTABLE` may come ("have not been", "have you finished"). " … " splits
+ * form in braces ("{ing}", "{participle}"), or "*" for any one word ("for *
+ * years": "for three years", never "for a bank"). Between two slots, only words of
+ * `INSERTABLE` may come ("have not been", "have you finished"), and none when
+ * "+" joins them ("still+{base}": "I still work", never "Still, I work"). " … " splits
  * a pattern into parts that follow each other, with any words between them
  * ("{past} … ago"). Words are read like answers (`readingsOf`): lowercase,
  * contractions expanded ("I've" is "i have"), American spelling.
@@ -25,6 +27,9 @@
  * before it, and, when it ends with an auxiliary, no participle, -ing form or
  * auxiliary just after it. So "has worked" is not a past simple, "I have been
  * working" not a present simple, and "to work" not a present.
+ *
+ * Uses whose words overlap in the text are one use: the same words never
+ * prove two tenses of a contrast or of the review (D-090).
  */
 import { readingsOf } from '../correction/forms.ts';
 import { locateSegment, type TextRange } from '../correction/segments.ts';
@@ -117,9 +122,14 @@ const AUXILIARIES: ReadonlySet<string> = new Set([
 const MAX_USE_LENGTH = 300;
 const MAX_USES = 8;
 
-type Slot =
+type Slot = (
   | { readonly kind: 'words'; readonly words: ReadonlySet<string> }
-  | { readonly kind: 'form'; readonly role: VerbFormRole };
+  | { readonly kind: 'form'; readonly role: VerbFormRole }
+  | { readonly kind: 'any' }
+) & {
+  /** Written after "+": no insertable word may come before it. */
+  readonly adjacent: boolean;
+};
 
 const ROLE_SLOT = /^\{([a-z]+)\}$/;
 
@@ -127,22 +137,35 @@ function isRole(value: string): value is VerbFormRole {
   return (VERB_FORM_ROLES as readonly string[]).includes(value);
 }
 
-function slotOf(token: string): Slot {
+function slotOf(token: string, adjacent: boolean): Slot {
+  if (token === '*') return { kind: 'any', adjacent };
   const role = ROLE_SLOT.exec(token)?.[1];
   if (role !== undefined) {
     if (!isRole(role)) throw new Error(`Unknown verb form in a pattern: ${token}`);
-    return { kind: 'form', role };
+    return { kind: 'form', role, adjacent };
   }
-  return { kind: 'words', words: new Set(token.split('|')) };
+  return { kind: 'words', words: new Set(token.split('|')), adjacent };
 }
 
 /** A pattern as its parts, each a list of slots; throws on an unknown role. */
 export function parsePattern(pattern: string): Slot[][] {
-  return pattern.split(' … ').map((part) => part.trim().split(/\s+/).map(slotOf));
+  return pattern.split(' … ').map((part) =>
+    part
+      .trim()
+      .split(/\s+/)
+      .flatMap((token) => token.split('+').map((piece, index) => slotOf(piece, index > 0))),
+  );
 }
 
 function fits(slot: Slot, word: string): boolean {
-  return slot.kind === 'words' ? slot.words.has(word) : isVerbForm(word, slot.role);
+  switch (slot.kind) {
+    case 'words':
+      return slot.words.has(word);
+    case 'form':
+      return isVerbForm(word, slot.role);
+    case 'any':
+      return true;
+  }
 }
 
 /** End of a match of `slots` starting at `start`, or -1. */
@@ -156,14 +179,16 @@ function matchPart(words: readonly string[], slots: readonly Slot[], start: numb
       const end = at(slot + 1, position + 1);
       if (end !== -1) return end;
     }
-    return slot > 0 && INSERTABLE.has(word) ? at(slot, position + 1) : -1;
+    return slot > 0 && !current.adjacent && INSERTABLE.has(word) ? at(slot, position + 1) : -1;
   };
   return at(0, start);
 }
 
 function hasVerb(part: readonly Slot[]): boolean {
   return part.some(
-    (slot) => slot.kind === 'form' || [...slot.words].some((word) => AUXILIARIES.has(word)),
+    (slot) =>
+      slot.kind === 'form' ||
+      (slot.kind === 'words' && [...slot.words].some((word) => AUXILIARIES.has(word))),
   );
 }
 
@@ -249,15 +274,29 @@ export function provenUses(
       if (range === null) return [];
       const inError = counted.some((error) => error.start < range.end && range.start < error.end);
       return inError ? [] : [{ words, range }];
-    });
+    })
+    .sort((a, b) => a.range.start - b.range.start);
+  // Uses whose words overlap are one use, which proves one group at most.
+  const units: { start: number; end: number; words: string[] }[] = [];
+  for (const found of located) {
+    const last = units.at(-1);
+    if (last !== undefined && found.range.start < last.end) {
+      last.end = Math.max(last.end, found.range.end);
+      last.words.push(found.words);
+    } else {
+      units.push({ start: found.range.start, end: found.range.end, words: [found.words] });
+    }
+  }
   const fitting = use.groups.map((patterns) =>
-    located.flatMap((found, index) =>
-      patterns.some((pattern) => matchesPattern(found.words, pattern)) ? [index] : [],
+    units.flatMap((unit, index) =>
+      unit.words.some((words) => patterns.some((pattern) => matchesPattern(words, pattern)))
+        ? [index]
+        : [],
     ),
   );
-  const ranges = located
-    .filter((_found, index) => fitting.some((uses) => uses.includes(index)))
-    .map((found) => found.range);
+  const ranges = units
+    .filter((_unit, index) => fitting.some((uses) => uses.includes(index)))
+    .map(({ start, end }) => ({ start, end }));
   return { proven: groupsShown(fitting) >= use.required, ranges };
 }
 

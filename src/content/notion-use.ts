@@ -10,7 +10,15 @@
 import type { NotionId } from '../domain/curriculum/notion-id.ts';
 import type { NotionUse } from '../domain/production/notion-use.ts';
 
-const PRESENT_SIMPLE = ['{base}', '{third}', 'do|does {base}'];
+/** Subjects of a base form: without one, a base form is an imperative ("Call me"). */
+const SUBJECT = 'i|you|we|they';
+const PRESENT_SIMPLE = [
+  '{third}',
+  `${SUBJECT} {base}`,
+  `${SUBJECT} do {base}`,
+  `do ${SUBJECT} {base}`,
+  'does {base}',
+];
 const PRESENT_CONTINUOUS = ['am|is|are {ing}'];
 const PAST_SIMPLE = ['{past}', 'did {base}'];
 const PAST_CONTINUOUS = ['was|were {ing}'];
@@ -28,17 +36,42 @@ const FUTURE = [
   `am|is|are {ing} … ${LATER}`,
   `${LATER} … am|is|are {ing}`,
   `{third} … ${LATER}`,
-  `{base} … ${LATER}`,
+  `${SUBJECT} {base} … ${LATER}`,
+];
+
+/**
+ * "For" with a duration: "for years", "for three years", "for the last two
+ * years", "for a while". Never "for a bank", "for the first time".
+ */
+const UNIT = 'years|year|months|month|weeks|week|days|day|hours|hour|minutes|minute|decades|decade';
+const FOR_A_DURATION = [
+  'for years|months|weeks|days|hours|decades|ages|long',
+  `for * ${UNIT}`,
+  `for * * ${UNIT}`,
+  `for * * * ${UNIT}`,
+  'for a while',
+  'for a long time',
+];
+/** The tenses that "for" + a duration goes with: the perfects, and a finished period. */
+const WITH_A_DURATION = [
+  'have|has|had {participle}',
+  'have|has|had been {ing}',
+  'have|has|had been {participle}',
+  '{past}',
+  'was|were {ing}',
+];
+const PERFECT_SINCE = [
+  'have|has|had {participle}',
+  'have|has|had been {ing}',
+  'have|has|had been {participle}',
 ];
 const FOR_SINCE_AGO = [
-  'have|has|had {participle} … for|since',
-  'have|has|had been {ing} … for|since',
-  'have|has|had been {participle} … for|since',
-  'for|since … have|has|had {participle}',
-  'for|since … have|has|had been {ing}',
+  ...WITH_A_DURATION.flatMap((tense) =>
+    FOR_A_DURATION.flatMap((duration) => [`${tense} … ${duration}`, `${duration} … ${tense}`]),
+  ),
+  ...PERFECT_SINCE.flatMap((tense) => [`${tense} … since`, `since … ${tense}`]),
   'how long … have|has|had {participle}',
   'how long … have|has|had been {ing}',
-  '{past} … for',
   '{past} … ago',
   'ago … {past}',
 ];
@@ -47,7 +80,12 @@ const JUST_ALREADY_YET_STILL = [
   'have|has|had {participle} … already|yet',
   'just|already {past}',
   'did {base} … yet',
-  'still',
+  // "Still" in a verb group: "I'm still waiting", "she still works", "he still hasn't answered".
+  'am|is|are|was|were+still',
+  'still+{base}',
+  'still+{third}',
+  'still+{past}',
+  'still+have|has|had {participle}',
 ];
 
 const single = (patterns: readonly string[]): NotionUse => ({ groups: [patterns], required: 1 });

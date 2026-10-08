@@ -48,11 +48,18 @@ describe('verb forms by role (D-088)', () => {
     expect(isVerbForm(word, role)).toBe(false);
   });
 
+  it('never reads as -ing forms those that are mostly adjectives after "be" (D-090)', () => {
+    for (const word of ['missing', 'misleading', 'promising', 'upsetting', 'worrying']) {
+      expect(isVerbForm(word, 'ing'), word).toBe(false);
+    }
+  });
+
   it('reads the base, the past and the -ing form of every family', () => {
-    const roles: readonly VerbFormRole[] = ['past', 'ing'];
+    const adjectives = new Set(['miss', 'mislead', 'promise', 'upset', 'worry']);
     for (const family of [...IRREGULAR_VERBS, ...REGULAR_VERBS]) {
       const [base = '', ...others] = family.split(' ');
       expect(isVerbForm(base, 'base'), family).toBe(true);
+      const roles: readonly VerbFormRole[] = adjectives.has(base) ? ['past'] : ['past', 'ing'];
       for (const role of roles) {
         expect(
           [base, ...others].some((form) => isVerbForm(form, role)),

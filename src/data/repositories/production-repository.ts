@@ -191,6 +191,24 @@ const firstVersionOutputSchema = correctionOutputSchema
 
 const storedOutputSchema = z.union([correctionOutputSchema, firstVersionOutputSchema]);
 
+/** Version of the prompt whose step-5 results rest on the model's word only (D-088). */
+const FIRST_PROMPT_VERSION = 'correct-production@1';
+
+/**
+ * The result of a production of step 5 that counts in the series of two
+ * (D-090): `null` when it counts neither way, because it is not corrected, its
+ * use of the notion is not proven, or the model graded it with the first
+ * version of the prompt, which said whether the notion was used without
+ * proving it. The learner's own judgment, when the correction did not come,
+ * counts.
+ */
+export function stepFiveResultOf(production: ProductionDocument): AnswerResult | null {
+  if (production.status !== 'corrected') return null;
+  const unproven =
+    production.grader === 'ai' && production.correction?.promptVersion === FIRST_PROMPT_VERSION;
+  return unproven ? null : production.result;
+}
+
 /** The reviewed correction of a stored production, or `null` (none, or unreadable). */
 export function reviewedCorrectionOf(production: ProductionDocument): ReviewedCorrection | null {
   if (production.correction === null) return null;
@@ -474,10 +492,10 @@ export function createProductionRepository(
       )
       .sort((a, b) => a.createdAt - b.createdAt);
     for (const production of corrected) {
-      // `correct`: the use of the notion is proven, without a counted error on it. A
-      // production whose use is not proven (`null`) counts neither way (D-088).
-      if (production.result === null) continue;
-      const good = production.result === 'correct';
+      // `correct`: the use of the notion is proven, without a counted error on it.
+      const result = stepFiveResultOf(production);
+      if (result === null) continue;
+      const good = result === 'correct';
       checks.push({ usesNotion: good, hasNotionError: !good });
     }
     const transition = afterProduction(values, checks, now);

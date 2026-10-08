@@ -12,6 +12,7 @@ import { createPathRepository } from './path-repository.ts';
 import {
   createProductionRepository,
   reviewedCorrectionOf,
+  stepFiveResultOf,
   type NewProduction,
 } from './production-repository.ts';
 
@@ -337,6 +338,50 @@ describe('production repository', () => {
     expect(two.events).toEqual([{ type: 'acquired' }]);
     expect(await path.progress(NOTION)).toMatchObject({ values: { status: 'acquired' } });
     expect((await cards.all()).map((card) => card.origin)).toEqual(['notion']);
+  });
+
+  it('never counts in the series a result graded by the first version of the prompt (D-090)', async () => {
+    const { db, productions, path, clock } = await setup();
+    await db.table('notionProgress').put({
+      notionId: NOTION,
+      status: 'in_progress',
+      step: 5,
+      recall: null,
+      stepEnteredAt: clock.now(),
+      acquiredAt: null,
+      lastRegressionAt: null,
+      createdAt: clock.now(),
+      updatedAt: clock.now(),
+      deletedAt: null,
+      schemaVersion: 1,
+    });
+    const text = 'I have finished the report. I sent it to my manager yesterday.';
+    const produce = production({
+      module: 'path-produce',
+      context: { notionId: NOTION, itemId: null, tier: null, unstudied: false, hintUsed: false },
+      text,
+    });
+    const good = output({ errors: [], sentences: [], targetNotionUses: ['have finished', 'sent'] });
+    const step5 = { ...context, notionUse: PERFECT_OR_PAST };
+    clock.advance(1_000);
+    const old = await productions.submit(produce);
+    const stored = await productions.applyCorrection(
+      old.id,
+      { ...received(good), promptVersion: 'correct-production@1' },
+      step5,
+    );
+    // Stored as it came, but the model's word of that version proves nothing.
+    expect(stored.production.result).toBe('correct');
+    expect(stepFiveResultOf(stored.production)).toBeNull();
+    clock.advance(1_000);
+    const proven = await productions.submit(produce);
+    const one = await productions.applyCorrection(proven.id, received(good), step5);
+    expect(one.events).toEqual([]);
+    expect(await path.progress(NOTION)).toMatchObject({ values: { status: 'in_progress' } });
+    clock.advance(1_000);
+    const again = await productions.submit(produce);
+    const two = await productions.applyCorrection(again.id, received(good), step5);
+    expect(two.events).toEqual([{ type: 'acquired' }]);
   });
 
   it('never makes a notion acquired from what the model says without proof (D-088)', async () => {

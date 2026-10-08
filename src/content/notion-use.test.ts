@@ -79,7 +79,35 @@ describe('constructions of step 5 (D-088)', () => {
     ['tense-future', 'I would like to help.'],
     ['tense-for-since-ago', 'I work for a bank.'],
     ['tense-just-already-yet-still', 'I sent the report on Monday.'],
+    // Second reviews of phase 4 (D-090): an imperative is not a present.
+    ['tense-present-simple', 'Call me tomorrow.'],
+    ['tense-present-simple', 'Don’t worry about the file.'],
+    ['tense-present-simple', 'Please send me the report.'],
+    ['tense-future', 'Call me tomorrow.'],
+    // "For" without a duration: an employer, a purpose, an occasion.
+    ['tense-for-since-ago', 'I worked for a bank.'],
+    ['tense-for-since-ago', 'I have worked for a bank.'],
+    ['tense-for-since-ago', 'I applied for the job.'],
+    ['tense-for-since-ago', 'I visited Paris for the first time.'],
+    // "Still" outside a verb group, and an adjective in -ing after "be".
+    ['tense-just-already-yet-still', 'Still, I like the idea.'],
+    ['tense-present-continuous', 'The file is missing.'],
+    ['tense-present-continuous', 'The results are promising.'],
   ] as const)('never take for %s the reviewed sentence "%s"', (notionId, sentence) => {
     expect(recognizes(notionId, sentence)).toBe(false);
+  });
+
+  it.each([
+    ['tense-present-simple', 'Do you work on Saturdays?'],
+    ['tense-present-simple', 'They don’t work on Fridays.'],
+    ['tense-for-since-ago', 'For three years, I worked in London.'],
+    ['tense-for-since-ago', 'I have lived here for the last two years.'],
+    ['tense-for-since-ago', 'We have been waiting for a long time.'],
+    ['tense-for-since-ago', 'I worked in London for five years.'],
+    ['tense-just-already-yet-still', 'I’m still waiting for an answer.'],
+    ['tense-just-already-yet-still', 'He still hasn’t answered.'],
+    ['tense-future', 'The train leaves at 7:15 tomorrow.'],
+  ] as const)('take for %s the reviewed sentence "%s"', (notionId, sentence) => {
+    expect(recognizes(notionId, sentence)).toBe(true);
   });
 });

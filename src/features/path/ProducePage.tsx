@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { NOTION_TITLES } from '../../content/catalog.ts';
 import { NOTION_USES } from '../../content/notion-use.ts';
 import type { NotionContent } from '../../content/schema.ts';
+import { stepFiveResultOf } from '../../data/repositories/production-repository.ts';
 import { fallbackHintOf } from '../../content/taxonomy.ts';
 import type { ProductionDocument } from '../../data/schemas/productions.ts';
 import { notionCardContents } from '../../domain/cards/notion-cards.ts';
@@ -73,14 +74,11 @@ function goodInARow(
   if (progress === null) return 0;
   const counted = productions
     .filter(
-      (entry) =>
-        entry.status === 'corrected' &&
-        entry.result !== null &&
-        entry.createdAt >= progress.stepEnteredAt,
+      (entry) => stepFiveResultOf(entry) !== null && entry.createdAt >= progress.stepEnteredAt,
     )
     .sort((a, b) => a.createdAt - b.createdAt);
   let streak = 0;
-  for (const entry of counted) streak = entry.result === 'correct' ? streak + 1 : 0;
+  for (const entry of counted) streak = stepFiveResultOf(entry) === 'correct' ? streak + 1 : 0;
   return Math.min(streak, GOOD_IN_A_ROW);
 }
 
@@ -336,9 +334,9 @@ function ProductionResult({
     <>
       {production.correction === null ? null : (
         <p className="correction__summary">
-          {production.result === 'correct'
+          {stepFiveResultOf(production) === 'correct'
             ? 'Production réussie : la notion est bien employée, sans erreur sur elle.'
-            : production.result === null
+            : stepFiveResultOf(production) === null
               ? 'L’application n’a pas pu vérifier que ton texte emploie la notion : cette production ne compte pas pour l’étape, ni en bien ni en mal. Emploie-la clairement, comme dans les exemples de la leçon.'
               : 'La notion a une erreur dans ton texte : on la revoit dans la correction.'}
         </p>
