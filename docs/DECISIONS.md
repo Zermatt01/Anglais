@@ -97,6 +97,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-087 | Données de la phase 4                                    | Données     | Actée                   |
 | D-088 | Sorties de l'IA vérifiées par l'app ; revues de phase 4  | Transverse  | Complétée (D-089)       |
 | D-089 | Confiance asymétrique dans les exercices créés par l'IA  | Pédagogie   | Actée                   |
+| D-090 | Contre-revues de la phase 4                              | Transverse  | Actée                   |
 
 ---
 
@@ -933,3 +934,18 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 - **Articulation avec D-079.** La génération, ses vérifications de forme (schéma, `checkExercise`, ensembles de raisons relus, phrase déjà vue), l'étiquette et le signalement ne changent pas : un exercice signalé n'est plus jamais montré, mais il est gardé. Seule change la façon dont ses réponses comptent.
 - **Articulation avec D-088.** C'est l'application du principe, avec une exception choisie par l'utilisateur pour les réussites. Un échec repose sur une réponse attendue que l'app ne peut pas vérifier : il reste un point à vérifier, sans effet sur la progression. Une réussite est prise comme preuve, bien qu'elle ne soit pas vérifiable non plus : son risque, passer une étape un peu tôt, est rattrapé par l'étape suivante, par la règle lapsus ou lacune et par les cartes ; un échec injuste, lui, retiendrait ou renverrait en arrière l'apprenant sur une réponse juste (NO-05). Cela clôt le point ouvert de D-088.
 - **Défaut corrigé au passage.** À l'ouverture des exercices, la liste des exercices créés pouvait être lue avant la progression : le premier exercice était alors choisi sans eux. La liste est désormais attachée à son étape, et l'écran attend la bonne.
+
+### D-090 — Contre-revues de la phase 4 (2026-10-08, complète D-088 et D-089)
+
+- **Contexte.** Les deux contre-revues de Codex, code et anglais, valident les corrections de D-088 et la confiance asymétrique de D-089, et relèvent cinq points : quatre faux positifs, qui pouvaient faire acquérir une notion sans preuve, et un faux négatif. Tous sont fondés ; ils sont corrigés sans nouvelle revue, les faux positifs d'abord (demande de l'utilisateur).
+- **Décision.**
+  1. **Anciennes productions de l'étape 5.** Une production notée par le modèle avec la première version du prompt (`correct-production@1`) gardait son résultat, fondé sur la seule parole du modèle, et comptait dans la série de deux. Son résultat reste enregistré tel quel, mais il ne compte plus ni pour ni contre la série (`stepFiveResultOf`), et l'écran le présente comme un emploi non vérifié. Le jugement de l'apprenant, quand la correction n'est pas venue, compte toujours.
+  2. **Une même plage ne prouve qu'un temps.** Deux mots désignés identiques, ou qui se chevauchent dans le texte, comptaient pour deux preuves : en révision, « I work tomorrow » cité deux fois prouvait le présent simple et le futur. Les mots qui se chevauchent forment désormais un seul emploi, qui prouve un groupe au plus.
+  3. **L'impératif n'est pas un présent simple.** Une base verbale seule (_Call me tomorrow._, _Don't worry._) prouvait le présent simple, et, suivie d'un mot de futur, le futur. Une base verbale ne compte désormais qu'avec un sujet de la liste fermée (_I_, _you_, _we_, _they_), en affirmation, négation ou question ; la troisième personne et _does_ ne sont jamais impératifs. **Limite connue** : un nom pluriel sujet (_My colleagues work…_) n'est pas reconnu ; l'emploi reste non prouvé, ce qui est prudent.
+  4. **« For » sans durée.** _I worked for a bank_ prouvait for/since/ago. _For_ ne compte plus que suivi d'une durée de la liste fermée : _for years_, _for ages_, _for long_, _for_ suivi d'un à trois mots puis d'une unité (_for three years_, _for the last two years_), _for a while_, _for a long time_. _For the first time_, _for a bank_ ou _applied for the job_ ne comptent pas.
+  5. **Faux négatif : la durée en tête de phrase.** _For three years, I worked in London._ est reconnu : la durée peut précéder ou suivre le temps.
+- **Au passage**, deux faux positifs de même nature :
+  - _Still_ ne compte que collé à son groupe verbal (_I'm still waiting_, _she still works_, _he still hasn't answered_), jamais en tête de phrase (_Still, I like the idea._) ; la syntaxe des motifs gagne pour cela « + », qui interdit tout mot entre deux cases ;
+  - cinq formes en _-ing_ de la liste, surtout adjectifs après _be_ (_missing_, _misleading_, _promising_, _upsetting_, _worrying_), ne prouvent jamais un temps continu (_The file is missing._).
+- **Tests.** Chaque faux positif est un cas négatif, chaque faux négatif un cas positif, et les réponses canoniques du Thème restent toutes reconnues.
+- **Limite connue.** Les autres résultats notés avec la première version du prompt (une phrase du Thème, une traduction de l'étape 4) ne sont pas recalculés : seules en existent les corrections faites pendant l'essai de l'utilisateur, qui a porté sur le Journal.

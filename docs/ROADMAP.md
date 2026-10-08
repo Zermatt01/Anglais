@@ -6,7 +6,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 **Revues** (D-059) : chaque phase reçoit une revue de Codex, puis au plus une contre-revue des corrections, sauf s'il reste un point bloquant.
 
-**Phase en cours : 4, revues traitées.** La phase 4 a été lancée le 2026-10-07 ; ses fonctionnalités sont livrées, les revues de Codex sont traitées (D-088) et toutes les vérifications passent. Le point ouvert de D-088 est tranché (D-089). Restent les contre-revues de Codex et l'accord de l'utilisateur pour la phase 5.
+**Phase 4 terminée (2026-10-08).** Ses fonctionnalités sont livrées, ses revues et contre-revues de Codex traitées (D-088 à D-090), et toutes les vérifications passent. **La phase 5 attend l'accord de l'utilisateur.**
 
 ---
 
@@ -96,6 +96,8 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 - [x] Revue de Codex dédiée à la justesse de l'anglais traitée (D-088) : consigne de for/since/ago t/02, réponse _How long have you been waiting for?_ retirée, virgules entre deux propositions, confiance et titre d'exemple du prompt ; erreurs anticipées avec _at the moment_ gardées
 - [x] Essai du Journal par l'utilisateur : rien à signaler (2026-10-08)
 - [x] Exercices créés par l'IA : une réussite compte pour passer l'étape, un échec jamais ; il devient un point à vérifier, avec la réponse attendue et « Signaler » (D-089, décision de l'utilisateur)
+- [x] Contre-revues de Codex traitées (D-090) : anciennes réussites de l'étape 5 sorties de la série, une même plage ne prouve qu'un temps, impératif non pris pour un présent simple, _for_ compté seulement avec une durée, durée en tête de phrase reconnue
+- [x] **Phase 4 terminée** (2026-10-08)
 
 ## Phase 5 — Qualité des corrections
 
