@@ -177,6 +177,23 @@ export function inPresentationOrder<Item extends Exercise>(exercises: readonly I
   });
 }
 
+/**
+ * The English sentence of an exercise, as answered right: where the learner
+ * may pick an unknown word once the exercise is answered (D-095).
+ */
+export function englishSentenceOf(exercise: Exercise): string {
+  switch (exercise.kind) {
+    case 'choice-with-reason':
+      return fillGap(exercise.sentence, exercise.answer);
+    case 'fill-verb':
+      return fillGap(exercise.sentence, exercise.accepted[0] ?? '');
+    case 'transform':
+    case 'place-word':
+    case 'translate':
+      return exercise.accepted[0] ?? '';
+  }
+}
+
 /** Accepted answers as whole sentences (a gap filler is put back in its sentence). */
 export function acceptedAnswersOf(exercise: Exclude<Exercise, { kind: 'choice-with-reason' }>) {
   return exercise.kind === 'fill-verb'

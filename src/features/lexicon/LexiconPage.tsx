@@ -13,6 +13,7 @@ const SOURCES: Readonly<Record<LexiconDocument['source'], string>> = {
   correction: 'Correction',
   'expression-of-the-day': 'Expression du jour',
   manual: 'Ajoutée par toi',
+  exercise: 'Touchée dans une phrase',
   import: 'Importée',
 };
 

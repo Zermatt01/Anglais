@@ -25,6 +25,7 @@ import { Notice } from '../../ui/Notice.tsx';
 import { RichText } from '../../ui/RichText.tsx';
 import { Sheet } from '../../ui/Page.tsx';
 import { formatMaxUsd } from '../ai/format.ts';
+import { WordPicker } from '../lexicon/WordPicker.tsx';
 import { aiErrorMessage } from '../ai/messages.ts';
 import { useAppServices } from '../app-services.ts';
 import { MarkedText } from '../correction/MarkedText.tsx';
@@ -324,6 +325,7 @@ export function CardReview({ card, onReviewed }: CardReviewProps) {
         </div>
       ) : null}
 
+      {phase.name === 'graded' ? <WordPicker sentence={expected} /> : null}
       {phase.name === 'graded' ? (
         <GradeChoice
           phase={phase}

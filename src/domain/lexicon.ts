@@ -25,6 +25,44 @@ export interface LexiconEntryText {
   readonly example: string;
 }
 
+/** A piece of a sentence: a word, or what lies between two words (spaces, punctuation). */
+export interface TextPiece {
+  readonly text: string;
+  readonly start: number;
+  readonly word: boolean;
+}
+
+/** A word: letters and digits, with the apostrophes and hyphens inside it ("don't", "follow-up"). */
+const WORD = /[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/gu;
+
+/** The words of a sentence and what lies between them, in order, to pick an unknown word (D-095). */
+export function piecesOf(text: string): TextPiece[] {
+  const pieces: TextPiece[] = [];
+  let cursor = 0;
+  for (const match of text.matchAll(WORD)) {
+    if (match.index > cursor) {
+      pieces.push({ text: text.slice(cursor, match.index), start: cursor, word: false });
+    }
+    pieces.push({ text: match[0], start: match.index, word: true });
+    cursor = match.index + match[0].length;
+  }
+  if (cursor < text.length) pieces.push({ text: text.slice(cursor), start: cursor, word: false });
+  return pieces;
+}
+
+/**
+ * The expression from the `first` to the `last` word of a sentence (indexes
+ * among its words, in any order), as written in it: "set up" from "We set up
+ * a company"; an empty string when an index is out of range.
+ */
+export function expressionBetween(text: string, first: number, last: number): string {
+  const words = piecesOf(text).filter((piece) => piece.word);
+  const from = words[Math.min(first, last)];
+  const to = words[Math.max(first, last)];
+  if (from === undefined || to === undefined) return '';
+  return text.slice(from.start, to.start + to.text.length);
+}
+
 /** Positions of `needle` in `text`, ignoring case. */
 function occurrences(text: string, needle: string): number[] {
   const haystack = text.toLowerCase();

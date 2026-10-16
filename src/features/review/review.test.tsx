@@ -218,3 +218,55 @@ describe('rule book (MOD-10)', () => {
     );
   });
 });
+
+describe('unknown words (D-095)', () => {
+  it('adds a word touched in a sentence to the lexicon, with its card', async () => {
+    const services = await createTestServices();
+    await renderApp('/parcours/tense-present-continuous/lecon', services);
+    // The third example of the lesson: "Inflation is falling across the euro area."
+    const third = (await screen.findAllByRole('button', { name: 'Mot inconnu ?' }))[2];
+    if (third === undefined) throw new Error('no word picker');
+    fireEvent.click(third);
+    fireEvent.click(screen.getByRole('button', { name: 'across' }));
+    expect(screen.getByRole('button', { name: 'across' })).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(screen.getByRole('button', { name: 'Ajouter « across »' }));
+    const meaning = await screen.findByRole('textbox', {
+      name: 'Sens en français, dans cette phrase',
+    });
+    await waitFor(() => {
+      expect(meaning).toBeEnabled();
+    });
+    fireEvent.change(meaning, { target: { value: 'dans tout, à travers' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Ajouter à mon lexique' }));
+    expect(
+      await screen.findByText('Ajouté à ton lexique, avec sa carte de révision.'),
+    ).toBeInTheDocument();
+
+    const [entry] = await services.lexicon.list();
+    expect(entry).toMatchObject({
+      expression: 'across',
+      meaningFr: 'dans tout, à travers',
+      example: 'Inflation is falling across the euro area.',
+      source: 'exercise',
+    });
+    expect(await services.cards.all()).toMatchObject([
+      {
+        origin: 'lexicon',
+        content: { type: 'collocation', context: 'Inflation is falling ___ the euro area.' },
+      },
+    ]);
+  });
+
+  it('picks an expression of several words, from its first to its last word', async () => {
+    const services = await createTestServices();
+    await renderApp('/parcours/tense-present-continuous/lecon', services);
+    const third = (await screen.findAllByRole('button', { name: 'Mot inconnu ?' }))[2];
+    if (third === undefined) throw new Error('no word picker');
+    fireEvent.click(third);
+    fireEvent.click(screen.getByRole('button', { name: 'euro' }));
+    fireEvent.click(screen.getByRole('button', { name: 'area' }));
+    expect(screen.getByRole('button', { name: 'Ajouter « euro area »' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+    expect(screen.queryByRole('button', { name: 'euro' })).not.toBeInTheDocument();
+  });
+});

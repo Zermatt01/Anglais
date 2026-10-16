@@ -9,6 +9,7 @@ import { Notice } from '../../ui/Notice.tsx';
 import { Page, Sheet } from '../../ui/Page.tsx';
 import { RichText } from '../../ui/RichText.tsx';
 import { SpeakButton } from '../../ui/SpeakButton.tsx';
+import { WordPicker } from '../lexicon/WordPicker.tsx';
 import { Timeline } from '../../ui/Timeline.tsx';
 import { useAppServices } from '../app-services.ts';
 import { NotFoundPage } from '../not-found/NotFoundPage.tsx';
@@ -66,6 +67,7 @@ function Examples({ examples }: { readonly examples: Lesson['examples'] }) {
               {example.en}
             </span>
             <span className="muted">{example.fr}</span>
+            <WordPicker sentence={example.en} />
           </span>
           {speech.available ? (
             <SpeakButton

@@ -17,6 +17,7 @@ import { useCorrection } from '../correction/use-correction.ts';
 import { formatDateTime } from '../dates.ts';
 import { useDraft, type DraftSaveState } from '../drafts/use-draft.ts';
 import { useSettings } from '../settings/use-settings.ts';
+import { WordPicker } from '../lexicon/WordPicker.tsx';
 import { usePageTitle } from '../use-page-title.ts';
 import '../path/path.css';
 
@@ -184,6 +185,7 @@ function Entry({
         {question.en}
       </p>
       {french ? <p className="muted">{question.fr}</p> : null}
+      <WordPicker sentence={question.en} />
       <div className="button-row">
         <Button
           variant="secondary"

@@ -25,6 +25,7 @@ import { useAppServices } from '../app-services.ts';
 import { pathTo } from '../paths.ts';
 import { useSettings } from '../settings/use-settings.ts';
 import { useSpeech } from '../speech/use-speech.ts';
+import { WordPicker } from '../lexicon/WordPicker.tsx';
 import { MarkedText, type TextMark } from './MarkedText.tsx';
 import { useProduction } from './use-correction.ts';
 import './correction.css';
@@ -408,6 +409,7 @@ function Answer({
             />
           ) : null}
         </p>
+        <WordPicker sentence={correction.naturalVersion} />
       </section>
 
       {correction.expressionOfTheDay === null ? null : (

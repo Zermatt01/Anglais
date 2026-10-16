@@ -23,6 +23,7 @@ import { useDraft } from '../drafts/use-draft.ts';
 import { Feedback } from '../path/exercises/Feedback.tsx';
 import { eventMessage } from '../path/labels.ts';
 import { KeepForReview } from '../review/KeepForReview.tsx';
+import { WordPicker } from '../lexicon/WordPicker.tsx';
 
 export type SentenceResult = AnswerResult;
 
@@ -229,6 +230,7 @@ export function ThemeSentence({
       <p className="exercise__sentence" lang={instruction.language}>
         <RichText text={instruction.text} />
       </p>
+      {instruction.language === 'en' ? <WordPicker sentence={instruction.text} /> : null}
       {hintShown ? (
         <Notice title="Indice">
           <p>
@@ -364,6 +366,7 @@ export function ThemeSentence({
           {phase.grader === 'local' && phase.cardsCreated > 0 ? (
             <p className="muted">Une carte reprendra cette phrase dans tes Reprises.</p>
           ) : null}
+          <WordPicker sentence={canonical} />
           {phase.result === 'incorrect' && phase.cardsCreated === 0 ? (
             <KeepForReview
               card={notionCardOf(notionId, {
