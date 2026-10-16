@@ -40,7 +40,7 @@ describe('aiErrorMessage', () => {
     );
   });
 
-  it.each([...AI_ERROR_CODES, 'offline', 'signed_out', 'unreachable'] as const)(
+  it.each([...AI_ERROR_CODES, 'offline', 'signed_out', 'unreachable', 'timeout'] as const)(
     'has a message for %s',
     (code) => {
       expect(aiErrorMessage({ code }).length).toBeGreaterThan(20);

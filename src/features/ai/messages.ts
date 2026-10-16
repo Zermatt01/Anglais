@@ -22,6 +22,8 @@ const MESSAGES: Readonly<Record<Exclude<AiClientErrorCode, 'budget_exceeded'>, s
   server_error:
     'Le serveur IA n’est pas prêt : vérifie ses secrets (voir le guide de déploiement).',
   unreachable: 'Le serveur IA n’a pas pu être joint. Réessaie dans un moment.',
+  timeout:
+    'La réponse n’est pas arrivée à temps : le réseau ou le service d’IA est peut-être lent. Réessaie dans un moment.',
 };
 
 export function aiErrorMessage(error: AiClientError): string {

@@ -10,10 +10,15 @@
  *   (double tap, network retry) is refused by the server and costs nothing.
  *
  * Both the answer and the task output are validated with Zod.
+ *
+ * Every wait is bounded (D-091): the session, then the answer. A call that
+ * does not come back in time ends with the error `timeout`, never with an
+ * endless "Correction en cours…".
  */
 import {
   aiResponseSchema,
   aiUsageResponseSchema,
+  PLATFORM_TIMEOUT_MS,
   type AiErrorCode,
   type AiUsage,
   type BudgetState,
@@ -32,7 +37,9 @@ export type AiClientErrorCode =
   /** No session on this device. */
   | 'signed_out'
   /** The server could not be reached, or answered something unexpected. */
-  | 'unreachable';
+  | 'unreachable'
+  /** No answer in time: the network, the server or the model is too slow. */
+  | 'timeout';
 
 export interface AiClientError {
   readonly code: AiClientErrorCode;
@@ -73,6 +80,46 @@ export interface AiClientOptions {
   readonly fetch?: typeof fetch;
 }
 
+/** Longest wait for a valid session: Supabase Auth retries a refresh for at most 30 seconds. */
+export const SESSION_TIMEOUT_MS = 30_000;
+
+/**
+ * Longest wait for the answer to a task. The function answers before
+ * `REQUEST_DEADLINE_MS`, and the platform gives up at `PLATFORM_TIMEOUT_MS`:
+ * past it, no answer can come any more, so waiting longer never saves a call.
+ */
+export const RUN_TIMEOUT_MS = PLATFORM_TIMEOUT_MS + 10_000;
+
+/** Longest wait for the spending, which calls no model. */
+export const USAGE_TIMEOUT_MS = 20_000;
+
+const TIMED_OUT = Symbol('timed out');
+
+function failure(code: AiClientErrorCode): { ok: false; error: AiClientError } {
+  return { ok: false, error: { code } };
+}
+
+/** Runs `task`, giving up after `ms`: its signal is aborted and its result ignored. */
+async function within<T>(
+  ms: number,
+  task: (signal: AbortSignal) => Promise<T>,
+): Promise<T | typeof TIMED_OUT> {
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<typeof TIMED_OUT>((resolve) => {
+    timer = setTimeout(() => {
+      // Settled before the abort, so that the deadline wins the race.
+      resolve(TIMED_OUT);
+      controller.abort();
+    }, ms);
+  });
+  try {
+    return await Promise.race([task(controller.signal), deadline]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export function createAiClient(options: AiClientOptions): AiClient {
   const {
     functionUrl,
@@ -86,28 +133,41 @@ export function createAiClient(options: AiClientOptions): AiClient {
   async function send(
     url: string,
     init: RequestInit,
+    timeoutMs: number,
   ): Promise<{ ok: true; json: unknown } | { ok: false; error: AiClientError }> {
-    if (!isOnline()) return { ok: false, error: { code: 'offline' } };
-    const token = await accessToken();
-    if (token === null) return { ok: false, error: { code: 'signed_out' } };
-    const headers = new Headers(init.headers);
-    headers.set('authorization', `Bearer ${token}`);
-    headers.set('apikey', publishableKey);
+    if (!isOnline()) return failure('offline');
     try {
-      const response = await doFetch(url, { ...init, headers });
-      return { ok: true, json: await response.json() };
+      const token = await within(SESSION_TIMEOUT_MS, () => accessToken());
+      if (token === TIMED_OUT) return failure(isOnline() ? 'timeout' : 'offline');
+      if (token === null) return failure('signed_out');
+      const headers = new Headers(init.headers);
+      headers.set('authorization', `Bearer ${token}`);
+      headers.set('apikey', publishableKey);
+      const answer = await within(timeoutMs, async (signal) => {
+        const response = await doFetch(url, { ...init, headers, signal });
+        // The platform's own timeout: its body is not an answer of the function.
+        if (response.status === 504) return TIMED_OUT;
+        const json: unknown = await response.json();
+        return { json };
+      });
+      if (answer === TIMED_OUT) return failure(isOnline() ? 'timeout' : 'offline');
+      return { ok: true, json: answer.json };
     } catch {
-      return { ok: false, error: { code: isOnline() ? 'unreachable' : 'offline' } };
+      return failure(isOnline() ? 'unreachable' : 'offline');
     }
   }
 
   return {
     async run(task, input, requestId) {
-      const sent = await send(functionUrl, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ task, input, requestId }),
-      });
+      const sent = await send(
+        functionUrl,
+        {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ task, input, requestId }),
+        },
+        RUN_TIMEOUT_MS,
+      );
       if (!sent.ok) return sent;
       const answer = aiResponseSchema.safeParse(sent.json);
       if (!answer.success) return { ok: false, error: { code: 'unreachable' } };
@@ -127,7 +187,7 @@ export function createAiClient(options: AiClientOptions): AiClient {
 
     async usage(timeZone) {
       const url = `${functionUrl}?${new URLSearchParams({ timeZone }).toString()}`;
-      const sent = await send(url, { method: 'GET' });
+      const sent = await send(url, { method: 'GET' }, USAGE_TIMEOUT_MS);
       if (!sent.ok) return sent;
       const answer = aiUsageResponseSchema.safeParse(sent.json);
       if (!answer.success) return { ok: false, error: { code: 'unreachable' } };

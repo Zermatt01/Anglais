@@ -15,6 +15,17 @@ import { aiTaskNameSchema, TASK_CONTRACTS } from './tasks.ts';
 /** Largest request body accepted by the Edge Function. */
 export const MAX_REQUEST_BYTES = 64 * 1024;
 
+/**
+ * Longest time Supabase waits for the Edge Function to answer: request idle
+ * timeout and wall-clock limit of the free plan, 150 seconds (documentation
+ * checked on 2026-10-16). Past it, the platform answers 504 and the answer of
+ * the model, if it comes, is lost.
+ */
+export const PLATFORM_TIMEOUT_MS = 150_000;
+
+/** The Edge Function answers before this: a new attempt is only made if it fits (D-091). */
+export const REQUEST_DEADLINE_MS = 140_000;
+
 const usdSchema = z.number().nonnegative();
 
 export const connectionCheckRequestSchema = z.strictObject({

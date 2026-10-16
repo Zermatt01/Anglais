@@ -18,6 +18,8 @@ import {
   aiSuccessSchema,
   aiUsageSchema,
   MAX_REQUEST_BYTES,
+  PLATFORM_TIMEOUT_MS,
+  REQUEST_DEADLINE_MS,
 } from '../_shared/ai/protocol.ts';
 import type { AuthenticatedUser } from './auth.ts';
 import type { FunctionConfig } from './config.ts';
@@ -29,7 +31,12 @@ import {
   type CallToReserve,
   type Reservation,
 } from './ledger.ts';
-import type { ModelCaller, ModelRequest, ModelResult } from './model.ts';
+import {
+  MODEL_TIMEOUT_MS,
+  type ModelCaller,
+  type ModelRequest,
+  type ModelResult,
+} from './model.ts';
 
 const ORIGIN = 'https://app.example.test';
 const URL_OF_FUNCTION = 'https://abcdefghijklmnopqrst.supabase.co/functions/v1/ai';
@@ -78,6 +85,8 @@ interface HarnessOptions {
   readonly completeFails?: boolean;
   readonly user?: AuthenticatedUser | null;
   readonly ledger?: AiCallLedger;
+  /** How long each model call takes. */
+  readonly latencyMs?: number;
 }
 
 function harness(options: HarnessOptions = {}): Harness {
@@ -121,7 +130,7 @@ function harness(options: HarnessOptions = {}): Harness {
   const model: ModelCaller = {
     call() {
       modelCalls.push(clock);
-      clock += 400;
+      clock += options.latencyMs ?? 400;
       const result = results.shift();
       if (result === undefined) throw new Error('Unexpected model call');
       // Safe: the fake returns what each test declares for this task's output.
@@ -344,6 +353,26 @@ describe('a call', () => {
     expect(await errorOf(response)).toEqual({ code });
     expect(reserved).toHaveLength(2);
     expect(completed.every((outcome) => outcome.costUsd > 0)).toBe(true);
+  });
+
+  it('makes the new attempt only if it can end before the platform gives up (D-091)', async () => {
+    expect(MODEL_TIMEOUT_MS).toBeLessThan(REQUEST_DEADLINE_MS);
+    expect(REQUEST_DEADLINE_MS).toBeLessThan(PLATFORM_TIMEOUT_MS);
+    const results = (): ModelResult<unknown>[] => [
+      { kind: 'invalid_output', usage: USAGE },
+      { kind: 'ok', output: { status: 'ok' }, usage: USAGE },
+    ];
+    const room = REQUEST_DEADLINE_MS - MODEL_TIMEOUT_MS;
+
+    const inTime = harness({ results: results(), latencyMs: room });
+    expect((await handleRequest(post(CHECK), inTime.deps)).status).toBe(200);
+    expect(inTime.reserved.map((call) => call.attempt)).toEqual([1, 2]);
+
+    const late = harness({ results: results(), latencyMs: room + 1 });
+    const response = await handleRequest(post(CHECK), late.deps);
+    expect(response.status).toBe(502);
+    expect(await errorOf(response)).toEqual({ code: 'invalid_output' });
+    expect(late.reserved.map((call) => call.attempt)).toEqual([1]);
   });
 
   it('makes no new attempt after an answer cut off by max_tokens', async () => {

@@ -58,7 +58,10 @@ export interface ModelCaller {
   call<Output>(request: ModelRequest<Output>): Promise<ModelResult<Output>>;
 }
 
-/** Longest wait for an answer; well below the Edge Function's wall-clock limit. */
+/**
+ * Longest wait for an answer; well below the Edge Function's wall-clock limit.
+ * A second attempt is only made when it fits before `REQUEST_DEADLINE_MS`.
+ */
 export const MODEL_TIMEOUT_MS = 90_000;
 
 /**

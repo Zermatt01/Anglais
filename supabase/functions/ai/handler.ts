@@ -5,7 +5,8 @@
  * CORS → user's JWT → allowed e-mail → Zod validation of the request →
  * reservation (idempotence, rate limit, monthly cap) → versioned prompt, stable
  * prefix first → model → validation of the output, one new attempt if it is
- * invalid or refused (not if it is cut off) → actual cost logged → answer.
+ * invalid or refused (not if it is cut off, nor if it could end after
+ * `REQUEST_DEADLINE_MS`) → actual cost logged → answer.
  *
  * `GET ?timeZone=…`: the learner's spending and the cap; no model is called.
  *
@@ -25,6 +26,7 @@ import { PROMPTS } from '../_shared/ai/prompts/index.ts';
 import {
   aiRequestSchema,
   MAX_REQUEST_BYTES,
+  REQUEST_DEADLINE_MS,
   timeZoneSchema,
   type AiErrorCode,
   type AiFailure,
@@ -38,7 +40,7 @@ import type { Authenticate, AuthenticatedUser } from './auth.ts';
 import type { FunctionConfig } from './config.ts';
 import { corsHeadersFor } from './cors.ts';
 import type { AiCallLedger, CallOutcome } from './ledger.ts';
-import type { ModelCaller, ModelResult } from './model.ts';
+import { MODEL_TIMEOUT_MS, type ModelCaller, type ModelResult } from './model.ts';
 
 /** A log line: identifiers, counters and codes only. */
 export interface LogEntry {
@@ -127,9 +129,13 @@ async function runTask(
   request: AiRequest,
   user: AuthenticatedUser,
   deps: Dependencies,
+  receivedAt: number,
 ): Promise<Outcome> {
   const { config, ledger, model, now, log } = deps;
   const { task } = request;
+  // A new attempt that could outlast the platform's limit would lose its answer (D-091).
+  const hasTimeForAnotherAttempt = () =>
+    now() - receivedAt + MODEL_TIMEOUT_MS <= REQUEST_DEADLINE_MS;
   const settings = TASK_SETTINGS[task];
   const prompt = PROMPTS[task];
   const userMessage = userMessageOf(request);
@@ -218,8 +224,8 @@ async function runTask(
         };
       case 'invalid_output':
       case 'refusal':
-        // A single new attempt (AI-07, D-016).
-        if (attempt < ATTEMPTS.length) continue;
+        // A single new attempt (AI-07, D-016), if it can end in time.
+        if (attempt < ATTEMPTS.length && hasTimeForAnotherAttempt()) continue;
         return { code: result.kind === 'refusal' ? 'model_refusal' : 'invalid_output' };
       case 'truncated':
         // The same request would be cut off again.
@@ -247,6 +253,7 @@ async function readJsonBody(request: Request): Promise<BodyResult> {
 }
 
 export async function handleRequest(request: Request, deps: Dependencies): Promise<Response> {
+  const receivedAt = deps.now();
   const cors = corsHeadersFor(request.headers.get('origin'), deps.config.allowedOrigins);
   if (cors === null) return new Response(null, { status: 403 });
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
@@ -288,7 +295,7 @@ export async function handleRequest(request: Request, deps: Dependencies): Promi
     const parsed = aiRequestSchema.safeParse(body.json);
     if (!parsed.success) return fail({ code: 'invalid_request' });
 
-    const outcome = await runTask(parsed.data, user, deps);
+    const outcome = await runTask(parsed.data, user, deps, receivedAt);
     return 'ok' in outcome ? Response.json(outcome.body, { headers: cors }) : fail(outcome);
   } catch (error) {
     deps.log({

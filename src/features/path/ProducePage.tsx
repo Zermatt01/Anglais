@@ -16,7 +16,7 @@ import { Notice } from '../../ui/Notice.tsx';
 import { Page, Sheet } from '../../ui/Page.tsx';
 import { RichText } from '../../ui/RichText.tsx';
 import { useAppServices } from '../app-services.ts';
-import { CorrectionAction } from '../correction/CorrectionAction.tsx';
+import { CorrectionAction, CorrectionRunning } from '../correction/CorrectionAction.tsx';
 import { CorrectionView } from '../correction/CorrectionView.tsx';
 import { useCorrection } from '../correction/use-correction.ts';
 import { formatDateTime } from '../dates.ts';
@@ -317,7 +317,7 @@ function ProductionResult({
           {production.text}
         </p>
         {correction.run.state === 'running' ? (
-          <p role="status">Correction en cours…</p>
+          <CorrectionRunning />
         ) : (
           <CorrectionAction
             run={correction.run}

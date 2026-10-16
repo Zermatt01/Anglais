@@ -1,5 +1,12 @@
-import { describe, expect, it } from 'vitest';
-import { createAiClient, type AiClientOptions } from './ai-client.ts';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { PLATFORM_TIMEOUT_MS, REQUEST_DEADLINE_MS } from '../../../shared/ai/protocol.ts';
+import {
+  createAiClient,
+  RUN_TIMEOUT_MS,
+  SESSION_TIMEOUT_MS,
+  USAGE_TIMEOUT_MS,
+  type AiClientOptions,
+} from './ai-client.ts';
 
 const FUNCTION_URL = 'https://abcdefghijklmnopqrst.supabase.co/functions/v1/ai';
 const REQUEST_ID = '0b6f2c1e-3c3a-4a8e-9f61-2d4c5b6a7e80';
@@ -104,6 +111,80 @@ describe('run', () => {
       ok: false,
       error: { code: 'invalid_output' },
     });
+  });
+});
+
+describe('bounded waits (D-091)', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  /** A request that never gets an answer, like a connection lost on a phone. */
+  function silentFetch(signals: AbortSignal[]): NonNullable<AiClientOptions['fetch']> {
+    return (_input, init) => {
+      if (init?.signal) signals.push(init.signal);
+      return new Promise<Response>(() => undefined);
+    };
+  }
+
+  it('waits for the answer longer than the platform does, never longer than needed', () => {
+    expect(REQUEST_DEADLINE_MS).toBeLessThan(PLATFORM_TIMEOUT_MS);
+    expect(RUN_TIMEOUT_MS).toBeGreaterThan(PLATFORM_TIMEOUT_MS);
+    expect(RUN_TIMEOUT_MS).toBeLessThanOrEqual(PLATFORM_TIMEOUT_MS + 15_000);
+  });
+
+  it('gives up on an answer that does not come, and aborts the request', async () => {
+    vi.useFakeTimers();
+    const signals: AbortSignal[] = [];
+    const { ai } = client(SUCCESS, { fetch: silentFetch(signals) });
+    const result = ai.run('connection-check', {}, REQUEST_ID);
+    await vi.advanceTimersByTimeAsync(RUN_TIMEOUT_MS - 1);
+    expect(signals[0]?.aborted).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(await result).toEqual({ ok: false, error: { code: 'timeout' } });
+    expect(signals[0]?.aborted).toBe(true);
+  });
+
+  it('gives up on a session that does not come, without sending anything', async () => {
+    vi.useFakeTimers();
+    const { ai, sent } = client(SUCCESS, {
+      accessToken: () => new Promise<string>(() => undefined),
+    });
+    const result = ai.run('connection-check', {}, REQUEST_ID);
+    await vi.advanceTimersByTimeAsync(SESSION_TIMEOUT_MS);
+    expect(await result).toEqual({ ok: false, error: { code: 'timeout' } });
+    expect(sent).toEqual([]);
+  });
+
+  it('reads the timeout of the platform (504) as a timeout', async () => {
+    const { ai } = client(SUCCESS, {
+      fetch: () => Promise.resolve(new Response('upstream request timeout', { status: 504 })),
+    });
+    expect(await ai.run('connection-check', {}, REQUEST_ID)).toEqual({
+      ok: false,
+      error: { code: 'timeout' },
+    });
+  });
+
+  it('reports a session that fails as an unreachable server', async () => {
+    const { ai, sent } = client(SUCCESS, {
+      accessToken: () => Promise.reject(new Error('refresh failed')),
+    });
+    expect(await ai.run('connection-check', {}, REQUEST_ID)).toEqual({
+      ok: false,
+      error: { code: 'unreachable' },
+    });
+    expect(sent).toEqual([]);
+  });
+
+  it('gives up on the spending sooner', async () => {
+    vi.useFakeTimers();
+    const signals: AbortSignal[] = [];
+    const { ai } = client(SUCCESS, { fetch: silentFetch(signals) });
+    const result = ai.usage('Europe/Paris');
+    await vi.advanceTimersByTimeAsync(USAGE_TIMEOUT_MS);
+    expect(await result).toEqual({ ok: false, error: { code: 'timeout' } });
+    expect(signals[0]?.aborted).toBe(true);
   });
 });
 

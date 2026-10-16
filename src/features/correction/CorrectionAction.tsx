@@ -19,6 +19,15 @@ interface CorrectionActionProps {
   readonly onCorrect: () => void;
 }
 
+/** A correction may take a while, and it always ends (D-091). */
+const RUNNING_NOTE =
+  'Cela peut prendre un moment ; si la correction n’arrive pas, un message te le dira.';
+
+/** In place of the button, while a correction runs. */
+export function CorrectionRunning() {
+  return <p role="status">{`Correction en cours… ${RUNNING_NOTE}`}</p>;
+}
+
 /**
  * The "Corriger" button (COST-01): its highest cost is shown before, the
  * actual cost after; it is inactive offline, where the text stays stored
@@ -60,7 +69,9 @@ export function CorrectionAction({
           </p>
         </Notice>
       ) : null}
-      {answerKept ? (
+      {run.state === 'running' ? (
+        <p className="muted">{RUNNING_NOTE}</p>
+      ) : answerKept ? (
         <p className="muted">Sans nouveau coût : la correction reçue est seulement enregistrée.</p>
       ) : online ? (
         <p className="muted">{`Coût : au plus ${formatMaxUsd(CORRECTION_MAX_COST_USD)}, en général bien moins.`}</p>
