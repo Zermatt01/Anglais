@@ -15,6 +15,7 @@ import {
   type QueueLimits,
   type ReviewsToday,
 } from '../../domain/cards/queue.ts';
+import { asksTheSame } from '../../domain/cards/same.ts';
 import { isCardSolvable, type SolvabilityIssue } from '../../domain/cards/solvability.ts';
 import { isNotionStudied } from '../../domain/curriculum/engine.ts';
 import type { NotionId } from '../../domain/curriculum/notion-id.ts';
@@ -39,7 +40,8 @@ export interface NewCard {
 }
 
 export type CardCreation =
-  | { readonly ok: true; readonly card: CardDocument }
+  /** `created` is false when a card asking the same thing already exists: it is that one. */
+  | { readonly ok: true; readonly card: CardDocument; readonly created: boolean }
   | { readonly ok: false; readonly issues: readonly SolvabilityIssue[] };
 
 export interface CardReview {
@@ -136,6 +138,11 @@ export function createCardRepository(
     async create({ content, origin, sourceErrorId = null, suspensionReason = null }) {
       const report = isCardSolvable(content);
       if (!report.solvable) return { ok: false, issues: report.issues };
+      // One card per question: a sentence failed again is already in the Reprises (D-092).
+      const same = readable(await cards.toArray()).find((card) =>
+        asksTheSame(card.content, content),
+      );
+      if (same !== undefined) return { ok: true, card: same, created: false };
 
       const now = clock.now();
       const srs = scheduler.initialState(now);
@@ -155,7 +162,7 @@ export function createCardRepository(
         origin,
       };
       await writeRecord(db, 'cards', card, now);
-      return { ok: true, card };
+      return { ok: true, card, created: true };
     },
 
     get(id) {

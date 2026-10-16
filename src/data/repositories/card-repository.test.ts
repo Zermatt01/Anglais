@@ -62,6 +62,26 @@ describe('card repository', () => {
     expect(result).toEqual({ ok: false, issues: ['hint-reveals-answer'] });
   });
 
+  it('never makes two cards that ask the same thing, unless the first was removed (D-092)', async () => {
+    const { db, repository } = await setup();
+    const first = await repository.create({ content: clozeCard, origin: 'error' });
+    const again = await repository.create({ content: { ...clozeCard }, origin: 'error' });
+    expect(first.ok && first.created).toBe(true);
+    expect(again.ok && !again.created && first.ok && again.card.id === first.card.id).toBe(true);
+    expect(await db.table('cards').count()).toBe(1);
+
+    const other = await repository.create({
+      content: { ...clozeCard, text: 'Has she sent the invoice ___?' },
+      origin: 'error',
+    });
+    expect(other.ok && other.created).toBe(true);
+
+    if (!first.ok) throw new Error('not created');
+    await repository.remove(first.card.id);
+    const after = await repository.create({ content: clozeCard, origin: 'error' });
+    expect(after.ok && after.created && after.card.id !== first.card.id).toBe(true);
+  });
+
   it('creates a suspended card while its notion is not studied yet (D-025)', async () => {
     const { repository } = await setup();
     const result = await repository.create({

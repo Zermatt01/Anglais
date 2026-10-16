@@ -472,7 +472,7 @@ export function createProductionRepository(
         // A form never taught is not asked for yet (D-025).
         suspensionReason: unstudied ? 'unstudied-notion' : null,
       });
-      if (created.ok) cardsCreated += 1;
+      if (created.ok && created.created) cardsCreated += 1;
     }
     return { events, cardsCreated };
   }
