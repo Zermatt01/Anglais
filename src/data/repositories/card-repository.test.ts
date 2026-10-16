@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CardContent } from '../../domain/cards/content.ts';
 import { createFsrsScheduler } from '../../domain/srs/scheduler.ts';
-import { createTestClock, createTestDatabase } from '../../test/database.ts';
+import { createTestClock, createTestDatabase, hasPhase3Lesson } from '../../test/database.ts';
 import { createCardRepository } from './card-repository.ts';
 
 const clozeCard: CardContent = {
@@ -18,7 +18,11 @@ const clozeCard: CardContent = {
 async function setup() {
   const db = await createTestDatabase();
   const clock = createTestClock();
-  return { db, clock, repository: createCardRepository(db, clock, createFsrsScheduler()) };
+  return {
+    db,
+    clock,
+    repository: createCardRepository(db, clock, createFsrsScheduler(), hasPhase3Lesson),
+  };
 }
 
 describe('card repository', () => {
@@ -123,6 +127,21 @@ describe('card repository', () => {
     });
     const good = await second.repository.review(reviewOf(twin.card.id));
     expect(easy.due).toBeGreaterThan(good.due);
+  });
+
+  it('shows a card held back for a notion that has no lessons yet (D-092)', async () => {
+    const { repository } = await setup();
+    const held = await repository.create({
+      content: { ...clozeCard, notionId: 'nouns-articles' },
+      origin: 'error',
+      suspensionReason: 'unstudied-notion',
+    });
+    if (!held.ok) throw new Error('not created');
+    expect((await repository.session(limits, 0)).queue.map((card) => card.id)).toEqual([
+      held.card.id,
+    ]);
+    const reviewed = await repository.review(reviewOf(held.card.id));
+    expect(reviewed).toMatchObject({ status: 'active', suspensionReason: null });
   });
 
   it('never reviews a suspended card, but brings one back once its notion is studied', async () => {

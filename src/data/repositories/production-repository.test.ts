@@ -5,7 +5,7 @@ import type { NotionId } from '../../domain/curriculum/notion-id.ts';
 import type { ModelCorrection, ModelError } from '../../domain/production/correction.ts';
 import type { NotionUse } from '../../domain/production/notion-use.ts';
 import { createFsrsScheduler } from '../../domain/srs/scheduler.ts';
-import { createTestClock, createTestDatabase } from '../../test/database.ts';
+import { createTestClock, createTestDatabase, hasPhase3Lesson } from '../../test/database.ts';
 import { createCardRepository } from './card-repository.ts';
 import { createDraftRepository } from './draft-repository.ts';
 import { createPathRepository } from './path-repository.ts';
@@ -25,8 +25,12 @@ async function setup() {
   const db = await createTestDatabase();
   const clock = createTestClock();
   const path = createPathRepository(db, clock);
-  const cards = createCardRepository(db, clock, createFsrsScheduler());
-  const productions = createProductionRepository(db, clock, { cards, path });
+  const cards = createCardRepository(db, clock, createFsrsScheduler(), hasPhase3Lesson);
+  const productions = createProductionRepository(db, clock, {
+    cards,
+    path,
+    hasLesson: hasPhase3Lesson,
+  });
   return { db, clock, path, cards, productions, drafts: createDraftRepository(db, clock) };
 }
 
@@ -161,6 +165,43 @@ describe('production repository', () => {
     expect((await cards.fromErrors([error0?.id ?? '']))[0]).toMatchObject({
       status: 'suspended',
       suspensionReason: 'unstudied-notion',
+    });
+  });
+
+  it('makes an active card, without a diagnosis, for a notion with no lessons yet (D-092)', async () => {
+    const { productions, cards } = await setup();
+    const stored = await productions.submit(production({ text: 'I studied the economics.' }));
+    await productions.applyCorrection(
+      stored.id,
+      received(
+        output({
+          errors: [
+            error({
+              segment: 'the economics',
+              start: 10,
+              category: 'articles',
+              notionId: 'nouns-articles',
+              hintFr: 'Une matière en général prend-elle un article ?',
+              correction: 'economics',
+              ruleFr: 'Une matière en général : pas d’article.',
+            }),
+          ],
+          sentences: [
+            {
+              original: 'I studied the economics.',
+              corrected: 'I studied economics.',
+              meaningFr: 'J’ai étudié l’économie.',
+            },
+          ],
+        }),
+      ),
+      context,
+    );
+    const [error0] = await productions.errorsOf(stored.id);
+    expect(error0).toMatchObject({ notionId: 'nouns-articles', diagnosis: null });
+    expect((await cards.fromErrors([error0?.id ?? '']))[0]).toMatchObject({
+      status: 'active',
+      suspensionReason: null,
     });
   });
 

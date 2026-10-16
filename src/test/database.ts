@@ -1,6 +1,12 @@
 /** Test helpers for the Dexie database (fake-indexeddb, see setup.ts). */
 import { createDatabase, type AppDatabase, type DatabaseVersion } from '../data/database.ts';
+import { phaseOf, type NotionId } from '../domain/curriculum/notion-id.ts';
 import type { Clock } from '../domain/primitives.ts';
+
+/** The notions whose lessons exist: those of phase 3, as in the content today. */
+export function hasPhase3Lesson(notionId: NotionId): boolean {
+  return phaseOf(notionId) === 3;
+}
 
 let counter = 0;
 

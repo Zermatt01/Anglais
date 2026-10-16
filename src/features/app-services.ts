@@ -4,6 +4,7 @@
  * Tests provide their own, on an in-memory database.
  */
 import { createContext, useContext } from 'react';
+import { hasContent } from '../content/index.ts';
 import type { AppDatabase } from '../data/database.ts';
 import { createCardRepository, type CardRepository } from '../data/repositories/card-repository.ts';
 import {
@@ -79,7 +80,7 @@ export function createAppServices(
   } = {},
 ): AppServices {
   const path = createPathRepository(db, clock);
-  const cards = createCardRepository(db, clock, createFsrsScheduler());
+  const cards = createCardRepository(db, clock, createFsrsScheduler(), hasContent);
   return {
     db,
     clock,
@@ -89,7 +90,7 @@ export function createAppServices(
     path,
     generatedExercises: createGeneratedExerciseRepository(db, clock),
     cards,
-    productions: createProductionRepository(db, clock, { cards, path }),
+    productions: createProductionRepository(db, clock, { cards, path, hasLesson: hasContent }),
     lexicon: createLexiconRepository(db, clock, cards),
     ruleNotes: createRuleNoteRepository(db, clock),
     speech: options.speech ?? null,

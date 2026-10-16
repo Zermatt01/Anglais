@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { createFsrsScheduler } from '../../domain/srs/scheduler.ts';
-import { createTestClock, createTestDatabase } from '../../test/database.ts';
+import { createTestClock, createTestDatabase, hasPhase3Lesson } from '../../test/database.ts';
 import { createCardRepository } from './card-repository.ts';
 import { createLexiconRepository, lexiconIdOf } from './lexicon-repository.ts';
 import { createRuleNoteRepository } from './rule-note-repository.ts';
@@ -9,7 +9,7 @@ import { createRuleNoteRepository } from './rule-note-repository.ts';
 async function setup() {
   const db = await createTestDatabase();
   const clock = createTestClock();
-  const cards = createCardRepository(db, clock, createFsrsScheduler());
+  const cards = createCardRepository(db, clock, createFsrsScheduler(), hasPhase3Lesson);
   return { db, clock, cards, lexicon: createLexiconRepository(db, clock, cards) };
 }
 

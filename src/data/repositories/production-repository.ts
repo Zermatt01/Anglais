@@ -259,7 +259,12 @@ function productionResult(correction: ReviewedCorrection): AnswerResult {
 export function createProductionRepository(
   db: AppDatabase,
   clock: Clock,
-  dependencies: { readonly cards: CardRepository; readonly path: PathRepository },
+  dependencies: {
+    readonly cards: CardRepository;
+    readonly path: PathRepository;
+    /** Whether the app has the lessons of a notion (its content is delivered). */
+    readonly hasLesson: (notionId: NotionId) => boolean;
+  },
 ): ProductionRepository {
   const productions = db.table('productions');
   const errorsTable = db.table('errors');
@@ -398,6 +403,9 @@ export function createProductionRepository(
         .flatMap((error) => (error.notionId === null ? [] : [error.notionId])),
     );
     for (const notionId of notions) {
+      // A notion without lessons cannot be studied yet: its errors are handled
+      // as errors without a notion, with an active card (D-092).
+      if (!dependencies.hasLesson(notionId)) continue;
       const progress = await readProgress(notionId);
       // An unreadable progress is never overwritten: its notion counts as not studied.
       const studied = progress !== undefined && isNotionStudied(progress.values);

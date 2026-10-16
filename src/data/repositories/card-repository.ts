@@ -83,6 +83,8 @@ export function createCardRepository(
   db: AppDatabase,
   clock: Clock,
   scheduler: SpacedRepetitionScheduler,
+  /** Whether the app has the lessons of a notion (its content is delivered). */
+  hasLesson: (notionId: NotionId) => boolean,
 ): CardRepository {
   const cards = db.table('cards');
   const logs = db.table('reviewLogs');
@@ -94,8 +96,12 @@ export function createCardRepository(
       .flatMap((parsed) => (parsed.ok && parsed.value.deletedAt === null ? [parsed.value] : []));
   }
 
-  /** Notions studied now, from the stored progress (unreadable progress: not studied). */
-  async function studiedNotions(): Promise<Set<NotionId>> {
+  /**
+   * Whether the cards held back for a notion may be shown (D-025): the notion
+   * is studied, from the stored progress (unreadable progress: not studied),
+   * or it has no lessons yet, so that it could never be studied (D-092).
+   */
+  async function readiness(): Promise<(notionId: NotionId) => boolean> {
     const raws: unknown[] = await db.table('notionProgress').toArray();
     const studied = new Set<NotionId>();
     for (const raw of raws) {
@@ -104,7 +110,7 @@ export function createCardRepository(
         studied.add(parsed.value.notionId);
       }
     }
-    return studied;
+    return (notionId) => studied.has(notionId) || !hasLesson(notionId);
   }
 
   async function logsOf(query: Promise<unknown[]>): Promise<ReviewLog[]> {
@@ -173,9 +179,8 @@ export function createCardRepository(
     async session(limits, dayStart) {
       const now = clock.now();
       const all = readable(await cards.toArray());
-      const studied = await studiedNotions();
+      const isStudied = await readiness();
       const today = await logsOf(logs.where('at').aboveOrEqual(dayStart).toArray());
-      const isStudied = (notionId: NotionId) => studied.has(notionId);
       const entries = all.map((card) => ({ ...card, phase: card.srs.phase }));
       const queued = reviewQueue({
         cards: entries,
@@ -207,8 +212,7 @@ export function createCardRepository(
         const stored = await readRecord(db, 'cards', review.cardId);
         if (!stored?.ok || stored.value.deletedAt !== null) throw new Error('Unreadable card');
         const card = stored.value;
-        const studied = await studiedNotions();
-        const status = effectiveCardStatus(card, (notionId) => studied.has(notionId));
+        const status = effectiveCardStatus(card, await readiness());
         if (status === 'suspended' || !isCardSolvable(card.content).solvable) {
           throw new Error('A suspended or unsolvable card is never reviewed');
         }
