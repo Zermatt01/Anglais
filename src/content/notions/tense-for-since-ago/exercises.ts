@@ -400,4 +400,160 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     ],
     explanation: '_How long_ + present perfect : _has your company been working_.',
   }),
+  // Added on 2026-10-16 (D-094): presented by difficulty with the ones above.
+  translate(12, {
+    sentenceFr: 'Je n’ai pas pris de vacances depuis un an.',
+    hint: 'Une durée jusqu’à maintenant, à la forme négative.',
+    difficulty: 1,
+    accepted: [
+      'I haven’t had a holiday for a year.',
+      'I haven’t taken a holiday for a year.',
+      'I haven’t had a holiday in a year.',
+      'I haven’t had a vacation for a year.',
+      'I haven’t taken a vacation in a year.',
+    ],
+    knownErrors: [
+      onNotion('I don’t take a holiday since a year.', 'temps_verbaux'),
+      onNotion('I haven’t had a holiday since a year.', 'temps_verbaux'),
+    ],
+    explanation:
+      'Une durée jusqu’à maintenant : present perfect, avec _for_ (_for a year_), jamais _since_ devant une durée.',
+  }),
+  translate(13, {
+    sentenceFr: 'Il a commencé à travailler ici il y a six mois.',
+    hint: 'Un moment passé, situé par rapport à aujourd’hui.',
+    difficulty: 1,
+    accepted: [
+      'He started working here six months ago.',
+      'He started to work here six months ago.',
+      'He began working here six months ago.',
+      'He started here six months ago.',
+    ],
+    knownErrors: [
+      onNotion('He has started working here six months ago.', 'temps_verbaux'),
+      onNotion('He started working here since six months.', 'temps_verbaux'),
+    ],
+    explanation: '« Il y a » + durée : _ago_, avec le prétérit : _started… six months ago_.',
+  }),
+  translate(14, {
+    sentenceFr: 'Le serveur ne fonctionne plus depuis dix minutes.',
+    hint: 'Une situation qui dure jusqu’à maintenant, à la forme négative.',
+    difficulty: 1,
+    accepted: [
+      'The server hasn’t been working for ten minutes.',
+      'The server hasn’t worked for ten minutes.',
+      'The server has been down for ten minutes.',
+    ],
+    knownErrors: [
+      onNotion('The server doesn’t work since ten minutes.', 'temps_verbaux'),
+      onNotion('The server hasn’t been working since ten minutes.', 'temps_verbaux'),
+    ],
+    explanation: 'Une durée jusqu’à maintenant : _for ten minutes_, avec le present perfect.',
+  }),
+  translate(15, {
+    sentenceFr: 'Ça fait combien de temps que vous connaissez la directrice ?',
+    hint: 'Une question sur une durée jusqu’à maintenant, avec un verbe d’état.',
+    difficulty: 2,
+    accepted: ['How long have you known the director?'],
+    knownErrors: [
+      onNotion('Since how long do you know the director?', 'temps_verbaux'),
+      onNotion('How long do you know the director?', 'temps_verbaux'),
+    ],
+    explanation: '« Depuis combien de temps » : _How long have you known…?_ (verbe d’état).',
+  }),
+  translate(16, {
+    sentenceFr: 'Il y a combien de temps que tu as quitté ton dernier poste ?',
+    hint: 'Une question sur un moment passé, compté depuis aujourd’hui.',
+    difficulty: 2,
+    accepted: [
+      'How long ago did you leave your last job?',
+      'How long ago did you leave your previous job?',
+    ],
+    knownErrors: [
+      onNotion('How long ago have you left your last job?', 'temps_verbaux'),
+      onNotion('Since how long did you leave your last job?', 'temps_verbaux'),
+    ],
+    explanation: 'Un moment passé : _How long ago did you leave…?_, avec le prétérit.',
+  }),
+  translate(17, {
+    sentenceFr:
+      'Je vis en Suisse depuis cinq ans, mais j’ai appris l’allemand il y a seulement un an.',
+    hint: 'Une durée jusqu’à maintenant, puis un moment passé.',
+    difficulty: 3,
+    accepted: [
+      'I’ve lived in Switzerland for five years, but I only learnt German a year ago.',
+      'I’ve been living in Switzerland for five years, but I only learnt German a year ago.',
+      'I’ve lived in Switzerland for five years, but I learnt German only a year ago.',
+      'I’ve lived in Switzerland for five years, but I only learnt German one year ago.',
+    ],
+    knownErrors: [
+      onNotion(
+        'I live in Switzerland since five years, but I only learnt German a year ago.',
+        'temps_verbaux',
+      ),
+      onNotion(
+        'I’ve lived in Switzerland since five years, but I only learnt German a year ago.',
+        'temps_verbaux',
+      ),
+    ],
+    explanation:
+      'Une durée jusqu’à maintenant : _I’ve lived… for five years_ ; un moment passé : _learnt… a year ago_.',
+  }),
+  translate(18, {
+    sentenceFr: 'Cela fait des mois que nous travaillons sur ce dossier.',
+    hint: 'Une activité qui dure jusqu’à maintenant : ne transpose pas « cela fait ».',
+    difficulty: 3,
+    accepted: [
+      'We’ve been working on this case for months.',
+      'We’ve been working on this file for months.',
+      'We’ve worked on this case for months.',
+      'We’ve worked on this file for months.',
+    ],
+    knownErrors: [
+      onNotion('It’s been months that we work on this case.', 'calques_du_francais'),
+      onNotion('We work on this case since months.', 'temps_verbaux'),
+    ],
+    explanation:
+      '« Cela fait… que » : present perfect (continu) + _for_ : _We’ve been working… for months_.',
+  }),
+  translate(19, {
+    sentenceFr: 'Je n’ai pas parlé à mon ancien manager depuis que j’ai quitté la banque.',
+    hint: 'Une durée qui part d’un moment passé, à la forme négative.',
+    difficulty: 3,
+    accepted: [
+      'I haven’t spoken to my former manager since I left the bank.',
+      'I haven’t talked to my former manager since I left the bank.',
+      'I haven’t spoken to my old manager since I left the bank.',
+      'I haven’t talked to my old manager since I left the bank.',
+    ],
+    knownErrors: [
+      onNotion('I didn’t speak to my former manager since I left the bank.', 'temps_verbaux'),
+      onNotion(
+        'I haven’t spoken to my former manager since I have left the bank.',
+        'temps_verbaux',
+      ),
+    ],
+    explanation:
+      'Present perfect + _since_ suivi du moment de départ, au prétérit : _since I left the bank_.',
+  }),
+  translate(20, {
+    sentenceFr:
+      'Il y a trois ans, j’ai créé une entreprise, et depuis, j’ai embauché dix personnes.',
+    hint: 'Un moment passé, puis ce qui s’est passé depuis jusqu’à maintenant.',
+    difficulty: 3,
+    accepted: [
+      'Three years ago, I started a company, and since then, I’ve hired ten people.',
+      'Three years ago, I founded a company, and since then, I’ve hired ten people.',
+      'Three years ago, I set up a company, and since then, I’ve hired ten people.',
+      'I started a company three years ago, and since then, I’ve hired ten people.',
+      'I started a company three years ago, and I’ve hired ten people since then.',
+    ],
+    knownErrors: [
+      onNotion(
+        'Three years ago, I have started a company, and since then, I’ve hired ten people.',
+        'temps_verbaux',
+      ),
+    ],
+    explanation: '_Ago_ : prétérit (_started_) ; _since then_ : present perfect (_I’ve hired_).',
+  }),
 ];

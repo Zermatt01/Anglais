@@ -409,4 +409,139 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     ],
     explanation: 'Après _when_, présent : _when you see_ ; puis _I’ll call back_.',
   }),
+  // Added on 2026-10-16 (D-094): presented by difficulty with the ones above.
+  translate(12, {
+    sentenceFr: 'Je pense qu’il va réussir l’examen.',
+    hint: 'Une prévision, avec « je pense que ».',
+    difficulty: 1,
+    accepted: [
+      'I think he’ll pass the exam.',
+      'I think he’s going to pass the exam.',
+      'I think he will pass the exam.',
+    ],
+    knownErrors: [
+      onNotion('I think he passes the exam.', 'temps_verbaux'),
+      onNotion('I think he will passes the exam.', 'auxiliaires_questions_negations'),
+    ],
+    explanation: 'Une prévision : _will_ (ou _going to_) + base verbale, _he’ll pass_.',
+  }),
+  translate(13, {
+    sentenceFr: 'Nous partons en vacances samedi.',
+    hint: 'Un projet déjà organisé, avec un jour précis.',
+    difficulty: 1,
+    accepted: [
+      'We’re going on holiday on Saturday.',
+      'We’re going on vacation on Saturday.',
+      'We’re going on holiday this Saturday.',
+    ],
+    knownErrors: [onNotion('We going on holiday on Saturday.', 'temps_verbaux')],
+    explanation: 'Un projet organisé : présent continu, _We’re going on holiday on Saturday_.',
+  }),
+  translate(14, {
+    sentenceFr: 'Le téléphone sonne : je réponds !',
+    hint: 'Une décision prise sur le moment.',
+    difficulty: 1,
+    accepted: [
+      'The phone’s ringing: I’ll answer it!',
+      'The phone’s ringing: I’ll get it!',
+      'The phone is ringing: I’ll answer it!',
+      'The phone is ringing: I’ll get it!',
+    ],
+    knownErrors: [],
+    explanation: 'Une décision prise sur le moment : _will_, _I’ll get it_ (ou _I’ll answer it_).',
+  }),
+  translate(15, {
+    sentenceFr: 'Est-ce que tu vas venir à la réunion de demain ?',
+    hint: 'Une question sur un projet de demain.',
+    difficulty: 2,
+    accepted: [
+      'Are you going to come to tomorrow’s meeting?',
+      'Are you coming to tomorrow’s meeting?',
+      'Will you come to tomorrow’s meeting?',
+      'Are you going to come to the meeting tomorrow?',
+      'Are you coming to the meeting tomorrow?',
+      'Will you come to the meeting tomorrow?',
+    ],
+    knownErrors: [onNotion('Do you come to tomorrow’s meeting?', 'temps_verbaux')],
+    explanation: 'Un projet : _Are you coming…?_, _Are you going to come…?_ ou _Will you come…?_',
+  }),
+  translate(16, {
+    sentenceFr: 'Le taux d’inflation va probablement baisser l’année prochaine.',
+    hint: 'Une prévision, nuancée par « probablement ».',
+    difficulty: 2,
+    accepted: [
+      'The inflation rate will probably fall next year.',
+      'The inflation rate is probably going to fall next year.',
+      'The inflation rate will probably go down next year.',
+      'Inflation will probably fall next year.',
+      'Inflation is probably going to fall next year.',
+    ],
+    knownErrors: [onNotion('The inflation rate probably falls next year.', 'temps_verbaux')],
+    explanation: 'Une prévision : _will probably fall_ (_probably_ entre _will_ et le verbe).',
+  }),
+  translate(17, {
+    sentenceFr: 'Si tu finis tôt, est-ce que tu m’appelleras ?',
+    hint: 'Après « si », le verbe ne se met pas au futur en anglais.',
+    difficulty: 2,
+    accepted: [
+      'If you finish early, will you call me?',
+      'Will you call me if you finish early?',
+      'If you finish early, will you give me a call?',
+    ],
+    knownErrors: [onNotion('If you will finish early, will you call me?', 'temps_verbaux')],
+    explanation: 'Après _if_, présent : _If you finish early_ ; puis _will you call me?_',
+  }),
+  translate(18, {
+    sentenceFr: 'Dès que le contrat sera signé, nous commencerons le projet.',
+    hint: 'Après « dès que », le verbe ne se met pas au futur en anglais.',
+    difficulty: 3,
+    accepted: [
+      'As soon as the contract is signed, we’ll start the project.',
+      'As soon as the contract is signed, we will begin the project.',
+      'We’ll start the project as soon as the contract is signed.',
+      'Once the contract is signed, we’ll start the project.',
+      'As soon as the contract has been signed, we’ll start the project.',
+    ],
+    knownErrors: [
+      onNotion('As soon as the contract will be signed, we’ll start the project.', 'temps_verbaux'),
+    ],
+    explanation: 'Après _as soon as_, présent (_is signed_) ; puis le futur, _we’ll start_.',
+  }),
+  translate(19, {
+    sentenceFr: 'Je vais faire un master l’année prochaine : j’ai déjà choisi l’université.',
+    hint: 'Une intention déjà décidée, puis ce qui est déjà fait.',
+    difficulty: 3,
+    accepted: [
+      'I’m going to do a master’s next year: I’ve already chosen the university.',
+      'I’m going to do a master’s degree next year: I’ve already chosen the university.',
+      'I’m doing a master’s next year: I’ve already chosen the university.',
+      'I’m going to study for a master’s next year: I’ve already chosen the university.',
+    ],
+    knownErrors: [
+      onNotion(
+        'I go to do a master’s next year: I’ve already chosen the university.',
+        'temps_verbaux',
+      ),
+    ],
+    explanation:
+      'Une intention décidée : _I’m going to do_ ; « je vais » ne se traduit jamais par _I go to_.',
+  }),
+  translate(20, {
+    sentenceFr: 'À cette heure-ci demain, je serai dans l’avion pour New York.',
+    hint: 'Une situation à un moment précis du futur.',
+    difficulty: 3,
+    accepted: [
+      'This time tomorrow, I’ll be on the plane to New York.',
+      'This time tomorrow, I’ll be on the flight to New York.',
+      'At this time tomorrow, I’ll be on the plane to New York.',
+      'This time tomorrow, I’ll be on the plane for New York.',
+    ],
+    knownErrors: [
+      onNotion(
+        'This time tomorrow, I will being on the plane to New York.',
+        'auxiliaires_questions_negations',
+      ),
+    ],
+    explanation: 'Une situation future : _will_ + base verbale, _I’ll be on the plane_.',
+  }),
 ];

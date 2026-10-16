@@ -390,4 +390,135 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     ],
     explanation: 'Activité : _have been writing_. Quantité : _have sent_ (simple).',
   }),
+  // Added on 2026-10-16 (D-094): presented by difficulty with the ones above.
+  translate(12, {
+    sentenceFr: 'Je cherche un appartement depuis deux mois.',
+    hint: 'Une activité qui a commencé dans le passé et qui continue.',
+    difficulty: 1,
+    accepted: [
+      'I’ve been looking for a flat for two months.',
+      'I’ve been looking for an apartment for two months.',
+      'I’ve been searching for a flat for two months.',
+    ],
+    knownErrors: [
+      onNotion('I look for a flat since two months.', 'temps_verbaux'),
+      onNotion('I’m looking for a flat for two months.', 'temps_verbaux'),
+    ],
+    explanation:
+      'Une activité qui dure jusqu’à maintenant : _I’ve been looking for… for two months_.',
+  }),
+  translate(13, {
+    sentenceFr: 'Elle étudie la finance depuis septembre.',
+    hint: 'Une activité qui dure depuis un point de départ.',
+    difficulty: 1,
+    accepted: ['She’s been studying finance since September.'],
+    knownErrors: [
+      onNotion('She studies finance since September.', 'temps_verbaux'),
+      onNotion('She’s studying finance since September.', 'temps_verbaux'),
+    ],
+    explanation: 'Depuis un point de départ : _since September_, avec _has been studying_.',
+  }),
+  translate(14, {
+    sentenceFr: 'Tu es essoufflé : tu as couru ?',
+    hint: 'Une activité récente dont on voit les traces maintenant.',
+    difficulty: 1,
+    accepted: [
+      'You’re out of breath: have you been running?',
+      'You’re out of breath. Have you been running?',
+    ],
+    knownErrors: [onNotion('You’re out of breath: have you been run?', 'temps_verbaux')],
+    explanation: 'Les traces d’une activité récente : _have you been running?_',
+  }),
+  translate(15, {
+    sentenceFr: 'Ça fait une heure que j’essaie de te joindre !',
+    hint: 'Une activité qui dure jusqu’à maintenant : ne transpose pas « ça fait ».',
+    difficulty: 2,
+    accepted: [
+      'I’ve been trying to reach you for an hour!',
+      'I’ve been trying to call you for an hour!',
+      'I’ve been trying to contact you for an hour!',
+      'I’ve been trying to get hold of you for an hour!',
+    ],
+    knownErrors: [
+      onNotion('It’s been an hour that I try to reach you!', 'calques_du_francais'),
+      onNotion('I try to reach you since an hour!', 'temps_verbaux'),
+    ],
+    explanation: '« Ça fait une heure que » : _I’ve been trying… for an hour_.',
+  }),
+  translate(16, {
+    sentenceFr: 'Depuis combien de temps est-ce qu’il pleut ?',
+    hint: 'Une question sur la durée d’une action qui continue.',
+    difficulty: 2,
+    accepted: ['How long has it been raining?'],
+    knownErrors: [
+      onNotion('Since how long does it rain?', 'temps_verbaux'),
+      onNotion('How long is it raining?', 'temps_verbaux'),
+    ],
+    explanation: 'Une durée jusqu’à maintenant : _How long has it been raining?_',
+  }),
+  translate(17, {
+    sentenceFr: 'Nous préparons cet entretien depuis des semaines.',
+    hint: 'Une activité qui dure depuis longtemps et qui continue.',
+    difficulty: 2,
+    accepted: [
+      'We’ve been preparing for this interview for weeks.',
+      'We’ve been getting ready for this interview for weeks.',
+    ],
+    knownErrors: [onNotion('We prepare for this interview since weeks.', 'temps_verbaux')],
+    explanation: 'Une activité qui dure : _We’ve been preparing for… for weeks_.',
+  }),
+  translate(18, {
+    sentenceFr: 'Il travaille trop depuis le début du trimestre, et il est épuisé.',
+    hint: 'Une activité qui dure, puis son effet maintenant.',
+    difficulty: 3,
+    accepted: [
+      'He’s been working too much since the beginning of the quarter, and he’s exhausted.',
+      'He’s been working too hard since the beginning of the quarter, and he’s exhausted.',
+      'He’s been working too much since the start of the quarter, and he’s exhausted.',
+      'He’s been working too hard since the start of the quarter, and he’s exhausted.',
+    ],
+    knownErrors: [
+      onNotion(
+        'He works too much since the beginning of the quarter, and he’s exhausted.',
+        'temps_verbaux',
+      ),
+      onNotion(
+        'He is working too much since the beginning of the quarter, and he’s exhausted.',
+        'temps_verbaux',
+      ),
+    ],
+    explanation: 'Une activité qui dure depuis un point de départ : _has been working… since_.',
+  }),
+  translate(19, {
+    sentenceFr: 'Les clients nous posent des questions sur le nouveau site depuis son lancement.',
+    hint: 'Une activité répétée depuis un point de départ, et qui continue.',
+    difficulty: 3,
+    accepted: [
+      'Customers have been asking us about the new website since it was launched.',
+      'Customers have been asking us about the new website since its launch.',
+      'Customers have been asking us questions about the new website since its launch.',
+      'Clients have been asking us about the new website since its launch.',
+      'Customers have been asking us about the new site since its launch.',
+    ],
+    knownErrors: [
+      onNotion('Customers ask us about the new website since its launch.', 'temps_verbaux'),
+      onNotion('Customers are asking us about the new website since its launch.', 'temps_verbaux'),
+    ],
+    explanation: 'Une activité répétée jusqu’à maintenant : _have been asking… since its launch_.',
+  }),
+  translate(20, {
+    sentenceFr:
+      'Tu as l’air fatigué : depuis combien de temps est-ce que tu travailles sans pause ?',
+    hint: 'Une remarque, puis une question sur la durée d’une activité qui continue.',
+    difficulty: 3,
+    accepted: [
+      'You look tired: how long have you been working without a break?',
+      'You look tired. How long have you been working without a break?',
+    ],
+    knownErrors: [
+      onNotion('You look tired: since how long do you work without a break?', 'temps_verbaux'),
+      onNotion('You look tired: how long are you working without a break?', 'temps_verbaux'),
+    ],
+    explanation: 'Une durée jusqu’à maintenant : _how long have you been working…?_',
+  }),
 ];

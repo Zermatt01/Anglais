@@ -7,6 +7,8 @@ const { choice, fill, transform, translate } = exercisesOf(
   REVIEW,
 );
 
+const AMERICAN_PAST = ' En anglais américain courant, le prétérit est aussi accepté dans ce cas.';
+
 const PAST = 'Moment passé précis ou période terminée : prétérit';
 const CONTINUES = 'Situation qui dure jusqu’à maintenant : present perfect';
 const EXPERIENCE = 'Expérience, sans moment précis : present perfect';
@@ -386,5 +388,152 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     ],
     explanation:
       '_When_ : prétérit (_did you start_). _Since then_ : present perfect (_have you managed_).',
+  }),
+  // Added on 2026-10-16 (D-094): presented by difficulty with the ones above.
+  translate(12, {
+    sentenceFr: 'J’ai rencontré le PDG en 2022.',
+    hint: 'Un moment passé précis.',
+    difficulty: 1,
+    accepted: ['I met the CEO in 2022.'],
+    knownErrors: [
+      onNotion('I have met the CEO in 2022.', 'temps_verbaux'),
+      onNotion('I meet the CEO in 2022.', 'temps_verbaux'),
+    ],
+    explanation: 'Une date passée : prétérit, _I met_.',
+  }),
+  translate(13, {
+    sentenceFr: 'Tu as déjà visité notre bureau de Zurich ?',
+    hint: 'Une question sur une expérience, sans moment précis.',
+    difficulty: 1,
+    accepted: [
+      'Have you ever visited our Zurich office?',
+      'Have you ever been to our Zurich office?',
+      'Have you visited our Zurich office before?',
+      'Have you already visited our Zurich office?',
+      'Did you ever visit our Zurich office?',
+    ],
+    knownErrors: [
+      onNotion('Did you ever visited our Zurich office?', 'auxiliaires_questions_negations'),
+      onNotion('Have you ever visit our Zurich office?', 'temps_verbaux'),
+    ],
+    explanation: 'Une expérience, sans moment précis : _Have you ever visited…?_' + AMERICAN_PAST,
+  }),
+  translate(14, {
+    sentenceFr: 'Elle a envoyé le fichier il y a une heure.',
+    hint: 'Un moment passé, situé par rapport à maintenant.',
+    difficulty: 1,
+    accepted: ['She sent the file an hour ago.', 'She sent the file one hour ago.'],
+    knownErrors: [onNotion('She has sent the file an hour ago.', 'temps_verbaux')],
+    explanation: '_Ago_ situe un moment passé : prétérit, _She sent_.',
+  }),
+  translate(15, {
+    sentenceFr: 'Quelqu’un a pris ma chaise !',
+    hint: 'Une action passée dont on voit le résultat maintenant.',
+    difficulty: 2,
+    accepted: [
+      'Someone has taken my chair!',
+      'Someone’s taken my chair!',
+      'Somebody has taken my chair!',
+      'Someone took my chair!',
+    ],
+    knownErrors: [
+      onNotion('Someone has took my chair!', 'temps_verbaux'),
+      onNotion('Someone have taken my chair!', 'accord_sujet_verbe'),
+    ],
+    explanation: 'Résultat présent : _has taken_ (participe de _take_).' + AMERICAN_PAST,
+  }),
+  translate(16, {
+    sentenceFr: 'Nous avons vendu notre appartement l’année dernière.',
+    hint: 'Un moment passé terminé.',
+    difficulty: 2,
+    accepted: [
+      'We sold our flat last year.',
+      'We sold our apartment last year.',
+      'Last year, we sold our flat.',
+    ],
+    knownErrors: [
+      onNotion('We have sold our flat last year.', 'temps_verbaux'),
+      onNotion('We selled our flat last year.', 'temps_verbaux'),
+    ],
+    explanation: '_Last year_ : prétérit, _sold_ (verbe irrégulier).',
+  }),
+  translate(17, {
+    sentenceFr: 'Combien de fois est-ce que vous avez changé de poste depuis votre diplôme ?',
+    hint: 'Une période qui va d’un moment passé jusqu’à maintenant.',
+    difficulty: 2,
+    accepted: [
+      'How many times have you changed jobs since you graduated?',
+      'How many times have you changed jobs since graduating?',
+      'How many times have you changed jobs since your degree?',
+      'How often have you changed jobs since you graduated?',
+    ],
+    knownErrors: [
+      onNotion(
+        'How many times you have changed jobs since you graduated?',
+        'auxiliaires_questions_negations',
+      ),
+    ],
+    explanation:
+      'Jusqu’à maintenant : _How many times have you changed…?_ ; le point de départ au prétérit : _since you graduated_.',
+  }),
+  translate(18, {
+    sentenceFr:
+      'J’ai travaillé dans l’audit pendant deux ans ; maintenant, je suis analyste dans une start-up.',
+    hint: 'Une période terminée, puis la situation actuelle.',
+    difficulty: 3,
+    accepted: [
+      'I worked in audit for two years; now I’m an analyst at a start-up.',
+      'I worked in audit for two years; now I’m an analyst at a startup.',
+      'I worked in auditing for two years; now I’m an analyst at a start-up.',
+      'I worked in audit for two years, and now I’m an analyst at a start-up.',
+      'I worked in audit for two years; now I’m an analyst in a start-up.',
+    ],
+    knownErrors: [
+      onNotion('I work in audit for two years; now I’m an analyst at a start-up.', 'temps_verbaux'),
+    ],
+    explanation:
+      'Une période terminée : prétérit, _I worked… for two years_ ; aujourd’hui : _I’m_.',
+  }),
+  translate(19, {
+    sentenceFr: 'Je n’ai pas encore lu son CV, mais je l’ai rencontré hier.',
+    hint: 'Une action attendue, pas encore faite, puis un moment passé précis.',
+    difficulty: 3,
+    accepted: [
+      'I haven’t read his CV yet, but I met him yesterday.',
+      'I haven’t yet read his CV, but I met him yesterday.',
+      'I haven’t read his resume yet, but I met him yesterday.',
+      'I didn’t read his CV yet, but I met him yesterday.',
+    ],
+    knownErrors: [
+      onNotion('I haven’t read his CV yet, but I have met him yesterday.', 'temps_verbaux'),
+    ],
+    explanation:
+      'Pas encore : _I haven’t read… yet_ ; hier : prétérit, _I met him yesterday_.' +
+      AMERICAN_PAST,
+  }),
+  translate(20, {
+    sentenceFr:
+      'Les prix ont augmenté depuis janvier, alors nous avons revu nos tarifs le mois dernier.',
+    hint: 'Une évolution jusqu’à maintenant, puis un moment passé précis.',
+    difficulty: 3,
+    accepted: [
+      'Prices have gone up since January, so we revised our rates last month.',
+      'Prices have risen since January, so we revised our rates last month.',
+      'Prices have increased since January, so we revised our rates last month.',
+      'Prices have gone up since January, so we revised our prices last month.',
+      'Prices have risen since January, so we adjusted our rates last month.',
+    ],
+    knownErrors: [
+      onNotion(
+        'Prices have gone up since January, so we have revised our rates last month.',
+        'temps_verbaux',
+      ),
+      offNotion(
+        'Prices have raised since January, so we revised our rates last month.',
+        'choix_lexical_collocations',
+      ),
+    ],
+    explanation:
+      'Depuis janvier : present perfect, _have gone up_ ; le mois dernier : prétérit, _revised_.',
   }),
 ];

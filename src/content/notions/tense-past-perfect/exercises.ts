@@ -1,4 +1,4 @@
-import { exercisesOf, onNotion } from '../../builders.ts';
+import { exercisesOf, offNotion, onNotion } from '../../builders.ts';
 import type { NotionContentInput } from '../../schema.ts';
 import { REVIEW } from './review.ts';
 
@@ -403,5 +403,142 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       ),
     ],
     explanation: '_Had fallen_ (antérieur), puis _rose_ (prétérit) pour la suite du récit.',
+  }),
+  // Added on 2026-10-16 (D-094): presented by difficulty with the ones above.
+  translate(12, {
+    sentenceFr: 'Il avait déjà mangé quand nous l’avons appelé.',
+    hint: 'Une action passée, antérieure à une autre action passée.',
+    difficulty: 1,
+    accepted: [
+      'He had already eaten when we called him.',
+      'He had already had lunch when we called him.',
+      'He had already eaten when we phoned him.',
+    ],
+    knownErrors: [
+      onNotion('He has already eaten when we called him.', 'temps_verbaux'),
+      onNotion('He had already ate when we called him.', 'temps_verbaux'),
+    ],
+    explanation: 'Antérieur à une autre action passée : _had already eaten_ (participe de _eat_).',
+  }),
+  translate(13, {
+    sentenceFr: 'Je ne l’avais jamais rencontrée avant cet entretien.',
+    hint: 'Une expérience jamais vécue, jusqu’à un moment du passé.',
+    difficulty: 1,
+    accepted: [
+      'I had never met her before this interview.',
+      'I had never met her before that interview.',
+      'I had never met her before the interview.',
+    ],
+    knownErrors: [onNotion('I had never meet her before this interview.', 'temps_verbaux')],
+    explanation: 'Jusqu’à un moment passé : _had never met_ (participe de _meet_).',
+  }),
+  translate(14, {
+    sentenceFr: 'Elle avait oublié son badge, donc elle n’a pas pu entrer.',
+    hint: 'La cause, antérieure, puis sa conséquence dans le passé.',
+    difficulty: 1,
+    accepted: [
+      'She had forgotten her badge, so she couldn’t get in.',
+      'She had forgotten her pass, so she couldn’t get in.',
+      'She had forgotten her badge, so she wasn’t able to get in.',
+      'She had forgotten her badge, so she couldn’t go in.',
+    ],
+    knownErrors: [onNotion('She had forget her badge, so she couldn’t get in.', 'temps_verbaux')],
+    explanation: 'La cause, antérieure : _had forgotten_ ; la conséquence : _couldn’t get in_.',
+  }),
+  translate(15, {
+    sentenceFr: 'Le client avait déjà payé quand nous avons envoyé le rappel.',
+    hint: 'Une action passée, terminée avant une autre.',
+    difficulty: 2,
+    accepted: [
+      'The client had already paid when we sent the reminder.',
+      'The customer had already paid when we sent the reminder.',
+      'The client had already paid by the time we sent the reminder.',
+    ],
+    knownErrors: [
+      onNotion('The client has already paid when we sent the reminder.', 'temps_verbaux'),
+      onNotion('The client had already pay when we sent the reminder.', 'temps_verbaux'),
+    ],
+    explanation: 'Terminé avant une autre action passée : _had already paid_.',
+  }),
+  translate(16, {
+    sentenceFr: 'Il m’a expliqué qu’il n’avait pas reçu l’invitation.',
+    hint: 'Un propos rapporté : ce qui s’était passé avant qu’il parle.',
+    difficulty: 2,
+    accepted: [
+      'He explained to me that he hadn’t received the invitation.',
+      'He explained that he hadn’t received the invitation.',
+      'He told me that he hadn’t received the invitation.',
+      'He told me he hadn’t received the invitation.',
+      'He explained to me that he hadn’t got the invitation.',
+    ],
+    knownErrors: [
+      offNotion('He explained me that he hadn’t received the invitation.', 'prepositions'),
+      onNotion(
+        'He explained to me that he didn’t received the invitation.',
+        'auxiliaires_questions_negations',
+      ),
+    ],
+    explanation:
+      'Antérieur au propos : _hadn’t received_. On dit _explain something to someone_ : _He explained to me_.',
+  }),
+  translate(17, {
+    sentenceFr: 'Quand la police est arrivée, les voleurs s’étaient enfuis.',
+    hint: 'Une action passée, terminée avant l’arrivée.',
+    difficulty: 2,
+    accepted: [
+      'When the police arrived, the thieves had run away.',
+      'When the police arrived, the thieves had already run away.',
+      'When the police arrived, the thieves had escaped.',
+      'By the time the police arrived, the thieves had run away.',
+    ],
+    knownErrors: [
+      onNotion('When the police arrived, the thieves have run away.', 'temps_verbaux'),
+      onNotion('When the police arrived, the thieves had ran away.', 'temps_verbaux'),
+    ],
+    explanation: 'Terminé avant l’arrivée : _had run away_ (participe _run_).',
+  }),
+  translate(18, {
+    sentenceFr: 'J’ai compris le problème seulement après avoir relu le code.',
+    hint: 'Une action antérieure à la compréhension, dans le passé.',
+    difficulty: 3,
+    accepted: [
+      'I only understood the problem after I had read the code again.',
+      'I understood the problem only after I had read the code again.',
+      'I only understood the problem after I had reread the code.',
+      'I only understood the problem after I had gone through the code again.',
+    ],
+    knownErrors: [
+      onNotion('I only understood the problem after I have read the code again.', 'temps_verbaux'),
+    ],
+    explanation: 'Antérieur à _understood_ : _after I had read_.',
+  }),
+  translate(19, {
+    sentenceFr: 'Elle était fatiguée parce qu’elle avait travaillé toute la nuit.',
+    hint: 'La cause, antérieure à une situation passée.',
+    difficulty: 3,
+    accepted: [
+      'She was tired because she had worked all night.',
+      'She was tired because she had been working all night.',
+      'She was tired because she had worked through the night.',
+    ],
+    knownErrors: [onNotion('She was tired because she has worked all night.', 'temps_verbaux')],
+    explanation:
+      'La cause, antérieure : _had worked_ (ou _had been working_, pour insister sur la durée).',
+  }),
+  translate(20, {
+    sentenceFr: 'Nous avions presque terminé l’analyse quand le serveur est tombé en panne.',
+    hint: 'Une action presque finie avant un événement passé.',
+    difficulty: 3,
+    accepted: [
+      'We had almost finished the analysis when the server crashed.',
+      'We had nearly finished the analysis when the server crashed.',
+      'We had almost finished the analysis when the server went down.',
+      'We had almost completed the analysis when the server crashed.',
+    ],
+    knownErrors: [
+      onNotion('We have almost finished the analysis when the server crashed.', 'temps_verbaux'),
+      onNotion('We had almost finish the analysis when the server crashed.', 'temps_verbaux'),
+    ],
+    explanation: 'Avant la panne : _had almost finished_ ; la panne : _crashed_.',
   }),
 ];

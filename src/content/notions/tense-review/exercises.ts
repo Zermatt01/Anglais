@@ -385,4 +385,133 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     explanation:
       'Durée : _has been learning_. Résultat : _has already created_ (present perfect simple).',
   }),
+  // Added on 2026-10-16 (D-094): presented by difficulty with the ones above.
+  translate(12, {
+    sentenceFr: 'Je bois du thé tous les matins.',
+    hint: 'Une habitude.',
+    difficulty: 1,
+    accepted: [
+      'I drink tea every morning.',
+      'Every morning, I drink tea.',
+      'I have tea every morning.',
+    ],
+    knownErrors: [onNotion('I drinks tea every morning.', 'accord_sujet_verbe')],
+    explanation: 'Une habitude : présent simple, _I drink_.',
+  }),
+  translate(13, {
+    sentenceFr: 'Ils ont acheté une nouvelle voiture le mois dernier.',
+    hint: 'Un moment passé terminé.',
+    difficulty: 1,
+    accepted: ['They bought a new car last month.', 'Last month, they bought a new car.'],
+    knownErrors: [onNotion('They have bought a new car last month.', 'temps_verbaux')],
+    explanation: '_Last month_ : prétérit, _bought_.',
+  }),
+  translate(14, {
+    sentenceFr: 'Qu’est-ce que tu fais ce soir ?',
+    hint: 'Une question sur un projet déjà organisé.',
+    difficulty: 1,
+    accepted: [
+      'What are you doing tonight?',
+      'What are you doing this evening?',
+      'What are you going to do tonight?',
+    ],
+    knownErrors: [onNotion('What you are doing tonight?', 'auxiliaires_questions_negations')],
+    explanation: 'Un projet organisé : présent continu, _What are you doing tonight?_',
+  }),
+  translate(15, {
+    sentenceFr: 'Je travaillais à Paris quand je l’ai rencontrée.',
+    hint: 'Une situation en cours dans le passé, et un événement.',
+    difficulty: 2,
+    accepted: ['I was working in Paris when I met her.'],
+    knownErrors: [onNotion('I was work in Paris when I met her.', 'temps_verbaux')],
+    explanation: 'Le décor, en cours : _was working_ ; l’événement : _met_.',
+  }),
+  translate(16, {
+    sentenceFr: 'Nous n’avons pas encore choisi de candidat.',
+    hint: 'Une action attendue, pas encore faite.',
+    difficulty: 2,
+    accepted: [
+      'We haven’t chosen a candidate yet.',
+      'We haven’t yet chosen a candidate.',
+      'We haven’t picked a candidate yet.',
+      'We didn’t choose a candidate yet.',
+    ],
+    knownErrors: [
+      onNotion('We haven’t chosen yet a candidate.', 'temps_verbaux'),
+      onNotion('We haven’t choose a candidate yet.', 'temps_verbaux'),
+    ],
+    explanation: '« Pas encore » : _haven’t chosen… yet_, avec _yet_ en fin de phrase.',
+  }),
+  translate(17, {
+    sentenceFr: 'Je te rappelle dès que j’ai fini ma réunion.',
+    hint: 'Une promesse, puis un moment futur introduit par « dès que ».',
+    difficulty: 2,
+    accepted: [
+      'I’ll call you back as soon as I’ve finished my meeting.',
+      'I’ll call you back as soon as I finish my meeting.',
+      'I’ll call you back as soon as my meeting is over.',
+      'I’ll ring you back as soon as I’ve finished my meeting.',
+    ],
+    knownErrors: [
+      onNotion('I call you back as soon as I’ve finished my meeting.', 'temps_verbaux'),
+      onNotion('I’ll call you back as soon as I will finish my meeting.', 'temps_verbaux'),
+    ],
+    explanation:
+      'Une promesse : _I’ll call you back_ ; après _as soon as_, pas de futur : _I’ve finished_ ou _I finish_.',
+  }),
+  translate(18, {
+    sentenceFr: 'Depuis qu’elle a rejoint l’équipe, elle a amélioré tous nos tableaux de bord.',
+    hint: 'Un point de départ passé, puis ce qui s’est passé depuis.',
+    difficulty: 3,
+    accepted: [
+      'Since she joined the team, she has improved all our dashboards.',
+      'Since she joined the team, she has improved all of our dashboards.',
+      'Since joining the team, she has improved all our dashboards.',
+    ],
+    knownErrors: [
+      onNotion(
+        'Since she has joined the team, she has improved all our dashboards.',
+        'temps_verbaux',
+      ),
+    ],
+    explanation:
+      'Le point de départ au prétérit : _since she joined_ ; ce qui s’est passé depuis : _has improved_.',
+  }),
+  translate(19, {
+    sentenceFr: 'Quand j’ai ouvert la boîte, quelqu’un avait déjà pris les meilleurs chocolats.',
+    hint: 'Une action passée, et une autre terminée avant elle.',
+    difficulty: 3,
+    accepted: [
+      'When I opened the box, someone had already taken the best chocolates.',
+      'When I opened the box, somebody had already taken the best chocolates.',
+    ],
+    knownErrors: [
+      onNotion(
+        'When I opened the box, someone has already taken the best chocolates.',
+        'temps_verbaux',
+      ),
+      onNotion(
+        'When I opened the box, someone had already took the best chocolates.',
+        'temps_verbaux',
+      ),
+    ],
+    explanation: 'Terminé avant _opened_ : _had already taken_.',
+  }),
+  translate(20, {
+    sentenceFr: 'Il pleut depuis ce matin, donc je vais prendre un taxi.',
+    hint: 'Une action qui dure jusqu’à maintenant, puis une décision.',
+    difficulty: 3,
+    accepted: [
+      'It’s been raining since this morning, so I’m going to take a taxi.',
+      'It’s been raining since this morning, so I’m going to get a taxi.',
+      'It’s been raining since this morning, so I’ll take a taxi.',
+      'It’s been raining since this morning, so I’m going to take a cab.',
+    ],
+    knownErrors: [
+      onNotion('It rains since this morning, so I’m going to take a taxi.', 'temps_verbaux'),
+      onNotion('It’s raining since this morning, so I’m going to take a taxi.', 'temps_verbaux'),
+    ],
+    explanation:
+      'Une action qui dure : _has been raining since_ ; une décision : _I’m going to_ (ou _I’ll_).',
+  }),
 ];
