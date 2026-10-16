@@ -333,3 +333,15 @@ Aucune migration ni aucun secret. L'application et l'Edge Function changent tout
    - `status = 'reserved'` qui reste : la fonction a été arrêtée pendant l'appel (limite de 150 s de Supabase) ;
    - `ok` avec une `latency_ms` élevée : le modèle a répondu, mais la réponse s'est perdue en route (réseau mobile, écran verrouillé) ; elle a été facturée ;
    - `error` : `error_code` donne la cause (`anthropic_timeout`, `anthropic_529` pour une surcharge, etc.), et la ligne `ai_call` des journaux (**Edge Functions → ai → Logs**) l'explication.
+
+### Cartes, étape 4 et mots inconnus (DECISIONS D-092 à D-095)
+
+Aucune migration ni aucun secret. L'application change, et l'Edge Function reçoit une nouvelle tâche, `explain-word`.
+
+1. `git push`, puis redéployer l'Edge Function : `npx supabase@2.118.0 functions deploy ai --use-api`. Sans ce redéploiement, « Demander le sens à l'IA » répond « La demande n'a pas été acceptée par le serveur » ; tout le reste fonctionne.
+2. Sur le téléphone, **Mettre à jour**.
+3. **Vérifier** :
+   - **Reprises → Mes cartes** : chaque carte, avec son état et sa raison ;
+   - à l'étape 4, une traduction juste sur la notion, avec une autre faute, compte comme bonne, et la faute devient une carte ;
+   - sous une phrase anglaise, **Mot inconnu ?**, toucher un mot, puis **Ajouter « … »**, puis **Demander le sens à l'IA** : le sens proposé remplit le champ. Le corriger si besoin, puis **Ajouter à mon lexique** : l'entrée apparaît dans **Mon lexique**, et sa carte dans **Mes cartes** ;
+   - **Consommation** : la ligne « Sens des mots ».

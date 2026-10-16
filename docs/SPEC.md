@@ -280,6 +280,7 @@ Exigence de premier rang, pas une optimisation facultative.
 - **MOD-09** [P4] — **Mon lexique** : expressions, collocations et formules, collectées automatiquement ou ajoutées à la main.
   - Aucun doublon.
   - Chaque entrée a un sens, un exemple, une source et une carte associée.
+  - Un mot ou une expression inconnus d'une phrase anglaise de l'application s'ajoutent d'un toucher, avec la phrase comme exemple et un sens tapé, ou proposé par l'IA sur demande et confirmé par l'utilisateur (DECISIONS D-095).
 - **MOD-10** [P4] — **Carnet de règles** : des fiches par catégorie, construites à partir des propres erreurs de l'utilisateur et liées aux leçons.
 - **MOD-11** [P5] — **Tableau de bord**, en sections repliables :
   - série, minutes de la semaine, cartes dues demain ;

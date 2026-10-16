@@ -109,6 +109,8 @@ Demandés par l'utilisateur le 2026-10-16, après usage réel, puis validés poi
 - [x] Étape 4 jugée sur la notion, avec une preuve locale (squelette verbal) ; trois choix pour une réponse non prévue ; vérification par l'IA qui exige la preuve (D-094)
 - [x] Passage à l'étape 5 sur demande après 15 réponses, la notion « à consolider » (D-094)
 - [x] 9 traductions de plus par notion (260 en tout), relues deux fois, présentées par difficulté (D-094)
+- [x] Mots inconnus : toucher un mot ou une expression d'une phrase de l'application pour l'ajouter à Mon lexique, avec sa phrase et sa carte (D-095)
+- [x] Sens proposé par l'IA sur demande (`explain-word`, Haiku 4.5, au plus 0,0075 USD), confirmé par l'apprenant avant l'enregistrement (D-095) ; action de l'utilisateur : DEPLOYMENT.md, section 18
 
 ## Phase 5 — Qualité des corrections
 

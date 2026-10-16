@@ -151,7 +151,7 @@ Les erreurs d'une même production sur une même notion comptent pour **une seul
 - une correction par l'IA (Journal, Thème, étapes 4 et 5) : une carte par phrase fautive, comme ci-dessus ; la correction dit, pour chaque erreur, si elle est dans une carte et sinon pourquoi (mineure, point à vérifier, phrase non vérifiable par l'app, déjà dans les Reprises) ;
 - une erreur anticipée, relue, du Thème ou d'une traduction de l'étape 4 (Parcours et pratique immédiate) : une carte faite du contenu relu, avec la réponse de l'apprenant comme tentative précédente ;
 - sur demande, après un échec qui n'a fait aucune carte (étape 4, Thème) : « Revoir cette phrase dans mes Reprises » garde la phrase relue comme carte ;
-- une expression ajoutée à « Mon lexique », une notion acquise.
+- une expression ajoutée à « Mon lexique », à la main ou touchée dans une phrase de l'application (DECISIONS D-095), une notion acquise.
 
 Les exercices des étapes 2 et 3 ne font pas de cartes : le Parcours les fait déjà répéter. Une même question ne fait jamais deux cartes (même recto, réponse équivalente). L'écran **Mes cartes**, depuis les Reprises, montre chaque carte et pourquoi elle est présentée ou non : à revoir, plafond du jour atteint, prévue plus tard, en attente d'une notion, maîtrisée, mise de côté.
 

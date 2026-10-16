@@ -102,6 +102,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-092 | Cartes visibles et expliquées ; notion sans leçon        | Pédagogie   | Actée                   |
 | D-093 | Erreurs anticipées de l'étape 4 : dans ou hors notion    | Pédagogie   | Actée                   |
 | D-094 | Étape 4 jugée sur la notion, soupape, variété            | Pédagogie   | Actée                   |
+| D-095 | Mots inconnus touchés, sens proposé par l'IA             | Pédagogie   | Actée                   |
 
 ---
 
@@ -1002,3 +1003,21 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - **Ordre** : les traductions sont présentées par difficulté croissante, quel que soit leur numéro (`inPresentationOrder`). Les nouvelles prennent les numéros suivants, pour que les réponses déjà données restent rattachées à leur exercice ; le test du socle vérifie désormais l'ordre de présentation plutôt que l'ordre d'écriture.
   - **Création par l'IA** : elle était déjà proposée dès que toutes les phrases d'une étape ont été vues, et les phrases créées non vues passent avant les autres. Rien ne change ; ses échecs passés venaient probablement des attentes sans fin (D-091).
 - **Raison.** NO-05 et D-088 : une réussite repose sur une preuve vérifiable par l'application, un échec sur une erreur de la notion ; le doute revient à l'apprenant, jamais contre lui.
+
+### D-095 — Mots inconnus touchés dans une phrase, sens proposé par l'IA sur demande (2026-10-16, décision de l'utilisateur, complète D-085)
+
+- **Contexte.** Usage réel : l'apprenant rencontre des mots inconnus dans les phrases de l'application et veut les garder dans « Mon lexique », avec une carte de révision résoluble (sens en français et phrase d'origine).
+- **Décision (choix du mot).**
+  - Sous chaque phrase anglaise de l'application, « Mot inconnu ? » présente ses mots en boutons. L'apprenant touche le mot, puis, pour une expression, son dernier mot (`piecesOf` et `expressionBetween`, `src/domain/lexicon.ts`). Il peut ensuite corriger l'expression.
+  - Phrases concernées : exercice du Parcours une fois la réponse donnée, exemples des leçons, question du Journal, consigne anglaise et phrase de référence du Thème, version naturelle d'une correction, réponse d'une carte une fois la note donnée.
+  - **Exemple** : la phrase qui contient l'expression (`sentenceAround`). Dans un paragraphe, une phrase finit à `.`, `!` ou `?` suivis d'une espace, ou à un saut de ligne, sauf après une abréviation d'une **liste fermée** (_e.g., i.e., etc., vs., cf., approx., Mr., Mrs., Ms., Dr., Prof., a.m., p.m., U.S., U.K._). Une phrase trop longue est sans danger, un fragment ne l'est pas (D-058) : les tests vérifient aussi ce qui ne doit pas couper (abréviation, nombre décimal, point sans espace).
+  - L'entrée a la source « Touchée dans une phrase » (`exercise`). Sa carte de collocation suit D-085 : la phrase, l'expression remplacée par un blanc, et le sens ; sans carte si l'expression y figure plusieurs fois, ce que l'écran dit. Rien n'est enregistré avant « Ajouter à mon lexique » ; le sens est un brouillon.
+- **Décision (sens ; décision de l'utilisateur : saisie manuelle d'abord, puis l'IA avec Haiku, coût affiché, sens confirmé avant l'enregistrement).**
+  - Le sens se tape. Avec le serveur, « Demander le sens à l'IA » le propose.
+  - Tâche `explain-word` : Haiku 4.5, 150 tokens de sortie, sans réflexion ni cache (prompt bien plus court que le minimum de 4 096 tokens, D-011). Prompt `explain-word@1`, à exemples contrastés : le sens dans la phrase pour un mot à plusieurs sens, le vrai sens d'un faux ami, le bloc entre parenthèses pour un verbe à particule ; mots cités entre guillemets français, car le sens s'affiche en texte brut.
+  - Le client envoie l'expression (80 caractères au plus), la phrase (1 000 au plus) et la variante ; jamais de prompt (D-017).
+  - **Coût** : au plus 0,0075 USD, nouvelle tentative comprise, affiché avant ; de l'ordre de 0,001 USD en pratique ; le coût réel est affiché après.
+  - Le bouton n'apparaît que si le champ du sens est vide, une fois par formulaire, et un double appui n'envoie qu'une demande. Le sens proposé remplit le champ **et son brouillon** aussitôt : il n'est jamais redemandé, même si le formulaire est fermé entre-temps. Un sens vide est traité comme un échec.
+  - L'apprenant lit le sens, le corrige s'il le faut ; « Ajouter à mon lexique » vaut confirmation.
+- **Écarté.** Un dictionnaire embarqué : lourd pour la PWA, et il ne donne pas le sens dans la phrase. Un appel au toucher du mot : contraire à COST-01.
+- **Raison.** PED-10 (Lewis) : des blocs avec leur phrase ; la carte passe par `isCardSolvable` ; COST-01, le coût affiché avant chaque appel, et le résultat de l'IA enregistré.
