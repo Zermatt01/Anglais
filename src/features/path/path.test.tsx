@@ -237,6 +237,56 @@ describe('exercises (steps 2 to 4)', () => {
     expect(await services.path.attempts(NOTION)).toMatchObject([{ answer: 'is talking' }]);
   });
 
+  it('makes a card of an anticipated error at step 4, and keeps a failed sentence on request (D-092)', async () => {
+    const services = await createTestServices();
+    await seedProgress(services, { step: 4 });
+    await renderApp(`/parcours/${NOTION}/exercices`, services);
+
+    // s4/01: "Je travaille sur un nouveau projet en ce moment."
+    const field = await screen.findByRole('textbox', { name: 'Ta traduction' });
+    await waitFor(() => {
+      expect(field).toBeEnabled();
+    });
+    fireEvent.change(field, { target: { value: 'I am work on a new project at the moment.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Vérifier' }));
+    expect(await screen.findByText('Pas tout à fait')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Une carte reprendra cette phrase dans tes Reprises.'),
+    ).toBeInTheDocument();
+    expect(await services.cards.all()).toMatchObject([
+      {
+        status: 'active',
+        origin: 'error',
+        content: {
+          type: 'error',
+          meaningFr: 'Je travaille sur un nouveau projet en ce moment.',
+          previousAttempt: 'I am work on a new project at the moment.',
+          category: 'temps_verbaux',
+          answers: { canonical: 'I’m working on a new project at the moment.' },
+        },
+      },
+    ]);
+
+    // s4/02: an answer the learner judges wrong makes no card, unless asked.
+    fireEvent.click(screen.getByRole('button', { name: 'Exercice suivant' }));
+    const next = await screen.findByRole('textbox', { name: 'Ta traduction' });
+    await waitFor(() => {
+      expect(next).toBeEnabled();
+    });
+    fireEvent.change(next, { target: { value: 'Look, the rain falls!' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Vérifier' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Non, ma réponse est à revoir' }));
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Revoir cette phrase dans mes Reprises' }),
+    );
+    expect(await screen.findByText('Ajoutée à tes Reprises.')).toBeInTheDocument();
+    const kept = (await services.cards.all()).find((card) => card.origin === 'notion');
+    expect(kept).toMatchObject({
+      status: 'active',
+      content: { type: 'notion', meaningFr: 'Regarde, il pleut !', notionId: NOTION },
+    });
+  });
+
   it('sends a notion not started back to its lesson', async () => {
     await renderApp(`/parcours/${NOTION}/exercices`);
     expect(await screen.findByText('Commence par la leçon')).toBeInTheDocument();

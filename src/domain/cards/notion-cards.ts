@@ -22,6 +22,27 @@ export interface TranslationSource {
 }
 
 /**
+ * The card of one reviewed sentence (a translation, a Thème sentence): also
+ * the card the learner keeps for review after a failure (D-092). `null` when
+ * it would not be solvable.
+ */
+export function notionCardOf(
+  notionId: NotionId,
+  source: Omit<TranslationSource, 'difficulty'>,
+): NotionCardContent | null {
+  const [canonical, ...variants] = source.accepted;
+  if (canonical === undefined) return null;
+  const content: NotionCardContent = {
+    type: 'notion',
+    notionId,
+    meaningFr: source.sentenceFr,
+    hint: source.hint,
+    answers: { canonical, variants: variants.slice(0, MAX_CARD_VARIANTS) },
+  };
+  return isCardSolvable(content).solvable ? content : null;
+}
+
+/**
  * The cards of an acquired notion: its hardest translations first (they are
  * the closest to real use), in the core's order within a difficulty.
  */
@@ -34,16 +55,8 @@ export function notionCardContents(
     .sort((a, b) => b.source.difficulty - a.source.difficulty || a.order - b.order);
   const cards: NotionCardContent[] = [];
   for (const { source } of ordered) {
-    const [canonical, ...variants] = source.accepted;
-    if (canonical === undefined) continue;
-    const content: NotionCardContent = {
-      type: 'notion',
-      notionId,
-      meaningFr: source.sentenceFr,
-      hint: source.hint,
-      answers: { canonical, variants: variants.slice(0, MAX_CARD_VARIANTS) },
-    };
-    if (!isCardSolvable(content).solvable) continue;
+    const content = notionCardOf(notionId, source);
+    if (content === null) continue;
     cards.push(content);
     if (cards.length === NOTION_CARDS_PER_NOTION) break;
   }

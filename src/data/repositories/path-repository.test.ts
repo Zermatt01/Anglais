@@ -1,15 +1,19 @@
 import { describe, expect, it } from 'vitest';
+import type { NotionId } from '../../domain/curriculum/notion-id.ts';
 import type { Step } from '../../domain/curriculum/progress.ts';
-import { createTestClock, createTestDatabase } from '../../test/database.ts';
+import { createFsrsScheduler } from '../../domain/srs/scheduler.ts';
+import { createTestClock, createTestDatabase, hasPhase3Lesson } from '../../test/database.ts';
+import { createCardRepository } from './card-repository.ts';
 import { createDraftRepository } from './draft-repository.ts';
 import { createPathRepository, type NewAnswer } from './path-repository.ts';
 
-const NOTION = 'tense-just-already-yet-still';
+const NOTION: NotionId = 'tense-just-already-yet-still';
 
 async function setup() {
   const db = await createTestDatabase();
   const clock = createTestClock();
-  return { db, clock, path: createPathRepository(db, clock) };
+  const cards = createCardRepository(db, clock, createFsrsScheduler(), hasPhase3Lesson);
+  return { db, clock, cards, path: createPathRepository(db, clock, cards) };
 }
 
 function answer(step: Step, correct: boolean, number: number): NewAnswer {
@@ -43,6 +47,51 @@ describe('createPathRepository', () => {
       state: 'valid',
       values: { status: 'in_progress', step: 2 },
     });
+  });
+
+  it('makes the card of an answer with it, once, held back while the notion is not studied (D-092)', async () => {
+    const { path, cards, db, clock } = await setup();
+    const card = {
+      type: 'error' as const,
+      meaningFr: 'Je n’ai pas encore fini.',
+      hint: 'Une action attendue, pas encore faite.',
+      previousAttempt: 'I have not finished already.',
+      highlights: [],
+      category: 'temps_verbaux' as const,
+      notionId: NOTION,
+      answers: { canonical: 'I haven’t finished yet.', variants: [] },
+    };
+    const first = await path.recordAnswer(answer(4, false, 2), undefined, 'path', card);
+    expect(first.cardCreated).toBe(true);
+    expect(await cards.all()).toMatchObject([
+      { status: 'suspended', suspensionReason: 'unstudied-notion' },
+    ]);
+
+    await db.table('notionProgress').put({
+      notionId: NOTION,
+      status: 'in_progress',
+      step: 4,
+      recall: null,
+      stepEnteredAt: clock.now(),
+      acquiredAt: null,
+      lastRegressionAt: null,
+      createdAt: clock.now(),
+      updatedAt: clock.now(),
+      deletedAt: null,
+      schemaVersion: 1,
+    });
+    for (const stored of await cards.all()) await cards.remove(stored.id);
+    clock.advance(1_000);
+    expect(
+      (await path.recordAnswer(answer(4, false, 2), undefined, 'path', card)).cardCreated,
+    ).toBe(true);
+    expect(await cards.all()).toMatchObject([{ status: 'active', suspensionReason: null }]);
+    clock.advance(1_000);
+    // The same sentence failed again: still one card.
+    expect(
+      (await path.recordAnswer(answer(4, false, 2), undefined, 'path', card)).cardCreated,
+    ).toBe(false);
+    expect(await cards.all()).toHaveLength(1);
   });
 
   it('records each answer and passes the step after 8 good answers out of 10', async () => {
@@ -145,7 +194,7 @@ describe('createPathRepository', () => {
     const unreadable = { notionId: NOTION, schemaVersion: 99, step: 'future format' };
     await db.table('notionProgress').put(unreadable);
     const outcome = await path.recordAnswer(answer(2, true, 1));
-    expect(outcome).toEqual({ transition: null, progressUnreadable: true });
+    expect(outcome).toEqual({ transition: null, progressUnreadable: true, cardCreated: false });
     expect(await db.table('notionProgress').get(NOTION)).toEqual(unreadable);
     expect(await path.attempts(NOTION)).toHaveLength(1);
     expect(await path.progress(NOTION)).toEqual({ state: 'unreadable' });

@@ -284,6 +284,14 @@ describe('Thème (MOD-05)', () => {
       tier: 1,
     });
     expect(await services.cards.all()).toHaveLength(1);
+
+    // Kept for review on request, held back until its notion is studied (D-025, D-092).
+    fireEvent.click(screen.getByRole('button', { name: 'Revoir cette phrase dans mes Reprises' }));
+    expect(
+      await screen.findByText('Ajoutée à tes Reprises : elle attendra que tu étudies sa notion.'),
+    ).toBeInTheDocument();
+    const kept = (await services.cards.all()).filter((card) => card.origin === 'notion');
+    expect(kept).toMatchObject([{ status: 'suspended', suspensionReason: 'unstudied-notion' }]);
   });
 });
 

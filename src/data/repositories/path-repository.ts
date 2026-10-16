@@ -13,10 +13,12 @@
  * notion does not move until the app can read it (NO-06).
  */
 import { z } from 'zod';
+import type { CardContent } from '../../domain/cards/content.ts';
 import {
   afterPathAnswer,
   applyPlacement,
   finishLesson,
+  isNotionStudied,
   isPlacementPassed,
   startNotion,
   type PathAnswer,
@@ -35,6 +37,7 @@ import type { AppDatabase } from '../database.ts';
 import { parseRecord, writeRecord } from '../records.ts';
 import type { ExerciseAttempt } from '../schemas/exercise-attempts.ts';
 import type { NotionProgressDocument } from '../schemas/notion-progress.ts';
+import type { CardRepository } from './card-repository.ts';
 import { createDraftRepository } from './draft-repository.ts';
 
 /** Stored progress of a notion: absent, readable, or unreadable (kept as is). */
@@ -65,6 +68,8 @@ export interface AnswerOutcome {
   /** `null` when the progress did not change (or could not be read). */
   readonly transition: Transition | null;
   readonly progressUnreadable: boolean;
+  /** A card was made of the answer (an anticipated error of a translation, D-092). */
+  readonly cardCreated?: boolean;
 }
 
 export interface PathRepository {
@@ -82,12 +87,15 @@ export interface PathRepository {
   /**
    * Records an answer, then applies the step criteria to an answer of the path.
    * `draftKey`: the draft of the typed answer, removed in the same transaction.
-   * An answer of an immediate practice changes no step (D-075).
+   * An answer of an immediate practice changes no step (D-075). `card`: the
+   * card made of the answer, created in the same transaction, held back while
+   * the notion is not studied (D-025, D-092).
    */
   recordAnswer(
     answer: NewAnswer,
     draftKey?: string,
     context?: 'path' | 'immediate-practice',
+    card?: CardContent | null,
   ): Promise<AnswerOutcome>;
   /** Records the answers of a notion's placement, and starts it at step 4 if passed. */
   recordPlacement(
@@ -106,12 +114,16 @@ export function pathAnswersOf(attempts: readonly ExerciseAttempt[]): PathAnswer[
 /** Keeps the progress values of a document, without its storage envelope. */
 const valuesOfDocument = z.object(notionProgressValuesSchema.shape);
 
-export function createPathRepository(db: AppDatabase, clock: Clock): PathRepository {
+export function createPathRepository(
+  db: AppDatabase,
+  clock: Clock,
+  cards: CardRepository,
+): PathRepository {
   const progressTable = db.table('notionProgress');
   const attemptsTable = db.table('exerciseAttempts');
   const tables = [progressTable, attemptsTable, db.table('activity'), db.table('syncOutbox')];
   const drafts = createDraftRepository(db, clock);
-  const draftTables = [db.table('drafts'), db.table('quarantine')];
+  const answerTables = [db.table('drafts'), db.table('quarantine'), db.table('cards')];
 
   async function readProgress(notionId: NotionId): Promise<{
     stored: StoredProgress;
@@ -217,17 +229,31 @@ export function createPathRepository(db: AppDatabase, clock: Clock): PathReposit
       return db.dexie.transaction('rw', tables, () => transition(notionId, finishLesson));
     },
 
-    recordAnswer(answer, draftKey, context = 'path') {
-      return db.dexie.transaction('rw', [...tables, ...draftTables], async () => {
+    recordAnswer(answer, draftKey, context = 'path', card = null) {
+      return db.dexie.transaction('rw', [...tables, ...answerTables], async () => {
         const now = clock.now();
         await writeRecord(db, 'exerciseAttempts', attemptRecord({ ...answer, context }, now), now);
         await recordActivity(db, 'path', answer.durationMs, now);
-        let outcome: AnswerOutcome = { transition: null, progressUnreadable: false };
+        let cardCreated = false;
+        if (card !== null) {
+          const { stored } = await readProgress(answer.notionId);
+          const studied = stored.state === 'valid' && isNotionStudied(stored.values);
+          const created = await cards.create({
+            content: card,
+            origin: 'error',
+            suspensionReason: studied ? null : 'unstudied-notion',
+          });
+          cardCreated = created.ok && created.created;
+        }
+        let outcome: AnswerOutcome = { transition: null, progressUnreadable: false, cardCreated };
         if (context === 'path') {
           const answers = pathAnswersOf(await readAttempts(answer.notionId));
-          outcome = await transition(answer.notionId, (progress, at) =>
-            progress === null ? null : afterPathAnswer(progress, answers, at),
-          );
+          outcome = {
+            ...(await transition(answer.notionId, (progress, at) =>
+              progress === null ? null : afterPathAnswer(progress, answers, at),
+            )),
+            cardCreated,
+          };
         }
         if (draftKey !== undefined) await drafts.remove(draftKey);
         return outcome;

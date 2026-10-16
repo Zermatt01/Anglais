@@ -24,8 +24,8 @@ const fallbackHint = () => 'Indice de la catégorie.';
 async function setup() {
   const db = await createTestDatabase();
   const clock = createTestClock();
-  const path = createPathRepository(db, clock);
   const cards = createCardRepository(db, clock, createFsrsScheduler(), hasPhase3Lesson);
+  const path = createPathRepository(db, clock, cards);
   const productions = createProductionRepository(db, clock, {
     cards,
     path,

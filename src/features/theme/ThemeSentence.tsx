@@ -3,6 +3,7 @@ import type { CoreThemeItem } from '../../content/schema.ts';
 import { fallbackHintOf } from '../../content/taxonomy.ts';
 import type { NewProduction } from '../../data/repositories/production-repository.ts';
 import { knownErrorCardContent } from '../../domain/cards/from-correction.ts';
+import { notionCardOf } from '../../domain/cards/notion-cards.ts';
 import type { ProgressEvent } from '../../domain/curriculum/engine.ts';
 import type { NotionId } from '../../domain/curriculum/notion-id.ts';
 import type { AnswerResult } from '../../domain/taxonomy.ts';
@@ -21,6 +22,7 @@ import { useCorrection } from '../correction/use-correction.ts';
 import { useDraft } from '../drafts/use-draft.ts';
 import { Feedback } from '../path/exercises/Feedback.tsx';
 import { eventMessage } from '../path/labels.ts';
+import { KeepForReview } from '../review/KeepForReview.tsx';
 
 export type SentenceResult = AnswerResult;
 
@@ -361,6 +363,16 @@ export function ThemeSentence({
           )}
           {phase.grader === 'local' && phase.cardsCreated > 0 ? (
             <p className="muted">Une carte reprendra cette phrase dans tes Reprises.</p>
+          ) : null}
+          {phase.result === 'incorrect' && phase.cardsCreated === 0 ? (
+            <KeepForReview
+              card={notionCardOf(notionId, {
+                sentenceFr: item.sentenceFr,
+                hint: item.hint,
+                accepted: item.accepted,
+              })}
+              heldBack={unstudied}
+            />
           ) : null}
           {phase.events.map((event) => {
             const message = eventMessage(event);

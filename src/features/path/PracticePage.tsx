@@ -27,6 +27,8 @@ import { usePageTitle } from '../use-page-title.ts';
 import { ChoiceExercise } from './exercises/ChoiceExercise.tsx';
 import { TypedExercise, type AiCheckProps } from './exercises/TypedExercise.tsx';
 import type { SaveAnswer } from './exercises/types.ts';
+import { cardOfAnswer } from './answer-card.ts';
+import { AnswerCard } from './AnswerCard.tsx';
 import { AiTranslationCheck } from './AiTranslationCheck.tsx';
 import { GenerateExercises } from './GenerateExercises.tsx';
 import { GeneratedFailureNotice } from './GeneratedFailureNotice.tsx';
@@ -224,6 +226,8 @@ function Session({
         readonly state: 'recorded';
         readonly event: ProgressEvent | null;
         readonly result: AnswerResult;
+        /** A card was made of this answer (D-092). */
+        readonly cardCreated: boolean;
       }
   >({ state: 'idle' });
 
@@ -236,19 +240,27 @@ function Session({
   // Resolves once the answer is stored: the exercise shows its result only then.
   const record: SaveAnswer = async (answer) => {
     if (shown === null) return;
-    const typed = shown.item.exercise.kind !== 'choice-with-reason';
-    const { transition } = await path.recordAnswer(
+    const { exercise } = shown.item;
+    const typed = exercise.kind !== 'choice-with-reason';
+    const { transition, cardCreated = false } = await path.recordAnswer(
       {
         notionId,
         exerciseId: shown.item.id,
         source: shown.item.source,
-        step: STEP_OF_KIND[shown.item.exercise.kind],
+        step: STEP_OF_KIND[exercise.kind],
         durationMs: Math.max(0, clock.now() - shown.shownAt),
         ...answer,
       },
       typed ? draftKeyOf(shown.item) : undefined,
+      'path',
+      cardOfAnswer(exercise, notionId, answer),
     );
-    setOutcome({ state: 'recorded', event: transition?.event ?? null, result: answer.result });
+    setOutcome({
+      state: 'recorded',
+      event: transition?.event ?? null,
+      result: answer.result,
+      cardCreated,
+    });
   };
 
   const standing = progress === null ? null : stepStanding(progress, pathAnswersOf(attempts));
@@ -277,8 +289,13 @@ function Session({
             shownAt={shown.shownAt}
             draftKey={draftKeyOf(translation.item)}
             context="path"
-            onRecorded={(events, result) => {
-              setOutcome({ state: 'recorded', event: events.at(-1) ?? null, result });
+            onRecorded={(events, result, cardsCreated) => {
+              setOutcome({
+                state: 'recorded',
+                event: events.at(-1) ?? null,
+                result,
+                cardCreated: cardsCreated > 0,
+              });
             }}
           />
         );
@@ -327,6 +344,15 @@ function Session({
         outcome.result === 'incorrect' &&
         shown?.item.source === 'generated' ? (
           <GeneratedFailureNotice />
+        ) : null}
+        {outcome.state === 'recorded' && shown !== null ? (
+          <AnswerCard
+            notionId={notionId}
+            exercise={shown.item.exercise}
+            source={shown.item.source}
+            result={outcome.result}
+            cardCreated={outcome.cardCreated}
+          />
         ) : null}
         {message === null ? null : (
           <Notice tone="success" title={message.title}>

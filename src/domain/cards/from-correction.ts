@@ -16,6 +16,8 @@
  * draft passes `isCardSolvable` (CARD-01); the others are not made.
  */
 import { containsInflectedPhrase } from '../correction/inflections.ts';
+import { anticipatedErrorOf, type ExerciseOf } from '../curriculum/exercise.ts';
+import type { NotionId } from '../curriculum/notion-id.ts';
 import { areEquivalent } from '../correction/forms.ts';
 import type { TextRange } from '../correction/segments.ts';
 import {
@@ -206,6 +208,30 @@ export function errorCardStatuses(correction: ReviewedCorrection): Map<number, E
     );
   }
   return statuses;
+}
+
+/**
+ * Card of an answer to a reviewed translation that matches one of its
+ * anticipated errors (D-092): the reviewed sentence, hint and answers, the
+ * category of the error, and the learner's answer as the previous attempt.
+ * `null` without a reviewed error (an exercise created by the model) or when
+ * the card would not be solvable.
+ */
+export function anticipatedErrorCardContent(
+  exercise: ExerciseOf<'translate'>,
+  notionId: NotionId,
+  answer: string,
+): ErrorCardContent | null {
+  const error = anticipatedErrorOf(exercise, answer);
+  if (error === null) return null;
+  return knownErrorCardContent({
+    meaningFr: exercise.sentenceFr,
+    hint: exercise.hint,
+    attempt: answer,
+    category: error.category,
+    notionId,
+    accepted: exercise.accepted,
+  });
 }
 
 /**

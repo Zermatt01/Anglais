@@ -17,6 +17,8 @@ import { NotFoundPage } from '../not-found/NotFoundPage.tsx';
 import { pathTo } from '../paths.ts';
 import { usePageTitle } from '../use-page-title.ts';
 import { AiTranslationCheck } from './AiTranslationCheck.tsx';
+import { cardOfAnswer } from './answer-card.ts';
+import { AnswerCard } from './AnswerCard.tsx';
 import { GeneratedFailureNotice } from './GeneratedFailureNotice.tsx';
 import { TypedExercise } from './exercises/TypedExercise.tsx';
 import type { SaveAnswer } from './exercises/types.ts';
@@ -167,6 +169,7 @@ function Run({
   const [index, setIndex] = useState(0);
   const [recorded, setRecorded] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [cardCreated, setCardCreated] = useState(false);
   const [shownAt, setShownAt] = useState(() => clock.now());
   const item = items[index];
 
@@ -192,7 +195,7 @@ function Run({
 
   const draftKey = `practice:${item.id}`;
   const record: SaveAnswer = async (answer) => {
-    await path.recordAnswer(
+    const { cardCreated: made = false } = await path.recordAnswer(
       {
         notionId,
         exerciseId: item.id,
@@ -203,14 +206,17 @@ function Run({
       },
       draftKey,
       'immediate-practice',
+      cardOfAnswer(item.exercise, notionId, answer),
     );
     setFailed(answer.result === 'incorrect');
+    setCardCreated(made);
     setRecorded(true);
   };
 
   const nextExercise = () => {
     setRecorded(false);
     setFailed(false);
+    setCardCreated(false);
     setShownAt(clock.now());
     setIndex(index + 1);
   };
@@ -236,8 +242,9 @@ function Run({
                     shownAt={shownAt}
                     draftKey={draftKey}
                     context="immediate-practice"
-                    onRecorded={(_events, result) => {
+                    onRecorded={(_events, result, cardsCreated) => {
                       setFailed(result === 'incorrect');
+                      setCardCreated(cardsCreated > 0);
                       setRecorded(true);
                     }}
                   />
@@ -246,6 +253,15 @@ function Run({
         }
       />
       {recorded && failed && item.source === 'generated' ? <GeneratedFailureNotice /> : null}
+      {recorded ? (
+        <AnswerCard
+          notionId={notionId}
+          exercise={item.exercise}
+          source={item.source}
+          result={failed ? 'incorrect' : 'correct'}
+          cardCreated={cardCreated}
+        />
+      ) : null}
       <div className="button-row">
         {recorded ? (
           <Button onClick={nextExercise}>

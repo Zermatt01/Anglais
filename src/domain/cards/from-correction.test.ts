@@ -5,7 +5,12 @@ import {
   type ModelError,
 } from '../production/correction.ts';
 import type { ErrorCategory } from '../taxonomy.ts';
-import { errorCardDrafts, errorCardStatuses } from './from-correction.ts';
+import { exerciseSchema } from '../curriculum/exercise.ts';
+import {
+  anticipatedErrorCardContent,
+  errorCardDrafts,
+  errorCardStatuses,
+} from './from-correction.ts';
 import { isCardSolvable } from './solvability.ts';
 
 const TEXT =
@@ -295,5 +300,45 @@ describe('errorCardStatuses (D-092)', () => {
     expect(statuses.get(1)).toEqual({ kind: 'unverified-sentence' });
     expect(statuses.get(2)).toEqual({ kind: 'minor' });
     expect(statuses.get(3)).toEqual({ kind: 'point-to-check' });
+  });
+});
+
+describe('anticipatedErrorCardContent (D-092)', () => {
+  const exercise = exerciseSchema.parse({
+    kind: 'translate',
+    sentenceFr: 'Nos clients paient généralement par carte.',
+    hint: 'Habitude : l’adverbe se place avant le verbe.',
+    difficulty: 2,
+    accepted: ['Our customers usually pay by card.', 'Our clients usually pay by card.'],
+    knownErrors: [
+      { text: 'Our customers pay usually by card.', category: 'ordre_des_mots', offNotion: true },
+    ],
+    explanation: 'L’adverbe se place avant le verbe : _usually pay_.',
+  });
+
+  it('makes the card of a reviewed error from the reviewed sentence and the learner’s answer', () => {
+    if (exercise.kind !== 'translate') throw new Error('not a translation');
+    expect(
+      anticipatedErrorCardContent(
+        exercise,
+        'tense-present-simple',
+        'Our customers pay usually by card',
+      ),
+    ).toEqual({
+      type: 'error',
+      meaningFr: 'Nos clients paient généralement par carte.',
+      hint: 'Habitude : l’adverbe se place avant le verbe.',
+      previousAttempt: 'Our customers pay usually by card',
+      highlights: [],
+      category: 'ordre_des_mots',
+      notionId: 'tense-present-simple',
+      answers: {
+        canonical: 'Our customers usually pay by card.',
+        variants: ['Our clients usually pay by card.'],
+      },
+    });
+    expect(
+      anticipatedErrorCardContent(exercise, 'tense-present-simple', 'Our clients pay by card.'),
+    ).toBeNull();
   });
 });

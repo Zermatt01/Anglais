@@ -19,8 +19,12 @@ interface AiTranslationCheckProps extends AiCheckProps {
   readonly shownAt: number;
   readonly draftKey: string;
   readonly context: 'path' | 'immediate-practice';
-  /** The answer is stored with its correction: its result, and the changes of the path it made. */
-  readonly onRecorded: (events: readonly ProgressEvent[], result: AnswerResult) => void;
+  /** The answer is stored with its correction: its result, the changes of the path, the cards made. */
+  readonly onRecorded: (
+    events: readonly ProgressEvent[],
+    result: AnswerResult,
+    cardsCreated: number,
+  ) => void;
 }
 
 /**
@@ -81,7 +85,7 @@ export function AiTranslationCheck({
       },
     );
     if (run.state === 'done' && run.outcome.result !== null) {
-      onRecorded(run.outcome.events, run.outcome.result);
+      onRecorded(run.outcome.events, run.outcome.result, run.outcome.cardsCreated);
       onChecked(run.outcome.result, id);
     }
   };

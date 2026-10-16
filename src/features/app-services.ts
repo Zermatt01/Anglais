@@ -79,8 +79,8 @@ export function createAppServices(
     readonly speech?: SpeechSynthesizer | null;
   } = {},
 ): AppServices {
-  const path = createPathRepository(db, clock);
   const cards = createCardRepository(db, clock, createFsrsScheduler(), hasContent);
+  const path = createPathRepository(db, clock, cards);
   return {
     db,
     clock,
