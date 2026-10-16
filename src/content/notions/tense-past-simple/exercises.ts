@@ -402,4 +402,158 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     ],
     explanation: 'Après _did_, base verbale : _pay_, et non _paid_.',
   }),
+  // Added on 2026-10-16 (D-094): presented by difficulty with the ones above.
+  translate(12, {
+    sentenceFr: 'Nous avons fini le projet la semaine dernière.',
+    hint: 'Un moment passé terminé.',
+    difficulty: 1,
+    accepted: [
+      'We finished the project last week.',
+      'We completed the project last week.',
+      'Last week, we finished the project.',
+      'Last week, we completed the project.',
+    ],
+    knownErrors: [
+      onNotion('We have finished the project last week.', 'temps_verbaux'),
+      onNotion('We finish the project last week.', 'temps_verbaux'),
+    ],
+    explanation: '_Last week_ : moment passé terminé, prétérit _finished_.',
+  }),
+  translate(13, {
+    sentenceFr: 'Elle a appelé le client hier matin.',
+    hint: 'Un moment passé précis.',
+    difficulty: 1,
+    accepted: [
+      'She called the client yesterday morning.',
+      'She phoned the client yesterday morning.',
+      'She called the customer yesterday morning.',
+      'Yesterday morning, she called the client.',
+    ],
+    knownErrors: [
+      onNotion('She has called the client yesterday morning.', 'temps_verbaux'),
+      onNotion('She call the client yesterday morning.', 'temps_verbaux'),
+    ],
+    explanation: '_Yesterday morning_ : moment passé, prétérit _called_.',
+  }),
+  translate(14, {
+    sentenceFr: 'Je n’ai pas compris sa question.',
+    hint: 'Une négation au passé, avec un auxiliaire.',
+    difficulty: 1,
+    accepted: [
+      'I didn’t understand his question.',
+      'I didn’t understand her question.',
+      'I didn’t understand their question.',
+    ],
+    knownErrors: [
+      onNotion('I didn’t understood his question.', 'auxiliaires_questions_negations'),
+      onNotion('I not understood his question.', 'auxiliaires_questions_negations'),
+    ],
+    explanation: 'Négation au prétérit : _didn’t_ + base verbale, _I didn’t understand_.',
+  }),
+  translate(15, {
+    sentenceFr: 'Quand est-ce que vous avez déménagé à Genève ?',
+    hint: 'Une question sur un moment passé : avec « quand », pas de present perfect.',
+    difficulty: 2,
+    accepted: ['When did you move to Geneva?'],
+    knownErrors: [
+      onNotion('When have you moved to Geneva?', 'temps_verbaux'),
+      onNotion('When did you moved to Geneva?', 'auxiliaires_questions_negations'),
+    ],
+    explanation: '_When_ demande un moment passé : prétérit, _When did you move…?_',
+  }),
+  translate(16, {
+    sentenceFr: 'Il y a deux ans, j’ai suivi un cours de statistiques.',
+    hint: 'Un moment passé, situé par rapport à aujourd’hui.',
+    difficulty: 2,
+    accepted: [
+      'Two years ago, I took a statistics course.',
+      'I took a statistics course two years ago.',
+      'Two years ago, I took a course in statistics.',
+      'I took a course in statistics two years ago.',
+      'Two years ago, I did a statistics course.',
+      'I did a statistics course two years ago.',
+    ],
+    knownErrors: [
+      onNotion('Two years ago, I have taken a statistics course.', 'temps_verbaux'),
+      onNotion('Two years ago, I taked a statistics course.', 'temps_verbaux'),
+    ],
+    explanation: '_Ago_ situe un moment passé : prétérit, _took_ (verbe irrégulier).',
+  }),
+  translate(17, {
+    sentenceFr: 'Le projet a coûté plus cher que prévu.',
+    hint: 'Un verbe irrégulier, dont le prétérit ne change pas.',
+    difficulty: 2,
+    accepted: [
+      'The project cost more than expected.',
+      'The project cost more than planned.',
+      'The project cost more than we expected.',
+      'The project was more expensive than expected.',
+    ],
+    knownErrors: [onNotion('The project costed more than expected.', 'temps_verbaux')],
+    explanation: '_Cost_ est irrégulier : prétérit _cost_, jamais _costed_ dans ce sens.',
+  }),
+  translate(18, {
+    sentenceFr:
+      'Nous avons analysé les données, puis nous avons présenté nos conclusions au directeur.',
+    hint: 'Deux actions terminées, l’une après l’autre.',
+    difficulty: 3,
+    accepted: [
+      'We analysed the data, then we presented our conclusions to the director.',
+      'We analysed the data, then presented our conclusions to the director.',
+      'We analysed the data and then presented our conclusions to the director.',
+      'We analysed the data, then we presented our findings to the director.',
+      'We analysed the data and then presented our findings to the director.',
+    ],
+    knownErrors: [
+      onNotion(
+        'We analysed the data, then we have presented our conclusions to the director.',
+        'temps_verbaux',
+      ),
+      offNotion(
+        'We analysed the data, then we presented our conclusions at the director.',
+        'prepositions',
+      ),
+    ],
+    explanation: 'Une suite d’actions terminées : prétérit, _analysed_ puis _presented to_.',
+  }),
+  translate(19, {
+    sentenceFr: 'Est-ce que tu as reçu mon e-mail hier, ou est-ce que je dois le renvoyer ?',
+    hint: 'Une question sur un moment passé, puis une proposition.',
+    difficulty: 3,
+    accepted: [
+      'Did you get my email yesterday, or should I send it again?',
+      'Did you receive my email yesterday, or should I send it again?',
+      'Did you get my email yesterday, or should I resend it?',
+      'Did you receive my email yesterday, or should I resend it?',
+      'Did you get my email yesterday, or do I need to send it again?',
+      'Did you get my email yesterday, or shall I send it again?',
+    ],
+    knownErrors: [
+      onNotion('Have you received my email yesterday, or should I send it again?', 'temps_verbaux'),
+      onNotion(
+        'Did you received my email yesterday, or should I send it again?',
+        'auxiliaires_questions_negations',
+      ),
+    ],
+    explanation: '_Yesterday_ : prétérit. Question : _Did_ + sujet + base verbale.',
+  }),
+  translate(20, {
+    sentenceFr:
+      'Avant mon stage, je ne parlais pas bien anglais, mais j’ai beaucoup appris à Londres.',
+    hint: 'Deux faits passés, l’un à la forme négative.',
+    difficulty: 3,
+    accepted: [
+      'Before my internship, I didn’t speak English well, but I learnt a lot in London.',
+      'Before my internship, I didn’t speak good English, but I learnt a lot in London.',
+      'Before my internship, I couldn’t speak English well, but I learnt a lot in London.',
+    ],
+    knownErrors: [
+      onNotion(
+        'Before my internship, I didn’t spoke English well, but I learnt a lot in London.',
+        'auxiliaires_questions_negations',
+      ),
+    ],
+    explanation:
+      'Passé terminé : _didn’t speak_ (base verbale après _didn’t_), puis _learnt_ (ou _learned_).',
+  }),
 ];

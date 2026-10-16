@@ -412,4 +412,145 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     explanation:
       'Question avec _yet_ en fin de phrase ; « pas encore » se dit _not yet_.' + AMERICAN_PAST,
   }),
+  // Added on 2026-10-16 (D-094): presented by difficulty with the ones above.
+  translate(12, {
+    sentenceFr: 'Elle vient de partir.',
+    hint: 'Une action toute récente : « venir de ».',
+    difficulty: 1,
+    accepted: ['She’s just left.', 'She has just gone.', 'She’s just gone.', 'She just left.'],
+    knownErrors: [
+      onNotion('She just has left.', 'temps_verbaux'),
+      onNotion('She comes from leaving.', 'calques_du_francais'),
+    ],
+    explanation: '« Venir de » : _has just_ + participe, _she’s just left_.' + AMERICAN_PAST,
+  }),
+  translate(13, {
+    sentenceFr: 'Tu as déjà mangé ?',
+    hint: 'Une question sur une action attendue.',
+    difficulty: 1,
+    accepted: [
+      'Have you eaten yet?',
+      'Have you already eaten?',
+      'Did you eat yet?',
+      'Did you already eat?',
+    ],
+    knownErrors: [onNotion('Have you eat yet?', 'temps_verbaux')],
+    explanation:
+      'Question sur une action attendue : _Have you eaten yet?_ (_already_ marque la surprise).' +
+      AMERICAN_PAST,
+  }),
+  translate(14, {
+    sentenceFr: 'Il pleut encore.',
+    hint: 'Une action qui continue : le mot se place juste après le verbe être.',
+    difficulty: 1,
+    accepted: ['It’s still raining.'],
+    knownErrors: [onNotion('It’s yet raining.', 'temps_verbaux')],
+    explanation:
+      '« Encore », au sens de « toujours » : _still_, après _is_ : _It’s still raining_.',
+  }),
+  translate(15, {
+    sentenceFr: 'Nous n’avons pas encore signé le contrat.',
+    hint: 'Une action attendue, pas encore faite.',
+    difficulty: 2,
+    accepted: [
+      'We haven’t signed the contract yet.',
+      'We haven’t yet signed the contract.',
+      'We didn’t sign the contract yet.',
+    ],
+    knownErrors: [
+      onNotion('We haven’t signed yet the contract.', 'temps_verbaux'),
+      onNotion('We haven’t already signed the contract.', 'temps_verbaux'),
+    ],
+    explanation: '« Pas encore » : _not… yet_, avec _yet_ en fin de phrase.' + AMERICAN_PAST,
+  }),
+  translate(16, {
+    sentenceFr: 'Il travaille toujours sur ce projet.',
+    hint: 'Une action qui continue encore aujourd’hui.',
+    difficulty: 2,
+    accepted: [
+      'He’s still working on this project.',
+      'He’s still working on that project.',
+      'He still works on this project.',
+      'He still works on that project.',
+    ],
+    knownErrors: [onNotion('He’s yet working on this project.', 'temps_verbaux')],
+    explanation: '« Toujours », au sens de « encore » : _still_, _he’s still working_.',
+  }),
+  translate(17, {
+    sentenceFr: 'Le train est déjà parti !',
+    hint: 'Une action faite plus tôt que prévu.',
+    difficulty: 2,
+    accepted: [
+      'The train has already left!',
+      'The train’s already left!',
+      'The train has left already!',
+      'The train already left!',
+    ],
+    knownErrors: [onNotion('The train has yet left!', 'temps_verbaux')],
+    explanation: '« Déjà » : _already_, entre _has_ et le participe.' + AMERICAN_PAST,
+  }),
+  translate(18, {
+    sentenceFr: 'Nous avons déjà dépassé le budget, et le projet n’est toujours pas terminé.',
+    hint: 'Une action faite plus tôt que prévu, puis une situation qui dure.',
+    difficulty: 3,
+    accepted: [
+      'We’ve already gone over budget, and the project still isn’t finished.',
+      'We’ve already gone over the budget, and the project still isn’t finished.',
+      'We’ve already exceeded the budget, and the project still isn’t finished.',
+      'We’ve already gone over budget, and the project isn’t finished yet.',
+      'We’ve already exceeded the budget, and the project isn’t finished yet.',
+      'We already went over budget, and the project still isn’t finished.',
+    ],
+    knownErrors: [
+      onNotion(
+        'We’ve already gone over budget, and the project isn’t still finished.',
+        'temps_verbaux',
+      ),
+    ],
+    explanation:
+      '_Already_ entre _have_ et le participe ; « toujours pas » : _still_ avant la négation, _still isn’t_.' +
+      AMERICAN_PAST,
+  }),
+  translate(19, {
+    sentenceFr: 'Est-ce que les résultats sont déjà arrivés ? Le directeur les attend toujours.',
+    hint: 'Une question sur une action attendue, puis une attente qui continue.',
+    difficulty: 3,
+    accepted: [
+      'Have the results arrived yet? The director is still waiting for them.',
+      'Have the results already arrived? The director is still waiting for them.',
+      'Did the results arrive yet? The director is still waiting for them.',
+    ],
+    knownErrors: [
+      onNotion(
+        'Have the results arrived yet? The director is yet waiting for them.',
+        'temps_verbaux',
+      ),
+    ],
+    explanation:
+      'Question sur une action attendue : _yet_ en fin de question ; attente qui continue : _is still waiting_.' +
+      AMERICAN_PAST,
+  }),
+  translate(20, {
+    sentenceFr: 'Je viens de parler au client : il n’a toujours pas reçu la facture.',
+    hint: 'Une action toute récente, puis une attente qui dure.',
+    difficulty: 3,
+    accepted: [
+      'I’ve just spoken to the client: he still hasn’t received the invoice.',
+      'I’ve just talked to the client: he still hasn’t received the invoice.',
+      'I’ve just spoken to the client: he hasn’t received the invoice yet.',
+      'I just spoke to the client: he still hasn’t received the invoice.',
+    ],
+    knownErrors: [
+      onNotion(
+        'I’ve just spoken to the client: he hasn’t still received the invoice.',
+        'temps_verbaux',
+      ),
+      onNotion(
+        'I just have spoken to the client: he still hasn’t received the invoice.',
+        'temps_verbaux',
+      ),
+    ],
+    explanation:
+      '« Venir de » : _I’ve just spoken_ ; « toujours pas » : _still hasn’t_.' + AMERICAN_PAST,
+  }),
 ];

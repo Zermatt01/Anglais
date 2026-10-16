@@ -407,4 +407,158 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     ],
     explanation: 'Question au passé continu, puis l’événement au prétérit (_went off_).',
   }),
+  // Added on 2026-10-16 (D-094): presented by difficulty with the ones above.
+  translate(12, {
+    sentenceFr: 'Il neigeait quand nous sommes partis.',
+    hint: 'Une action en cours dans le passé, pendant qu’une autre a lieu.',
+    difficulty: 1,
+    accepted: ['It was snowing when we left.'],
+    knownErrors: [
+      onNotion('It was snow when we left.', 'temps_verbaux'),
+      onNotion('It were snowing when we left.', 'accord_sujet_verbe'),
+    ],
+    explanation: 'Le décor, en cours : _was snowing_ ; l’action ponctuelle : _left_.',
+  }),
+  translate(13, {
+    sentenceFr: 'Tu dormais quand je suis rentré ?',
+    hint: 'Une question sur une action en cours à un moment passé.',
+    difficulty: 1,
+    accepted: [
+      'Were you sleeping when I got home?',
+      'Were you sleeping when I came home?',
+      'Were you sleeping when I got back?',
+      'Were you sleeping when I came back?',
+    ],
+    knownErrors: [
+      onNotion('Did you sleeping when I got home?', 'auxiliaires_questions_negations'),
+      onNotion('Was you sleeping when I got home?', 'accord_sujet_verbe'),
+    ],
+    explanation: 'Question au passé continu : _Were you sleeping…?_, avec _were_ pour _you_.',
+  }),
+  translate(14, {
+    sentenceFr: 'Hier à midi, nous déjeunions avec un client.',
+    hint: 'Une action en cours à un moment précis du passé.',
+    difficulty: 2,
+    accepted: [
+      'At noon yesterday, we were having lunch with a client.',
+      'Yesterday at noon, we were having lunch with a client.',
+      'We were having lunch with a client at noon yesterday.',
+      'Yesterday at midday, we were having lunch with a client.',
+      'At midday yesterday, we were having lunch with a client.',
+    ],
+    knownErrors: [
+      onNotion('At noon yesterday, we were have lunch with a client.', 'temps_verbaux'),
+      onNotion('At noon yesterday, we was having lunch with a client.', 'accord_sujet_verbe'),
+    ],
+    explanation: 'À un moment précis du passé, une action en cours : _we were having lunch_.',
+  }),
+  translate(15, {
+    sentenceFr: 'Je ne regardais pas l’écran quand l’erreur est apparue.',
+    hint: 'Une action en cours dans le passé, à la forme négative.',
+    difficulty: 2,
+    accepted: [
+      'I wasn’t looking at the screen when the error appeared.',
+      'I wasn’t looking at the screen when the error came up.',
+      'I wasn’t watching the screen when the error appeared.',
+    ],
+    knownErrors: [
+      onNotion(
+        'I didn’t looking at the screen when the error appeared.',
+        'auxiliaires_questions_negations',
+      ),
+      onNotion('I weren’t looking at the screen when the error appeared.', 'accord_sujet_verbe'),
+    ],
+    explanation: 'Négation au passé continu : _wasn’t looking_, puis l’événement au prétérit.',
+  }),
+  translate(16, {
+    sentenceFr: 'Pendant qu’elle conduisait, elle écoutait un podcast sur la finance.',
+    hint: 'Deux actions en cours en même temps, dans le passé.',
+    difficulty: 2,
+    accepted: [
+      'While she was driving, she was listening to a podcast about finance.',
+      'While she was driving, she was listening to a finance podcast.',
+      'While she was driving, she was listening to a podcast on finance.',
+      'She was listening to a podcast about finance while she was driving.',
+      'She was listening to a finance podcast while she was driving.',
+    ],
+    knownErrors: [
+      onNotion(
+        'While she was driving, she was listen to a podcast about finance.',
+        'temps_verbaux',
+      ),
+      offNotion(
+        'While she was driving, she was listening a podcast about finance.',
+        'prepositions',
+      ),
+    ],
+    explanation: 'Deux actions simultanées : _was driving_, _was listening to_ (avec _to_).',
+  }),
+  translate(17, {
+    sentenceFr: 'Quand la panne a eu lieu, les clients essayaient de se connecter.',
+    hint: 'Un événement ponctuel, pendant une action en cours.',
+    difficulty: 3,
+    accepted: [
+      'When the outage happened, customers were trying to log in.',
+      'When the outage happened, the customers were trying to log in.',
+      'When the outage happened, clients were trying to log in.',
+      'When the system went down, customers were trying to log in.',
+      'When the outage happened, customers were trying to log on.',
+    ],
+    knownErrors: [
+      onNotion('When the outage happened, customers were try to log in.', 'temps_verbaux'),
+    ],
+    explanation: 'L’action en cours : _were trying_ ; l’événement : _happened_.',
+  }),
+  translate(18, {
+    sentenceFr:
+      'Je travaillais sur la présentation quand mon ordinateur s’est éteint, et j’ai tout perdu.',
+    hint: 'Une action en cours, interrompue, puis une conséquence.',
+    difficulty: 3,
+    accepted: [
+      'I was working on the presentation when my computer shut down, and I lost everything.',
+      'I was working on the presentation when my computer switched off, and I lost everything.',
+      'I was working on the presentation when my computer turned off, and I lost everything.',
+      'I was working on the presentation when my laptop shut down, and I lost everything.',
+    ],
+    knownErrors: [
+      onNotion(
+        'I was work on the presentation when my computer shut down, and I lost everything.',
+        'temps_verbaux',
+      ),
+    ],
+    explanation: 'Action en cours : _was working_ ; interruption et conséquence au prétérit.',
+  }),
+  translate(19, {
+    sentenceFr: 'Pendant que tu expliquais le modèle, je prenais des notes.',
+    hint: 'Deux actions en cours en même temps, dans le passé.',
+    difficulty: 3,
+    accepted: [
+      'While you were explaining the model, I was taking notes.',
+      'I was taking notes while you were explaining the model.',
+      'While you were explaining the model, I was making notes.',
+    ],
+    knownErrors: [
+      onNotion('While you were explaining the model, I was take notes.', 'temps_verbaux'),
+      onNotion('While you was explaining the model, I was taking notes.', 'accord_sujet_verbe'),
+    ],
+    explanation: 'Deux actions simultanées : _were explaining_ (avec _you_), _was taking_.',
+  }),
+  translate(20, {
+    sentenceFr: 'Elle ne m’écoutait pas : elle lisait ses messages.',
+    hint: 'Ce qui ne se passait pas, puis ce qui se passait à ce moment-là.',
+    difficulty: 2,
+    accepted: [
+      'She wasn’t listening to me: she was reading her messages.',
+      'She wasn’t listening to me: she was checking her messages.',
+    ],
+    knownErrors: [
+      onNotion(
+        'She didn’t listening to me: she was reading her messages.',
+        'auxiliaires_questions_negations',
+      ),
+      offNotion('She wasn’t listening me: she was reading her messages.', 'prepositions'),
+    ],
+    explanation:
+      'Négation au passé continu : _wasn’t listening to_ ; action en cours : _was reading_.',
+  }),
 ];

@@ -409,4 +409,143 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     ],
     explanation: 'Expérience : _have you been to_. Question : _have_ avant le sujet.',
   }),
+  // Added on 2026-10-16 (D-094): presented by difficulty with the ones above.
+  translate(12, {
+    sentenceFr: 'J’ai oublié mon mot de passe.',
+    hint: 'Une action passée dont le résultat compte maintenant.',
+    difficulty: 1,
+    accepted: ['I’ve forgotten my password.', 'I forgot my password.'],
+    knownErrors: [
+      onNotion('I’ve forget my password.', 'temps_verbaux'),
+      onNotion('I’ve forgetted my password.', 'temps_verbaux'),
+    ],
+    explanation: 'Résultat présent : _have forgotten_.' + AMERICAN_PAST,
+  }),
+  translate(13, {
+    sentenceFr: 'Est-ce que tu as déjà utilisé Python ?',
+    hint: 'Une question sur une expérience, à n’importe quel moment de la vie.',
+    difficulty: 1,
+    accepted: [
+      'Have you ever used Python?',
+      'Have you used Python before?',
+      'Have you already used Python?',
+      'Did you ever use Python?',
+    ],
+    knownErrors: [
+      onNotion('Have you ever use Python?', 'temps_verbaux'),
+      onNotion('Did you ever used Python?', 'auxiliaires_questions_negations'),
+    ],
+    explanation: 'Expérience : _Have you ever used…?_' + AMERICAN_PAST,
+  }),
+  translate(14, {
+    sentenceFr: 'Il n’a jamais pris l’avion.',
+    hint: 'Une expérience jamais vécue, jusqu’à maintenant.',
+    difficulty: 1,
+    accepted: ['He has never flown.', 'He’s never been on a plane.', 'He’s never taken a plane.'],
+    knownErrors: [
+      onNotion('He has never flew.', 'temps_verbaux'),
+      onNotion('He have never flown.', 'accord_sujet_verbe'),
+    ],
+    explanation: 'Expérience : _has never flown_ (participe de _fly_).',
+  }),
+  translate(15, {
+    sentenceFr: 'Le prix du pétrole a baissé, donc les billets d’avion sont moins chers.',
+    hint: 'Une action passée, et son résultat aujourd’hui.',
+    difficulty: 2,
+    accepted: [
+      'The price of oil has fallen, so plane tickets are cheaper.',
+      'The price of oil has gone down, so plane tickets are cheaper.',
+      'The price of oil has dropped, so plane tickets are cheaper.',
+      'The price of oil has fallen, so flights are cheaper.',
+      'The price of oil fell, so plane tickets are cheaper.',
+    ],
+    knownErrors: [
+      onNotion('The price of oil has fell, so plane tickets are cheaper.', 'temps_verbaux'),
+      onNotion('The price of oil have fallen, so plane tickets are cheaper.', 'accord_sujet_verbe'),
+    ],
+    explanation: 'Résultat présent : _has fallen_, avec _has_ pour _the price_.' + AMERICAN_PAST,
+  }),
+  translate(16, {
+    sentenceFr: 'Combien de clients est-ce que vous avez rencontrés cette semaine ?',
+    hint: 'Une période qui n’est pas terminée.',
+    difficulty: 2,
+    accepted: [
+      'How many clients have you met this week?',
+      'How many customers have you met this week?',
+      'How many clients did you meet this week?',
+    ],
+    knownErrors: [
+      onNotion('How many clients you have met this week?', 'auxiliaires_questions_negations'),
+      onNotion('How many clients have you meet this week?', 'temps_verbaux'),
+    ],
+    explanation: '_This week_ n’est pas terminée : _have you met_.' + AMERICAN_PAST,
+  }),
+  translate(17, {
+    sentenceFr: 'Notre équipe a gagné un prix pour cette application.',
+    hint: 'Un résultat qui compte aujourd’hui, sans moment précisé.',
+    difficulty: 2,
+    accepted: [
+      'Our team has won an award for this app.',
+      'Our team has won a prize for this app.',
+      'Our team has won an award for this application.',
+      'Our team won an award for this app.',
+    ],
+    knownErrors: [
+      onNotion('Our team has winned an award for this app.', 'temps_verbaux'),
+      onNotion('Our team has win an award for this app.', 'temps_verbaux'),
+    ],
+    explanation: 'Résultat, sans moment précisé : _has won_ (participe de _win_).' + AMERICAN_PAST,
+  }),
+  translate(18, {
+    sentenceFr: 'J’ai lu ton rapport : il est clair, mais il manque des chiffres.',
+    hint: 'Une action terminée dont tu parles maintenant, sans dire quand.',
+    difficulty: 3,
+    accepted: [
+      'I’ve read your report: it’s clear, but some figures are missing.',
+      'I’ve read your report: it’s clear, but it’s missing some figures.',
+      'I’ve read your report: it’s clear, but there are some figures missing.',
+      'I read your report: it’s clear, but some figures are missing.',
+    ],
+    knownErrors: [
+      onNotion(
+        'I’ve readed your report: it’s clear, but some figures are missing.',
+        'temps_verbaux',
+      ),
+    ],
+    explanation: 'Résultat présent : _I’ve read_ (participe _read_).' + AMERICAN_PAST,
+  }),
+  translate(19, {
+    sentenceFr: 'Est-ce que tu as vu mon chargeur ? Je l’ai laissé sur la table.',
+    hint: 'Une question sur un résultat présent, puis une action passée.',
+    difficulty: 3,
+    accepted: [
+      'Have you seen my charger? I left it on the table.',
+      'Have you seen my charger? I’ve left it on the table.',
+      'Did you see my charger? I left it on the table.',
+    ],
+    knownErrors: [
+      onNotion('Have you saw my charger? I left it on the table.', 'temps_verbaux'),
+      onNotion(
+        'Did you seen my charger? I left it on the table.',
+        'auxiliaires_questions_negations',
+      ),
+    ],
+    explanation: 'Question sur un résultat présent : _Have you seen…?_' + AMERICAN_PAST,
+  }),
+  translate(20, {
+    sentenceFr: 'Nous avons déjà testé trois modèles, mais aucun ne fonctionne bien.',
+    hint: 'Des expériences passées, et la situation aujourd’hui.',
+    difficulty: 3,
+    accepted: [
+      'We’ve already tested three models, but none of them works well.',
+      'We’ve already tested three models, but none of them work well.',
+      'We’ve tested three models already, but none of them works well.',
+      'We’ve already tested three models, but none works well.',
+      'We already tested three models, but none of them works well.',
+    ],
+    knownErrors: [
+      onNotion('We’ve already test three models, but none of them works well.', 'temps_verbaux'),
+    ],
+    explanation: 'Expériences jusqu’à maintenant : _have already tested_.' + AMERICAN_PAST,
+  }),
 ];
