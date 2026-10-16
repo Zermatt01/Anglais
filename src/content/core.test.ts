@@ -9,7 +9,12 @@ import { reasonSetsOf } from '../../shared/ai/reasons.ts';
 import { GENERATABLE_NOTION_IDS } from '../../shared/ai/tasks.ts';
 import { countGaps } from '../domain/cards/content.ts';
 import { areEquivalent } from '../domain/correction/forms.ts';
-import { checkExercise, exerciseSchema, STEP_OF_KIND } from '../domain/curriculum/exercise.ts';
+import {
+  checkExercise,
+  exerciseSchema,
+  inPresentationOrder,
+  STEP_OF_KIND,
+} from '../domain/curriculum/exercise.ts';
 import { isConsistentClassification } from '../domain/curriculum/notion-errors.ts';
 import { checkThemeItem, themeItemSchema } from '../domain/theme/item.ts';
 import { PHASE_3_NOTION_IDS, phaseOf, type NotionId } from '../domain/curriculum/notion-id.ts';
@@ -154,11 +159,18 @@ describe.each(contents)('%s', (notionId: NotionId, content: NotionContent) => {
     expect(new Set(prompts).size).toBe(prompts.length);
   });
 
-  it('orders its translations by increasing difficulty (CUR-03)', () => {
-    const difficulties = content.exercises.flatMap((exercise) =>
+  it('presents its translations by increasing difficulty, whatever their numbers (CUR-03, D-094)', () => {
+    const difficulties = inPresentationOrder(content.exercises).flatMap((exercise) =>
       exercise.kind === 'translate' ? [exercise.difficulty] : [],
     );
     expect(difficulties).toEqual([...difficulties].sort((a, b) => a - b));
+    // Every exercise is presented once, the other kinds in their written places.
+    expect(inPresentationOrder(content.exercises).map((exercise) => exercise.kind)).toEqual(
+      content.exercises.map((exercise) => exercise.kind),
+    );
+    expect(
+      new Set(inPresentationOrder(content.exercises).map((exercise) => exercise.id)).size,
+    ).toBe(content.exercises.length);
   });
 
   it('has three to five placement questions, each with one right option (CUR-08)', () => {

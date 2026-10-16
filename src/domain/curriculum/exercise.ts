@@ -152,6 +152,31 @@ export function fillGap(sentence: string, value: string): string {
   return sentence.replace(gap, () => filler);
 }
 
+const difficultyOf = (exercise: Exercise): number =>
+  exercise.kind === 'translate' ? exercise.difficulty : 0;
+
+/**
+ * The core of a notion in the order it is presented (CUR-03, D-094): the
+ * translations by increasing difficulty, in the order of the content within a
+ * difficulty, in the places of the translations; the other exercises as
+ * written. Translations added later keep their identifier, so the answers
+ * already given stay attached to them.
+ */
+export function inPresentationOrder<Item extends Exercise>(exercises: readonly Item[]): Item[] {
+  const translations = exercises
+    .map((item, order) => ({ item, order }))
+    .filter(({ item }) => item.kind === 'translate')
+    .sort((a, b) => difficultyOf(a.item) - difficultyOf(b.item) || a.order - b.order)
+    .map(({ item }) => item);
+  let next = 0;
+  return exercises.map((item) => {
+    if (item.kind !== 'translate') return item;
+    const sorted = translations[next] ?? item;
+    next += 1;
+    return sorted;
+  });
+}
+
 /** Accepted answers as whole sentences (a gap filler is put back in its sentence). */
 export function acceptedAnswersOf(exercise: Exclude<Exercise, { kind: 'choice-with-reason' }>) {
   return exercise.kind === 'fill-verb'

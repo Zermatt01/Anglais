@@ -6,7 +6,11 @@ import { NOTION_TITLES } from '../../content/catalog.ts';
 import type { NotionContent } from '../../content/schema.ts';
 import type { ExerciseAttempt } from '../../data/schemas/exercise-attempts.ts';
 import { isNotionStudied } from '../../domain/curriculum/engine.ts';
-import { STEP_OF_KIND, type Exercise } from '../../domain/curriculum/exercise.ts';
+import {
+  inPresentationOrder,
+  STEP_OF_KIND,
+  type Exercise,
+} from '../../domain/curriculum/exercise.ts';
 import type { NotionId } from '../../domain/curriculum/notion-id.ts';
 import type { AnswerResult } from '../../domain/taxonomy.ts';
 import { immediatePractice } from '../../domain/curriculum/practice.ts';
@@ -129,7 +133,7 @@ function choosePlan(
   now: number,
 ): PracticeItem[] {
   const all = [
-    ...content.exercises.map((exercise) => ({
+    ...inPresentationOrder(content.exercises).map((exercise) => ({
       id: exercise.id,
       exercise,
       source: 'core' as const,

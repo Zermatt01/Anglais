@@ -14,7 +14,11 @@ import {
   stepStanding,
   type ProgressEvent,
 } from '../../domain/curriculum/engine.ts';
-import { STEP_OF_KIND, type Exercise } from '../../domain/curriculum/exercise.ts';
+import {
+  inPresentationOrder,
+  STEP_OF_KIND,
+  type Exercise,
+} from '../../domain/curriculum/exercise.ts';
 import type { NotionId } from '../../domain/curriculum/notion-id.ts';
 import type { NotionProgressValues, Step } from '../../domain/curriculum/progress.ts';
 import type { AnswerResult } from '../../domain/taxonomy.ts';
@@ -69,7 +73,7 @@ function targetOf(progress: NotionProgressValues | null): Target {
 }
 
 function corePool(content: NotionContent, step: Step): PoolItem[] {
-  return content.exercises
+  return inPresentationOrder(content.exercises)
     .filter((exercise) => STEP_OF_KIND[exercise.kind] === step)
     .map((exercise) => ({ id: exercise.id, exercise, source: 'core', generatedId: null }));
 }

@@ -6,6 +6,7 @@ import {
   evaluateTypedAnswer,
   exerciseSchema,
   fillGap,
+  inPresentationOrder,
   isChoiceCorrect,
   type ExerciseInput,
   type ExerciseOf,
@@ -291,5 +292,20 @@ describe('anticipatedErrorOf (D-093)', () => {
   it('finds nothing for another answer, nor for an error without a category', () => {
     expect(anticipatedErrorOf(reviewed, "I haven't received the results yet.")).toBeNull();
     expect(anticipatedErrorOf(translate(), 'I have not received yet the results.')).toBeNull();
+  });
+});
+
+describe('inPresentationOrder (CUR-03, D-094)', () => {
+  it('presents the translations by difficulty, in the written order within one, in their places', () => {
+    const hard = { ...translate({ sentenceFr: 'Phrase difficile.' }), difficulty: 3 };
+    const easyLate = { ...translate({ sentenceFr: 'Phrase facile ajoutée.' }), difficulty: 1 };
+    const easy = { ...translate({ sentenceFr: 'Phrase facile.' }), difficulty: 1 };
+    const filler = fillVerb();
+    expect(inPresentationOrder([filler, easy, hard, easyLate])).toEqual([
+      filler,
+      easy,
+      easyLate,
+      hard,
+    ]);
   });
 });
