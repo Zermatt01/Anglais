@@ -1,4 +1,4 @@
-import { exercisesOf } from '../../builders.ts';
+import { exercisesOf, offNotion, onNotion } from '../../builders.ts';
 import type { NotionContentInput } from '../../schema.ts';
 import { REVIEW } from './review.ts';
 
@@ -231,7 +231,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Un moment précis du passé : pas de _have_.',
     difficulty: 1,
     accepted: ['I sent the report yesterday.', 'Yesterday I sent the report.'],
-    knownErrors: ['I have sent the report yesterday.', 'I sended the report yesterday.'],
+    knownErrors: [
+      onNotion('I have sent the report yesterday.', 'temps_verbaux'),
+      onNotion('I sended the report yesterday.', 'temps_verbaux'),
+    ],
     explanation: 'Le passé composé français devient un prétérit avec _yesterday_. _Send_ : _sent_.',
   }),
   translate(2, {
@@ -239,7 +242,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Verbe irrégulier, moment passé précis.',
     difficulty: 1,
     accepted: ['She bought a car last week.', 'Last week she bought a car.'],
-    knownErrors: ['She buyed a car last week.', 'She has bought a car last week.'],
+    knownErrors: [
+      onNotion('She buyed a car last week.', 'temps_verbaux'),
+      onNotion('She has bought a car last week.', 'temps_verbaux'),
+    ],
     explanation: '_Last week_ impose le prétérit. _Buy_ : _bought_.',
   }),
   translate(3, {
@@ -248,8 +254,8 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     difficulty: 1,
     accepted: ['We didn’t win the contract last year.', 'Last year we didn’t win the contract.'],
     knownErrors: [
-      'We didn’t won the contract last year.',
-      'We haven’t won the contract last year.',
+      onNotion('We didn’t won the contract last year.', 'auxiliaires_questions_negations'),
+      onNotion('We haven’t won the contract last year.', 'temps_verbaux'),
     ],
     explanation: 'Négation : _didn’t_ + base verbale (_win_, et non _won_).',
   }),
@@ -265,7 +271,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Did you watch the match last night?',
       'Did you watch the game last night?',
     ],
-    knownErrors: ['Did you saw the match last night?', 'Have you seen the match last night?'],
+    knownErrors: [
+      onNotion('Did you saw the match last night?', 'auxiliaires_questions_negations'),
+      onNotion('Have you seen the match last night?', 'temps_verbaux'),
+    ],
     explanation: 'Question au prétérit : _Did you see…?_ (base verbale après _did_).',
   }),
   translate(5, {
@@ -285,8 +294,8 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'In 2020, he left the bank and set up his own company.',
     ],
     knownErrors: [
-      'He has left the bank in 2020 and started his own company.',
-      'He leaved the bank in 2020 and started his own company.',
+      onNotion('He has left the bank in 2020 and started his own company.', 'temps_verbaux'),
+      onNotion('He leaved the bank in 2020 and started his own company.', 'temps_verbaux'),
     ],
     explanation: '_In 2020_ : prétérit pour les deux actions. _Leave_ : _left_.',
   }),
@@ -311,7 +320,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Where did you do your studies?',
       'Where did you go to college?',
     ],
-    knownErrors: ['Where you studied?', 'Where did you studied?'],
+    knownErrors: [
+      onNotion('Where you studied?', 'auxiliaires_questions_negations'),
+      onNotion('Where did you studied?', 'auxiliaires_questions_negations'),
+    ],
     explanation: 'Question : _Where did you study?_ (base verbale après _did_).',
   }),
   translate(8, {
@@ -319,7 +331,9 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Un état passé, à la forme négative.',
     difficulty: 2,
     accepted: ['I didn’t know that the market was closed.', 'I didn’t know the market was closed.'],
-    knownErrors: ['I didn’t knew that the market was closed.'],
+    knownErrors: [
+      onNotion('I didn’t knew that the market was closed.', 'auxiliaires_questions_negations'),
+    ],
     explanation:
       '_Know_ au passé négatif : _didn’t know_. L’imparfait français devient ici un prétérit.',
   }),
@@ -336,7 +350,9 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'When I was a student, I worked in a bank on Saturday.',
       'I worked in a bank on Saturdays when I was a student.',
     ],
-    knownErrors: ['When I was a student, I work in a bank on Saturdays.'],
+    knownErrors: [
+      onNotion('When I was a student, I work in a bank on Saturdays.', 'temps_verbaux'),
+    ],
     explanation:
       'Habitude passée : prétérit (_worked_), ou _used to work_. L’imparfait français ne se traduit pas par le continu ici.',
   }),
@@ -356,8 +372,14 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'The markets dropped after the announcement, then rose on Friday.',
     ],
     knownErrors: [
-      'The markets falled after the announcement, then they rose on Friday.',
-      'The markets fell after the announcement, then they raised on Friday.',
+      onNotion(
+        'The markets falled after the announcement, then they rose on Friday.',
+        'temps_verbaux',
+      ),
+      offNotion(
+        'The markets fell after the announcement, then they raised on Friday.',
+        'choix_lexical_collocations',
+      ),
     ],
     explanation: '_Fall_ : _fell_ ; _rise_ : _rose_. _Raise_ demanderait un complément.',
   }),
@@ -372,8 +394,11 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Did they pay the bill by the deadline?',
     ],
     knownErrors: [
-      'Did they paid the invoice before the deadline?',
-      'Did they payed the invoice before the deadline?',
+      onNotion('Did they paid the invoice before the deadline?', 'auxiliaires_questions_negations'),
+      onNotion(
+        'Did they payed the invoice before the deadline?',
+        'auxiliaires_questions_negations',
+      ),
     ],
     explanation: 'Après _did_, base verbale : _pay_, et non _paid_.',
   }),

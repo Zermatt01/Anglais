@@ -1,4 +1,4 @@
-import { exercisesOf } from '../../builders.ts';
+import { exercisesOf, onNotion } from '../../builders.ts';
 import type { NotionContentInput } from '../../schema.ts';
 import { REVIEW } from './review.ts';
 
@@ -236,8 +236,8 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'The meeting had already begun when I arrived.',
     ],
     knownErrors: [
-      'When I arrived, the meeting has already started.',
-      'When I arrived, the meeting had already start.',
+      onNotion('When I arrived, the meeting has already started.', 'temps_verbaux'),
+      onNotion('When I arrived, the meeting had already start.', 'temps_verbaux'),
     ],
     explanation: '« Avait commencé » : _had started_ (ou _had begun_).',
   }),
@@ -251,7 +251,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'She had never been on a plane before.',
       'She’d never flown before.',
     ],
-    knownErrors: ['She has never flown before.', 'She had never flew before.'],
+    knownErrors: [
+      onNotion('She has never flown before.', 'temps_verbaux'),
+      onNotion('She had never flew before.', 'temps_verbaux'),
+    ],
     explanation: '_Had never_ + participe : _had never flown_ (_fly_, _flew_, _flown_).',
   }),
   translate(3, {
@@ -265,7 +268,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'He said that he had lost his keys.',
       'He told me he lost his keys.',
     ],
-    knownErrors: ['He told me he had losed his keys.'],
+    knownErrors: [onNotion('He told me he had losed his keys.', 'temps_verbaux')],
     explanation: 'Discours rapporté : _he had lost_.',
   }),
   translate(4, {
@@ -273,7 +276,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Le plus-que-parfait, à la forme négative.',
     difficulty: 1,
     accepted: ['I hadn’t read the report.'],
-    knownErrors: ['I hadn’t readed the report.', 'I didn’t had read the report.'],
+    knownErrors: [
+      onNotion('I hadn’t readed the report.', 'temps_verbaux'),
+      onNotion('I didn’t had read the report.', 'auxiliaires_questions_negations'),
+    ],
     explanation: '_Hadn’t_ + participe passé : _I hadn’t read the report._',
   }),
   translate(5, {
@@ -287,7 +293,9 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'When we got to the station, the train had already left.',
       'The train had already gone when we arrived at the station.',
     ],
-    knownErrors: ['The train has already left when we arrived at the station.'],
+    knownErrors: [
+      onNotion('The train has already left when we arrived at the station.', 'temps_verbaux'),
+    ],
     explanation: '_Had already left_, puis _we arrived_ (prétérit).',
   }),
   translate(6, {
@@ -300,7 +308,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'It was the first time I had seen a result like this.',
       'That was the first time I had seen such a result.',
     ],
-    knownErrors: ['It was the first time I have seen such a result.'],
+    knownErrors: [onNotion('It was the first time I have seen such a result.', 'temps_verbaux')],
     explanation: '_It was the first time_ + past perfect : _I had seen_.',
   }),
   translate(7, {
@@ -313,7 +321,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'By the time we called, they had already signed with a rival.',
       'By the time we phoned, they had already signed with a competitor.',
     ],
-    knownErrors: ['By the time we called, they have already signed with a competitor.'],
+    knownErrors: [
+      onNotion(
+        'By the time we called, they have already signed with a competitor.',
+        'temps_verbaux',
+      ),
+    ],
     explanation: '_By the time_ + prétérit, puis past perfect : _had already signed_.',
   }),
   translate(8, {
@@ -328,7 +341,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Before joining the bank, she had worked for three years in audit.',
       'Before joining the bank, she had spent three years in audit.',
     ],
-    knownErrors: ['Before joining the bank, she has worked in audit for three years.'],
+    knownErrors: [
+      onNotion(
+        'Before joining the bank, she has worked in audit for three years.',
+        'temps_verbaux',
+      ),
+    ],
     explanation: '_Had worked_ : la période précède son arrivée à la banque.',
   }),
   translate(9, {
@@ -342,7 +360,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'When the director finally responded, we had already found a solution.',
       'By the time the director replied, we had already found a solution.',
     ],
-    knownErrors: ['When the director finally replied, we have already found a solution.'],
+    knownErrors: [
+      onNotion(
+        'When the director finally replied, we have already found a solution.',
+        'temps_verbaux',
+      ),
+    ],
     explanation: '_Replied_ (prétérit), _had already found_ (antérieur).',
   }),
   translate(10, {
@@ -356,7 +379,9 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I didn’t know that he had left the company the previous year.',
       'I didn’t know he had left the firm the year before.',
     ],
-    knownErrors: ['I didn’t know he has left the company the year before.'],
+    knownErrors: [
+      onNotion('I didn’t know he has left the company the year before.', 'temps_verbaux'),
+    ],
     explanation: '_Didn’t know_, puis l’action antérieure : _had left_.',
   }),
   translate(11, {
@@ -371,7 +396,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'The markets had dropped a lot before the announcement, and then they rose.',
       'The markets had fallen a lot before the announcement, and then they went back up.',
     ],
-    knownErrors: ['The markets had fell a lot before the announcement, and then they rose.'],
+    knownErrors: [
+      onNotion(
+        'The markets had fell a lot before the announcement, and then they rose.',
+        'temps_verbaux',
+      ),
+    ],
     explanation: '_Had fallen_ (antérieur), puis _rose_ (prétérit) pour la suite du récit.',
   }),
 ];

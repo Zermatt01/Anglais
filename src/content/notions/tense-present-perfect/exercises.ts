@@ -1,4 +1,4 @@
-import { exercisesOf } from '../../builders.ts';
+import { exercisesOf, offNotion, onNotion } from '../../builders.ts';
 import type { NotionContentInput } from '../../schema.ts';
 import { REVIEW } from './review.ts';
 
@@ -246,7 +246,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I lost my keys, so I can’t get home.',
       'I lost my keys, so I can’t go home.',
     ],
-    knownErrors: ['I’ve losed my keys, so I can’t get home.'],
+    knownErrors: [onNotion('I’ve losed my keys, so I can’t get home.', 'temps_verbaux')],
     explanation: 'Résultat présent : _I’ve lost_.' + AMERICAN_PAST,
   }),
   translate(2, {
@@ -254,7 +254,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Question sur une expérience de la vie.',
     difficulty: 1,
     accepted: ['Have you ever worked abroad?', 'Did you ever work abroad?'],
-    knownErrors: ['Have you ever work abroad?', 'Did you ever worked abroad?'],
+    knownErrors: [
+      onNotion('Have you ever work abroad?', 'temps_verbaux'),
+      onNotion('Did you ever worked abroad?', 'auxiliaires_questions_negations'),
+    ],
     explanation:
       '« Déjà », pour une expérience, se dit _ever_ : _Have you ever worked abroad?_' +
       AMERICAN_PAST,
@@ -270,7 +273,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I’ve never seen that graph.',
       'I have not seen this chart before.',
     ],
-    knownErrors: ['I’ve never saw this chart.', 'I haven’t never seen this chart.'],
+    knownErrors: [
+      onNotion('I’ve never saw this chart.', 'temps_verbaux'),
+      onNotion('I haven’t never seen this chart.', 'auxiliaires_questions_negations'),
+    ],
     explanation: '_Never_ + participe : _I’ve never seen_. Pas de double négation.',
   }),
   translate(4, {
@@ -282,7 +288,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'This year she has written three articles.',
       'She wrote three articles this year.',
     ],
-    knownErrors: ['She has wrote three articles this year.'],
+    knownErrors: [onNotion('She has wrote three articles this year.', 'temps_verbaux')],
     explanation: '_This year_ n’est pas terminée : _has written_.' + AMERICAN_PAST,
   }),
   translate(5, {
@@ -296,7 +302,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'We hired two interns this month.',
       'We recruited two interns this month.',
     ],
-    knownErrors: ['We has hired two interns this month.'],
+    knownErrors: [onNotion('We has hired two interns this month.', 'accord_sujet_verbe')],
     explanation: '_This month_ n’est pas terminé : _we’ve hired_.' + AMERICAN_PAST,
   }),
   translate(6, {
@@ -311,7 +317,9 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'He went to Tokyo; he isn’t in the office this week.',
       'He went to Tokyo, so he isn’t in the office this week.',
     ],
-    knownErrors: ['He has went to Tokyo; he isn’t in the office this week.'],
+    knownErrors: [
+      onNotion('He has went to Tokyo; he isn’t in the office this week.', 'temps_verbaux'),
+    ],
     explanation:
       '_He’s gone to Tokyo_ : il y est encore (_he’s been to Tokyo_ voudrait dire qu’il en est revenu).',
   }),
@@ -325,7 +333,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I met your director once.',
       'I met your manager once.',
     ],
-    knownErrors: ['I’ve meet your director once.'],
+    knownErrors: [onNotion('I’ve meet your director once.', 'temps_verbaux')],
     explanation: 'Une expérience : _I’ve met_ (participe irrégulier de _meet_).',
   }),
   translate(8, {
@@ -337,7 +345,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Did she finish the report?',
       'Has she completed the report?',
     ],
-    knownErrors: ['Has she finish the report?', 'Did she finished the report?'],
+    knownErrors: [
+      onNotion('Has she finish the report?', 'temps_verbaux'),
+      onNotion('Did she finished the report?', 'auxiliaires_questions_negations'),
+    ],
     explanation: 'Question : _Has she finished…?_' + AMERICAN_PAST,
   }),
   translate(9, {
@@ -354,7 +365,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I never worked in a bank, but I did two internships in insurance.',
       'I’ve never worked in a bank but I’ve done two internships in insurance.',
     ],
-    knownErrors: ['I’ve never worked in a bank, but I’ve did two internships in insurance.'],
+    knownErrors: [
+      onNotion(
+        'I’ve never worked in a bank, but I’ve did two internships in insurance.',
+        'temps_verbaux',
+      ),
+    ],
     explanation: 'Deux expériences : _I’ve never worked_, _I’ve done_.' + AMERICAN_PAST,
   }),
   translate(10, {
@@ -373,8 +389,11 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Prices went up a lot this year, so we revised our budget.',
     ],
     knownErrors: [
-      'Prices have raised a lot this year, so we have revised our budget.',
-      'Prices have rose a lot this year, so we have revised our budget.',
+      offNotion(
+        'Prices have raised a lot this year, so we have revised our budget.',
+        'choix_lexical_collocations',
+      ),
+      onNotion('Prices have rose a lot this year, so we have revised our budget.', 'temps_verbaux'),
     ],
     explanation:
       '_Have risen_ (participe de _rise_, sans complément), puis _have revised_.' + AMERICAN_PAST,
@@ -385,8 +404,8 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     difficulty: 3,
     accepted: ['How many times have you been to London?', 'How often have you been to London?'],
     knownErrors: [
-      'How many times have you went to London?',
-      'How many times you have been to London?',
+      onNotion('How many times have you went to London?', 'temps_verbaux'),
+      onNotion('How many times you have been to London?', 'auxiliaires_questions_negations'),
     ],
     explanation: 'Expérience : _have you been to_. Question : _have_ avant le sujet.',
   }),

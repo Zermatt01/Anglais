@@ -10,6 +10,7 @@ import { GENERATABLE_NOTION_IDS } from '../../shared/ai/tasks.ts';
 import { countGaps } from '../domain/cards/content.ts';
 import { areEquivalent } from '../domain/correction/forms.ts';
 import { checkExercise, exerciseSchema, STEP_OF_KIND } from '../domain/curriculum/exercise.ts';
+import { isConsistentClassification } from '../domain/curriculum/notion-errors.ts';
 import { checkThemeItem, themeItemSchema } from '../domain/theme/item.ts';
 import { PHASE_3_NOTION_IDS, phaseOf, type NotionId } from '../domain/curriculum/notion-id.ts';
 import { loadNotionContent, NOTIONS_WITH_CONTENT } from './index.ts';
@@ -106,6 +107,21 @@ describe.each(contents)('%s', (notionId: NotionId, content: NotionContent) => {
       // The separate review (CUR-13) comes after the author's own reading.
       expect(review.second ?? '', id).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect((review.second ?? '') >= review.first, id).toBe(true);
+    }
+  });
+
+  it('gives each anticipated error of a translation its category, on or off the notion (D-093)', () => {
+    for (const exercise of content.exercises) {
+      if (exercise.kind !== 'translate') continue;
+      for (const error of exercise.knownErrors) {
+        if (typeof error === 'string') {
+          expect.fail(`${exercise.id}: "${error}" has no category`);
+          continue;
+        }
+        expect(isConsistentClassification(notionId, error), `${exercise.id}: ${error.text}`).toBe(
+          true,
+        );
+      }
     }
   });
 

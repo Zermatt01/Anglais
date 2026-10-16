@@ -1,4 +1,4 @@
-import { exercisesOf } from '../../builders.ts';
+import { exercisesOf, offNotion, onNotion } from '../../builders.ts';
 import type { NotionContentInput } from '../../schema.ts';
 import { REVIEW } from './review.ts';
 
@@ -226,7 +226,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I just received your message.',
       'I just got your message.',
     ],
-    knownErrors: ['I just have received your message.', 'I come from receiving your message.'],
+    knownErrors: [
+      onNotion('I just have received your message.', 'temps_verbaux'),
+      onNotion('I come from receiving your message.', 'calques_du_francais'),
+    ],
     explanation: '« Je viens de » se dit _I’ve just_ + participe passé.' + AMERICAN_PAST,
   }),
   translate(2, {
@@ -241,9 +244,9 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I didn’t finish yet.',
     ],
     knownErrors: [
-      'I have not finished already.',
-      'I have finished already not.',
-      'I haven’t already finished.',
+      onNotion('I have not finished already.', 'temps_verbaux'),
+      onNotion('I have finished already not.', 'temps_verbaux'),
+      onNotion('I haven’t already finished.', 'temps_verbaux'),
     ],
     explanation: '« Pas encore » : _not… yet_. _I haven’t finished yet._' + AMERICAN_PAST,
   }),
@@ -252,7 +255,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'La situation continue-t-elle maintenant ?',
     difficulty: 1,
     accepted: ['Does she still work here?', 'Is she still working here?'],
-    knownErrors: ['Does she work still here?', 'Does she yet work here?'],
+    knownErrors: [
+      onNotion('Does she work still here?', 'temps_verbaux'),
+      onNotion('Does she yet work here?', 'temps_verbaux'),
+    ],
     explanation:
       '« Encore », au sens de « toujours maintenant » : _still_, avant le verbe principal.',
   }),
@@ -268,7 +274,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'The client already paid.',
       'The customer already paid.',
     ],
-    knownErrors: ['The client has paid yet.', 'The client has yet paid.'],
+    knownErrors: [
+      onNotion('The client has paid yet.', 'temps_verbaux'),
+      onNotion('The client has yet paid.', 'temps_verbaux'),
+    ],
     explanation: '_Already_ entre _has_ et le participe : _has already paid_.' + AMERICAN_PAST,
   }),
   translate(5, {
@@ -283,7 +292,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Did you already send the invoice?',
       'Have you sent the bill yet?',
     ],
-    knownErrors: ['Have you sent yet the invoice?'],
+    knownErrors: [onNotion('Have you sent yet the invoice?', 'temps_verbaux')],
     explanation:
       'Question neutre sur une action attendue : _yet_ en fin de phrase. _Already_ marque la surprise que ce soit déjà fait.' +
       AMERICAN_PAST,
@@ -301,7 +310,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'We’re still waiting for a response from the bank.',
       'We’re still waiting to hear from the bank.',
     ],
-    knownErrors: ['We’re yet waiting for the bank’s answer.'],
+    knownErrors: [onNotion('We’re yet waiting for the bank’s answer.', 'temps_verbaux')],
     explanation: '« Toujours », au sens de « encore maintenant » : _still_, après _be_.',
   }),
   translate(7, {
@@ -315,7 +324,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'He still didn’t call.',
       'He hasn’t called yet.',
     ],
-    knownErrors: ['He hasn’t still called.'],
+    knownErrors: [onNotion('He hasn’t still called.', 'temps_verbaux')],
     explanation:
       '« Toujours pas » : _still_ avant _hasn’t_. _He hasn’t called yet_ (pas encore) est aussi juste, sur un ton plus neutre.',
   }),
@@ -330,7 +339,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I just arrived at the office.',
       'I just got to the office.',
     ],
-    knownErrors: ['I just have arrived at the office.', 'I’ve just arrived to the office.'],
+    knownErrors: [
+      onNotion('I just have arrived at the office.', 'temps_verbaux'),
+      offNotion('I’ve just arrived to the office.', 'prepositions'),
+    ],
     explanation:
       '_I’ve just arrived_. On arrive _at_ un lieu précis (et _in_ une ville), jamais _to_.' +
       AMERICAN_PAST,
@@ -350,7 +362,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'The meeting didn’t start yet, but the director is already here.',
       'The meeting didn’t start yet, but the manager is already here.',
     ],
-    knownErrors: ['The meeting hasn’t started already, but the director is already here.'],
+    knownErrors: [
+      onNotion(
+        'The meeting hasn’t started already, but the director is already here.',
+        'temps_verbaux',
+      ),
+    ],
     explanation: '_Hasn’t started yet_ (pas encore), _is already here_ (déjà).' + AMERICAN_PAST,
   }),
   translate(10, {
@@ -368,7 +385,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'We still haven’t received the figures, although you already sent them.',
       'We still haven’t received the figures, even though you already sent them.',
     ],
-    knownErrors: ['We haven’t still received the figures, although you’ve already sent them.'],
+    knownErrors: [
+      onNotion(
+        'We haven’t still received the figures, although you’ve already sent them.',
+        'temps_verbaux',
+      ),
+    ],
     explanation:
       '_Still haven’t received_ (toujours pas), _have already sent_ (déjà).' + AMERICAN_PAST,
   }),
@@ -386,7 +408,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Did the results come out yet? — No, not yet.',
       'Did the results already come out? — No, not yet.',
     ],
-    knownErrors: ['Have the results come out yet? — No, not already.'],
+    knownErrors: [onNotion('Have the results come out yet? — No, not already.', 'temps_verbaux')],
     explanation:
       'Question avec _yet_ en fin de phrase ; « pas encore » se dit _not yet_.' + AMERICAN_PAST,
   }),

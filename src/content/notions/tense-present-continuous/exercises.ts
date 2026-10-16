@@ -1,4 +1,4 @@
-import { exercisesOf } from '../../builders.ts';
+import { exercisesOf, offNotion, onNotion } from '../../builders.ts';
 import type { NotionContentInput } from '../../schema.ts';
 import { REVIEW } from './review.ts';
 
@@ -257,7 +257,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Right now I’m working on a new project.',
       'Currently I’m working on a new project.',
     ],
-    knownErrors: ['I am work on a new project at the moment.'],
+    knownErrors: [onNotion('I am work on a new project at the moment.', 'temps_verbaux')],
     explanation:
       'Action en cours : présent continu, _I’m working_. _At the moment_, _right now_ et _currently_ conviennent tous.',
   }),
@@ -266,7 +266,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Ce que l’on voit en ce moment même.',
     difficulty: 1,
     accepted: ['Look, it’s raining!', 'It’s raining, look!'],
-    knownErrors: ['Look, it rains!', 'Look, it raining!', 'It rains!', 'It rains, look!'],
+    knownErrors: [
+      onNotion('Look, it rains!', 'temps_verbaux'),
+      onNotion('Look, it raining!', 'temps_verbaux'),
+      onNotion('It rains!', 'temps_verbaux'),
+      onNotion('It rains, look!', 'temps_verbaux'),
+    ],
     explanation: 'On montre ce qui se passe à l’instant : _it’s raining_.',
   }),
   translate(3, {
@@ -284,7 +289,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'We’re waiting for an answer from the client.',
       'We’re waiting for a response from the client.',
     ],
-    knownErrors: ['We are wait for the client’s reply.', 'We waiting for the client’s reply.'],
+    knownErrors: [
+      onNotion('We are wait for the client’s reply.', 'temps_verbaux'),
+      onNotion('We waiting for the client’s reply.', 'temps_verbaux'),
+    ],
     explanation: 'L’attente est en cours : _we’re waiting for_ (avec la préposition _for_).',
   }),
   translate(4, {
@@ -292,7 +300,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Question sur l’action en cours : _be_ passe devant le sujet.',
     difficulty: 1,
     accepted: ['What are you doing?', 'What are you doing right now?', 'What are you doing now?'],
-    knownErrors: ['What do you doing?', 'What you are doing?'],
+    knownErrors: [
+      onNotion('What do you doing?', 'auxiliaires_questions_negations'),
+      onNotion('What you are doing?', 'auxiliaires_questions_negations'),
+    ],
     explanation:
       '« Être en train de » : présent continu. Question : _What are you doing?_ (_be_ avant le sujet).',
   }),
@@ -306,8 +317,8 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Interest rates are going up in most countries.',
     ],
     knownErrors: [
-      'Interest rates are raising in most countries.',
-      'Interest rates is rising in most countries.',
+      offNotion('Interest rates are raising in most countries.', 'choix_lexical_collocations'),
+      onNotion('Interest rates is rising in most countries.', 'accord_sujet_verbe'),
     ],
     explanation:
       'Évolution en cours : _are rising_. _Rise_ (sans complément), et non _raise_ (augmenter quelque chose).',
@@ -325,7 +336,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'This week I’m staying at a friend’s.',
       'This week I’m staying at a friend’s place.',
     ],
-    knownErrors: ['I am stay with a friend this week.'],
+    knownErrors: [onNotion('I am stay with a friend this week.', 'temps_verbaux')],
     explanation: 'Séjour limité dans le temps : _I’m staying with a friend_.',
   }),
   translate(7, {
@@ -333,7 +344,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Question sur ce qui se passe maintenant.',
     difficulty: 2,
     accepted: ['Why are you laughing?'],
-    knownErrors: ['Why do you laughing?', 'Why you are laughing?'],
+    knownErrors: [
+      onNotion('Why do you laughing?', 'auxiliaires_questions_negations'),
+      onNotion('Why you are laughing?', 'auxiliaires_questions_negations'),
+    ],
     explanation: 'Question au présent continu : _Why are you laughing?_',
   }),
   translate(8, {
@@ -349,8 +363,11 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'At the moment my team isn’t using this software.',
     ],
     knownErrors: [
-      'My team doesn’t using this software at the moment.',
-      'My team not using this software at the moment.',
+      onNotion(
+        'My team doesn’t using this software at the moment.',
+        'auxiliaires_questions_negations',
+      ),
+      onNotion('My team not using this software at the moment.', 'auxiliaires_questions_negations'),
     ],
     explanation: 'Négation : _isn’t_ + verbe en _-ing_ (_team_ est singulier).',
   }),
@@ -369,7 +386,9 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I can’t talk to you now because I’m preparing a presentation for tomorrow.',
       'I can’t talk now because I’m preparing a presentation for tomorrow.',
     ],
-    knownErrors: ['I can’t talk to you now: I prepare a presentation for tomorrow.'],
+    knownErrors: [
+      onNotion('I can’t talk to you now: I prepare a presentation for tomorrow.', 'temps_verbaux'),
+    ],
     explanation:
       'L’action est en cours au moment où l’on parle : _I’m preparing_. Le présent simple _I prepare_ ne convient pas ici.',
   }),
@@ -386,7 +405,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'The bank is hiring data analysts and testing a new tool this quarter.',
       'The bank is recruiting data analysts and testing a new tool this quarter.',
     ],
-    knownErrors: ['This quarter, the bank is hiring data analysts and test a new tool.'],
+    knownErrors: [
+      onNotion(
+        'This quarter, the bank is hiring data analysts and test a new tool.',
+        'temps_verbaux',
+      ),
+    ],
     explanation:
       'Deux situations temporaires : _is hiring_ et _(is) testing_. Le second _is_ peut être sous-entendu.',
   }),
@@ -403,7 +427,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'The students aren’t sleeping, they’re revising for tomorrow’s exam.',
       'The students are not asleep: they’re studying for tomorrow’s exam.',
     ],
-    knownErrors: ['The students don’t sleeping: they’re studying for tomorrow’s exam.'],
+    knownErrors: [
+      onNotion(
+        'The students don’t sleeping: they’re studying for tomorrow’s exam.',
+        'auxiliaires_questions_negations',
+      ),
+    ],
     explanation:
       'Négation au présent continu (_aren’t sleeping_), puis action en cours (_they’re studying_, ou _revising_ en anglais britannique).',
   }),

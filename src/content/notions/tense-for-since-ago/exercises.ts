@@ -1,4 +1,4 @@
-import { exercisesOf } from '../../builders.ts';
+import { exercisesOf, offNotion, onNotion } from '../../builders.ts';
 import type { NotionContentInput } from '../../schema.ts';
 import { REVIEW } from './review.ts';
 
@@ -233,9 +233,9 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     difficulty: 1,
     accepted: ['I’ve worked here for three years.', 'I’ve been working here for three years.'],
     knownErrors: [
-      'I work here since three years.',
-      'I work here for three years.',
-      'I have worked here since three years.',
+      onNotion('I work here since three years.', 'temps_verbaux'),
+      onNotion('I work here for three years.', 'temps_verbaux'),
+      onNotion('I have worked here since three years.', 'temps_verbaux'),
     ],
     explanation: 'Present perfect + _for_ + durée : _I’ve worked here for three years._',
   }),
@@ -244,7 +244,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: '« Depuis » + un point de départ.',
     difficulty: 1,
     accepted: ['She’s been a teacher since 2019.'],
-    knownErrors: ['She is a teacher since 2019.', 'She has been a teacher for 2019.'],
+    knownErrors: [
+      onNotion('She is a teacher since 2019.', 'temps_verbaux'),
+      onNotion('She has been a teacher for 2019.', 'temps_verbaux'),
+    ],
     explanation: 'Present perfect de _be_ + _since_ : _She’s been a teacher since 2019._',
   }),
   translate(3, {
@@ -252,7 +255,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: '« Il y a » + une durée : un moment passé précis.',
     difficulty: 1,
     accepted: ['He left the company two years ago.', 'He left the firm two years ago.'],
-    knownErrors: ['He has left the company two years ago.', 'He left the company since two years.'],
+    knownErrors: [
+      onNotion('He has left the company two years ago.', 'temps_verbaux'),
+      onNotion('He left the company since two years.', 'temps_verbaux'),
+    ],
     explanation: '_Ago_ + prétérit : _He left the company two years ago._',
   }),
   translate(4, {
@@ -264,7 +270,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'How long have you been studying English?',
       'How long have you studied English?',
     ],
-    knownErrors: ['Since how long do you learn English?', 'Since when do you learn English?'],
+    knownErrors: [
+      onNotion('Since how long do you learn English?', 'temps_verbaux'),
+      onNotion('Since when do you learn English?', 'temps_verbaux'),
+    ],
     explanation: '« Depuis combien de temps » : _How long_ + present perfect (souvent continu).',
   }),
   translate(5, {
@@ -279,7 +288,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'We’ve been waiting since 9 a.m.',
       'We’ve waited since 9 o’clock.',
     ],
-    knownErrors: ['We wait since 9 o’clock.', 'We are waiting since 9 o’clock.'],
+    knownErrors: [
+      onNotion('We wait since 9 o’clock.', 'temps_verbaux'),
+      onNotion('We are waiting since 9 o’clock.', 'temps_verbaux'),
+    ],
     explanation: 'Present perfect continu + _since_ : _We’ve been waiting since 9 o’clock._',
   }),
   translate(6, {
@@ -291,7 +303,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I haven’t seen her since the meeting.',
       'I haven’t seen it since the meeting.',
     ],
-    knownErrors: ['I didn’t see him since the meeting.', 'I don’t see him since the meeting.'],
+    knownErrors: [
+      onNotion('I didn’t see him since the meeting.', 'temps_verbaux'),
+      onNotion('I don’t see him since the meeting.', 'temps_verbaux'),
+    ],
     explanation: '_Since_ + present perfect : _I haven’t seen him since the meeting._',
   }),
   translate(7, {
@@ -306,8 +321,8 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Three months ago, the central bank raised its rates.',
     ],
     knownErrors: [
-      'The central bank has raised its rates three months ago.',
-      'The central bank rose its rates three months ago.',
+      onNotion('The central bank has raised its rates three months ago.', 'temps_verbaux'),
+      offNotion('The central bank rose its rates three months ago.', 'choix_lexical_collocations'),
     ],
     explanation: '_Ago_ + prétérit. _Raise_ (augmenter quelque chose), au prétérit : _raised_.',
   }),
@@ -321,8 +336,8 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'They’ve known one another since university.',
     ],
     knownErrors: [
-      'They know each other since university.',
-      'They have been knowing each other since university.',
+      onNotion('They know each other since university.', 'temps_verbaux'),
+      onNotion('They have been knowing each other since university.', 'temps_verbaux'),
     ],
     explanation: '_Know_ est un verbe d’état : _They’ve known each other since university._',
   }),
@@ -339,8 +354,14 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'He’s been living in Geneva for six years, and before that he lived in Paris for two years.',
     ],
     knownErrors: [
-      'He lives in Geneva for six years; before that, he lived in Paris for two years.',
-      'He’s lived in Geneva since six years; before that, he lived in Paris for two years.',
+      onNotion(
+        'He lives in Geneva for six years; before that, he lived in Paris for two years.',
+        'temps_verbaux',
+      ),
+      onNotion(
+        'He’s lived in Geneva since six years; before that, he lived in Paris for two years.',
+        'temps_verbaux',
+      ),
     ],
     explanation:
       'Situation actuelle : present perfect + _for_. Période terminée : prétérit + _for_.',
@@ -357,7 +378,9 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'It’s been three weeks since we last heard from the client.',
       'It’s been three weeks since we’ve heard from the client.',
     ],
-    knownErrors: ['It’s been three weeks that we don’t hear from the client.'],
+    knownErrors: [
+      onNotion('It’s been three weeks that we don’t hear from the client.', 'calques_du_francais'),
+    ],
     explanation:
       '_We haven’t heard from the client for three weeks_, ou _It’s been three weeks since…_',
   }),
@@ -372,7 +395,9 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'How long has your company been working with that bank?',
       'How long has your firm been working with this bank?',
     ],
-    knownErrors: ['Since how long does your company work with this bank?'],
+    knownErrors: [
+      onNotion('Since how long does your company work with this bank?', 'temps_verbaux'),
+    ],
     explanation: '_How long_ + present perfect : _has your company been working_.',
   }),
 ];

@@ -1,4 +1,4 @@
-import { exercisesOf } from '../../builders.ts';
+import { exercisesOf, offNotion, onNotion } from '../../builders.ts';
 import type { NotionContentInput } from '../../schema.ts';
 import { REVIEW } from './review.ts';
 
@@ -230,7 +230,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I finished university in 2023.',
       'I finished my degree in 2023.',
     ],
-    knownErrors: ['I have finished my studies in 2023.'],
+    knownErrors: [onNotion('I have finished my studies in 2023.', 'temps_verbaux')],
     explanation: '_In 2023_ : prétérit.',
   }),
   translate(2, {
@@ -238,7 +238,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Une situation qui dure jusqu’à maintenant ; verbe d’état.',
     difficulty: 1,
     accepted: ['I’ve known Anna since 2020.'],
-    knownErrors: ['I know Anna since 2020.', 'I knew Anna since 2020.'],
+    knownErrors: [
+      onNotion('I know Anna since 2020.', 'temps_verbaux'),
+      onNotion('I knew Anna since 2020.', 'temps_verbaux'),
+    ],
     explanation: '_Since 2020_ + present perfect : _I’ve known Anna since 2020._',
   }),
   translate(3, {
@@ -246,7 +249,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Question sur le moment.',
     difficulty: 1,
     accepted: ['When did you arrive?', 'When did you get here?', 'When did you get there?'],
-    knownErrors: ['When have you arrived?'],
+    knownErrors: [onNotion('When have you arrived?', 'temps_verbaux')],
     explanation: '_When_ : prétérit, _When did you arrive?_',
   }),
   translate(4, {
@@ -261,7 +264,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'It’s my first time in Zurich.',
       'This is my first time in Zurich.',
     ],
-    knownErrors: ['This is the first time I come to Zurich.'],
+    knownErrors: [onNotion('This is the first time I come to Zurich.', 'temps_verbaux')],
     explanation: '_This is the first time_ + present perfect : _I’ve been to Zurich._',
   }),
   translate(5, {
@@ -269,7 +272,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Une période terminée.',
     difficulty: 2,
     accepted: ['We signed the contract last week.', 'Last week we signed the contract.'],
-    knownErrors: ['We have signed the contract last week.'],
+    knownErrors: [onNotion('We have signed the contract last week.', 'temps_verbaux')],
     explanation: '_Last week_ : prétérit.',
   }),
   translate(6, {
@@ -285,7 +288,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'He’s worked for us for five years; before, he worked for a competitor.',
       'He’s worked for us for five years, and before that he worked for a competitor.',
     ],
-    knownErrors: ['He works for us since five years; before that, he was at a competitor.'],
+    knownErrors: [
+      onNotion(
+        'He works for us since five years; before that, he was at a competitor.',
+        'temps_verbaux',
+      ),
+    ],
     explanation:
       'Situation actuelle : present perfect + _for_. Période terminée : prétérit (_was_, _worked_).',
   }),
@@ -298,7 +306,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Did you see the ECB’s report yesterday?',
       'Did you read the ECB report yesterday?',
     ],
-    knownErrors: ['Have you seen the ECB report yesterday?'],
+    knownErrors: [onNotion('Have you seen the ECB report yesterday?', 'temps_verbaux')],
     explanation: '_Yesterday_ : prétérit, même dans une question.',
   }),
   translate(8, {
@@ -314,7 +322,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Sales have increased 10% since the beginning of the year.',
       'Sales have grown by 10% since the beginning of the year.',
     ],
-    knownErrors: ['Sales have raised by 10% since the beginning of the year.'],
+    knownErrors: [
+      offNotion(
+        'Sales have raised by 10% since the beginning of the year.',
+        'choix_lexical_collocations',
+      ),
+    ],
     explanation: '_Since_ + present perfect : _have increased_ (ou _have risen_).',
   }),
   translate(9, {
@@ -329,7 +342,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I’ve worked in three countries. I got my first job in London in 2019.',
       'I’ve worked in three countries, and I got my first job in London in 2019.',
     ],
-    knownErrors: ['I’ve worked in three countries; I have got my first job in London in 2019.'],
+    knownErrors: [
+      onNotion(
+        'I’ve worked in three countries; I have got my first job in London in 2019.',
+        'temps_verbaux',
+      ),
+    ],
     explanation: 'Expérience : _I’ve worked_. Détail daté (_in 2019_) : prétérit, _I got_.',
   }),
   translate(10, {
@@ -361,7 +379,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'When did you start working here and how many projects have you managed since then?',
     ],
     knownErrors: [
-      'When have you started working here, and how many projects have you managed since then?',
+      onNotion(
+        'When have you started working here, and how many projects have you managed since then?',
+        'temps_verbaux',
+      ),
     ],
     explanation:
       '_When_ : prétérit (_did you start_). _Since then_ : present perfect (_have you managed_).',

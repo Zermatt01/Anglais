@@ -1,4 +1,4 @@
-import { exercisesOf } from '../../builders.ts';
+import { exercisesOf, offNotion, onNotion } from '../../builders.ts';
 import type { NotionContentInput } from '../../schema.ts';
 import { REVIEW } from './review.ts';
 
@@ -246,7 +246,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Situation stable, sujet à la 3e personne du singulier.',
     difficulty: 1,
     accepted: ['She works for a bank.', 'She works at a bank.', 'She works in a bank.'],
-    knownErrors: ['She work for a bank.'],
+    knownErrors: [onNotion('She work for a bank.', 'accord_sujet_verbe')],
     explanation: 'Situation stable : présent simple, avec le _-s_ de la 3e personne.',
   }),
   translate(2, {
@@ -254,7 +254,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Négation au présent simple : il faut un auxiliaire.',
     difficulty: 1,
     accepted: ['I don’t drink coffee.'],
-    knownErrors: ['I not drink coffee.', 'I don’t drinks coffee.'],
+    knownErrors: [
+      onNotion('I not drink coffee.', 'auxiliaires_questions_negations'),
+      onNotion('I don’t drinks coffee.', 'auxiliaires_questions_negations'),
+    ],
     explanation: 'Négation : _don’t_ + base verbale.',
   }),
   translate(3, {
@@ -262,7 +265,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Question au présent simple : l’auxiliaire se place en tête.',
     difficulty: 1,
     accepted: ['Do you speak German?'],
-    knownErrors: ['Are you speak German?', 'Speak you German?'],
+    knownErrors: [
+      onNotion('Are you speak German?', 'auxiliaires_questions_negations'),
+      onNotion('Speak you German?', 'auxiliaires_questions_negations'),
+    ],
     explanation: 'Question : _Do_ + sujet + base verbale.',
   }),
   translate(4, {
@@ -277,7 +283,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'The train departs at eight.',
       'The train departs at eight o’clock.',
     ],
-    knownErrors: ['The train leave at eight.'],
+    knownErrors: [onNotion('The train leave at eight.', 'accord_sujet_verbe')],
     explanation: 'Un horaire : présent simple, _leaves_.',
   }),
   translate(5, {
@@ -293,8 +299,8 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'On Mondays, my manager never comes to the office.',
     ],
     knownErrors: [
-      'My manager never come to the office on Mondays.',
-      'My manager comes never to the office on Mondays.',
+      onNotion('My manager never come to the office on Mondays.', 'accord_sujet_verbe'),
+      offNotion('My manager comes never to the office on Mondays.', 'ordre_des_mots'),
     ],
     explanation:
       '_Never_ se place avant le verbe, qui garde son _-s_ : _never comes_. Pas de _don’t_ avec _never_.',
@@ -310,7 +316,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'When does the meeting begin?',
       'At what time does the meeting start?',
     ],
-    knownErrors: ['What time the meeting starts?', 'What time does the meeting starts?'],
+    knownErrors: [
+      onNotion('What time the meeting starts?', 'auxiliaires_questions_negations'),
+      onNotion('What time does the meeting starts?', 'auxiliaires_questions_negations'),
+    ],
     explanation: 'Question : _does_ + sujet + base verbale (_start_, sans _-s_).',
   }),
   translate(7, {
@@ -323,7 +332,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'It depends on the customer.',
       'That depends on the customer.',
     ],
-    knownErrors: ['It depend on the client.', 'It depends of the client.'],
+    knownErrors: [
+      onNotion('It depend on the client.', 'accord_sujet_verbe'),
+      offNotion('It depends of the client.', 'prepositions'),
+    ],
     explanation: '_Depend_ est un verbe d’état : _it depends on_ (avec la préposition _on_).',
   }),
   translate(8, {
@@ -340,7 +352,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Our customers usually pay by credit card.',
       'Our customers usually pay with a card.',
     ],
-    knownErrors: ['Our customers usually pays by card.', 'Our customers pay usually by card.'],
+    knownErrors: [
+      onNotion('Our customers usually pays by card.', 'accord_sujet_verbe'),
+      offNotion('Our customers pay usually by card.', 'ordre_des_mots'),
+    ],
     explanation:
       'Sujet pluriel : _pay_, sans _-s_. L’adverbe se place avant le verbe : _usually pay_.',
   }),
@@ -357,8 +372,11 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'She doesn’t work on Fridays, but she does answer her emails.',
     ],
     knownErrors: [
-      'She don’t work on Fridays, but she answers her emails.',
-      'She doesn’t works on Fridays, but she answers her emails.',
+      onNotion('She don’t work on Fridays, but she answers her emails.', 'accord_sujet_verbe'),
+      onNotion(
+        'She doesn’t works on Fridays, but she answers her emails.',
+        'auxiliaires_questions_negations',
+      ),
     ],
     explanation:
       'Négation : _doesn’t work_ ; affirmation : _answers_, avec le _-s_ de la 3e personne.',
@@ -369,8 +387,8 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     difficulty: 3,
     accepted: ['How many languages does your brother speak?'],
     knownErrors: [
-      'How many languages your brother speaks?',
-      'How many languages does your brother speaks?',
+      onNotion('How many languages your brother speaks?', 'auxiliaires_questions_negations'),
+      onNotion('How many languages does your brother speaks?', 'auxiliaires_questions_negations'),
     ],
     explanation: 'Question : _How many languages_ + _does_ + sujet + base verbale.',
   }),
@@ -389,8 +407,14 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Central banks raise rates when inflation increases.',
     ],
     knownErrors: [
-      'Central banks rise their rates when inflation rises.',
-      'Central banks raise their rates when inflation raises.',
+      offNotion(
+        'Central banks rise their rates when inflation rises.',
+        'choix_lexical_collocations',
+      ),
+      offNotion(
+        'Central banks raise their rates when inflation raises.',
+        'choix_lexical_collocations',
+      ),
     ],
     explanation:
       '_Raise_ (augmenter quelque chose) : _raise their rates_. _Rise_ (augmenter, sans complément) : _inflation rises_.',

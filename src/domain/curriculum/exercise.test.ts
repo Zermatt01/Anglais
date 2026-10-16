@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   acceptedAnswersOf,
+  anticipatedErrorOf,
   checkExercise,
   evaluateTypedAnswer,
   exerciseSchema,
@@ -261,5 +262,34 @@ describe('fillGap', () => {
 
   it('never reads a dollar sign as a replacement pattern', () => {
     expect(fillGap('Rates rose by ___.', "$&$'")).toBe("Rates rose by $&$'.");
+  });
+});
+
+describe('anticipatedErrorOf (D-093)', () => {
+  const reviewed = translate({
+    knownErrors: [
+      { text: 'I have not received yet the results.', category: 'temps_verbaux', offNotion: false },
+      {
+        text: 'I haven’t received the results already.',
+        category: 'temps_verbaux',
+        offNotion: false,
+      },
+    ],
+  });
+
+  it('finds the reviewed error an answer matches, as the local correction reads it', () => {
+    expect(evaluateTypedAnswer(reviewed, 'I have not received yet the results').verdict).toBe(
+      'incorrect',
+    );
+    expect(anticipatedErrorOf(reviewed, 'i have not received yet the results')).toEqual({
+      text: 'I have not received yet the results.',
+      category: 'temps_verbaux',
+      offNotion: false,
+    });
+  });
+
+  it('finds nothing for another answer, nor for an error without a category', () => {
+    expect(anticipatedErrorOf(reviewed, "I haven't received the results yet.")).toBeNull();
+    expect(anticipatedErrorOf(translate(), 'I have not received yet the results.')).toBeNull();
   });
 });

@@ -1,4 +1,4 @@
-import { exercisesOf } from '../../builders.ts';
+import { exercisesOf, offNotion, onNotion } from '../../builders.ts';
 import type { NotionContentInput } from '../../schema.ts';
 import { REVIEW } from './review.ts';
 
@@ -225,7 +225,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Une action longue, interrompue par une action courte.',
     difficulty: 1,
     accepted: ['I was working when you called.', 'When you called, I was working.'],
-    knownErrors: ['I were working when you called.', 'I was work when you called.'],
+    knownErrors: [
+      onNotion('I were working when you called.', 'accord_sujet_verbe'),
+      onNotion('I was work when you called.', 'temps_verbaux'),
+    ],
     explanation: 'Action longue : _I was working_ ; action courte : _you called_.',
   }),
   translate(2, {
@@ -239,7 +242,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'What were you doing at ten o’clock?',
       'What were you doing at 10 a.m.?',
     ],
-    knownErrors: ['What did you doing at 10 o’clock?', 'What you were doing at 10 o’clock?'],
+    knownErrors: [
+      onNotion('What did you doing at 10 o’clock?', 'auxiliaires_questions_negations'),
+      onNotion('What you were doing at 10 o’clock?', 'auxiliaires_questions_negations'),
+    ],
     explanation: 'Question au passé continu : _What were you doing…?_',
   }),
   translate(3, {
@@ -252,7 +258,9 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'We were waiting for the bus when it began to snow.',
       'We were waiting for the bus when it began snowing.',
     ],
-    knownErrors: ['We was waiting for the bus when it started to snow.'],
+    knownErrors: [
+      onNotion('We was waiting for the bus when it started to snow.', 'accord_sujet_verbe'),
+    ],
     explanation: '_We were waiting_ (décor), _it started to snow_ (événement).',
   }),
   translate(4, {
@@ -265,7 +273,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'It was raining when I went out of the office.',
       'When I left the office, it was raining.',
     ],
-    knownErrors: ['It were raining when I left the office.'],
+    knownErrors: [onNotion('It were raining when I left the office.', 'accord_sujet_verbe')],
     explanation: 'La pluie est le décor, déjà en cours : _it was raining_.',
   }),
   translate(5, {
@@ -278,7 +286,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'My colleague was analysing the data while I was preparing the slides.',
       'While I was preparing the slides, my co-worker was analysing the data.',
     ],
-    knownErrors: ['While I were preparing the slides, my colleague was analysing the data.'],
+    knownErrors: [
+      onNotion(
+        'While I were preparing the slides, my colleague was analysing the data.',
+        'accord_sujet_verbe',
+      ),
+    ],
     explanation: '_While_ : deux actions simultanées, toutes deux au passé continu.',
   }),
   translate(6, {
@@ -290,8 +303,11 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'When she explained the model, I wasn’t listening.',
     ],
     knownErrors: [
-      'I didn’t listening when she explained the model.',
-      'I weren’t listening when she explained the model.',
+      onNotion(
+        'I didn’t listening when she explained the model.',
+        'auxiliaires_questions_negations',
+      ),
+      onNotion('I weren’t listening when she explained the model.', 'accord_sujet_verbe'),
     ],
     explanation: 'Négation au passé continu : _wasn’t listening_.',
   }),
@@ -307,7 +323,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'While I was having a shower, the phone rang.',
       'While I was taking a shower, the phone rang.',
     ],
-    knownErrors: ['The phone ringed while I was having a shower.'],
+    knownErrors: [onNotion('The phone ringed while I was having a shower.', 'temps_verbaux')],
     explanation: '_Rang_ (événement), _was having a shower_ (action en cours).',
   }),
   translate(8, {
@@ -322,8 +338,14 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'The participants were already discussing the budget when I arrived.',
     ],
     knownErrors: [
-      'When I arrived, the participants was already discussing the budget.',
-      'When I arrived, the participants were already discussing about the budget.',
+      onNotion(
+        'When I arrived, the participants was already discussing the budget.',
+        'accord_sujet_verbe',
+      ),
+      offNotion(
+        'When I arrived, the participants were already discussing about the budget.',
+        'prepositions',
+      ),
     ],
     explanation:
       'Action déjà en cours : _were already discussing_. _Discuss_ se construit sans préposition.',
@@ -340,7 +362,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'While the markets were dropping, investors were selling their shares.',
       'Investors were selling their shares while the markets were falling.',
     ],
-    knownErrors: ['While the markets was falling, investors were selling their shares.'],
+    knownErrors: [
+      onNotion(
+        'While the markets was falling, investors were selling their shares.',
+        'accord_sujet_verbe',
+      ),
+    ],
     explanation: 'Deux actions simultanées au passé continu ; sujets pluriels : _were_.',
   }),
   translate(10, {
@@ -356,7 +383,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'She was studying for her exam when her computer stopped working.',
       'She was revising for her exam when her computer stopped working.',
     ],
-    knownErrors: ['She were studying for her exam when her computer broke down.'],
+    knownErrors: [
+      onNotion(
+        'She were studying for her exam when her computer broke down.',
+        'accord_sujet_verbe',
+      ),
+    ],
     explanation: '_Was studying_ (ou _revising_), puis la panne au prétérit.',
   }),
   translate(11, {
@@ -370,8 +402,8 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'What were you doing when the alarm rang?',
     ],
     knownErrors: [
-      'What did you doing when the alarm went off?',
-      'What you were doing when the alarm went off?',
+      onNotion('What did you doing when the alarm went off?', 'auxiliaires_questions_negations'),
+      onNotion('What you were doing when the alarm went off?', 'auxiliaires_questions_negations'),
     ],
     explanation: 'Question au passé continu, puis l’événement au prétérit (_went off_).',
   }),

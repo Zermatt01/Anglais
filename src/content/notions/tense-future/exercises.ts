@@ -1,4 +1,4 @@
-import { exercisesOf } from '../../builders.ts';
+import { exercisesOf, onNotion } from '../../builders.ts';
 import type { NotionContentInput } from '../../schema.ts';
 import { REVIEW } from './review.ts';
 
@@ -230,7 +230,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I’ll call you when I get here.',
       'When I arrive, I’ll call you.',
     ],
-    knownErrors: ['I’ll call you when I will arrive.'],
+    knownErrors: [onNotion('I’ll call you when I will arrive.', 'temps_verbaux')],
     explanation: '_Will_ dans la principale, présent après _when_ : _when I arrive_.',
   }),
   translate(2, {
@@ -242,7 +242,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Look at the sky, it’s going to rain!',
       'It will rain, look at the sky!',
     ],
-    knownErrors: ['It goes to rain, look at the sky!'],
+    knownErrors: [onNotion('It goes to rain, look at the sky!', 'temps_verbaux')],
     explanation:
       'Indice présent : _It’s going to rain._ « Il va » ne se traduit pas par _it goes_.',
   }),
@@ -260,7 +260,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I’ll meet the client tomorrow at 10.',
       'I’m seeing the client tomorrow at 10.',
     ],
-    knownErrors: ['I meeting the client tomorrow at 10.'],
+    knownErrors: [onNotion('I meeting the client tomorrow at 10.', 'temps_verbaux')],
     explanation: 'Rendez-vous fixé : présent continu, _I’m meeting_.',
   }),
   translate(4, {
@@ -268,7 +268,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Une promesse, faite sur le moment.',
     difficulty: 1,
     accepted: ['Don’t worry, I’ll help you.', 'Don’t worry, I will help you.'],
-    knownErrors: ['Don’t worry, I help you.', 'Don’t worry, I’ll to help you.'],
+    knownErrors: [
+      onNotion('Don’t worry, I help you.', 'temps_verbaux'),
+      onNotion('Don’t worry, I’ll to help you.', 'auxiliaires_questions_negations'),
+    ],
     explanation: 'Promesse : _I’ll help you_.',
   }),
   translate(5, {
@@ -282,8 +285,11 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'What are you going to do after your work placement?',
     ],
     knownErrors: [
-      'What you are going to do after your internship?',
-      'What do you go to do after your internship?',
+      onNotion(
+        'What you are going to do after your internship?',
+        'auxiliaires_questions_negations',
+      ),
+      onNotion('What do you go to do after your internship?', 'temps_verbaux'),
     ],
     explanation: 'Intention : _What are you going to do…?_ (_are_ avant le sujet).',
   }),
@@ -300,7 +306,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'If interest rates go down, we’ll buy more shares.',
       'We’ll buy more shares if rates fall.',
     ],
-    knownErrors: ['If rates will fall, we’ll buy more shares.'],
+    knownErrors: [onNotion('If rates will fall, we’ll buy more shares.', 'temps_verbaux')],
     explanation: 'Après _if_, présent : _if rates fall_ ; puis _will_ dans la principale.',
   }),
   translate(7, {
@@ -316,7 +322,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I’ve decided: I’ll change jobs next year.',
       'I’ve decided to change jobs next year.',
     ],
-    knownErrors: ['I’ve decided: I go to change jobs next year.'],
+    knownErrors: [onNotion('I’ve decided: I go to change jobs next year.', 'temps_verbaux')],
     explanation: 'Intention déjà décidée : _I’m going to change jobs_.',
   }),
   translate(8, {
@@ -334,8 +340,8 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I’ll send them to you as soon as I get the results.',
     ],
     knownErrors: [
-      'As soon as I will get the results, I’ll send them to you.',
-      'As soon as I will have the results, I’ll send them to you.',
+      onNotion('As soon as I will get the results, I’ll send them to you.', 'temps_verbaux'),
+      onNotion('As soon as I will have the results, I’ll send them to you.', 'temps_verbaux'),
     ],
     explanation: 'Après _as soon as_, présent : _as soon as I get the results_.',
   }),
@@ -352,7 +358,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'We’re launching the product in March; I think sales are going to be good.',
       'We’ll launch the product in March; I think sales will be good.',
     ],
-    knownErrors: ['We’re launching the product in March; I think sales will being good.'],
+    knownErrors: [
+      onNotion(
+        'We’re launching the product in March; I think sales will being good.',
+        'auxiliaires_questions_negations',
+      ),
+    ],
     explanation: 'Projet fixé : _we’re launching_. Opinion sur l’avenir : _I think… will_.',
   }),
   translate(10, {
@@ -368,7 +379,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I won’t be able to come to the meeting, but I’ll send you my notes in advance.',
       'I can’t come to the meeting, but I’ll send you my notes beforehand.',
     ],
-    knownErrors: ['I won’t can come to the meeting, but I’ll send you my notes beforehand.'],
+    knownErrors: [
+      onNotion(
+        'I won’t can come to the meeting, but I’ll send you my notes beforehand.',
+        'auxiliaires_questions_negations',
+      ),
+    ],
     explanation: '« Je ne pourrai pas » : _I won’t be able to_ ; promesse : _I’ll send_.',
   }),
   translate(11, {
@@ -385,7 +401,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'When you see the manager, tell him I’ll call back tomorrow.',
       'When you see the manager, tell her I’ll call back tomorrow.',
     ],
-    knownErrors: ['When you will see the director, tell him I’ll call back tomorrow.'],
+    knownErrors: [
+      onNotion(
+        'When you will see the director, tell him I’ll call back tomorrow.',
+        'temps_verbaux',
+      ),
+    ],
     explanation: 'Après _when_, présent : _when you see_ ; puis _I’ll call back_.',
   }),
 ];

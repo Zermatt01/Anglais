@@ -11,9 +11,25 @@ import type {
   transformSchema,
   translateSchema,
 } from '../domain/curriculum/exercise.ts';
+import type { AnticipatedError } from '../domain/curriculum/exercise.ts';
 import type { NotionId } from '../domain/curriculum/notion-id.ts';
+import type { ErrorCategory } from '../domain/taxonomy.ts';
 import type { ThemeItemInput } from '../domain/theme/item.ts';
 import type { ReviewMarks } from './schema.ts';
+
+/** An anticipated error of a translation on its notion: it fails the step (D-093). */
+export function onNotion(text: string, category: ErrorCategory): AnticipatedError {
+  return { text, category, offNotion: false };
+}
+
+/**
+ * An anticipated error of a translation off its notion (a frequency adverb
+ * out of place, a preposition…): corrected, with a card, but it does not fail
+ * the step (D-093).
+ */
+export function offNotion(text: string, category: ErrorCategory): AnticipatedError {
+  return { text, category, offNotion: true };
+}
 
 type Fields<Schema extends z.ZodType> = Omit<z.input<Schema>, 'kind'>;
 

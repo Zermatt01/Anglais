@@ -1,4 +1,4 @@
-import { exercisesOf } from '../../builders.ts';
+import { exercisesOf, onNotion } from '../../builders.ts';
 import type { NotionContentInput } from '../../schema.ts';
 import { REVIEW } from './review.ts';
 
@@ -224,7 +224,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: '« Depuis » : une situation qui dure jusqu’à maintenant.',
     difficulty: 1,
     accepted: ['I’ve lived in Geneva since 2020.', 'I’ve been living in Geneva since 2020.'],
-    knownErrors: ['I live in Geneva since 2020.'],
+    knownErrors: [onNotion('I live in Geneva since 2020.', 'temps_verbaux')],
     explanation: '_Since_ + present perfect.',
   }),
   translate(2, {
@@ -237,7 +237,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Yesterday I met the new manager.',
       'I met the new manager yesterday.',
     ],
-    knownErrors: ['Yesterday I have met the new director.'],
+    knownErrors: [onNotion('Yesterday I have met the new director.', 'temps_verbaux')],
     explanation: '_Yesterday_ + prétérit.',
   }),
   translate(3, {
@@ -249,7 +249,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'She’s preparing her presentation right now.',
       'She’s preparing her presentation now.',
     ],
-    knownErrors: ['She prepares her presentation.', 'She preparing her presentation.'],
+    knownErrors: [
+      onNotion('She prepares her presentation.', 'temps_verbaux'),
+      onNotion('She preparing her presentation.', 'temps_verbaux'),
+    ],
     explanation: '« Être en train de » : présent continu.',
   }),
   translate(4, {
@@ -264,7 +267,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'When I finish the file, I’ll send it to you.',
       'When I’ve finished the file, I’ll send it to you.',
     ],
-    knownErrors: ['I’ll send you the file when I will finish it.'],
+    knownErrors: [onNotion('I’ll send you the file when I will finish it.', 'temps_verbaux')],
     explanation: 'Après _when_ : présent ou present perfect, jamais _will_.',
   }),
   translate(5, {
@@ -278,7 +281,9 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I was writing the report when the server crashed.',
       'When the server crashed, I was preparing the report.',
     ],
-    knownErrors: ['I was preparing the report when the server has crashed.'],
+    knownErrors: [
+      onNotion('I was preparing the report when the server has crashed.', 'temps_verbaux'),
+    ],
     explanation: 'Passé continu pour l’action longue, prétérit pour la panne.',
   }),
   translate(6, {
@@ -291,7 +296,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'We haven’t received payment yet.',
       'We didn’t receive the payment yet.',
     ],
-    knownErrors: ['We haven’t received yet the payment.'],
+    knownErrors: [onNotion('We haven’t received yet the payment.', 'temps_verbaux')],
     explanation:
       '_Not… yet_ avec le present perfect. En anglais américain courant, le prétérit est aussi accepté.',
   }),
@@ -306,7 +311,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'When I got there, everyone had already left.',
       'Everyone had already left when I arrived.',
     ],
-    knownErrors: ['When I arrived, everyone has already left.'],
+    knownErrors: [onNotion('When I arrived, everyone has already left.', 'temps_verbaux')],
     explanation: 'Past perfect : _had already left_.',
   }),
   translate(8, {
@@ -333,7 +338,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I’ve worked in finance for three years, and before that I studied economics in Lyon.',
       'I’ve been working in finance for three years, and before that I studied economics in Lyon.',
     ],
-    knownErrors: ['I work in finance since three years; before that, I studied economics in Lyon.'],
+    knownErrors: [
+      onNotion(
+        'I work in finance since three years; before that, I studied economics in Lyon.',
+        'temps_verbaux',
+      ),
+    ],
     explanation: 'Present perfect + _for_, puis prétérit pour la période terminée.',
   }),
   translate(10, {
@@ -347,7 +357,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I’m meeting the recruiter tomorrow; I think the interview is going to go well.',
       'I’m meeting the recruiter tomorrow, and I think the interview will go well.',
     ],
-    knownErrors: ['I meeting the recruiter tomorrow; I think the interview will go well.'],
+    knownErrors: [
+      onNotion(
+        'I meeting the recruiter tomorrow; I think the interview will go well.',
+        'temps_verbaux',
+      ),
+    ],
     explanation: 'Rendez-vous fixé : présent continu. Prévision : _will_.',
   }),
   translate(11, {
@@ -361,7 +376,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'She’s been learning Python for six months, and she has already made two dashboards.',
       'She’s been learning Python for six months, and she already created two dashboards.',
     ],
-    knownErrors: ['She learns Python since six months, and she’s already created two dashboards.'],
+    knownErrors: [
+      onNotion(
+        'She learns Python since six months, and she’s already created two dashboards.',
+        'temps_verbaux',
+      ),
+    ],
     explanation:
       'Durée : _has been learning_. Résultat : _has already created_ (present perfect simple).',
   }),

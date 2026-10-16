@@ -18,6 +18,7 @@ import { containsInflectedPhrase } from '../correction/inflections.ts';
 import { tokenize } from '../correction/normalize.ts';
 import { CONTEXT_DEPENDENT_SPELLINGS } from '../correction/spelling.ts';
 import { visibleTextSchema } from '../primitives.ts';
+import { errorCategorySchema } from '../taxonomy.ts';
 import type { Step } from './progress.ts';
 
 const MAX_TEXT = 500;
@@ -83,6 +84,19 @@ export const placeWordSchema = z.strictObject({
   explanation: textSchema,
 });
 
+/**
+ * An anticipated error of a reviewed translation, with its category (D-092,
+ * D-093). One on the notion fails the step. One off the notion (a frequency
+ * adverb out of place, a preposition, _rise_ for _raise_…) is wrong, so it is
+ * corrected and makes a card, but it is not an error on the notion.
+ */
+export const anticipatedErrorSchema = z.strictObject({
+  text: textSchema,
+  category: errorCategorySchema,
+  offNotion: z.boolean(),
+});
+export type AnticipatedError = z.infer<typeof anticipatedErrorSchema>;
+
 /** Step 4: translate a French sentence targeting the notion only. */
 export const translateSchema = z.strictObject({
   kind: z.literal('translate'),
@@ -92,7 +106,14 @@ export const translateSchema = z.strictObject({
   /** 1 to 3: the core of a step is taken in increasing difficulty. */
   difficulty: z.int().min(1).max(3),
   accepted: answersSchema,
-  knownErrors: knownErrorsSchema,
+  /**
+   * Wrong translations, each wrong in every reading (D-035): reviewed ones in
+   * the core, with their category; plain texts in a generated exercise.
+   */
+  knownErrors: z
+    .array(z.union([textSchema, anticipatedErrorSchema]))
+    .max(MAX_ANSWERS)
+    .default([]),
   explanation: textSchema,
 });
 
@@ -138,10 +159,36 @@ export function acceptedAnswersOf(exercise: Exclude<Exercise, { kind: 'choice-wi
     : exercise.accepted;
 }
 
-function knownErrorsOf(exercise: Exclude<Exercise, { kind: 'choice-with-reason' }>) {
-  return exercise.kind === 'fill-verb'
-    ? exercise.knownErrors.map((filler) => fillGap(exercise.sentence, filler))
-    : exercise.knownErrors;
+const textOf = (error: string | AnticipatedError): string =>
+  typeof error === 'string' ? error : error.text;
+
+/** Anticipated errors as whole sentences. */
+function knownErrorsOf(exercise: Exclude<Exercise, { kind: 'choice-with-reason' }>): string[] {
+  switch (exercise.kind) {
+    case 'fill-verb':
+      return exercise.knownErrors.map((filler) => fillGap(exercise.sentence, filler));
+    case 'translate':
+      return exercise.knownErrors.map(textOf);
+    case 'transform':
+    case 'place-word':
+      return exercise.knownErrors;
+  }
+}
+
+/**
+ * The reviewed anticipated error that an answer to a translation matches,
+ * with its category; `null` when it matches none, or one without a category
+ * (an exercise created by the model, whose errors are not reviewed).
+ */
+export function anticipatedErrorOf(
+  exercise: ExerciseOf<'translate'>,
+  answer: string,
+): AnticipatedError | null {
+  for (const error of exercise.knownErrors) {
+    if (typeof error === 'string') continue;
+    if (evaluateAnswer(answer, { accepted: [error.text] }).verdict === 'correct') return error;
+  }
+  return null;
 }
 
 /**

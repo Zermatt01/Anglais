@@ -1,4 +1,4 @@
-import { exercisesOf } from '../../builders.ts';
+import { exercisesOf, offNotion, onNotion } from '../../builders.ts';
 import type { NotionContentInput } from '../../schema.ts';
 import { REVIEW } from './review.ts';
 
@@ -255,7 +255,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I generally take the bus.',
       'I usually go by bus.',
     ],
-    knownErrors: ['I usually am taking the bus.', 'I take usually the bus.'],
+    knownErrors: [
+      onNotion('I usually am taking the bus.', 'temps_verbaux'),
+      offNotion('I take usually the bus.', 'ordre_des_mots'),
+    ],
     explanation: 'Une habitude : présent simple, l’adverbe avant le verbe.',
   }),
   translate(2, {
@@ -269,7 +272,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'She’s currently presenting the results.',
       'At the moment she’s presenting the results.',
     ],
-    knownErrors: ['She presenting the results at the moment.'],
+    knownErrors: [onNotion('She presenting the results at the moment.', 'temps_verbaux')],
     explanation: 'L’action a lieu en ce moment : _she’s presenting_.',
   }),
   translate(3, {
@@ -282,7 +285,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I don’t know this customer.',
       'I don’t know that customer.',
     ],
-    knownErrors: ['I’m not knowing this client.', 'I don’t knowing this client.'],
+    knownErrors: [
+      onNotion('I’m not knowing this client.', 'temps_verbaux'),
+      onNotion('I don’t knowing this client.', 'auxiliaires_questions_negations'),
+    ],
     explanation: '_Know_ est un verbe d’état : _I don’t know_, jamais au continu.',
   }),
   translate(4, {
@@ -290,7 +296,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Une question sur le métier, une situation stable.',
     difficulty: 1,
     accepted: ['What do you do?', 'What do you do for a living?', 'What’s your job?'],
-    knownErrors: ['What are you doing in the life?'],
+    knownErrors: [onNotion('What are you doing in the life?', 'temps_verbaux')],
     explanation: '_What do you do?_ demande la profession : présent simple.',
   }),
   translate(5, {
@@ -309,7 +315,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Une opinion : verbe d’état.',
     difficulty: 2,
     accepted: ['I think you’re right.', 'I think that you’re right.'],
-    knownErrors: ['I think you have right.', 'I think that you have right.'],
+    knownErrors: [
+      offNotion('I think you have right.', 'calques_du_francais'),
+      offNotion('I think that you have right.', 'calques_du_francais'),
+    ],
     explanation: 'Opinion : _I think_ (verbe d’état). « Avoir raison » se dit _be right_.',
   }),
   translate(7, {
@@ -322,7 +331,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'That document belongs to the legal department.',
       'That document belongs to the legal team.',
     ],
-    knownErrors: ['This document is belonging to the legal department.'],
+    knownErrors: [onNotion('This document is belonging to the legal department.', 'temps_verbaux')],
     explanation: '_Belong_ est un verbe d’état : _belongs to_.',
   }),
   translate(8, {
@@ -330,7 +339,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Une réflexion en cours, maintenant.',
     difficulty: 2,
     accepted: ['What are you thinking about?', 'What are you thinking of?'],
-    knownErrors: ['What do you thinking about?', 'What you are thinking about?'],
+    knownErrors: [
+      onNotion('What do you thinking about?', 'auxiliaires_questions_negations'),
+      onNotion('What you are thinking about?', 'auxiliaires_questions_negations'),
+    ],
     explanation: 'Réfléchir en ce moment : _What are you thinking about?_',
   }),
   translate(9, {
@@ -363,7 +375,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Our team has two data scientists and is recruiting a third one.',
       'Our team has two data scientists and we’re hiring a third one.',
     ],
-    knownErrors: ['Our team is having two data scientists and it’s hiring a third one.'],
+    knownErrors: [
+      onNotion(
+        'Our team is having two data scientists and it’s hiring a third one.',
+        'temps_verbaux',
+      ),
+    ],
     explanation: 'Possession : _has_ (verbe d’état). Recrutement en cours : _is hiring_.',
   }),
   translate(11, {
@@ -378,7 +395,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I don’t understand why sales are declining this quarter.',
       'I don’t understand why the sales are falling this quarter.',
     ],
-    knownErrors: ['I don’t understand why sales are raising this quarter.'],
+    knownErrors: [
+      offNotion(
+        'I don’t understand why sales are raising this quarter.',
+        'choix_lexical_collocations',
+      ),
+    ],
     explanation:
       '_Understand_ reste au présent simple ; la baisse, temporaire, est au présent continu.',
   }),

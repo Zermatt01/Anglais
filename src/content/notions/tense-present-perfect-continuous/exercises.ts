@@ -1,4 +1,4 @@
-import { exercisesOf } from '../../builders.ts';
+import { exercisesOf, offNotion, onNotion } from '../../builders.ts';
 import type { NotionContentInput } from '../../schema.ts';
 import { REVIEW } from './review.ts';
 
@@ -227,7 +227,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Une activité qui dure jusqu’à maintenant ; « depuis » + une durée.',
     difficulty: 1,
     accepted: ['I’ve been waiting for an hour.', 'I’ve waited for an hour.'],
-    knownErrors: ['I’m waiting since an hour.', 'I wait since one hour.'],
+    knownErrors: [
+      onNotion('I’m waiting since an hour.', 'temps_verbaux'),
+      onNotion('I wait since one hour.', 'temps_verbaux'),
+    ],
     explanation: '_I’ve been waiting for an hour_ : present perfect continu + _for_.',
   }),
   translate(2, {
@@ -235,7 +238,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: '« Depuis » + un point de départ ; l’activité dure.',
     difficulty: 1,
     accepted: ['It’s been raining since this morning.'],
-    knownErrors: ['It rains since this morning.', 'It’s raining since this morning.'],
+    knownErrors: [
+      onNotion('It rains since this morning.', 'temps_verbaux'),
+      onNotion('It’s raining since this morning.', 'temps_verbaux'),
+    ],
     explanation: '_It’s been raining since this morning._',
   }),
   translate(3, {
@@ -243,7 +249,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     hint: 'Question sur une durée qui va jusqu’à maintenant.',
     difficulty: 1,
     accepted: ['How long have you been working here?', 'How long have you worked here?'],
-    knownErrors: ['Since when do you work here?', 'Since how long do you work here?'],
+    knownErrors: [
+      onNotion('Since when do you work here?', 'temps_verbaux'),
+      onNotion('Since how long do you work here?', 'temps_verbaux'),
+    ],
     explanation: '_How long have you been working here?_',
   }),
   translate(4, {
@@ -255,7 +264,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'You look tired. Did you work late?',
       'You look tired. Were you working late?',
     ],
-    knownErrors: ['You look tired. Have you been work late?'],
+    knownErrors: [onNotion('You look tired. Have you been work late?', 'temps_verbaux')],
     explanation: 'La fatigue est une trace : _Have you been working late?_',
   }),
   translate(5, {
@@ -269,8 +278,8 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'We’ve been preparing the launch for three months.',
     ],
     knownErrors: [
-      'We prepare this launch since three months.',
-      'We are preparing this launch for three months.',
+      onNotion('We prepare this launch since three months.', 'temps_verbaux'),
+      onNotion('We are preparing this launch for three months.', 'temps_verbaux'),
     ],
     explanation: '_We’ve been preparing… for three months_.',
   }),
@@ -287,8 +296,11 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Prices have risen since the beginning of the year.',
     ],
     knownErrors: [
-      'Prices are rising since the beginning of the year.',
-      'Prices have been raising since the beginning of the year.',
+      onNotion('Prices are rising since the beginning of the year.', 'temps_verbaux'),
+      offNotion(
+        'Prices have been raising since the beginning of the year.',
+        'choix_lexical_collocations',
+      ),
     ],
     explanation: '_Have been rising_ ; _rise_ (sans complément), et non _raise_.',
   }),
@@ -300,7 +312,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'She’s been learning German for two years.',
       'She’s been studying German for two years.',
     ],
-    knownErrors: ['She learns German since two years.', 'She is learning German for two years.'],
+    knownErrors: [
+      onNotion('She learns German since two years.', 'temps_verbaux'),
+      onNotion('She is learning German for two years.', 'temps_verbaux'),
+    ],
     explanation: '_She’s been learning German for two years._',
   }),
   translate(8, {
@@ -315,8 +330,8 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I’ve known this client for years.',
     ],
     knownErrors: [
-      'I’ve been knowing this client for a long time.',
-      'I know this client since a long time.',
+      onNotion('I’ve been knowing this client for a long time.', 'temps_verbaux'),
+      onNotion('I know this client since a long time.', 'temps_verbaux'),
     ],
     explanation: 'Verbe d’état : _I’ve known_, même avec une durée.',
   }),
@@ -332,7 +347,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'We’ve been working on this model for weeks, and we finally found the error.',
       'We’ve been working on this model for weeks, and we have at last found the error.',
     ],
-    knownErrors: ['We work on this model since weeks, and we’ve finally found the error.'],
+    knownErrors: [
+      onNotion(
+        'We work on this model since weeks, and we’ve finally found the error.',
+        'temps_verbaux',
+      ),
+    ],
     explanation:
       'Durée de l’activité : _have been working_. Résultat : _have found_ (present perfect simple).',
   }),
@@ -348,7 +368,9 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'How long have you been waiting for a reply from the bank?',
       'How long have you been waiting to hear from the bank?',
     ],
-    knownErrors: ['Since how long are you waiting for the bank’s answer?'],
+    knownErrors: [
+      onNotion('Since how long are you waiting for the bank’s answer?', 'temps_verbaux'),
+    ],
     explanation: '_How long have you been waiting for…?_',
   }),
   translate(11, {
@@ -363,7 +385,9 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'I’ve been writing emails all morning, and I’ve sent forty.',
       'I’ve been writing emails all morning, and I’ve sent forty of them.',
     ],
-    knownErrors: ['I’ve been write emails all morning; I’ve sent forty.'],
+    knownErrors: [
+      onNotion('I’ve been write emails all morning; I’ve sent forty.', 'temps_verbaux'),
+    ],
     explanation: 'Activité : _have been writing_. Quantité : _have sent_ (simple).',
   }),
 ];
