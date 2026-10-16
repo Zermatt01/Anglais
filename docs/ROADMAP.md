@@ -101,9 +101,11 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 ## Ajustements d'usage avant la phase 5
 
-Demandés par l'utilisateur le 2026-10-16, après usage réel. Les autres ajustements proposés (Reprises, étape 4 du Parcours, mots inconnus) attendent son accord.
+Demandés par l'utilisateur le 2026-10-16, après usage réel, puis validés point par point (Reprises, étape 4 du Parcours, mots inconnus).
 
 - [x] Attentes bornées des appels IA : une correction finit toujours, par la correction ou par un message clair (D-091) ; action de l'utilisateur : DEPLOYMENT.md, section 18
+- [x] Reprises : écran « Mes cartes » (état et raison de chaque carte), raisons d'une erreur sans carte dans la correction, cartes actives pour une notion sans leçon, cartes des erreurs anticipées de l'étape 4, « Revoir cette phrase dans mes Reprises », jamais deux fois la même carte (D-092)
+- [x] Erreurs anticipées de l'étape 4 classées dans ou hors notion, relues deux fois (D-093)
 
 ## Phase 5 — Qualité des corrections
 

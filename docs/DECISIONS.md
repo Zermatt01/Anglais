@@ -32,7 +32,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-022 | Notion « à consolider »                                  | Pédagogie   | Actée                   |
 | D-023 | Notions admises dans le Thème                            | Pédagogie   | Actée                   |
 | D-024 | Seules les erreurs qualifiantes déclenchent une lacune   | Pédagogie   | Actée                   |
-| D-025 | Erreur sur une notion non étudiée                        | Pédagogie   | Actée                   |
+| D-025 | Erreur sur une notion non étudiée                        | Pédagogie   | Modifiée (D-092)        |
 | D-026 | Autocorrection vérifiée localement                       | Pédagogie   | Actée                   |
 | D-027 | Critères de passage par défaut                           | Pédagogie   | Précisée (D-075)        |
 | D-028 | Limites de la reconnaissance vocale                      | Parole      | À revoir (P6)           |
@@ -99,6 +99,8 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-089 | Confiance asymétrique dans les exercices créés par l'IA  | Pédagogie   | Actée                   |
 | D-090 | Contre-revues de la phase 4                              | Transverse  | Actée                   |
 | D-091 | Attentes bornées des appels IA                           | IA et coûts | Actée                   |
+| D-092 | Cartes visibles et expliquées ; notion sans leçon        | Pédagogie   | Actée                   |
+| D-093 | Erreurs anticipées de l'étape 4 : dans ou hors notion    | Pédagogie   | Actée                   |
 
 ---
 
@@ -960,3 +962,26 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - **Écrans** : pendant une correction, l'écran dit qu'elle peut prendre un moment et qu'un message viendra si elle n'arrive pas.
 - **Limite connue.** Une réponse perdue en route a pu être facturée ; « Réessayer » fait un nouvel appel, payé à nouveau (en général 0,02 à 0,04 USD). Pour l'éviter, il faudrait garder la sortie côté serveur et la renvoyer à la même demande. Ce n'est pas fait : cela demande une table et une migration, à décider si le cas se répète.
 - **Tests.** Session et réponse qui ne viennent jamais (horloge simulée : rien avant le délai, la requête interrompue à l'échéance), réponse 504, session en échec, consommation ; nouvelle tentative faite à 50 secondes, refusée à 50,001 secondes ; ordre des délais (modèle < échéance de la fonction < limite de la plateforme < attente du client).
+
+### D-092 — Cartes visibles et expliquées ; erreur sur une notion sans leçon (2026-10-16, modifie D-025, complète D-085 et D-088)
+
+- **Contexte.** Usage réel : une seule carte dans les Reprises après beaucoup d'erreurs. Diagnostic : les exercices du Parcours, corrigés localement, ne faisaient jamais de carte ; les corrections du Journal qui n'aboutissaient pas (D-091) n'en faisaient pas non plus ; une erreur rattachée à une notion de phase 8 (articles, prépositions, ordre des mots…) faisait une carte mise de côté jusqu'à l'étape 4 de cette notion, qui n'existe pas encore ; rien ne disait pourquoi une erreur ne faisait pas de carte. Les propositions a à e ont été validées par l'utilisateur.
+- **Décision.**
+  - **a. Mes cartes** (`/reprises/cartes`, depuis les Reprises) : chaque carte, groupée selon son état, dans les termes de la file des Reprises (`cardStandings`) : à revoir maintenant, retenue par le plafond du jour (nouvelles cartes, révisions ou révisions de maintien), prévue plus tard avec sa date, en attente d'une notion (avec un lien vers elle), maîtrisée, mise de côté (signalée, non résoluble). Chaque carte montre son recto, son origine (Journal, Thème, Parcours…), sa date, sa notion et la raison. Rien n'est appelé ni écrit.
+  - **b. Raisons dans la correction** : pour chaque erreur, la correction dit ce qu'elle devient (`errorCardStatuses`) : carte ajoutée, mise de côté, déjà dans les Reprises, erreur mineure, point à vérifier, phrase que l'app n'a pas pu vérifier (D-088), ou carte non résoluble sans son contexte.
+  - **c. Notion sans leçon** (modifie D-025) : une erreur sur une notion dont l'app n'a pas encore les leçons est traitée comme une erreur sans notion : pas de diagnostic, carte active. La notion reste notée pour les statistiques. Les cartes déjà mises de côté pour une telle notion sont présentées. Une notion livrée mais pas encore étudiée garde ses cartes en attente, comme avant. Le dépôt des cartes et celui des productions reçoivent pour cela la liste des notions qui ont un contenu.
+  - **d. Erreur anticipée de l'étape 4** : une traduction du socle qui correspond à l'une de ses erreurs anticipées, dans le Parcours ou la pratique immédiate, fait une carte, écrite dans la transaction de la réponse : la phrase française, l'indice et les réponses relues, la catégorie relue de l'erreur (D-093) et la réponse de l'apprenant comme tentative précédente. Elle attend tant que la notion n'est pas étudiée. Les exercices créés par l'IA n'en font pas : leurs réponses ne sont pas relues (D-088).
+  - **e. Revoir cette phrase** : après un échec qui n'a fait aucune carte (une réponse jugée fausse par l'apprenant, à l'étape 4 ou dans le Thème), le bouton « Revoir cette phrase dans mes Reprises » garde la phrase relue comme carte de notion, sur demande ; elle attend si la notion n'est pas étudiée.
+  - **Jamais deux fois la même carte** : créer une carte qui pose la même question (même type de question, même recto, réponse équivalente) rend la carte existante. Une phrase ratée deux fois, ou gardée puis ratée, reste une seule carte. Une carte retirée ne bloque plus.
+  - Les étapes 2 et 3 ne font toujours pas de cartes : le Parcours les fait déjà répéter, et ce sont des exercices guidés plutôt que de la production.
+- **Raison.** NO-03 et D-088 : chaque carte vient d'un contenu relu ou d'une correction vérifiée par l'app ; ce qui n'en fait pas est désormais dit, au lieu d'être silencieux.
+
+### D-093 — Erreurs anticipées de l'étape 4 : dans ou hors notion (2026-10-16, décision de l'utilisateur, complète D-074 et D-086)
+
+- **Contexte.** Une petite erreur hors de la notion faisait échouer toute une traduction de l'étape 4 : 17 des 208 erreurs anticipées du socle ne portent pas sur la notion (_Our customers pay usually by card_, _It depends of the client_, _rise_ pour _raise_, _I think you have right_…).
+- **Décision (classement).**
+  - Chaque erreur anticipée d'une traduction du socle porte sa catégorie et dit si elle est **dans la notion** (`onNotion`) ou **hors notion** (`offNotion`, `src/content/builders.ts`). Choix de l'utilisateur : dans la notion, le temps, son accord avec le sujet, ses questions et négations (ordre des mots des questions compris) et la place de _just, already, yet, still_ ; hors notion, la place d'un adverbe de fréquence, une préposition, un mot (_rise/raise_) ou un calque que la leçon n'enseigne pas (_have right_). Les calques que la leçon enseigne restent dans la notion (_I come from receiving your message_, _It's been three weeks that…_).
+  - Convention de catégorie, d'après PEDAGOGY §7 : _be_ ou _have_ suivis d'une mauvaise forme, un temps mal choisi, un prétérit irrégulier faux → `temps_verbaux` ; _do/does/did_ ou un modal suivis d'une mauvaise forme, une question ou une négation mal formée → `auxiliaires_questions_negations` ; l'accord avec le sujet (_-s_, _is/are_, _was/were_, _don't/doesn't_) → `accord_sujet_verbe`.
+  - Le classement a été relu deux fois. Le test du socle exige une catégorie pour chaque erreur anticipée d'une traduction, et vérifie le classement contre une liste fermée par piste (`notion-errors.ts`) : pour les temps, les catégories de la notion sont `temps_verbaux`, `accord_sujet_verbe`, `auxiliaires_questions_negations` et `calques_du_francais` ; une erreur hors notion n'est jamais de l'une des trois premières.
+  - Les exercices créés par l'IA gardent des erreurs anticipées sans catégorie.
+- **Suite.** La règle de l'étape 4 qui s'en sert (une erreur hors notion ne fait pas échouer) est décrite avec les autres ajustements de l'étape 4.
