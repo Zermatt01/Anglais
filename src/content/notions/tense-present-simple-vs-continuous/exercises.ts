@@ -404,4 +404,172 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     explanation:
       '_Understand_ reste au présent simple ; la baisse, temporaire, est au présent continu.',
   }),
+  // Added on 2026-10-16 (D-094): presented by difficulty with the ones above.
+  translate(12, {
+    sentenceFr: 'Cette entreprise possède trois usines.',
+    hint: 'Un verbe d’état : il ne se met pas au continu.',
+    difficulty: 1,
+    accepted: [
+      'This company owns three factories.',
+      'The company owns three factories.',
+      'This firm owns three factories.',
+      'This company has three factories.',
+    ],
+    knownErrors: [onNotion('This company is owning three factories.', 'temps_verbaux')],
+    explanation: '_Own_ est un verbe d’état : présent simple, _owns_.',
+  }),
+  translate(13, {
+    sentenceFr: 'Le serveur est en train de redémarrer : attends deux minutes.',
+    hint: 'Une action en cours en ce moment, puis un conseil.',
+    difficulty: 1,
+    accepted: [
+      'The server is restarting: wait two minutes.',
+      'The server is restarting, so wait two minutes.',
+      'The server is restarting: give it two minutes.',
+      'The server is rebooting: wait two minutes.',
+    ],
+    knownErrors: [
+      onNotion('The server is restart: wait two minutes.', 'temps_verbaux'),
+      onNotion('The server restarting: wait two minutes.', 'temps_verbaux'),
+    ],
+    explanation: '« Être en train de » : action en cours, _is restarting_.',
+  }),
+  translate(14, {
+    sentenceFr: 'Qu’est-ce que tu penses de ce rapport ?',
+    hint: 'Une question sur une opinion : un verbe d’état.',
+    difficulty: 2,
+    accepted: [
+      'What do you think of this report?',
+      'What do you think about this report?',
+      'What do you make of this report?',
+    ],
+    knownErrors: [
+      onNotion('What you think of this report?', 'auxiliaires_questions_negations'),
+      onNotion('What do you thinks of this report?', 'auxiliaires_questions_negations'),
+    ],
+    explanation:
+      'Une opinion : présent simple, _What do you think of…?_ Le continu (_are you thinking_) décrit une réflexion en cours.',
+  }),
+  translate(15, {
+    sentenceFr:
+      'D’habitude, elle arrive à huit heures, mais aujourd’hui elle travaille de chez elle.',
+    hint: 'Une habitude, puis ce qui se passe aujourd’hui.',
+    difficulty: 2,
+    accepted: [
+      'She usually arrives at eight, but today she’s working from home.',
+      'She usually arrives at eight, but today she’s working at home.',
+      'She normally arrives at eight, but today she’s working from home.',
+      'She usually arrives at 8 am, but today she’s working from home.',
+      'She usually gets in at eight, but today she’s working from home.',
+    ],
+    knownErrors: [
+      onNotion(
+        'She usually arrive at eight, but today she’s working from home.',
+        'accord_sujet_verbe',
+      ),
+      onNotion('She usually arrives at eight, but today she working from home.', 'temps_verbaux'),
+    ],
+    explanation: 'Habitude : _she usually arrives_ ; aujourd’hui : _she’s working_.',
+  }),
+  translate(16, {
+    sentenceFr: 'Normalement, il prend le train, mais cette semaine il conduit.',
+    hint: 'Une habitude, puis une situation temporaire.',
+    difficulty: 2,
+    accepted: [
+      'He normally takes the train, but this week he’s driving.',
+      'He usually takes the train, but this week he’s driving.',
+      'He normally goes by train, but this week he’s driving.',
+      'He usually goes by train, but this week he’s driving.',
+    ],
+    knownErrors: [
+      onNotion('He normally take the train, but this week he’s driving.', 'accord_sujet_verbe'),
+      onNotion('He normally takes the train, but this week he driving.', 'temps_verbaux'),
+    ],
+    explanation: 'Habitude : _he normally takes_ ; situation temporaire : _he’s driving_.',
+  }),
+  translate(17, {
+    sentenceFr:
+      'L’entreprise compte deux cents employés et, cette année, elle recrute vingt analystes.',
+    hint: 'Une situation stable, puis une action en cours cette année.',
+    difficulty: 3,
+    accepted: [
+      'The company has two hundred employees, and this year it’s hiring twenty analysts.',
+      'The company has two hundred employees, and this year it’s recruiting twenty analysts.',
+      'The company has 200 employees, and this year it’s hiring 20 analysts.',
+      'The company has 200 employees, and this year it’s recruiting 20 analysts.',
+      'The firm has two hundred employees, and this year it’s hiring twenty analysts.',
+    ],
+    knownErrors: [
+      onNotion(
+        'The company is having two hundred employees, and this year it’s hiring twenty analysts.',
+        'temps_verbaux',
+      ),
+    ],
+    explanation:
+      '_Have_ (avoir, posséder) est un verbe d’état : _has_ ; action en cours cette année : _it’s hiring_.',
+  }),
+  translate(18, {
+    sentenceFr: 'Je connais bien ce secteur, mais en ce moment j’apprends le machine learning.',
+    hint: 'Un verbe d’état, puis une activité en cours en ce moment.',
+    difficulty: 3,
+    accepted: [
+      'I know this sector well, but at the moment I’m learning machine learning.',
+      'I know this industry well, but at the moment I’m learning machine learning.',
+      'I know this sector well, but I’m currently learning machine learning.',
+      'I know this sector well, but right now I’m learning machine learning.',
+      'I know this sector well, but I’m learning machine learning at the moment.',
+    ],
+    knownErrors: [
+      onNotion(
+        'I’m knowing this sector well, but at the moment I’m learning machine learning.',
+        'temps_verbaux',
+      ),
+      onNotion(
+        'I know this sector well, but at the moment I learn machine learning.',
+        'temps_verbaux',
+      ),
+    ],
+    explanation: '_Know_ est un verbe d’état : _I know_ ; activité en cours : _I’m learning_.',
+  }),
+  translate(19, {
+    sentenceFr: 'Pourquoi est-ce que tu portes un costume ? D’habitude, tu viens en jean.',
+    hint: 'Une question sur ce qui se passe aujourd’hui, puis une habitude.',
+    difficulty: 3,
+    accepted: [
+      'Why are you wearing a suit? You usually come in jeans.',
+      'Why are you wearing a suit? You normally come in jeans.',
+      'Why are you wearing a suit? You usually wear jeans.',
+      'Why are you wearing a suit? Usually you come in jeans.',
+    ],
+    knownErrors: [
+      onNotion(
+        'Why you are wearing a suit? You usually come in jeans.',
+        'auxiliaires_questions_negations',
+      ),
+      onNotion('Why are you wear a suit? You usually come in jeans.', 'temps_verbaux'),
+    ],
+    explanation: 'Aujourd’hui : _Why are you wearing…?_ ; habitude : _you usually come_.',
+  }),
+  translate(20, {
+    sentenceFr:
+      'Elle répond toujours vite, mais aujourd’hui elle ne répond pas : elle est en réunion.',
+    hint: 'Une habitude, puis ce qui ne se passe pas aujourd’hui.',
+    difficulty: 3,
+    accepted: [
+      'She always answers quickly, but today she isn’t answering: she’s in a meeting.',
+      'She always replies quickly, but today she isn’t replying: she’s in a meeting.',
+      'She always answers fast, but today she isn’t answering: she’s in a meeting.',
+    ],
+    knownErrors: [
+      onNotion(
+        'She always answer quickly, but today she isn’t answering: she’s in a meeting.',
+        'accord_sujet_verbe',
+      ),
+      onNotion(
+        'She always answers quickly, but today she not answering: she’s in a meeting.',
+        'auxiliaires_questions_negations',
+      ),
+    ],
+    explanation: 'Habitude : _she always answers_ ; aujourd’hui : _she isn’t answering_.',
+  }),
 ];

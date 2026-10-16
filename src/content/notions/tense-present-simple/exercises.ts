@@ -419,4 +419,147 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     explanation:
       '_Raise_ (augmenter quelque chose) : _raise their rates_. _Rise_ (augmenter, sans complément) : _inflation rises_.',
   }),
+  // Added on 2026-10-16 (D-094): presented by difficulty with the ones above.
+  translate(12, {
+    sentenceFr: 'Il enseigne l’économie dans un lycée.',
+    hint: 'Un métier : une situation stable.',
+    difficulty: 1,
+    accepted: [
+      'He teaches economics at a high school.',
+      'He teaches economics in a high school.',
+      'He teaches economics at a secondary school.',
+      'He teaches economics in a secondary school.',
+    ],
+    knownErrors: [
+      onNotion('He teach economics at a high school.', 'accord_sujet_verbe'),
+      offNotion('He teaches the economics at a high school.', 'articles'),
+    ],
+    explanation:
+      'Situation stable : présent simple, _he teaches_ (avec _-es_). Une matière en général se dit sans article.',
+  }),
+  translate(13, {
+    sentenceFr: 'Nous ne travaillons pas le week-end.',
+    hint: 'Une habitude, à la forme négative.',
+    difficulty: 1,
+    accepted: [
+      'We don’t work at weekends.',
+      'We don’t work at the weekend.',
+      'We don’t work on weekends.',
+      'We don’t work on the weekend.',
+    ],
+    knownErrors: [
+      onNotion('We not work at weekends.', 'auxiliaires_questions_negations'),
+      onNotion('We don’t works at weekends.', 'auxiliaires_questions_negations'),
+    ],
+    explanation: 'Négation au présent simple : _don’t_ + base verbale, _we don’t work_.',
+  }),
+  translate(14, {
+    sentenceFr: 'Est-ce qu’elle parle anglais au travail ?',
+    hint: 'Une question sur une habitude, avec un sujet à la troisième personne.',
+    difficulty: 1,
+    accepted: ['Does she speak English at work?'],
+    knownErrors: [
+      onNotion('Does she speaks English at work?', 'auxiliaires_questions_negations'),
+      onNotion('Is she speak English at work?', 'auxiliaires_questions_negations'),
+    ],
+    explanation: 'Question : _Does_ + sujet + base verbale, sans _-s_ : _Does she speak…?_',
+  }),
+  translate(15, {
+    sentenceFr: 'Le marché ouvre à neuf heures et ferme à dix-sept heures trente.',
+    hint: 'Un horaire officiel, avec un sujet singulier.',
+    difficulty: 2,
+    accepted: [
+      'The market opens at nine and closes at half past five.',
+      'The market opens at 9 am and closes at 5.30 pm.',
+      'The market opens at 9 am and closes at 5:30 pm.',
+      'The market opens at 9:00 and closes at 17:30.',
+      'The market opens at nine and closes at five thirty.',
+    ],
+    knownErrors: [
+      onNotion('The market open at nine and close at half past five.', 'accord_sujet_verbe'),
+    ],
+    explanation: 'Un horaire : présent simple, _opens_ et _closes_, avec le _-s_.',
+  }),
+  translate(16, {
+    sentenceFr: 'Combien est-ce que ce logiciel coûte par mois ?',
+    hint: 'Une question sur un prix, avec un auxiliaire.',
+    difficulty: 2,
+    accepted: [
+      'How much does this software cost per month?',
+      'How much does this software cost a month?',
+    ],
+    knownErrors: [
+      onNotion('How much this software costs per month?', 'auxiliaires_questions_negations'),
+      onNotion('How much does this software costs per month?', 'auxiliaires_questions_negations'),
+    ],
+    explanation: 'Question : _How much does_ + sujet + base verbale (_cost_, sans _-s_).',
+  }),
+  translate(17, {
+    sentenceFr: 'Je ne comprends pas cette formule.',
+    hint: 'Un verbe d’état, à la forme négative.',
+    difficulty: 2,
+    accepted: ['I don’t understand this formula.'],
+    knownErrors: [
+      onNotion('I not understand this formula.', 'auxiliaires_questions_negations'),
+      onNotion('I don’t understands this formula.', 'auxiliaires_questions_negations'),
+    ],
+    explanation: 'Négation au présent simple : _I don’t understand_.',
+  }),
+  translate(18, {
+    sentenceFr: 'Mon frère vit à Lausanne, mais il travaille à Berne.',
+    hint: 'Deux faits stables, avec des sujets à la troisième personne.',
+    difficulty: 3,
+    accepted: [
+      'My brother lives in Lausanne, but he works in Bern.',
+      'My brother lives in Lausanne, but he works in Berne.',
+    ],
+    knownErrors: [
+      onNotion('My brother live in Lausanne, but he work in Bern.', 'accord_sujet_verbe'),
+      onNotion('My brother lives in Lausanne, but he work in Bern.', 'accord_sujet_verbe'),
+    ],
+    explanation: 'Faits stables : _lives_, _works_, avec le _-s_ de la troisième personne.',
+  }),
+  translate(19, {
+    sentenceFr: 'Les élèves rendent leurs devoirs le lundi, et je les corrige le mardi.',
+    hint: 'Deux habitudes de la semaine.',
+    difficulty: 3,
+    accepted: [
+      'The students hand in their homework on Mondays, and I mark it on Tuesdays.',
+      'The students hand in their homework on Mondays, and I correct it on Tuesdays.',
+      'The students hand in their homework on Mondays, and I grade it on Tuesdays.',
+      'The pupils hand in their homework on Mondays, and I mark it on Tuesdays.',
+      'The students submit their homework on Mondays, and I mark it on Tuesdays.',
+    ],
+    knownErrors: [
+      onNotion(
+        'The students hand in their homework on Mondays, and I marks it on Tuesdays.',
+        'accord_sujet_verbe',
+      ),
+      offNotion(
+        'The students hand in their homeworks on Mondays, and I mark them on Tuesdays.',
+        'indenombrables_pluriels',
+      ),
+    ],
+    explanation:
+      'Habitudes : présent simple, _hand in_ et _I mark_. _Homework_ est indénombrable : pas de _-s_, et on le reprend par _it_.',
+  }),
+  translate(20, {
+    sentenceFr: 'Un client qui paie en avance reçoit une remise de cinq pour cent.',
+    hint: 'Une règle générale, avec un sujet singulier et une proposition relative.',
+    difficulty: 3,
+    accepted: [
+      'A customer who pays in advance gets a five per cent discount.',
+      'A customer who pays in advance gets a 5% discount.',
+      'A customer who pays in advance gets a five percent discount.',
+      'A customer who pays in advance receives a five per cent discount.',
+      'A customer who pays in advance receives a 5% discount.',
+      'A client who pays in advance gets a five per cent discount.',
+      'A client who pays in advance gets a 5% discount.',
+    ],
+    knownErrors: [
+      onNotion('A customer who pay in advance get a five per cent discount.', 'accord_sujet_verbe'),
+    ],
+    explanation:
+      'Règle générale : présent simple, _pays_ et _gets_, avec le _-s_ de la troisième personne.',
+  }),
 ];

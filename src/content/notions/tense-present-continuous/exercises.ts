@@ -436,4 +436,171 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     explanation:
       'Négation au présent continu (_aren’t sleeping_), puis action en cours (_they’re studying_, ou _revising_ en anglais britannique).',
   }),
+  // Added on 2026-10-16 (D-094): presented by difficulty with the ones above.
+  translate(12, {
+    sentenceFr: 'Je réponds à ton e-mail en ce moment.',
+    hint: 'Une action en train de se faire.',
+    difficulty: 1,
+    accepted: [
+      'I’m answering your email at the moment.',
+      'I’m answering your email right now.',
+      'I’m answering your email now.',
+      'I’m currently answering your email.',
+      'I’m replying to your email at the moment.',
+      'I’m replying to your email right now.',
+      'I’m replying to your email now.',
+      'I’m currently replying to your email.',
+    ],
+    knownErrors: [
+      onNotion('I answer your email at the moment.', 'temps_verbaux'),
+      onNotion('I am answer your email at the moment.', 'temps_verbaux'),
+    ],
+    explanation: '_En ce moment_ : action en cours, _I’m answering_ (ou _I’m replying to_).',
+  }),
+  translate(13, {
+    sentenceFr: 'Mon collègue est en train de parler au téléphone.',
+    hint: 'Une action en cours, avec un sujet à la troisième personne.',
+    difficulty: 1,
+    accepted: [
+      'My colleague is talking on the phone.',
+      'My colleague is speaking on the phone.',
+      'My co-worker is talking on the phone.',
+      'My co-worker is speaking on the phone.',
+    ],
+    knownErrors: [
+      onNotion('My colleague talking on the phone.', 'temps_verbaux'),
+      onNotion('My colleague are talking on the phone.', 'accord_sujet_verbe'),
+    ],
+    explanation:
+      '« Être en train de » : _is talking_ (ou _is speaking_), avec _is_ pour un sujet singulier.',
+  }),
+  translate(14, {
+    sentenceFr: 'Cette semaine, je donne cours à la place d’une collègue.',
+    hint: 'Une situation temporaire, limitée à cette semaine.',
+    difficulty: 2,
+    accepted: [
+      'This week, I’m teaching instead of a colleague.',
+      'This week, I’m teaching in place of a colleague.',
+      'I’m teaching instead of a colleague this week.',
+      'I’m teaching in place of a colleague this week.',
+      'This week, I’m standing in for a colleague.',
+      'I’m standing in for a colleague this week.',
+      'This week, I’m covering for a colleague.',
+    ],
+    knownErrors: [onNotion('This week, I am teach instead of a colleague.', 'temps_verbaux')],
+    explanation: 'Situation temporaire : présent continu, _I’m teaching_.',
+  }),
+  translate(15, {
+    sentenceFr: 'Qu’est-ce que vous attendez ?',
+    hint: 'Une question sur une action en cours : l’auxiliaire avant le sujet.',
+    difficulty: 2,
+    accepted: ['What are you waiting for?'],
+    knownErrors: [
+      onNotion('What you are waiting for?', 'auxiliaires_questions_negations'),
+      onNotion('What do you waiting for?', 'auxiliaires_questions_negations'),
+    ],
+    explanation:
+      'Question au présent continu : _What are you waiting for?_, avec _for_ en fin de question.',
+  }),
+  translate(16, {
+    sentenceFr: 'Le marché boursier ne monte pas cette semaine : il baisse.',
+    hint: 'Une évolution en cours, à la forme négative puis affirmative.',
+    difficulty: 2,
+    accepted: [
+      'The stock market isn’t rising this week: it’s falling.',
+      'The stock market isn’t going up this week: it’s going down.',
+      'The stock market isn’t rising this week: it’s going down.',
+      'The stock market isn’t going up this week: it’s falling.',
+    ],
+    knownErrors: [
+      onNotion('The stock market doesn’t rise this week: it falls.', 'temps_verbaux'),
+      offNotion(
+        'The stock market isn’t raising this week: it’s falling.',
+        'choix_lexical_collocations',
+      ),
+    ],
+    explanation:
+      'Évolution en cours : _isn’t rising_, _it’s falling_. Sans complément, le verbe est _rise_, pas _raise_.',
+  }),
+  translate(17, {
+    sentenceFr: 'Je cherche un stage en data science, donc je mets à jour mon CV.',
+    hint: 'Deux actions en cours en ce moment de ta vie, reliées par « donc ».',
+    difficulty: 3,
+    accepted: [
+      'I’m looking for an internship in data science, so I’m updating my CV.',
+      'I’m looking for a data science internship, so I’m updating my CV.',
+      'I’m looking for an internship in data science, so I’m updating my resume.',
+      'I’m looking for a data science internship, so I’m updating my resume.',
+    ],
+    knownErrors: [
+      onNotion(
+        'I’m look for an internship in data science, so I’m updating my CV.',
+        'temps_verbaux',
+      ),
+      offNotion(
+        'I’m looking an internship in data science, so I’m updating my CV.',
+        'prepositions',
+      ),
+    ],
+    explanation:
+      'Situation temporaire et action en cours : _I’m looking for_ (avec _for_), _I’m updating_.',
+  }),
+  translate(18, {
+    sentenceFr: 'Pourquoi est-ce qu’ils travaillent si tard ce soir ?',
+    hint: 'Une question sur une action en cours ce soir.',
+    difficulty: 2,
+    accepted: [
+      'Why are they working so late tonight?',
+      'Why are they working so late this evening?',
+    ],
+    knownErrors: [
+      onNotion('Why they are working so late tonight?', 'auxiliaires_questions_negations'),
+      onNotion('Why do they working so late tonight?', 'auxiliaires_questions_negations'),
+    ],
+    explanation:
+      'Question au présent continu : _Why are they working…?_, l’auxiliaire avant le sujet.',
+  }),
+  translate(19, {
+    sentenceFr: 'En ce moment, nous testons un nouveau modèle de prévision des ventes.',
+    hint: 'Une action en cours en ce moment, au travail.',
+    difficulty: 3,
+    accepted: [
+      'At the moment, we’re testing a new sales forecasting model.',
+      'We’re testing a new sales forecasting model at the moment.',
+      'We’re currently testing a new sales forecasting model.',
+      'Right now, we’re testing a new sales forecasting model.',
+      'At the moment, we’re testing a new model to forecast sales.',
+      'At the moment, we’re testing a new model for forecasting sales.',
+    ],
+    knownErrors: [
+      onNotion('At the moment, we test a new sales forecasting model.', 'temps_verbaux'),
+      onNotion('At the moment, we are test a new sales forecasting model.', 'temps_verbaux'),
+    ],
+    explanation: '_En ce moment_ : action en cours, _we’re testing_.',
+  }),
+  translate(20, {
+    sentenceFr:
+      'Beaucoup d’entreprises investissent dans l’IA en ce moment, mais peu d’entre elles gagnent de l’argent avec.',
+    hint: 'Deux tendances en cours en ce moment.',
+    difficulty: 3,
+    accepted: [
+      'Many companies are investing in AI at the moment, but few of them are making money from it.',
+      'Many companies are investing in AI at the moment, but few of them are making money with it.',
+      'Many companies are currently investing in AI, but few of them are making money from it.',
+      'Many companies are currently investing in AI, but few of them are making money with it.',
+      'A lot of companies are investing in AI at the moment, but few of them are making money from it.',
+      'Many companies are investing in AI at the moment, but not many of them are making money from it.',
+    ],
+    knownErrors: [
+      onNotion(
+        'Many companies invest in AI at the moment, but few of them are making money from it.',
+        'temps_verbaux',
+      ),
+      offNotion(
+        'Many companies are investing on AI at the moment, but few of them are making money from it.',
+        'prepositions',
+      ),
+    ],
+    explanation: 'Tendances actuelles : _are investing in_, _are making money_.',
+  }),
 ];
