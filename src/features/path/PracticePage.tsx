@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { NOTION_TITLES } from '../../content/catalog.ts';
+import { NOTION_USES } from '../../content/notion-use.ts';
 import type { NotionContent } from '../../content/schema.ts';
 import { pathAnswersOf } from '../../data/repositories/path-repository.ts';
 import type { ExerciseAttempt } from '../../data/schemas/exercise-attempts.ts';
@@ -289,6 +290,7 @@ function Session({
             shownAt={shown.shownAt}
             draftKey={draftKeyOf(translation.item)}
             context="path"
+            notionUse={NOTION_USES[notionId] ?? null}
             onRecorded={(events, result, cardsCreated) => {
               setOutcome({
                 state: 'recorded',
@@ -336,6 +338,7 @@ function Session({
                 draftKey={draftKeyOf(shown.item)}
                 onAnswered={record}
                 aiCheck={aiCheck}
+                notionUse={NOTION_USES[notionId] ?? null}
               />
             )}
           </>

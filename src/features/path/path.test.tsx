@@ -275,7 +275,7 @@ describe('exercises (steps 2 to 4)', () => {
     });
     fireEvent.change(next, { target: { value: 'Look, the rain falls!' } });
     fireEvent.click(screen.getByRole('button', { name: 'Vérifier' }));
-    fireEvent.click(await screen.findByRole('button', { name: 'Non, ma réponse est à revoir' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Notion à revoir' }));
     fireEvent.click(
       await screen.findByRole('button', { name: 'Revoir cette phrase dans mes Reprises' }),
     );
@@ -284,6 +284,49 @@ describe('exercises (steps 2 to 4)', () => {
     expect(kept).toMatchObject({
       status: 'active',
       content: { type: 'notion', meaningFr: 'Regarde, il pleut !', notionId: NOTION },
+    });
+  });
+
+  it('judges a translation on its notion: an error off it, or a proven notion, is good (D-094)', async () => {
+    const notionId: NotionId = 'tense-present-simple-vs-continuous';
+    const services = await createTestServices();
+    await seedProgress(services, { step: 4 }, notionId);
+    await renderApp(`/parcours/${notionId}/exercices`, services);
+
+    // s4/01: "D’habitude, je prends le bus." The adverb out of place is off the notion.
+    const field = await screen.findByRole('textbox', { name: 'Ta traduction' });
+    await waitFor(() => {
+      expect(field).toBeEnabled();
+    });
+    fireEvent.change(field, { target: { value: 'I take usually the bus.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Vérifier' }));
+    expect(await screen.findByText('Notion juste, autre chose à revoir')).toBeInTheDocument();
+    expect(screen.getByText('I usually take the bus.')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Une carte reprendra cette phrase dans tes Reprises.'),
+    ).toBeInTheDocument();
+
+    // s4/02: "Elle présente les résultats en ce moment." The notion is proven by the app.
+    fireEvent.click(screen.getByRole('button', { name: 'Exercice suivant' }));
+    const next = await screen.findByRole('textbox', { name: 'Ta traduction' });
+    await waitFor(() => {
+      expect(next).toBeEnabled();
+    });
+    fireEvent.change(next, { target: { value: 'She is presenting the figures at the moment.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Vérifier' }));
+    expect(await screen.findByText('La forme travaillée est juste')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Notion à revoir' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Notion juste, autre faute' }));
+    expect(await screen.findByText('Notion juste, autre chose à revoir')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('button', { name: 'Revoir cette phrase dans mes Reprises' }),
+    ).toBeInTheDocument();
+
+    await waitFor(async () => {
+      const graded = (await services.path.attempts(notionId)).map(
+        ({ result, grader }) => `${result}/${grader}`,
+      );
+      expect(graded).toEqual(['acceptable/local', 'acceptable/local']);
     });
   });
 

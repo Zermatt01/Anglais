@@ -21,7 +21,7 @@
 import { areEquivalent } from '../correction/forms.ts';
 import { locateSegment, type TextRange } from '../correction/segments.ts';
 import type { NotionId } from '../curriculum/notion-id.ts';
-import type { AnswerResult, Confidence, ErrorCategory, Severity } from '../taxonomy.ts';
+import type { Confidence, ErrorCategory, Severity } from '../taxonomy.ts';
 import type { CefrLevel } from '../level.ts';
 
 export interface ModelError {
@@ -337,23 +337,6 @@ export function isQualifyingError(
     (error.confidence === 'high' || error.confirmedByUser) &&
     !error.reported
   );
-}
-
-/**
- * Result of a translation of step 4 graded by the model (PEDAGOGY §3.3): good
- * when it has no counted error on the target notion. Errors of other notions
- * or minor ones make it "acceptable"; they are handled by the cards. Points to
- * check are left out.
- */
-export function translationResult(
-  correction: ReviewedCorrection,
-  targetNotionId: NotionId,
-): AnswerResult {
-  const errors = correction.errors.filter((error) => !isPointToCheck(error));
-  if (errors.some((error) => error.notionId === targetNotionId && isCountedError(error))) {
-    return 'incorrect';
-  }
-  return errors.length > 0 ? 'acceptable' : 'correct';
 }
 
 export type SelfCorrectionCheck =

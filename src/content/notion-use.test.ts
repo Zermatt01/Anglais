@@ -5,7 +5,11 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { NotionId } from '../domain/curriculum/notion-id.ts';
-import { matchesPattern, parsePattern } from '../domain/production/notion-use.ts';
+import {
+  matchesPattern,
+  parsePattern,
+  showsNotionAsReference,
+} from '../domain/production/notion-use.ts';
 import { loadNotionContent, NOTIONS_WITH_CONTENT } from './index.ts';
 import { NOTION_USES } from './notion-use.ts';
 
@@ -109,5 +113,76 @@ describe('constructions of step 5 (D-088)', () => {
     ['tense-future', 'The train leaves at 7:15 tomorrow.'],
   ] as const)('take for %s the reviewed sentence "%s"', (notionId, sentence) => {
     expect(recognizes(notionId, sentence)).toBe(true);
+  });
+});
+
+/**
+ * Core translations whose canonical answer the closed lists cannot show yet
+ * (D-094): a verb or a subject missing from them, a question with "still",
+ * "yet" or "how long", a "to" just before the verb group in an earlier clause,
+ * or a state verb that takes another form on purpose. An answer to them that
+ * matches no expected answer is compared by the learner.
+ */
+const UNPROVEN_TRANSLATIONS: ReadonlySet<string> = new Set([
+  'tense-present-continuous/s4/07',
+  'tense-present-continuous/s4/09',
+  'tense-present-simple/s4/07',
+  'tense-present-simple/s4/08',
+  'tense-just-already-yet-still/s4/03',
+  'tense-just-already-yet-still/s4/11',
+  'tense-for-since-ago/s4/11',
+  'tense-present-perfect-continuous/s4/08',
+]);
+
+describe('local proof of the notion at step 4 (D-094)', () => {
+  it.each(contents)('shows the notion in each canonical answer of %s', (notionId, content) => {
+    const use = NOTION_USES[notionId];
+    if (use === undefined) throw new Error(`No constructions for ${notionId}`);
+    const missed = content.exercises.flatMap((exercise) =>
+      exercise.kind === 'translate' &&
+      !UNPROVEN_TRANSLATIONS.has(exercise.id) &&
+      !showsNotionAsReference(exercise.accepted[0] ?? '', exercise.accepted, use)
+        ? [exercise.id]
+        : [],
+    );
+    expect(missed).toEqual([]);
+  });
+
+  it.each(contents)(
+    'never proves the notion in an anticipated error on it, in %s',
+    (notionId, content) => {
+      const use = NOTION_USES[notionId];
+      if (use === undefined) throw new Error(`No constructions for ${notionId}`);
+      const proven = content.exercises.flatMap((exercise) =>
+        exercise.kind === 'translate'
+          ? exercise.knownErrors.flatMap((error) =>
+              typeof error !== 'string' &&
+              !error.offNotion &&
+              showsNotionAsReference(error.text, exercise.accepted, use)
+                ? [`${exercise.id}: ${error.text}`]
+                : [],
+            )
+          : [],
+      );
+      expect(proven).toEqual([]);
+    },
+  );
+
+  it('lists only translations that exist and that the lists cannot show', () => {
+    const translations = new Map(
+      contents.flatMap(([notionId, content]) =>
+        content.exercises.flatMap((exercise) =>
+          exercise.kind === 'translate' ? [[exercise.id, { notionId, exercise }] as const] : [],
+        ),
+      ),
+    );
+    for (const id of UNPROVEN_TRANSLATIONS) {
+      const found = translations.get(id);
+      expect(found, id).toBeDefined();
+      const use = found === undefined ? undefined : NOTION_USES[found.notionId];
+      if (found === undefined || use === undefined) continue;
+      const canonical = found.exercise.accepted[0] ?? '';
+      expect(showsNotionAsReference(canonical, found.exercise.accepted, use), id).toBe(false);
+    }
   });
 });

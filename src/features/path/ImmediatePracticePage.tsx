@@ -1,12 +1,14 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
+import { NOTION_USES } from '../../content/notion-use.ts';
 import { NOTION_TITLES } from '../../content/catalog.ts';
 import type { NotionContent } from '../../content/schema.ts';
 import type { ExerciseAttempt } from '../../data/schemas/exercise-attempts.ts';
 import { isNotionStudied } from '../../domain/curriculum/engine.ts';
 import { STEP_OF_KIND, type Exercise } from '../../domain/curriculum/exercise.ts';
 import type { NotionId } from '../../domain/curriculum/notion-id.ts';
+import type { AnswerResult } from '../../domain/taxonomy.ts';
 import { immediatePractice } from '../../domain/curriculum/practice.ts';
 import { Button } from '../../ui/Button.tsx';
 import { Notice } from '../../ui/Notice.tsx';
@@ -170,6 +172,7 @@ function Run({
   const [recorded, setRecorded] = useState(false);
   const [failed, setFailed] = useState(false);
   const [cardCreated, setCardCreated] = useState(false);
+  const [result, setResult] = useState<AnswerResult>('correct');
   const [shownAt, setShownAt] = useState(() => clock.now());
   const item = items[index];
 
@@ -209,6 +212,7 @@ function Run({
       cardOfAnswer(item.exercise, notionId, answer),
     );
     setFailed(answer.result === 'incorrect');
+    setResult(answer.result);
     setCardCreated(made);
     setRecorded(true);
   };
@@ -229,6 +233,7 @@ function Run({
         exercise={item.exercise}
         draftKey={draftKey}
         onAnswered={record}
+        notionUse={NOTION_USES[notionId] ?? null}
         aiCheck={
           item.exercise.kind === 'translate'
             ? (check) =>
@@ -242,8 +247,10 @@ function Run({
                     shownAt={shownAt}
                     draftKey={draftKey}
                     context="immediate-practice"
-                    onRecorded={(_events, result, cardsCreated) => {
-                      setFailed(result === 'incorrect');
+                    notionUse={NOTION_USES[notionId] ?? null}
+                    onRecorded={(_events, checked, cardsCreated) => {
+                      setFailed(checked === 'incorrect');
+                      setResult(checked);
                       setCardCreated(cardsCreated > 0);
                       setRecorded(true);
                     }}
@@ -258,7 +265,7 @@ function Run({
           notionId={notionId}
           exercise={item.exercise}
           source={item.source}
-          result={failed ? 'incorrect' : 'correct'}
+          result={result}
           cardCreated={cardCreated}
         />
       ) : null}

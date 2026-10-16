@@ -8,7 +8,6 @@ import {
   isSameAnswer,
   isWholeSentence,
   reviewCorrection,
-  translationResult,
   type ModelCorrection,
   type ModelError,
 } from './correction.ts';
@@ -360,53 +359,6 @@ describe('counted and qualifying errors (PEDAGOGY §4.1, D-024)', () => {
     expect(isQualifyingError({ ...base, confidence: 'medium', confirmedByUser: true })).toBe(true);
     expect(isQualifyingError({ ...base, reported: true })).toBe(false);
     expect(isQualifyingError({ ...base, severity: 'minor' })).toBe(false);
-  });
-});
-
-describe('results of the path', () => {
-  const target = 'tense-present-perfect-vs-past-simple';
-
-  it('a translation with a counted error on the target notion is incorrect', () => {
-    expect(translationResult(reviewCorrection(TEXT, correction()), target)).toBe('incorrect');
-  });
-
-  it('a translation whose errors are elsewhere, minor or doubtful is still good', () => {
-    const elsewhere = reviewCorrection(
-      TEXT,
-      correction({
-        errors: [
-          error({
-            segment: 'many advices',
-            correction: 'a lot of advice',
-            category: 'indenombrables_pluriels',
-            notionId: 'nouns-countable-uncountable',
-          }),
-        ],
-      }),
-    );
-    expect(translationResult(elsewhere, target)).toBe('acceptable');
-    const doubtful = reviewCorrection(
-      TEXT,
-      correction({
-        errors: [error({ segment: 'have presented', correction: 'presented', confidence: 'low' })],
-      }),
-    );
-    expect(translationResult(doubtful, target)).toBe('correct');
-    const unfound = reviewCorrection(
-      TEXT,
-      correction({ errors: [error({ segment: 'has present', correction: 'presented' })] }),
-    );
-    expect(translationResult(unfound, target)).toBe('correct');
-    const minor = reviewCorrection(
-      TEXT,
-      correction({
-        errors: [error({ segment: 'have presented', correction: 'presented', severity: 'minor' })],
-      }),
-    );
-    expect(translationResult(minor, target)).toBe('acceptable');
-    expect(translationResult(reviewCorrection(TEXT, correction({ errors: [] })), target)).toBe(
-      'correct',
-    );
   });
 });
 

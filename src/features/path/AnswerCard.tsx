@@ -5,8 +5,10 @@ import type { AnswerResult } from '../../domain/taxonomy.ts';
 import { KeepForReview } from '../review/KeepForReview.tsx';
 
 /**
- * Under an answer of the path: the card made of it, or, after a failure on a
- * translation of the core, the offer to keep the sentence for review (D-092).
+ * Under an answer of the path: the card made of it, or, after an answer to a
+ * translation of the core that was not right (a failure, or the notion right
+ * with something else to review), the offer to keep the sentence for review
+ * (D-092, D-094).
  */
 export function AnswerCard({
   notionId,
@@ -24,6 +26,6 @@ export function AnswerCard({
   if (cardCreated) {
     return <p className="muted">Une carte reprendra cette phrase dans tes Reprises.</p>;
   }
-  if (result !== 'incorrect' || source !== 'core' || exercise.kind !== 'translate') return null;
+  if (result === 'correct' || source !== 'core' || exercise.kind !== 'translate') return null;
   return <KeepForReview card={notionCardOf(notionId, exercise)} heldBack={false} />;
 }

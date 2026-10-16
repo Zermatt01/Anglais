@@ -34,9 +34,10 @@
 import { readingsOf } from '../correction/forms.ts';
 import { locateSegment, type TextRange } from '../correction/segments.ts';
 import { isVerbForm, VERB_FORM_ROLES, type VerbFormRole } from '../correction/verb-forms.ts';
+import { isNotionCategory } from '../curriculum/notion-errors.ts';
 import type { NotionId } from '../curriculum/notion-id.ts';
 import type { AnswerResult } from '../taxonomy.ts';
-import { isCountedError, type ReviewedCorrection } from './correction.ts';
+import { isCountedError, isPointToCheck, type ReviewedCorrection } from './correction.ts';
 
 /** The constructions that show a notion. */
 export interface NotionUse {
@@ -168,20 +169,32 @@ function fits(slot: Slot, word: string): boolean {
   }
 }
 
-/** End of a match of `slots` starting at `start`, or -1. */
-function matchPart(words: readonly string[], slots: readonly Slot[], start: number): number {
-  const at = (slot: number, position: number): number => {
-    if (slot === slots.length) return position;
+/** A match of a part: where it ends, and the words its slots took (insertable words left out). */
+interface PartMatch {
+  readonly end: number;
+  readonly picked: readonly string[];
+}
+
+/** A match of `slots` starting at `start`, or `null`. */
+function matchPart(
+  words: readonly string[],
+  slots: readonly Slot[],
+  start: number,
+): PartMatch | null {
+  const at = (slot: number, position: number, picked: readonly string[]): PartMatch | null => {
+    if (slot === slots.length) return { end: position, picked };
     const current = slots[slot];
     const word = words[position];
-    if (current === undefined || word === undefined) return -1;
+    if (current === undefined || word === undefined) return null;
     if (fits(current, word)) {
-      const end = at(slot + 1, position + 1);
-      if (end !== -1) return end;
+      const found = at(slot + 1, position + 1, [...picked, word]);
+      if (found !== null) return found;
     }
-    return slot > 0 && !current.adjacent && INSERTABLE.has(word) ? at(slot, position + 1) : -1;
+    return slot > 0 && !current.adjacent && INSERTABLE.has(word)
+      ? at(slot, position + 1, picked)
+      : null;
   };
-  return at(0, start);
+  return at(0, start, []);
 }
 
 function hasVerb(part: readonly Slot[]): boolean {
@@ -211,24 +224,69 @@ function isWholeVerbGroup(words: readonly string[], start: number, end: number):
   );
 }
 
-function matchesReading(words: readonly string[], parts: readonly (readonly Slot[])[]): boolean {
-  let from = 0;
-  for (const part of parts) {
-    let end = -1;
-    for (let start = from; start < words.length && end === -1; start += 1) {
-      const found = matchPart(words, part, start);
-      if (found !== -1 && (!hasVerb(part) || isWholeVerbGroup(words, start, found))) end = found;
+/** The first match of `part` from `from` on that is a whole verb group when it has a verb. */
+function findPart(words: readonly string[], part: readonly Slot[], from: number): PartMatch | null {
+  for (let start = from; start < words.length; start += 1) {
+    const found = matchPart(words, part, start);
+    if (found !== null && (!hasVerb(part) || isWholeVerbGroup(words, start, found.end))) {
+      return found;
     }
-    if (end === -1) return false;
-    from = end;
   }
-  return true;
+  return null;
+}
+
+/**
+ * The words a construction takes in a reading, when its first part starts at
+ * `start`: its parts follow each other. `null` when it does not match there.
+ */
+function constructionAt(
+  words: readonly string[],
+  parts: readonly (readonly Slot[])[],
+  start: number,
+): string | null {
+  const [first, ...rest] = parts;
+  if (first === undefined) return null;
+  const head = matchPart(words, first, start);
+  if (head === null || (hasVerb(first) && !isWholeVerbGroup(words, start, head.end))) return null;
+  const taken = [head.picked.join(' ')];
+  let from = head.end;
+  for (const part of rest) {
+    const found = findPart(words, part, from);
+    if (found === null) return null;
+    taken.push(found.picked.join(' '));
+    from = found.end;
+  }
+  return taken.join(' … ');
+}
+
+function matchesReading(words: readonly string[], parts: readonly (readonly Slot[])[]): boolean {
+  return words.some((_, start) => constructionAt(words, parts, start) !== null);
 }
 
 /** Whether `words` contain the construction of `pattern`, in one of their readings. */
 export function matchesPattern(words: string, pattern: string): boolean {
   const parts = parsePattern(pattern);
   return readingsOf(words).some((reading) => matchesReading(reading, parts));
+}
+
+/**
+ * Every construction of `patterns` in a text, as the words its slots take, in
+ * any reading: "I usually take the bus" gives "i take" for `i|you|we|they
+ * {base}`; "I've worked here for three years" gives "have worked … for three
+ * years" for `have|has {participle} … for * years`.
+ */
+export function constructionsIn(text: string, patterns: readonly string[]): Set<string> {
+  const found = new Set<string>();
+  const parsed = patterns.map(parsePattern);
+  for (const reading of readingsOf(text)) {
+    for (const parts of parsed) {
+      reading.forEach((_, start) => {
+        const construction = constructionAt(reading, parts, start);
+        if (construction !== null) found.add(construction);
+      });
+    }
+  }
+  return found;
 }
 
 /** Largest number of groups each shown by its own use (a small bipartite matching). */
@@ -298,6 +356,108 @@ export function provenUses(
     .filter((_unit, index) => fitting.some((uses) => uses.includes(index)))
     .map(({ start, end }) => ({ start, end }));
   return { proven: groupsShown(fitting) >= use.required, ranges };
+}
+
+/** Subject pronouns: their place is part of the tense (questions, D-093). */
+const SUBJECTS: ReadonlySet<string> = new Set(['i', 'you', 'he', 'she', 'it', 'we', 'they']);
+
+/**
+ * Words of the tense notions whose presence and place count (D-093): the
+ * negation, and the words of "just, already, yet, still" and "for, since, ago".
+ */
+const NOTION_WORDS: ReadonlySet<string> = new Set([
+  'not',
+  'never',
+  'ever',
+  'just',
+  'already',
+  'yet',
+  'still',
+  'for',
+  'since',
+  'ago',
+]);
+
+/** Adverbs whose place is off the notion (a frequency adverb, D-093): left out. */
+const IGNORED: ReadonlySet<string> = new Set(
+  [...INSERTABLE].filter((word) => !SUBJECTS.has(word) && !NOTION_WORDS.has(word)),
+);
+
+function isVerbWord(word: string): boolean {
+  return AUXILIARIES.has(word) || VERB_FORM_ROLES.some((role) => isVerbForm(word, role));
+}
+
+/**
+ * The verb skeleton of a reading: its subjects, auxiliaries, modals, verb
+ * forms of the closed lists and words of the notions, in their order; any
+ * other words (nouns, articles, prepositions…) are one gap, "…"; the adverbs
+ * of `IGNORED` are left out.
+ */
+function skeletonOf(reading: readonly string[]): string {
+  const kept: string[] = [];
+  for (const word of reading) {
+    if (IGNORED.has(word)) continue;
+    if (SUBJECTS.has(word) || NOTION_WORDS.has(word) || isVerbWord(word)) kept.push(word);
+    else if (kept.at(-1) !== '…') kept.push('…');
+  }
+  return kept.join(' ');
+}
+
+const skeletonsOf = (text: string): Set<string> => new Set(readingsOf(text).map(skeletonOf));
+
+/**
+ * Whether a translation of step 4 uses the notion as one of its reviewed
+ * answers does (D-094), without the model: one of its readings has the verb
+ * skeleton of a reviewed answer that shows the notion. The verbs, auxiliaries,
+ * subjects and words of the notion must be the same, in the same order; the
+ * other words may differ (a noun, a preposition, an article), and the place
+ * of a frequency adverb does not count. "Usually I take the bus" is "i take …"
+ * as "I usually take the bus" is; "What you are doing?" is not "What are you
+ * doing?"; "I'll call you when I'll be there" has a "will" more than "I'll call
+ * you when I'm there". A verb missing from the closed lists is a gap: the
+ * translation must then match without it.
+ */
+export function showsNotionAsReference(
+  translation: string,
+  accepted: readonly string[],
+  use: NotionUse,
+): boolean {
+  const shown = skeletonsOf(translation);
+  return accepted.some(
+    (reference) =>
+      use.groups.some((patterns) => constructionsIn(reference, patterns).size > 0) &&
+      [...skeletonsOf(reference)].some((skeleton) => shown.has(skeleton)),
+  );
+}
+
+/**
+ * Result of a translation of step 4 checked by the model (PEDAGOGY §3.3,
+ * D-088, D-094): `incorrect` with a counted error on the target notion, of a
+ * category of the notion (a frequency adverb out of place is not); otherwise
+ * `correct` or `acceptable` (other errors) only when the app proves the use
+ * of the notion, by the constructions of a reviewed answer or by the words
+ * the model points to; `null` when it cannot: the learner decides.
+ */
+export function stepFourResult(
+  text: string,
+  correction: ReviewedCorrection,
+  targetNotionId: NotionId,
+  proof: { readonly accepted: readonly string[]; readonly use: NotionUse | null },
+): AnswerResult | null {
+  const errors = correction.errors.filter((error) => !isPointToCheck(error));
+  const onNotion = errors.some(
+    (error) =>
+      error.notionId === targetNotionId &&
+      isCountedError(error) &&
+      isNotionCategory(targetNotionId, error.category),
+  );
+  if (onNotion) return 'incorrect';
+  const { use } = proof;
+  if (use === null) return null;
+  const proven =
+    showsNotionAsReference(text, proof.accepted, use) || provenUses(text, correction, use).proven;
+  if (!proven) return null;
+  return errors.length > 0 ? 'acceptable' : 'correct';
 }
 
 /**

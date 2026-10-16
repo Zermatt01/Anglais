@@ -84,6 +84,11 @@
   border-left-color: var(--mark-medium);
 }
 
+/* The notion is right, something else is to be reviewed (D-094). */
+.feedback--partial {
+  border-left-color: var(--mark-minor);
+}
+
 .feedback__title {
   font-weight: 700;
 }

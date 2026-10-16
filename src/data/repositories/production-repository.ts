@@ -47,11 +47,14 @@ import {
   isPointToCheck,
   isQualifyingError,
   reviewCorrection,
-  translationResult,
   type ModelCorrection,
   type ReviewedCorrection,
 } from '../../domain/production/correction.ts';
-import { stepFiveResult, type NotionUse } from '../../domain/production/notion-use.ts';
+import {
+  stepFiveResult,
+  stepFourResult,
+  type NotionUse,
+} from '../../domain/production/notion-use.ts';
 import type { TextRange } from '../../domain/correction/segments.ts';
 import type {
   AnswerResult,
@@ -110,7 +113,7 @@ export interface CorrectionContext {
   readonly pathAnswer?: PathAnswerToRecord;
   /** Cards of the target notion, created if the production makes it acquired (CUR-09). */
   readonly notionCards?: readonly NotionCardContent[];
-  /** Constructions of the target notion of step 5: without them, its use is never proven. */
+  /** Constructions of the target notion (steps 4 and 5): without them, its use is never proven. */
   readonly notionUse?: NotionUse;
 }
 
@@ -540,7 +543,11 @@ export function createProductionRepository(
         const module = stored.module;
         let result: AnswerResult | null = null;
         if (module === 'path-translate' && targetNotionId !== null) {
-          result = translationResult(correction, targetNotionId);
+          // Good only with the use of the notion proven by the app; `null`: the learner decides (D-094).
+          result = stepFourResult(stored.text, correction, targetNotionId, {
+            accepted: context.reference?.answers ?? [],
+            use: context.notionUse ?? null,
+          });
         } else if (module === 'path-produce' && targetNotionId !== null) {
           result = stepFiveResult(
             stored.text,

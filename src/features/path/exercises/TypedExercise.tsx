@@ -1,9 +1,11 @@
 import { useState, type ReactNode } from 'react';
 import {
   acceptedAnswersOf,
+  anticipatedErrorOf,
   evaluateTypedAnswer,
   type Exercise,
 } from '../../../domain/curriculum/exercise.ts';
+import { showsNotionAsReference, type NotionUse } from '../../../domain/production/notion-use.ts';
 import { Button } from '../../../ui/Button.tsx';
 import { TextAreaField, TextField } from '../../../ui/fields.tsx';
 import { Notice } from '../../../ui/Notice.tsx';
@@ -39,16 +41,21 @@ interface TypedExerciseProps {
   readonly onAnswered: SaveAnswer;
   /** For a translation: asking the model, offered next to the comparison (on request only). */
   readonly aiCheck?: ((props: AiCheckProps) => ReactNode) | undefined;
+  /** For a translation: the constructions that prove the use of the notion (D-094). */
+  readonly notionUse?: NotionUse | null;
 }
 
 type Phase =
   | { readonly name: 'answering' }
-  /** The answer matches no expected answer: the learner compares (never "wrong", NO-05). */
-  | { readonly name: 'comparing'; readonly answer: string }
+  /**
+   * The answer matches no expected answer: the learner compares (never "wrong",
+   * NO-05). `proven`: the app finds the notion in it as in a reviewed answer (D-094).
+   */
+  | { readonly name: 'comparing'; readonly answer: string; readonly proven: boolean }
   | {
       readonly name: 'done';
       readonly answer: string;
-      readonly correct: boolean;
+      readonly result: AnswerResult;
       readonly matched: string | null;
       readonly selfAssessed: boolean;
     }
@@ -112,8 +119,68 @@ const FIELD_LABELS: Readonly<Record<TypedExercise['kind'], string>> = {
   translate: 'Ta traduction',
 };
 
+const verdictOf = (result: AnswerResult) =>
+  result === 'acceptable' ? 'partial' : result === 'correct' ? 'correct' : 'incorrect';
+
+/**
+ * How the learner judges a translation that matches no expected answer
+ * (D-094): the step is judged on the notion. When the app proves the notion,
+ * only whether the rest is right is asked.
+ */
+function TranslationJudgment({
+  proven,
+  onJudged,
+}: {
+  readonly proven: boolean;
+  readonly onJudged: (result: AnswerResult, selfAssessed: boolean) => void;
+}) {
+  return (
+    <>
+      <p>
+        {proven
+          ? 'Et le reste de ta phrase ?'
+          : 'Ta réponse a-t-elle le même sens ? Et la forme travaillée ici est-elle bien employée ?'}
+      </p>
+      <div className="button-row">
+        <Button
+          onClick={() => {
+            onJudged('correct', true);
+          }}
+        >
+          Tout est juste
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            // Proven by the app: graded locally; otherwise, the learner's judgment.
+            onJudged('acceptable', !proven);
+          }}
+        >
+          Notion juste, autre faute
+        </Button>
+        {proven ? null : (
+          <Button
+            variant="secondary"
+            onClick={() => {
+              onJudged('incorrect', true);
+            }}
+          >
+            Notion à revoir
+          </Button>
+        )}
+      </div>
+    </>
+  );
+}
+
 /** Steps 3 and 4: the answer is typed, then graded locally (CUR-05). */
-export function TypedExercise({ exercise, draftKey, onAnswered, aiCheck }: TypedExerciseProps) {
+export function TypedExercise({
+  exercise,
+  draftKey,
+  onAnswered,
+  aiCheck,
+  notionUse = null,
+}: TypedExerciseProps) {
   const initial = exercise.kind === 'place-word' ? exercise.sentence : '';
   const draft = useDraft(draftKey, initial);
   const [phase, setPhase] = useState<Phase>({ name: 'answering' });
@@ -129,14 +196,14 @@ export function TypedExercise({ exercise, draftKey, onAnswered, aiCheck }: Typed
   const accepted = acceptedAnswersOf(exercise);
   const canonical = accepted[0] ?? '';
 
-  function finish(answer: string, correct: boolean, matched: string | null, selfAssessed: boolean) {
-    setPhase({ name: 'done', answer, correct, matched, selfAssessed });
-    submit({
-      answer,
-      result: correct ? 'correct' : 'incorrect',
-      grader: selfAssessed ? 'user' : 'local',
-      hintUsed: hintShown,
-    });
+  function finish(
+    answer: string,
+    result: AnswerResult,
+    matched: string | null,
+    selfAssessed: boolean,
+  ) {
+    setPhase({ name: 'done', answer, result, matched, selfAssessed });
+    submit({ answer, result, grader: selfAssessed ? 'user' : 'local', hintUsed: hintShown });
   }
 
   function check() {
@@ -148,10 +215,22 @@ export function TypedExercise({ exercise, draftKey, onAnswered, aiCheck }: Typed
     setEmpty(false);
     const evaluation = evaluateTypedAnswer(exercise, answer);
     if (evaluation.verdict === 'unknown') {
-      setPhase({ name: 'comparing', answer });
+      const proven =
+        exercise.kind === 'translate' &&
+        notionUse !== null &&
+        showsNotionAsReference(answer, exercise.accepted, notionUse);
+      setPhase({ name: 'comparing', answer, proven });
       return;
     }
-    finish(answer, evaluation.verdict === 'correct', evaluation.matched, false);
+    // An anticipated error off the notion is corrected, but the notion is right (D-093, D-094).
+    const offNotion =
+      exercise.kind === 'translate' && anticipatedErrorOf(exercise, answer)?.offNotion === true;
+    finish(
+      answer,
+      evaluation.verdict === 'correct' ? 'correct' : offNotion ? 'acceptable' : 'incorrect',
+      evaluation.matched,
+      false,
+    );
   }
 
   const field = {
@@ -215,10 +294,13 @@ export function TypedExercise({ exercise, draftKey, onAnswered, aiCheck }: Typed
 
       {phase.name === 'comparing' ? (
         <div className="feedback feedback--compare" role="status">
-          <p className="feedback__title">Réponse non prévue</p>
+          <p className="feedback__title">
+            {phase.proven ? 'La forme travaillée est juste' : 'Réponse non prévue'}
+          </p>
           <p>
-            Ta réponse ne figure pas parmi les réponses prévues, ce qui ne veut pas dire qu’elle est
-            fausse. Compare-la avec la réponse de référence :
+            {phase.proven
+              ? 'Ta phrase emploie la notion comme la réponse de référence. Le reste en diffère, sans être forcément faux : l’app ne le vérifie pas.'
+              : 'Ta réponse ne figure pas parmi les réponses prévues, ce qui ne veut pas dire qu’elle est fausse. Compare-la avec la réponse de référence :'}
           </p>
           <p lang="en" className="feedback__answer">
             {canonical}
@@ -234,33 +316,46 @@ export function TypedExercise({ exercise, draftKey, onAnswered, aiCheck }: Typed
                   setPhase({ name: 'checked', answer: phase.answer, result, productionId });
                 },
               })}
-          <p>Ta réponse a-t-elle le même sens, avec la forme travaillée ici bien employée ?</p>
-          <div className="button-row">
-            <Button
-              onClick={() => {
-                finish(phase.answer, true, null, true);
+          {exercise.kind === 'translate' ? (
+            <TranslationJudgment
+              proven={phase.proven}
+              onJudged={(result, selfAssessed) => {
+                finish(phase.answer, result, null, selfAssessed);
               }}
-            >
-              Oui, ma réponse est juste
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                finish(phase.answer, false, null, true);
-              }}
-            >
-              Non, ma réponse est à revoir
-            </Button>
-          </div>
+            />
+          ) : (
+            <>
+              <p>Ta réponse a-t-elle le même sens, avec la forme travaillée ici bien employée ?</p>
+              <div className="button-row">
+                <Button
+                  onClick={() => {
+                    finish(phase.answer, 'correct', null, true);
+                  }}
+                >
+                  Oui, ma réponse est juste
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    finish(phase.answer, 'incorrect', null, true);
+                  }}
+                >
+                  Non, ma réponse est à revoir
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       ) : null}
 
       <SavingStatus saving={saving} onRetry={retry} />
       {phase.name === 'done' && saving.state === 'saved' ? (
         <Feedback
-          verdict={phase.correct ? 'correct' : 'incorrect'}
+          verdict={verdictOf(phase.result)}
           expected={
-            phase.correct && (phase.selfAssessed || phase.matched === canonical) ? null : canonical
+            phase.result === 'correct' && (phase.selfAssessed || phase.matched === canonical)
+              ? null
+              : canonical
           }
           explanation={exercise.explanation}
           selfAssessed={phase.selfAssessed}
@@ -269,7 +364,7 @@ export function TypedExercise({ exercise, draftKey, onAnswered, aiCheck }: Typed
       {phase.name === 'checked' ? (
         <>
           <Feedback
-            verdict={phase.result === 'incorrect' ? 'incorrect' : 'correct'}
+            verdict={verdictOf(phase.result)}
             expected={phase.result === 'correct' ? null : canonical}
             explanation={exercise.explanation}
           />

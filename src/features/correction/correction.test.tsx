@@ -355,9 +355,10 @@ describe('step 5, use of the notion not proven (D-088)', () => {
 });
 
 describe('step 4 checked by the model (D-076)', () => {
-  it('records an unexpected translation graded by the model, on request', async () => {
+  it('records an unexpected translation graded by the model, on request, once the notion is proven', async () => {
     const notionId: NotionId = 'tense-present-continuous';
-    const answer = 'These days I am busy with a new project.';
+    // s4/01: "Je travaille sur un nouveau projet en ce moment."
+    const answer = 'These days I am working on a new project.';
     const { fake, services } = await servicesWith(() =>
       Promise.resolve(answered(correctionOf(answer, null))),
     );
@@ -365,7 +366,8 @@ describe('step 4 checked by the model (D-076)', () => {
     await renderApp(`/parcours/${notionId}/exercices`, services);
     await typeIn('Ta traduction', answer);
     fireEvent.click(screen.getByRole('button', { name: 'Vérifier' }));
-    expect(await screen.findByText('Réponse non prévue')).toBeInTheDocument();
+    // The app finds "am working" as in a reviewed answer (D-094).
+    expect(await screen.findByText('La forme travaillée est juste')).toBeInTheDocument();
     expect(fake.calls.run).toEqual([]);
     fireEvent.click(screen.getByRole('button', { name: 'Faire vérifier par l’IA' }));
     expect(await screen.findByText('Juste !')).toBeInTheDocument();
@@ -377,6 +379,27 @@ describe('step 4 checked by the model (D-076)', () => {
       status: 'corrected',
       result: 'correct',
     });
+  });
+
+  it('lets the learner decide when the model finds no error but the notion is not proven (D-094)', async () => {
+    const notionId: NotionId = 'tense-present-continuous';
+    const answer = 'These days I am busy with a new project.';
+    const { services } = await servicesWith(() =>
+      Promise.resolve(answered(correctionOf(answer, null))),
+    );
+    await seedProgress(services, notionId, { step: 4 });
+    await renderApp(`/parcours/${notionId}/exercices`, services);
+    await typeIn('Ta traduction', answer);
+    fireEvent.click(screen.getByRole('button', { name: 'Vérifier' }));
+    expect(await screen.findByText('Réponse non prévue')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Faire vérifier par l’IA' }));
+    expect(await screen.findByText('Emploi de la notion non vérifié')).toBeInTheDocument();
+    expect(await services.path.attempts(notionId)).toEqual([]);
+    fireEvent.click(screen.getByRole('button', { name: 'Notion à revoir' }));
+    expect(await screen.findByText('Noté comme à revoir')).toBeInTheDocument();
+    expect(await services.path.attempts(notionId)).toEqual([
+      expect.objectContaining({ step: 4, result: 'incorrect', grader: 'user' }),
+    ]);
   });
 });
 

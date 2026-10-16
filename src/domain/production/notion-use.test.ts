@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { reviewCorrection, type ModelCorrection, type ModelError } from './correction.ts';
 import {
+  constructionsIn,
   matchesPattern,
   parsePattern,
   provenUses,
+  showsNotionAsReference,
   stepFiveResult,
+  stepFourResult,
   type NotionUse,
 } from './notion-use.ts';
 
@@ -187,5 +190,157 @@ describe('provenUses and stepFiveResult (PEDAGOGY §3.3, D-088)', () => {
     expect(
       provenUses(both, correction(both, { targetNotionUses: ['have lived'] }), contrast).proven,
     ).toBe(false);
+  });
+});
+
+const SUBJECT = 'i|you|we|they';
+const PRESENT_SIMPLE = [
+  '{third}',
+  `${SUBJECT} {base}`,
+  `${SUBJECT} do {base}`,
+  `do ${SUBJECT} {base}`,
+  'does {base}',
+];
+const PRESENT_CONTINUOUS = ['am|is|are {ing}'];
+const SIMPLE: NotionUse = { groups: [PRESENT_SIMPLE], required: 1 };
+const CONTRAST: NotionUse = { groups: [PRESENT_SIMPLE, PRESENT_CONTINUOUS], required: 2 };
+
+describe('constructionsIn (D-094)', () => {
+  it('gives the words the slots take, leaving the insertable words out', () => {
+    expect(constructionsIn('I usually take the bus.', PRESENT_SIMPLE)).toEqual(new Set(['i take']));
+    expect(constructionsIn('Usually I take the bus.', PRESENT_SIMPLE)).toEqual(new Set(['i take']));
+    expect(
+      constructionsIn("I've worked here for three years.", ['have|has {participle} … for * years']),
+      // Read like answers: small numbers in digits (D-046).
+    ).toEqual(new Set(['have worked … for 3 years']));
+    expect(constructionsIn('I am taking the bus.', PRESENT_SIMPLE)).toEqual(new Set());
+  });
+});
+
+describe('showsNotionAsReference (D-094)', () => {
+  const accepted = ['I usually take the bus.', 'I normally take the bus.'];
+
+  it('proves the notion when the translation has the constructions of a reviewed answer', () => {
+    expect(showsNotionAsReference('Usually I take the bus.', accepted, SIMPLE)).toBe(true);
+    expect(showsNotionAsReference('I usually take a bus', accepted, SIMPLE)).toBe(true);
+    expect(
+      showsNotionAsReference(
+        'He works in Zurich, but this month he is working in Paris.',
+        ['He works in Geneva, but this month he’s working in London.'],
+        CONTRAST,
+      ),
+    ).toBe(true);
+  });
+
+  it('proves nothing with another tense, another verb, another subject or a missing part', () => {
+    expect(showsNotionAsReference('I am taking the bus.', accepted, SIMPLE)).toBe(false);
+    expect(showsNotionAsReference('I usually go by bus.', accepted, SIMPLE)).toBe(false);
+    expect(showsNotionAsReference('We usually take the bus.', accepted, SIMPLE)).toBe(false);
+    expect(showsNotionAsReference('I took the bus.', accepted, SIMPLE)).toBe(false);
+    // Both tenses of a contrast are asked for, each as in the reference.
+    expect(
+      showsNotionAsReference(
+        'He works in Geneva, but this month he works in London.',
+        ['He works in Geneva, but this month he’s working in London.'],
+        CONTRAST,
+      ),
+    ).toBe(false);
+    // No construction more than the reference: "will" after "when" is the error of the future.
+    const FUTURE: NotionUse = {
+      groups: [['will|shall {base}', 'will|shall be {ing}']],
+      required: 1,
+    };
+    expect(
+      showsNotionAsReference(
+        'I will call you when I will be arriving.',
+        ['I’ll call you when I arrive.'],
+        FUTURE,
+      ),
+    ).toBe(false);
+    expect(
+      showsNotionAsReference(
+        'I will phone you when I arrive.',
+        ['I’ll call you when I arrive.'],
+        FUTURE,
+      ),
+    ).toBe(false);
+    expect(
+      showsNotionAsReference(
+        'I will call you as soon as I arrive.',
+        ['I’ll call you when I arrive.'],
+        FUTURE,
+      ),
+    ).toBe(true);
+    // Every construction of the reference: one present simple right and one wrong is not enough.
+    expect(
+      showsNotionAsReference(
+        'She doesn’t work on Fridays, but she answer her emails.',
+        ['She doesn’t work on Fridays, but she answers her emails.'],
+        SIMPLE,
+      ),
+    ).toBe(false);
+  });
+});
+
+describe('stepFourResult (D-094)', () => {
+  const text = 'Usually I take the bus.';
+  const proof = { accepted: ['I usually take the bus.'], use: SIMPLE };
+
+  it('fails only on a counted error of a category of the notion', () => {
+    const tense = correction(text, {
+      errors: [error({ segment: 'take', start: 10, notionId: 'tense-present-simple' })],
+    });
+    expect(stepFourResult(text, tense, 'tense-present-simple', proof)).toBe('incorrect');
+    const order = correction(text, {
+      errors: [
+        error({
+          segment: 'Usually I take',
+          category: 'ordre_des_mots',
+          notionId: 'tense-present-simple',
+          correction: 'I usually take',
+        }),
+      ],
+    });
+    expect(stepFourResult(text, order, 'tense-present-simple', proof)).toBe('acceptable');
+  });
+
+  it('stays good with errors elsewhere, minor, doubtful or not found in the text', () => {
+    const elsewhere = correction(text, {
+      errors: [
+        error({
+          segment: 'the bus',
+          start: 15,
+          category: 'articles',
+          notionId: 'nouns-articles',
+          correction: 'a bus',
+        }),
+      ],
+    });
+    expect(stepFourResult(text, elsewhere, 'tense-present-simple', proof)).toBe('acceptable');
+    const minor = correction(text, {
+      errors: [
+        error({ segment: 'take', start: 10, notionId: 'tense-present-simple', severity: 'minor' }),
+      ],
+    });
+    expect(stepFourResult(text, minor, 'tense-present-simple', proof)).toBe('acceptable');
+    const doubtful = correction(text, {
+      errors: [
+        error({ segment: 'take', start: 10, notionId: 'tense-present-simple', confidence: 'low' }),
+      ],
+    });
+    expect(stepFourResult(text, doubtful, 'tense-present-simple', proof)).toBe('correct');
+    const unfound = correction(text, {
+      errors: [error({ segment: 'takes', notionId: 'tense-present-simple' })],
+    });
+    expect(stepFourResult(text, unfound, 'tense-present-simple', proof)).toBe('correct');
+  });
+
+  it('is good only when the app proves the use of the notion; otherwise the learner decides', () => {
+    expect(stepFourResult(text, correction(text), 'tense-present-simple', proof)).toBe('correct');
+    const other = 'I am taking the bus.';
+    expect(stepFourResult(other, correction(other), 'tense-present-simple', proof)).toBeNull();
+    expect(
+      stepFourResult(text, correction(text), 'tense-present-simple', { ...proof, use: null }),
+    ).toBeNull();
   });
 });
