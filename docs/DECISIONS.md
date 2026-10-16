@@ -98,6 +98,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-088 | Sorties de l'IA vérifiées par l'app ; revues de phase 4  | Transverse  | Complétée (D-089)       |
 | D-089 | Confiance asymétrique dans les exercices créés par l'IA  | Pédagogie   | Actée                   |
 | D-090 | Contre-revues de la phase 4                              | Transverse  | Actée                   |
+| D-091 | Attentes bornées des appels IA                           | IA et coûts | Actée                   |
 
 ---
 
@@ -949,3 +950,13 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - cinq formes en _-ing_ de la liste, surtout adjectifs après _be_ (_missing_, _misleading_, _promising_, _upsetting_, _worrying_), ne prouvent jamais un temps continu (_The file is missing._).
 - **Tests.** Chaque faux positif est un cas négatif, chaque faux négatif un cas positif, et les réponses canoniques du Thème restent toutes reconnues.
 - **Limite connue.** Les autres résultats notés avec la première version du prompt (une phrase du Thème, une traduction de l'étape 4) ne sont pas recalculés : seules en existent les corrections faites pendant l'essai de l'utilisateur, qui a porté sur le Journal.
+
+### D-091 — Attentes bornées des appels IA (2026-10-16, complète D-016, D-066 et D-083)
+
+- **Contexte.** Usage réel : la correction du Journal restait parfois sur « Correction en cours… » sans jamais aboutir. Diagnostic du 2026-10-16 : le projet Supabase est actif (pas en pause) et l'Edge Function répond. Le défaut est dans l'application : aucune attente du client n'était bornée, ni celle de la session (renouvellement du jeton par Supabase Auth, sans délai), ni celle de la réponse (`fetch` sans délai). Sur un téléphone, une requête qui n'échange aucun octet pendant la correction (souvent plusieurs dizaines de secondes) peut se perdre (réseau mobile, écran verrouillé) : `fetch` attend alors indéfiniment. De plus, l'Edge Function pouvait dépasser la limite de 150 secondes de Supabase (deux tentatives de 90 secondes au plus) ; la plateforme répond alors 504. La cause exacte des cas observés se lit dans `ai_calls` (DEPLOYMENT.md, section 18).
+- **Décision.**
+  - **Client** (`src/services/ai-client`) : la session est attendue 30 secondes au plus (Supabase Auth retente un renouvellement pendant 30 secondes au plus) ; la réponse d'une tâche 160 secondes au plus, soit la limite de la plateforme (`PLATFORM_TIMEOUT_MS`, documentation vérifiée le 2026-10-16) plus une marge : au-delà, aucune réponse ne peut plus arriver, et attendre davantage n'économiserait aucun appel ; la consommation 20 secondes. Passé ce délai, la requête est interrompue et l'erreur `timeout` affiche « La réponse n'est pas arrivée à temps : le réseau ou le service d'IA est peut-être lent. Réessaie dans un moment. » Une réponse 504 de la plateforme est lue comme `timeout`. Une session qui échoue devient `unreachable` ; elle donnait « Correction non enregistrée », qui accusait à tort le stockage du téléphone.
+  - **Edge Function** : la nouvelle tentative qui suit une sortie invalide ou un refus n'est faite que si elle peut finir dans les 140 secondes qui suivent l'arrivée de la requête (`REQUEST_DEADLINE_MS`), donc si la première a duré au plus 50 secondes. Sinon, l'erreur de la première est renvoyée tout de suite, avant la limite de la plateforme.
+  - **Écrans** : pendant une correction, l'écran dit qu'elle peut prendre un moment et qu'un message viendra si elle n'arrive pas.
+- **Limite connue.** Une réponse perdue en route a pu être facturée ; « Réessayer » fait un nouvel appel, payé à nouveau (en général 0,02 à 0,04 USD). Pour l'éviter, il faudrait garder la sortie côté serveur et la renvoyer à la même demande. Ce n'est pas fait : cela demande une table et une migration, à décider si le cas se répète.
+- **Tests.** Session et réponse qui ne viennent jamais (horloge simulée : rien avant le délai, la requête interrompue à l'échéance), réponse 504, session en échec, consommation ; nouvelle tentative faite à 50 secondes, refusée à 50,001 secondes ; ordre des délais (modèle < échéance de la fonction < limite de la plateforme < attente du client).

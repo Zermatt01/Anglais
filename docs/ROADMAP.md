@@ -6,7 +6,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 **Revues** (D-059) : chaque phase reçoit une revue de Codex, puis au plus une contre-revue des corrections, sauf s'il reste un point bloquant.
 
-**Phase 4 terminée (2026-10-08).** Ses fonctionnalités sont livrées, ses revues et contre-revues de Codex traitées (D-088 à D-090), et toutes les vérifications passent. **La phase 5 attend l'accord de l'utilisateur.**
+**Phase 4 terminée (2026-10-08).** Ses fonctionnalités sont livrées, ses revues et contre-revues de Codex traitées (D-088 à D-090), et toutes les vérifications passent. **Des ajustements issus de l'usage réel passent avant la phase 5** (section ci-dessous). **La phase 5 attend l'accord de l'utilisateur.**
 
 ---
 
@@ -98,6 +98,12 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 - [x] Exercices créés par l'IA : une réussite compte pour passer l'étape, un échec jamais ; il devient un point à vérifier, avec la réponse attendue et « Signaler » (D-089, décision de l'utilisateur)
 - [x] Contre-revues de Codex traitées (D-090) : anciennes réussites de l'étape 5 sorties de la série, une même plage ne prouve qu'un temps, impératif non pris pour un présent simple, _for_ compté seulement avec une durée, durée en tête de phrase reconnue
 - [x] **Phase 4 terminée** (2026-10-08)
+
+## Ajustements d'usage avant la phase 5
+
+Demandés par l'utilisateur le 2026-10-16, après usage réel. Les autres ajustements proposés (Reprises, étape 4 du Parcours, mots inconnus) attendent son accord.
+
+- [x] Attentes bornées des appels IA : une correction finit toujours, par la correction ou par un message clair (D-091) ; action de l'utilisateur : DEPLOYMENT.md, section 18
 
 ## Phase 5 — Qualité des corrections
 

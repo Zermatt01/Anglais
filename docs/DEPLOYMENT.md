@@ -229,6 +229,7 @@ En cas de problème :
 | « Ta session a expiré »                               | Se déconnecter puis se reconnecter. Si cela persiste : clés de signature « Legacy » (section 6, point 4).                                                                                                                                                                                                                         |
 | « Le serveur IA n'a pas pu être joint »               | Fonction non déployée, ou `AI_ALLOWED_ORIGINS` différent de l'adresse ouverte (la comparer exactement, `https://` compris).                                                                                                                                                                                                       |
 | « Le service d'IA n'a pas répondu »                   | La ligne `ai_call` des journaux de la fonction (**Edge Functions → ai → Logs**) donne l'explication dans `detail` : clé non rattachée à un espace de travail (« not scoped to a workspace », section 9, point 4) ; clé invalide (`anthropic_401`) ; crédit épuisé ou limite de dépense atteinte. Vérifier dans la Claude Console. |
+| « La réponse n'est pas arrivée à temps »              | Réseau lent ou coupé, ou modèle lent : l'application cesse d'attendre après environ 2 min 40 (DECISIONS D-091). Réessayer sur un réseau stable. Si cela se répète, lire `ai_calls` (section 18) : la durée et le statut de chaque appel disent si le modèle a répondu.                                                            |
 | Build Vercel en échec : « Content-Security-Policy … » | Lancer la commande indiquée (section 11, point 2), puis pousser.                                                                                                                                                                                                                                                                  |
 
 ## 13. Coûts et limites
@@ -309,3 +310,26 @@ La revue passe le prompt de correction en version 2 (`correct-production@2`, DEC
 1. `git push`, puis redéployer l'Edge Function : `npx supabase@2.118.0 functions deploy ai --use-api`.
 2. Sur le téléphone, **Mettre à jour**. Les corrections déjà reçues restent lisibles.
 3. **Étape « Produire »** : une production réussie l'est parce que l'application a reconnu la notion dans tes phrases. Sinon, l'écran dit que l'emploi n'a pas pu être vérifié, et la production ne compte ni pour ni contre l'étape. Si cela arrive alors que tu as bien employé la notion, note la phrase : la liste des formes reconnues s'étendra.
+
+## 18. Ajustements d'usage avant la phase 5
+
+### Correction qui ne finissait pas (DECISIONS D-091)
+
+Aucune migration ni aucun secret. L'application et l'Edge Function changent toutes les deux.
+
+1. `git push`, puis redéployer l'Edge Function : `npx supabase@2.118.0 functions deploy ai --use-api`.
+2. Sur le téléphone, **Mettre à jour**.
+3. **Vérifier** : une correction du Journal finit toujours, par la correction ou par un message. Sans réponse, l'application cesse d'attendre après environ 2 min 40 et affiche « La réponse n'est pas arrivée à temps » ; le texte reste enregistré, avec « Réessayer ».
+4. **Si une correction tarde ou échoue encore**, lire le journal des appels dans **SQL Editor** (lecture seule, aucun texte de l'apprenant) :
+
+   ```sql
+   select created_at, task, attempt, status, latency_ms, error_code, cost_usd
+   from public.ai_calls
+   order by created_at desc
+   limit 20;
+   ```
+
+   - aucune ligne au moment de l'essai : la demande n'est pas arrivée à la fonction (réseau du téléphone, session) ;
+   - `status = 'reserved'` qui reste : la fonction a été arrêtée pendant l'appel (limite de 150 s de Supabase) ;
+   - `ok` avec une `latency_ms` élevée : le modèle a répondu, mais la réponse s'est perdue en route (réseau mobile, écran verrouillé) ; elle a été facturée ;
+   - `error` : `error_code` donne la cause (`anthropic_timeout`, `anthropic_529` pour une surcharge, etc.), et la ligne `ai_call` des journaux (**Edge Functions → ai → Logs**) l'explication.
