@@ -21,6 +21,7 @@ const TASK_LABELS: Readonly<Record<string, string>> = {
   'connection-check': 'Test de connexion',
   'correct-production': 'Corrections',
   'check-card-answer': 'Vérification de réponses',
+  'explain-word': 'Sens des mots',
   'classify-sounds': 'Sons à travailler',
   'generate-exercises': 'Exercices générés',
   diagnose: 'Diagnostic',

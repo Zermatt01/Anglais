@@ -63,6 +63,62 @@ export function expressionBetween(text: string, first: number, last: number): st
   return text.slice(from.start, to.start + to.text.length);
 }
 
+/** End of a sentence: its final punctuation and closing quotes, before a space; or a line break. */
+const SENTENCE_END = /[.!?]+["'”’)\]]*(?=\s)|\n/gu;
+
+/**
+ * Abbreviations whose full stop never ends a sentence, lower-cased (closed
+ * list, D-058): a sentence too long is harmless, a fragment is not.
+ */
+const ABBREVIATIONS: ReadonlySet<string> = new Set([
+  'e.g.',
+  'i.e.',
+  'etc.',
+  'vs.',
+  'cf.',
+  'approx.',
+  'mr.',
+  'mrs.',
+  'ms.',
+  'dr.',
+  'prof.',
+  'a.m.',
+  'p.m.',
+  'u.s.',
+  'u.k.',
+]);
+
+function endsWithAbbreviation(text: string, end: number): boolean {
+  const token = /\S+$/u.exec(text.slice(0, end))?.[0] ?? '';
+  return ABBREVIATIONS.has(token.replace(/^["'“‘([]+/u, '').toLowerCase());
+}
+
+/**
+ * The sentence of `text` that holds its words from `first` to `last` (indexes
+ * among its words, in any order), or the sentences, when they lie in
+ * several: the example of a word touched in a paragraph (D-095). The whole
+ * text when an index is out of range.
+ */
+export function sentenceAround(text: string, first: number, last: number): string {
+  const words = piecesOf(text).filter((piece) => piece.word);
+  const from = words[Math.min(first, last)];
+  const to = words[Math.max(first, last)];
+  if (from === undefined || to === undefined) return text.trim();
+  const end = to.start + to.text.length;
+  let start = 0;
+  let stop = text.length;
+  for (const match of text.matchAll(SENTENCE_END)) {
+    const boundary = match.index + match[0].length;
+    if (match[0].endsWith('.') && endsWithAbbreviation(text, boundary)) continue;
+    if (boundary <= from.start) start = boundary;
+    else if (boundary >= end) {
+      stop = boundary;
+      break;
+    }
+  }
+  return text.slice(start, stop).trim();
+}
+
 /** Positions of `needle` in `text`, ignoring case. */
 function occurrences(text: string, needle: string): number[] {
   const haystack = text.toLowerCase();

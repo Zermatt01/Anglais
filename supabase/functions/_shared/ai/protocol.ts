@@ -53,11 +53,18 @@ export const checkCardAnswerRequestSchema = z.strictObject({
   input: TASK_CONTRACTS['check-card-answer'].input,
 });
 
+export const explainWordRequestSchema = z.strictObject({
+  task: z.literal('explain-word'),
+  requestId: z.uuid(),
+  input: TASK_CONTRACTS['explain-word'].input,
+});
+
 export const aiRequestSchema = z.discriminatedUnion('task', [
   connectionCheckRequestSchema,
   generateExercisesRequestSchema,
   correctProductionRequestSchema,
   checkCardAnswerRequestSchema,
+  explainWordRequestSchema,
 ]);
 export type AiRequest = z.infer<typeof aiRequestSchema>;
 

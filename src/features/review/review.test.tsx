@@ -270,3 +270,156 @@ describe('unknown words (D-095)', () => {
     expect(screen.queryByRole('button', { name: 'euro' })).not.toBeInTheDocument();
   });
 });
+
+describe('meaning of an unknown word, proposed by the AI (D-095)', () => {
+  const pick = async () => {
+    const third = (await screen.findAllByRole('button', { name: 'Mot inconnu ?' }))[2];
+    if (third === undefined) throw new Error('no word picker');
+    fireEvent.click(third);
+    fireEvent.click(screen.getByRole('button', { name: 'across' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ajouter « across »' }));
+    const meaning = await screen.findByRole('textbox', {
+      name: 'Sens en français, dans cette phrase',
+    });
+    await waitFor(() => {
+      expect(meaning).toBeEnabled();
+    });
+    return meaning;
+  };
+
+  it('asks the fast model on request only, and adds the meaning once confirmed', async () => {
+    const inputs: unknown[] = [];
+    const fake = createFakeServer({
+      account: TEST_ACCOUNT,
+      run: (_task, input) => {
+        inputs.push(input);
+        return Promise.resolve({
+          ok: true,
+          output: { meaningFr: 'dans tout, à travers' },
+          costUsd: 0.0012,
+          model: 'claude-haiku-4-5-20251001',
+          promptVersion: 'explain-word@1',
+        });
+      },
+    });
+    const services = await createTestServices({ server: fake.server });
+    await renderApp('/parcours/tense-present-continuous/lecon', services);
+    const meaning = await pick();
+    expect(screen.getByText(/Sens proposé par l’IA, que tu confirmes : au plus 0,0/)).toBeVisible();
+    expect(fake.calls.run).toEqual([]);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Demander le sens à l’IA' }));
+    await waitFor(() => {
+      expect(meaning).toHaveValue('dans tout, à travers');
+    });
+    expect(fake.calls.run).toEqual(['explain-word']);
+    expect(inputs).toEqual([
+      {
+        expression: 'across',
+        sentence: 'Inflation is falling across the euro area.',
+        englishVariant: 'en-GB',
+      },
+    ]);
+    expect(screen.getByText(/Vérifie-le ou corrige-le/)).toHaveTextContent('Coût : 0,0012 USD.');
+    // Never asked twice in this form.
+    expect(
+      screen.queryByRole('button', { name: 'Demander le sens à l’IA' }),
+    ).not.toBeInTheDocument();
+    // Nothing is written before the learner confirms.
+    expect(await services.lexicon.list()).toEqual([]);
+
+    fireEvent.change(meaning, { target: { value: 'à travers, dans toute' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Ajouter à mon lexique' }));
+    expect(
+      await screen.findByText('Ajouté à ton lexique, avec sa carte de révision.'),
+    ).toBeInTheDocument();
+    expect(await services.lexicon.list()).toMatchObject([
+      { expression: 'across', meaningFr: 'à travers, dans toute', source: 'exercise' },
+    ]);
+  });
+
+  it('keeps the proposed meaning in the draft: closing the form never loses it', async () => {
+    const fake = createFakeServer({
+      account: TEST_ACCOUNT,
+      run: () =>
+        Promise.resolve({
+          ok: true,
+          output: { meaningFr: 'dans tout, à travers' },
+          costUsd: 0.0012,
+          model: 'claude-haiku-4-5-20251001',
+          promptVersion: 'explain-word@1',
+        }),
+    });
+    const services = await createTestServices({ server: fake.server });
+    await renderApp('/parcours/tense-present-continuous/lecon', services);
+    const meaning = await pick();
+    fireEvent.click(screen.getByRole('button', { name: 'Demander le sens à l’IA' }));
+    await waitFor(() => {
+      expect(meaning).toHaveValue('dans tout, à travers');
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+
+    const again = await pick();
+    expect(again).toHaveValue('dans tout, à travers');
+    expect(
+      screen.queryByRole('button', { name: 'Demander le sens à l’IA' }),
+    ).not.toBeInTheDocument();
+    expect(fake.calls.run).toEqual(['explain-word']);
+  });
+
+  it('says why the meaning could not be obtained, and lets the learner type it', async () => {
+    const fake = createFakeServer({
+      account: TEST_ACCOUNT,
+      run: () => Promise.resolve({ ok: false, error: { code: 'unreachable' } }),
+    });
+    const services = await createTestServices({ server: fake.server });
+    await renderApp('/parcours/tense-present-continuous/lecon', services);
+    const meaning = await pick();
+    fireEvent.click(screen.getByRole('button', { name: 'Demander le sens à l’IA' }));
+    expect(await screen.findByText('Sens non obtenu')).toBeInTheDocument();
+    expect(meaning).toHaveValue('');
+    expect(meaning).toBeEnabled();
+  });
+
+  it('treats an empty meaning as a failure, never as a proposal', async () => {
+    const fake = createFakeServer({
+      account: TEST_ACCOUNT,
+      run: () =>
+        Promise.resolve({
+          ok: true,
+          output: { meaningFr: '  ' },
+          costUsd: 0.0012,
+          model: 'claude-haiku-4-5-20251001',
+          promptVersion: 'explain-word@1',
+        }),
+    });
+    const services = await createTestServices({ server: fake.server });
+    await renderApp('/parcours/tense-present-continuous/lecon', services);
+    await pick();
+    fireEvent.click(screen.getByRole('button', { name: 'Demander le sens à l’IA' }));
+    expect(await screen.findByText('Sens non obtenu')).toBeInTheDocument();
+    expect(screen.queryByText(/Vérifie-le ou corrige-le/)).not.toBeInTheDocument();
+  });
+
+  it('offers no AI once the learner has typed a meaning', async () => {
+    const fake = createFakeServer({ account: TEST_ACCOUNT });
+    const services = await createTestServices({ server: fake.server });
+    await renderApp('/parcours/tense-present-continuous/lecon', services);
+    const meaning = await pick();
+    fireEvent.change(meaning, { target: { value: 'à travers' } });
+    expect(
+      screen.queryByRole('button', { name: 'Demander le sens à l’IA' }),
+    ).not.toBeInTheDocument();
+    expect(fake.calls.run).toEqual([]);
+  });
+
+  it('offers no AI without a server: the meaning is typed', async () => {
+    const services = await createTestServices();
+    await renderApp('/parcours/tense-present-continuous/lecon', services);
+    await pick();
+    expect(
+      screen.queryByRole('button', { name: 'Demander le sens à l’IA' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/Sens proposé par l’IA/)).not.toBeInTheDocument();
+  });
+});

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { collocationCardOf, expressionBetween, piecesOf } from './lexicon.ts';
+import { collocationCardOf, expressionBetween, piecesOf, sentenceAround } from './lexicon.ts';
 
 describe('piecesOf (D-095)', () => {
   it('splits a sentence into its words and what lies between them', () => {
@@ -44,5 +44,58 @@ describe('expressionBetween (D-095)', () => {
       context: 'We ___ a company in 2020.',
       answers: { canonical: 'set up' },
     });
+  });
+});
+
+describe('sentenceAround (D-095)', () => {
+  const text =
+    'I joined the team in May. Since then, we have set up a new model! Is it working? "Yes." Next step.';
+
+  it('gives the sentence that holds the words picked, with its punctuation', () => {
+    expect(sentenceAround(text, 10, 11)).toBe('Since then, we have set up a new model!');
+    expect(sentenceAround(text, 0, 0)).toBe('I joined the team in May.');
+    expect(sentenceAround(text, 16, 16)).toBe('Is it working?');
+    expect(sentenceAround(text, 18, 18)).toBe('"Yes."');
+    expect(sentenceAround(text, 20, 20)).toBe('Next step.');
+  });
+
+  it('keeps every sentence that the words picked lie in', () => {
+    expect(sentenceAround(text, 6, 5)).toBe(
+      'I joined the team in May. Since then, we have set up a new model!',
+    );
+  });
+
+  it('ends a sentence at a line break', () => {
+    const letter = 'Dear Anna,\nThanks for the report.';
+    expect(sentenceAround(letter, 2, 2)).toBe('Thanks for the report.');
+    expect(sentenceAround(letter, 0, 0)).toBe('Dear Anna,');
+  });
+
+  it('gives the whole text when a word does not exist', () => {
+    expect(sentenceAround(` ${text} `, 99, 99)).toBe(text);
+  });
+
+  it('never ends a sentence at an abbreviation, a decimal point or a full stop without a space', () => {
+    expect(sentenceAround('We use open tools, e.g. Python and R.', 6, 6)).toBe(
+      'We use open tools, e.g. Python and R.',
+    );
+    expect(sentenceAround('Use a language (e.g. Python) every day.', 5, 5)).toBe(
+      'Use a language (e.g. Python) every day.',
+    );
+    expect(sentenceAround('I met Dr. Smith at 9 a.m. yesterday.', 8, 8)).toBe(
+      'I met Dr. Smith at 9 a.m. yesterday.',
+    );
+    expect(sentenceAround('Growth was 3.5 percent. Rates fell.', 4, 4)).toBe(
+      'Growth was 3.5 percent.',
+    );
+    expect(sentenceAround('See example.com for details.', 3, 3)).toBe(
+      'See example.com for details.',
+    );
+  });
+
+  it('keeps two sentences together after an abbreviation that ends one: too long, never a fragment', () => {
+    expect(sentenceAround('The call ended at 5 p.m. Then we left.', 9, 9)).toBe(
+      'The call ended at 5 p.m. Then we left.',
+    );
   });
 });

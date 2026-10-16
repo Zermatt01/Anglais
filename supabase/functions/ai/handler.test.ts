@@ -12,6 +12,7 @@ import { CHECK_CARD_ANSWER_PROMPT } from '../_shared/ai/prompts/check-card-answe
 import { CONNECTION_CHECK_PROMPT } from '../_shared/ai/prompts/connection-check.ts';
 import { CORRECTION_EXAMPLES } from '../_shared/ai/prompts/correction-examples.ts';
 import { CORRECT_PRODUCTION_PROMPT } from '../_shared/ai/prompts/correct-production.ts';
+import { EXPLAIN_WORD_PROMPT } from '../_shared/ai/prompts/explain-word.ts';
 import { GENERATE_EXERCISES_PROMPT } from '../_shared/ai/prompts/generate-exercises.ts';
 import {
   aiFailureSchema,
@@ -680,5 +681,38 @@ describe('check of a card answer (D-083)', () => {
     expect(requests[0]?.settings).toEqual(TASK_SETTINGS['check-card-answer']);
     expect(requests[0]?.settings.model).toBe(MODELS.fast);
     expect(reserved[0]).toMatchObject({ task: 'check-card-answer', model: MODELS.fast });
+  });
+});
+
+describe('meaning of a word touched (D-095)', () => {
+  it('sends the short prompt to the fast model, without cache', async () => {
+    const requests: ModelRequest<unknown>[] = [];
+    const { deps, reserved } = harness();
+    const model: ModelCaller = {
+      call(request) {
+        requests.push(request);
+        const output = { meaningFr: 'dans tout, à travers' };
+        // Safe: the fake answers with the output of this task.
+        return Promise.resolve({ kind: 'ok', output, usage: USAGE } as ModelResult<never>);
+      },
+    };
+    const response = await handleRequest(
+      post({
+        task: 'explain-word',
+        requestId: REQUEST_ID,
+        input: {
+          expression: 'across',
+          sentence: 'Inflation is falling across the euro area.',
+          englishVariant: 'en-GB',
+        },
+      }),
+      { ...deps, model },
+    );
+    expect(response.status).toBe(200);
+    expect(requests[0]?.system).toBe(EXPLAIN_WORD_PROMPT.system);
+    expect(requests[0]?.userMessage).toContain('Words touched: "across"');
+    expect(requests[0]?.settings).toEqual(TASK_SETTINGS['explain-word']);
+    expect(requests[0]?.settings.model).toBe(MODELS.fast);
+    expect(reserved[0]).toMatchObject({ task: 'explain-word', model: MODELS.fast });
   });
 });

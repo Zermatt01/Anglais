@@ -21,6 +21,7 @@ export const AI_TASK_NAMES = [
   'generate-exercises',
   'correct-production',
   'check-card-answer',
+  'explain-word',
 ] as const;
 export const aiTaskNameSchema = z.enum(AI_TASK_NAMES);
 export type AiTaskName = z.infer<typeof aiTaskNameSchema>;
@@ -213,6 +214,12 @@ export const MAX_CARD_ANSWER = 500;
 /** Upper bound of the input of one card check, as the Edge Function estimates it (contract test). */
 export const CHECK_CARD_ANSWER_MAX_INPUT_TOKENS = 20_000;
 
+/** `explain-word` (D-095): the words touched, and their sentence (an example of "Mon lexique"). */
+export const MAX_WORD_EXPRESSION = 80;
+export const MAX_WORD_SENTENCE = 1_000;
+/** Upper bound of the input tokens of an explanation, checked by a test against the prompt. */
+export const EXPLAIN_WORD_MAX_INPUT_TOKENS = 3_000;
+
 export const TASK_CONTRACTS = {
   'connection-check': {
     input: z.strictObject({}),
@@ -275,6 +282,19 @@ export const TASK_CONTRACTS = {
       verdict: z.enum(['correct', 'acceptable', 'incorrect']),
       /** One short French sentence, shown to the learner. */
       reasonFr: z.string(),
+    }),
+  },
+  'explain-word': {
+    input: z.strictObject({
+      /** The word or the expression touched, as written in the sentence. */
+      expression: visible(MAX_WORD_EXPRESSION),
+      /** The sentence of the content where it was touched. */
+      sentence: visible(MAX_WORD_SENTENCE),
+      englishVariant: englishVariantSchema,
+    }),
+    output: z.strictObject({
+      /** A short French meaning, proposed to the learner, who confirms or corrects it. */
+      meaningFr: z.string(),
     }),
   },
 } as const satisfies Record<AiTaskName, { input: z.ZodType; output: z.ZodType }>;

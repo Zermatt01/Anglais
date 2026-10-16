@@ -14,6 +14,7 @@ import { PROMPTS } from './prompts/index.ts';
 import {
   CHECK_CARD_ANSWER_MAX_INPUT_TOKENS,
   CORRECT_PRODUCTION_MAX_INPUT_TOKENS,
+  EXPLAIN_WORD_MAX_INPUT_TOKENS,
   LEARNER_DOMAIN_IDS,
   MAX_CARD_ANSWER,
   MAX_CARD_ANSWERS,
@@ -24,6 +25,8 @@ import {
   MAX_REFERENCE_ANSWER,
   MAX_REFERENCE_ANSWERS,
   MAX_WEAK_ITEMS,
+  MAX_WORD_EXPRESSION,
+  MAX_WORD_SENTENCE,
   TASK_CONTRACTS,
   type AiTaskInput,
 } from './tasks.ts';
@@ -256,5 +259,56 @@ describe('check-card-answer', () => {
       true,
     );
     expect(output.safeParse({ verdict: 'perfect', reasonFr: 'x' }).success).toBe(false);
+  });
+});
+
+describe('explain-word (D-095)', () => {
+  const wordPrompt = PROMPTS['explain-word'];
+  const wordInput: AiTaskInput<'explain-word'> = {
+    expression: 'across',
+    sentence: 'Inflation is falling across the euro area.',
+    englishVariant: 'en-US',
+  };
+
+  it('gives the sentence and the words touched after the stable prefix', () => {
+    const message = wordPrompt.userMessage(wordInput);
+    expect(message).toContain('American English');
+    expect(message).toContain('<<<\nInflation is falling across the euro area.\n>>>');
+    expect(message).toContain('Words touched: "across"');
+    expect(wordPrompt.system).not.toContain('across');
+  });
+
+  it('shows a cost bound that covers the largest explanation the Edge Function may estimate', () => {
+    const longest: AiTaskInput<'explain-word'> = {
+      expression: 'x'.repeat(MAX_WORD_EXPRESSION),
+      sentence: 'x'.repeat(MAX_WORD_SENTENCE),
+      englishVariant: 'en-GB',
+    };
+    expect(TASK_CONTRACTS['explain-word'].input.safeParse(longest).success).toBe(true);
+    expect(
+      estimateInputTokens(wordPrompt.system + wordPrompt.userMessage(longest)),
+    ).toBeLessThanOrEqual(EXPLAIN_WORD_MAX_INPUT_TOKENS);
+  });
+
+  it('refuses an empty expression, or one longer than its limit', () => {
+    const input = TASK_CONTRACTS['explain-word'].input;
+    expect(input.safeParse({ ...wordInput, expression: '  ' }).success).toBe(false);
+    expect(
+      input.safeParse({ ...wordInput, expression: 'x'.repeat(MAX_WORD_EXPRESSION + 1) }).success,
+    ).toBe(false);
+    expect(
+      input.safeParse({ ...wordInput, sentence: 'x'.repeat(MAX_WORD_SENTENCE + 1) }).success,
+    ).toBe(false);
+  });
+
+  it('reads a meaning, and its examples are valid outputs', () => {
+    const output = TASK_CONTRACTS['explain-word'].output;
+    expect(output.safeParse({ meaningFr: 'la rive, la berge' }).success).toBe(true);
+    expect(output.safeParse({ meaningFr: 'x', note: 'y' }).success).toBe(false);
+    const examples = [...wordPrompt.system.matchAll(/→ (\{.*\})$/gmu)].map((match) => match[1]);
+    expect(examples).toHaveLength(4);
+    for (const example of examples) {
+      expect(output.safeParse(JSON.parse(example ?? '')).success).toBe(true);
+    }
   });
 });

@@ -66,4 +66,12 @@ export const TASK_SETTINGS = {
     thinking: 'off',
     cachePrefix: false,
   },
+  // A few French words (D-095). Its prompt is far shorter than Haiku's minimum
+  // cacheable prefix (D-011).
+  'explain-word': {
+    model: MODELS.fast,
+    maxTokens: 150,
+    thinking: 'off',
+    cachePrefix: false,
+  },
 } as const satisfies Record<AiTaskName, TaskSettings>;

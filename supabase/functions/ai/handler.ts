@@ -122,6 +122,8 @@ function userMessageOf(request: AiRequest): string {
       return PROMPTS['correct-production'].userMessage(request.input);
     case 'check-card-answer':
       return PROMPTS['check-card-answer'].userMessage(request.input);
+    case 'explain-word':
+      return PROMPTS['explain-word'].userMessage(request.input);
   }
 }
 
