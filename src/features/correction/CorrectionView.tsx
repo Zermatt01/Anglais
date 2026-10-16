@@ -8,6 +8,8 @@ import type { CardDocument } from '../../data/schemas/cards.ts';
 import { countableOf, type ErrorDocument } from '../../data/schemas/errors.ts';
 import type { ProductionDocument } from '../../data/schemas/productions.ts';
 import type { NotionId } from '../../domain/curriculum/notion-id.ts';
+import { errorCardStatuses } from '../../domain/cards/from-correction.ts';
+import { areEquivalent } from '../../domain/correction/forms.ts';
 import {
   checkSelfCorrection,
   isCountedError,
@@ -110,6 +112,7 @@ export function CorrectionView({ productionId }: CorrectionViewProps) {
       correction={correction}
       errors={details.errors}
       cards={details.cards}
+      allCards={details.allCards}
     />
   );
 }
@@ -120,12 +123,14 @@ function Correction({
   correction,
   errors,
   cards,
+  allCards,
 }: {
   readonly selfCorrection: boolean;
   readonly production: ProductionDocument;
   readonly correction: ReviewedCorrection;
   readonly errors: readonly ErrorDocument[];
   readonly cards: readonly CardDocument[];
+  readonly allCards: readonly CardDocument[];
 }) {
   const { productions } = useAppServices();
   const askSelfCorrection =
@@ -216,6 +221,7 @@ function Correction({
       correction={correction}
       errors={errors}
       cards={cards}
+      allCards={allCards}
       attempts={production.selfCorrections}
     />
   );
@@ -246,24 +252,60 @@ function SelfCorrectionNote({
   }
 }
 
+/** Whether a card already asks for this sentence: same expected answer (D-092). */
+function hasCardFor(answer: string, cards: readonly CardDocument[]): boolean {
+  return cards.some(
+    (card) =>
+      (card.content.type === 'error' || card.content.type === 'notion') &&
+      areEquivalent(card.content.answers.canonical, answer),
+  );
+}
+
 function Answer({
   production,
   correction,
   errors,
   cards,
+  allCards,
   attempts,
 }: {
   readonly production: ProductionDocument;
   readonly correction: ReviewedCorrection;
   readonly errors: readonly ErrorDocument[];
   readonly cards: readonly CardDocument[];
+  readonly allCards: readonly CardDocument[];
   readonly attempts: ProductionDocument['selfCorrections'];
 }) {
   const speech = useSpeech();
   const documents = new Map(errors.map((error) => [error.index, error]));
-  const cardOf = (index: number) => {
-    const id = documents.get(index)?.id;
-    return id === undefined ? undefined : cards.find((card) => card.sourceErrorId === id);
+  const statuses = errorCardStatuses(correction);
+
+  /** Whether an error makes a card, and why not (D-092); `null` for a point to check. */
+  const cardNote = (index: number): string | null => {
+    const status = statuses.get(index);
+    switch (status?.kind) {
+      case undefined:
+      case 'point-to-check':
+        return null;
+      case 'minor':
+        return 'Erreur mineure : pas de carte.';
+      case 'unverified-sentence':
+        return 'Pas de carte : l’app n’a pas pu vérifier la phrase corrigée.';
+      case 'in-sentence': {
+        const ids = new Set(status.sentenceErrors.flatMap((at) => documents.get(at)?.id ?? []));
+        const card = cards.find(
+          (candidate) => candidate.sourceErrorId !== null && ids.has(candidate.sourceErrorId),
+        );
+        if (card !== undefined) {
+          return card.status === 'suspended'
+            ? 'Carte mise de côté pour l’instant.'
+            : 'Carte ajoutée à tes Reprises.';
+        }
+        return hasCardFor(status.answer, allCards)
+          ? 'Pas de nouvelle carte : cette phrase est déjà dans tes Reprises.'
+          : 'Pas de carte : elle ne serait pas résoluble sans son contexte.';
+      }
+    }
   };
   const active = cards.filter((card) => card.status !== 'suspended').length;
   const waiting = cards.length - active;
@@ -287,7 +329,7 @@ function Answer({
       {correction.errors.length > 0 ? (
         <ol className="correction__list">
           {correction.errors.map((error) => {
-            const card = cardOf(error.index);
+            const note = cardNote(error.index);
             const diagnosis = documents.get(error.index)?.diagnosis ?? null;
             return (
               <li
@@ -311,21 +353,16 @@ function Answer({
                 {error.range === null ? (
                   <p className="muted">
                     Point à vérifier : ce passage n’a pas été retrouvé tel quel dans ton texte. Il
-                    ne compte pas dans tes erreurs.
+                    ne compte pas dans tes erreurs et ne fait pas de carte.
                   </p>
                 ) : error.confidence === 'low' ? (
                   <p className="muted">
-                    Point à vérifier : l’IA n’en est pas sûre. Il ne compte pas dans tes erreurs.
+                    Point à vérifier : l’IA n’en est pas sûre. Il ne compte pas dans tes erreurs et
+                    ne fait pas de carte.
                   </p>
                 ) : null}
                 {diagnosis === null ? null : <p className="muted">{DIAGNOSIS_NOTES[diagnosis]}</p>}
-                {card === undefined ? null : (
-                  <p className="muted">
-                    {card.status === 'suspended'
-                      ? 'Carte mise de côté pour l’instant.'
-                      : 'Carte ajoutée à tes Reprises.'}
-                  </p>
-                )}
+                {note === null ? null : <p className="muted">{note}</p>}
                 {error.notionId !== null && hasContent(error.notionId) ? (
                   <p>
                     <Link to={pathTo.lesson(error.notionId)}>

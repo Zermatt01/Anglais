@@ -116,7 +116,10 @@ export function useCorrection() {
   return { run, correct, once, sending, available: server !== null, reset };
 }
 
-/** A stored production, its errors and the cards made from them, kept up to date. */
+/**
+ * A stored production, its errors, the cards made from them, and every card
+ * (to tell a sentence already in the Reprises, D-092), kept up to date.
+ */
 export function useProduction(productionId: string | null) {
   const { productions, cards } = useAppServices();
   return useLiveQuery(async () => {
@@ -126,6 +129,13 @@ export function useProduction(productionId: string | null) {
     if (!stored.ok) return { state: 'unreadable' } as const;
     const errors = await productions.errorsOf(productionId);
     const made = await cards.fromErrors(errors.map((error) => error.id));
-    return { state: 'readable', production: stored.value, errors, cards: made } as const;
+    const all = await cards.all();
+    return {
+      state: 'readable',
+      production: stored.value,
+      errors,
+      cards: made,
+      allCards: all,
+    } as const;
   }, [productions, cards, productionId]);
 }

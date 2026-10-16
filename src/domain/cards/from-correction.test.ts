@@ -5,7 +5,7 @@ import {
   type ModelError,
 } from '../production/correction.ts';
 import type { ErrorCategory } from '../taxonomy.ts';
-import { errorCardDrafts } from './from-correction.ts';
+import { errorCardDrafts, errorCardStatuses } from './from-correction.ts';
 import { isCardSolvable } from './solvability.ts';
 
 const TEXT =
@@ -258,5 +258,42 @@ describe('errorCardDrafts (CARD-02)', () => {
       canonical: 'I have worked here since 2023.',
       variants: ['I have been working here since 2023.'],
     });
+  });
+});
+
+describe('errorCardStatuses (D-092)', () => {
+  it('says, for each error, whether its sentence card holds it, and why not', () => {
+    const statuses = errorCardStatuses(
+      reviewCorrection(
+        TEXT,
+        output({
+          errors: [
+            error({ segment: 'have presented', correction: 'presented' }),
+            error({ segment: 'I work', correction: 'I have worked' }),
+            error({
+              segment: 'you',
+              start: TEXT.indexOf('you help'),
+              correction: 'your',
+              category: 'accord_sujet_verbe',
+              notionId: null,
+              severity: 'minor',
+            }),
+            error({ segment: 'the board', correction: 'board', confidence: 'low' }),
+          ],
+          // The second sentence is missing: the app cannot check its correction.
+          sentences: [SENTENCES[0], SENTENCES[2]].flatMap((sentence) =>
+            sentence === undefined ? [] : [sentence],
+          ),
+        }),
+      ),
+    );
+    expect(statuses.get(0)).toEqual({
+      kind: 'in-sentence',
+      sentenceErrors: [0],
+      answer: 'Last week I presented the results to the board.',
+    });
+    expect(statuses.get(1)).toEqual({ kind: 'unverified-sentence' });
+    expect(statuses.get(2)).toEqual({ kind: 'minor' });
+    expect(statuses.get(3)).toEqual({ kind: 'point-to-check' });
   });
 });

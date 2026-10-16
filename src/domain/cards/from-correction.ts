@@ -20,6 +20,7 @@ import { areEquivalent } from '../correction/forms.ts';
 import type { TextRange } from '../correction/segments.ts';
 import {
   isCountedError,
+  isPointToCheck,
   type ReviewedCorrection,
   type ReviewedError,
   type ReviewedSentence,
@@ -151,6 +152,60 @@ export function errorCardDrafts({
     if (draft !== null) drafts.push(draft);
   }
   return drafts;
+}
+
+/** Why an error of a correction is in a card or not, shown with the error (D-092). */
+export type ErrorCardStatus =
+  /** Counted, in a sentence checked by the app: its card holds the counted errors of the sentence. */
+  | {
+      readonly kind: 'in-sentence';
+      readonly sentenceErrors: readonly number[];
+      /** The card's answer: the sentence with its corrections. */
+      readonly answer: string;
+    }
+  /** Minor: shown, never a card. */
+  | { readonly kind: 'minor' }
+  /** Doubtful or not found in the text: counts nowhere (D-088). */
+  | { readonly kind: 'point-to-check' }
+  /** Counted, but the app could not check its corrected sentence (D-088). */
+  | { readonly kind: 'unverified-sentence' };
+
+/** The card status of each error of a correction, by error index. */
+export function errorCardStatuses(correction: ReviewedCorrection): Map<number, ErrorCardStatus> {
+  const statuses = new Map<number, ErrorCardStatus>();
+  for (const error of correction.errors) {
+    if (isPointToCheck(error)) {
+      statuses.set(error.index, { kind: 'point-to-check' });
+      continue;
+    }
+    if (!isCountedError(error)) {
+      statuses.set(error.index, { kind: 'minor' });
+      continue;
+    }
+    const { range } = error;
+    const sentence =
+      range === null
+        ? undefined
+        : correction.sentences.find((candidate) => inside(range, candidate.range));
+    statuses.set(
+      error.index,
+      sentence === undefined
+        ? { kind: 'unverified-sentence' }
+        : {
+            kind: 'in-sentence',
+            sentenceErrors: correction.errors
+              .filter(
+                (other) =>
+                  other.range !== null &&
+                  inside(other.range, sentence.range) &&
+                  isCountedError(other),
+              )
+              .map((other) => other.index),
+            answer: sentence.answer,
+          },
+    );
+  }
+  return statuses;
 }
 
 /**

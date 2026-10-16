@@ -94,6 +94,71 @@ describe('journal (MOD-07)', () => {
     ]);
   });
 
+  it('says why an error makes no card (D-092)', async () => {
+    const text = 'Yesterday I have met the client. Thanks for you help.';
+    const base = correctionOf(text, { segment: 'have met', correction: 'met' });
+    const [tense] = base.errors;
+    if (tense === undefined) throw new Error('no error');
+    const { services } = await servicesWith(() =>
+      Promise.resolve(
+        answered({
+          ...base,
+          errors: [
+            tense,
+            {
+              ...tense,
+              segment: 'you help',
+              start: text.indexOf('you help'),
+              category: 'orthographe',
+              notionId: null,
+              severity: 'minor',
+              hintFr: 'Relis le mot avant _help_.',
+              correction: 'your help',
+              ruleFr: 'Le possessif s’écrit _your_.',
+            },
+          ],
+          // The model left out the sentences: the app cannot check the correction.
+          sentences: [],
+        }),
+      ),
+    );
+    await renderApp('/journal', services);
+    await typeIn('Ton texte, en anglais', text);
+    fireEvent.click(screen.getByRole('button', { name: 'Corriger mon texte' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Voir la correction' }));
+    expect(
+      await screen.findByText('Pas de carte : l’app n’a pas pu vérifier la phrase corrigée.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Erreur mineure : pas de carte.')).toBeInTheDocument();
+    expect(await services.cards.all()).toEqual([]);
+  });
+
+  it('says that a sentence already in the Reprises makes no new card (D-092)', async () => {
+    const { services } = await servicesWith(() =>
+      Promise.resolve(
+        answered(correctionOf(JOURNAL_TEXT, { segment: 'have met', correction: 'met' })),
+      ),
+    );
+    await services.cards.create({
+      content: {
+        type: 'notion',
+        notionId: 'tense-past-simple',
+        meaningFr: 'Hier, j’ai rencontré le client.',
+        hint: null,
+        answers: { canonical: 'Yesterday I met the client.', variants: [] },
+      },
+      origin: 'notion',
+    });
+    await renderApp('/journal', services);
+    await typeIn('Ton texte, en anglais', JOURNAL_TEXT);
+    fireEvent.click(screen.getByRole('button', { name: 'Corriger mon texte' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Voir la correction' }));
+    expect(
+      await screen.findByText('Pas de nouvelle carte : cette phrase est déjà dans tes Reprises.'),
+    ).toBeInTheDocument();
+    expect(await services.cards.all()).toHaveLength(1);
+  });
+
   it('keeps the text when the correction does not come, and tries again on request', async () => {
     let answers = 0;
     const { fake, services } = await servicesWith(() => {
