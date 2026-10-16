@@ -9,6 +9,7 @@ import {
   type AppServices,
   type ServerServices,
 } from '../features/app-services.ts';
+import type { Clock } from '../domain/primitives.ts';
 import type { SpeechSynthesizer } from '../domain/speech.ts';
 import { createTestClock, createTestDatabase } from './database.ts';
 
@@ -21,9 +22,11 @@ export async function createTestServices(
     readonly server?: ServerServices | null;
     readonly isOnline?: () => boolean;
     readonly speech?: SpeechSynthesizer | null;
+    /** A test clock to move time forward; a fixed one by default. */
+    readonly clock?: Clock;
   } = {},
 ): Promise<AppServices> {
-  return createAppServices(await createTestDatabase(), createTestClock(), {
+  return createAppServices(await createTestDatabase(), options.clock ?? createTestClock(), {
     server: options.server ?? null,
     isOnline: options.isOnline ?? (() => true),
     speech: options.speech ?? null,

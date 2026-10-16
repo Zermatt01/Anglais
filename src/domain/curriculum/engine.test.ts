@@ -5,6 +5,7 @@ import {
   afterProduction,
   answerScore,
   applyPlacement,
+  canSkipToProduce,
   finishLesson,
   isPlacementPassed,
   isVerifiableAnswer,
@@ -12,6 +13,8 @@ import {
   isStep5Complete,
   notStartedProgress,
   pickNextExercise,
+  SKIP_RULE,
+  skipToProduce,
   startNotion,
   stepStanding,
   type PathAnswer,
@@ -328,5 +331,47 @@ describe('stepStanding', () => {
       score: 2,
       needed: 4,
     });
+  });
+});
+
+describe('leaving step 4 on request (D-094)', () => {
+  const fifteen = answers(4, '010101010101010');
+
+  it('is offered after fifteen verifiable answers at step 4, outside a recall', () => {
+    expect(SKIP_RULE.minAnswers).toBe(15);
+    expect(canSkipToProduce(progressAt(4), fifteen)).toBe(true);
+    expect(canSkipToProduce(progressAt(4, { status: 'to_consolidate' }), fifteen)).toBe(true);
+    expect(skipToProduce(progressAt(4), fifteen, NOW)).toEqual({
+      progress: {
+        ...progressAt(4),
+        status: 'to_consolidate',
+        step: 5,
+        recall: null,
+        stepEnteredAt: NOW,
+      },
+      event: { type: 'skipped' },
+      changed: true,
+    });
+  });
+
+  it('is not offered before, nor at another step, nor during a recall, nor for an acquired notion', () => {
+    expect(canSkipToProduce(progressAt(4), fifteen.slice(1))).toBe(false);
+    // A failure on an exercise created by the model never counts (D-089).
+    expect(canSkipToProduce(progressAt(4), answers(4, '01010101010101X'))).toBe(false);
+    expect(canSkipToProduce(progressAt(4), answers(3, '010101010101010'))).toBe(false);
+    expect(canSkipToProduce(progressAt(3), fifteen)).toBe(false);
+    expect(canSkipToProduce(progressAt(4, { recall: { step: 3, startedAt: NOW } }), fifteen)).toBe(
+      false,
+    );
+    expect(canSkipToProduce(progressAt(4, { status: 'acquired' }), fifteen)).toBe(false);
+    expect(skipToProduce(progressAt(4), fifteen.slice(1), NOW)).toBeNull();
+  });
+
+  it('counts the answers since the notion was last sent back to step 3', () => {
+    const sentBack = progressAt(4, { lastRegressionAt: T0 + 5_500 });
+    expect(canSkipToProduce(sentBack, fifteen)).toBe(false);
+    expect(canSkipToProduce(sentBack, [...fifteen, ...answers(4, '01010', T0 + 20_000)])).toBe(
+      true,
+    );
   });
 });

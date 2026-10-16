@@ -34,6 +34,12 @@ export const FALLBACK_RULE = { window: 6, minFailures: 4 } as const;
 export const RECALL_RULE = { series: 5, minSuccesses: 4 } as const;
 /** Placement: every question of a notion right, with at least `minQuestions`. */
 export const PLACEMENT_RULE = { minQuestions: 3 } as const;
+/**
+ * Step 4 → step 5 on request (D-094): after `minAnswers` verifiable answers at
+ * step 4 without passing it, the learner may go on, the notion staying "to
+ * consolidate". The core has eleven translations or more per notion.
+ */
+export const SKIP_RULE = { minAnswers: 15 } as const;
 
 /** What the engine needs to know of an answer given in the path. */
 export interface PathAnswer {
@@ -68,7 +74,9 @@ export type ProgressEvent =
   /** A lacuna on a notion to consolidate or acquired: back to step 3 (PEDAGOGY §4.2). */
   | { readonly type: 'regressed' }
   | { readonly type: 'placed' }
-  | { readonly type: 'started' };
+  | { readonly type: 'started' }
+  /** Step 4 left on request after many answers: step 5, "to consolidate" (D-094). */
+  | { readonly type: 'skipped' };
 
 export interface Transition {
   readonly progress: NotionProgressValues;
@@ -232,6 +240,43 @@ export function afterPathAnswer(
     };
   }
   return null;
+}
+
+/**
+ * Whether the learner may leave step 4 for step 5 (D-094): at step 4, outside
+ * a recall, with at least `SKIP_RULE.minAnswers` verifiable answers of the step
+ * since the last time the notion was sent back (all of them otherwise). Never
+ * automatic: the learner chooses.
+ */
+export function canSkipToProduce(
+  progress: NotionProgressValues,
+  answers: readonly PathAnswer[],
+): boolean {
+  const active = progress.status === 'in_progress' || progress.status === 'to_consolidate';
+  if (!active || progress.step !== 4 || progress.recall !== null) return false;
+  const since = progress.lastRegressionAt ?? Number.NEGATIVE_INFINITY;
+  const counted = answers.filter(
+    (answer) => answer.step === 4 && answer.at >= since && isVerifiableAnswer(answer),
+  );
+  return counted.length >= SKIP_RULE.minAnswers;
+}
+
+/**
+ * Step 4 left on request (D-094): step 5, the notion "to consolidate". It
+ * becomes acquired by the criterion of step 5, and a lacuna sends it back to
+ * step 3 as any notion to consolidate (PEDAGOGY §4.2).
+ */
+export function skipToProduce(
+  progress: NotionProgressValues,
+  answers: readonly PathAnswer[],
+  now: number,
+): Transition | null {
+  if (!canSkipToProduce(progress, answers)) return null;
+  return {
+    progress: { ...progress, status: 'to_consolidate', step: 5, recall: null, stepEnteredAt: now },
+    event: { type: 'skipped' },
+    changed: true,
+  };
 }
 
 /** A production of step 5, as graded by the correction (phase 4). */

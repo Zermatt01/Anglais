@@ -10,6 +10,7 @@ import type { NotionId } from '../../domain/curriculum/notion-id.ts';
 import type { NotionProgressValues } from '../../domain/curriculum/progress.ts';
 import type { SpeechSynthesizer } from '../../domain/speech.ts';
 import type { AppServices } from '../app-services.ts';
+import { createTestClock } from '../../test/database.ts';
 import { createTestServices, renderApp, renderWithServices } from '../../test/render.tsx';
 import { createFakeServer, TEST_ACCOUNT } from '../../test/server.ts';
 import { DRAFT_SAVE_DELAY_MS } from '../drafts/use-draft.ts';
@@ -327,6 +328,50 @@ describe('exercises (steps 2 to 4)', () => {
         ({ result, grader }) => `${result}/${grader}`,
       );
       expect(graded).toEqual(['acceptable/local', 'acceptable/local']);
+    });
+  });
+
+  it('offers to go on to step 5 after fifteen translations, the notion to consolidate (D-094)', async () => {
+    const clock = createTestClock();
+    const services = await createTestServices({ clock });
+    await seedProgress(services, { step: 4 });
+    const content = await contentOf(NOTION);
+    const translations = content.exercises.filter((exercise) => exercise.kind === 'translate');
+    // Two good answers out of three: neither the pass (8 of 10) nor a recall (4 failures of 6).
+    for (let index = 0; index < 14; index += 1) {
+      clock.advance(1_000);
+      await services.path.recordAnswer({
+        notionId: NOTION,
+        exerciseId: translations[index % translations.length]?.id ?? '',
+        source: 'core',
+        step: 4,
+        answer: 'x',
+        result: index % 3 === 0 ? 'incorrect' : 'correct',
+        grader: 'local',
+        hintUsed: false,
+        durationMs: 1_000,
+      });
+    }
+    // Fourteen answers: not yet, and the rule is checked again when stored.
+    expect((await services.path.skipToProduce(NOTION)).transition).toBeNull();
+    clock.advance(1_000);
+    await services.path.recordAnswer({
+      notionId: NOTION,
+      exerciseId: translations[0]?.id ?? '',
+      source: 'core',
+      step: 4,
+      answer: 'x',
+      result: 'correct',
+      grader: 'local',
+      hintUsed: false,
+      durationMs: 1_000,
+    });
+
+    await renderApp(`/parcours/${NOTION}/exercices`, services);
+    fireEvent.click(await screen.findByRole('button', { name: 'Passer à l’étape « Produire »' }));
+    expect(await screen.findByRole('textbox', { name: 'Tes phrases' })).toBeInTheDocument();
+    expect(await services.path.progress(NOTION)).toMatchObject({
+      values: { status: 'to_consolidate', step: 5 },
     });
   });
 

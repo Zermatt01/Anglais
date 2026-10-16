@@ -8,6 +8,7 @@ import { pathAnswersOf } from '../../data/repositories/path-repository.ts';
 import type { ExerciseAttempt } from '../../data/schemas/exercise-attempts.ts';
 import {
   activeStep,
+  canSkipToProduce,
   isPoolExhausted,
   pickNextExercise,
   stepStanding,
@@ -33,6 +34,7 @@ import { AnswerCard } from './AnswerCard.tsx';
 import { AiTranslationCheck } from './AiTranslationCheck.tsx';
 import { GenerateExercises } from './GenerateExercises.tsx';
 import { GeneratedFailureNotice } from './GeneratedFailureNotice.tsx';
+import { SkipToProduce } from './SkipToProduce.tsx';
 import { eventMessage, stepName } from './labels.ts';
 import { useNotionAttempts, useNotionContent, useNotionProgress } from './use-path.ts';
 import { useNotionParam } from './use-notion-param.ts';
@@ -390,6 +392,9 @@ function Session({
           </div>
         ) : null}
       </Sheet>
+      {progress !== null && canSkipToProduce(progress, pathAnswersOf(attempts)) ? (
+        <SkipToProduce notionId={notionId} />
+      ) : null}
       {exhausted ? (
         <GenerateExercises
           notionId={notionId}

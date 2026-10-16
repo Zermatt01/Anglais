@@ -68,6 +68,11 @@ export function eventMessage(event: ProgressEvent): { title: string; body: strin
         title: 'Une révision guidée',
         body: 'Cette notion mérite une révision guidée ; elle est remise en tête de ton parcours.',
       };
+    case 'skipped':
+      return {
+        title: `Étape suivante : ${stepName(5)}`,
+        body: 'La notion reste « à consolider » : le Thème et tes cartes la feront revenir.',
+      };
     case 'placed':
     case 'started':
       return null;

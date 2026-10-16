@@ -20,6 +20,7 @@ import {
   finishLesson,
   isNotionStudied,
   isPlacementPassed,
+  skipToProduce,
   startNotion,
   type PathAnswer,
   type Transition,
@@ -84,6 +85,8 @@ export interface PathRepository {
   start(notionId: NotionId): Promise<AnswerOutcome>;
   /** "J'ai compris": step 1 → step 2. */
   finishLesson(notionId: NotionId): Promise<AnswerOutcome>;
+  /** Step 4 → step 5 on request, when the rule allows it (D-094); nothing otherwise. */
+  skipToProduce(notionId: NotionId): Promise<AnswerOutcome>;
   /**
    * Records an answer, then applies the step criteria to an answer of the path.
    * `draftKey`: the draft of the typed answer, removed in the same transaction.
@@ -227,6 +230,16 @@ export function createPathRepository(
 
     finishLesson(notionId) {
       return db.dexie.transaction('rw', tables, () => transition(notionId, finishLesson));
+    },
+
+    skipToProduce(notionId) {
+      return db.dexie.transaction('rw', tables, async () => {
+        // Checked again here: the rule decides, never the screen alone.
+        const answers = pathAnswersOf(await readAttempts(notionId));
+        return transition(notionId, (progress, at) =>
+          progress === null ? null : skipToProduce(progress, answers, at),
+        );
+      });
     },
 
     recordAnswer(answer, draftKey, context = 'path', card = null) {
