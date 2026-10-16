@@ -63,6 +63,7 @@ Transitions :
 | en cours ou à consolider, étape 5 | acquise                       | Critère de l'étape 5 atteint (§3.3).          |
 | en cours, étape n                 | rappel court de l'étape n − 1 | Échecs répétés (§3.3).                        |
 | à consolider ou acquise           | en cours, étape 3             | Lacune détectée (§4.2).                       |
+| en cours ou à consolider, étape 4 | à consolider, étape 5         | Sur demande, après 15 réponses (§3.3).        |
 
 - **Non commencée** : aucune activité.
 - **En cours (étape n)** : l'apprenant progresse dans les étapes.
@@ -88,10 +89,16 @@ Les valeurs par défaut sont les suivantes.
 - **Étape 1 → 2** : la leçon a été lue jusqu'au bout. L'apprenant confirme avec « J'ai compris, je passe à la reconnaissance ». Il n'y a pas de test : la vérification se fait à l'étape 2.
 - **Étapes 2, 3 et 4 → suivante** : **au moins 8 bonnes réponses sur les 10 dernières** de l'étape, avec au moins 10 réponses données.
   - À l'étape 2, une réponse n'est bonne que si la forme **et** la raison sont justes.
-  - À l'étape 4, une réponse compte comme bonne si elle ne contient **aucune erreur sur la notion ciblée** (réponse correcte ou acceptable). Les erreurs d'autres catégories sont traitées normalement (cartes, §4), mais ne bloquent pas la progression de la notion.
+  - À l'étape 4, une réponse compte comme bonne si elle ne contient **aucune erreur sur la notion ciblée** (réponse correcte ou acceptable). Les erreurs d'autres catégories sont traitées normalement (cartes, §4), mais ne bloquent pas la progression de la notion. Concrètement (DECISIONS D-093, D-094) :
+    - **dans la notion** : le temps, son accord avec le sujet, ses questions et négations (ordre des mots des questions compris), la place de _just, already, yet, still_ et les calques que la leçon enseigne ; **hors notion** : la place d'un adverbe de fréquence, une préposition, un mot, un article ;
+    - une **erreur anticipée hors notion** est corrigée et fait une carte, mais la réponse compte comme bonne (« Notion juste, autre chose à revoir ») ;
+    - une **réponse non prévue** compte comme bonne quand l'application prouve la notion : son squelette verbal (verbes, auxiliaires, sujets et mots de la notion, dans l'ordre) est celui d'une réponse relue qui emploie la notion ; noms, prépositions, articles et place des adverbes de fréquence peuvent différer. Sinon, l'apprenant choisit entre « Tout est juste », « Notion juste, autre faute » et « Notion à revoir » ;
+    - **vérifiée par l'IA**, elle n'échoue que sur une erreur comptée sur la notion, d'une catégorie de la notion, et n'est bonne que si l'application prouve la notion ; sinon, la correction est montrée et l'apprenant tranche.
   - Une réponse obtenue après avoir demandé un indice compte comme **à moitié bonne** (0,5).
   - **Exercices créés par l'IA** (DECISIONS D-089) : leur réponse attendue n'est pas relue. Une réussite compte ; un échec ne compte jamais, ni pour le seuil, ni pour le retour en arrière, ni dans une série de rappel. Il est montré comme un point à vérifier, avec la réponse attendue et le bouton « Signaler ».
 - **Étape 5 → acquise** : **deux productions consécutives** qui emploient effectivement la notion **sans erreur sur cette notion** de gravité moyenne ou majeure. Les tournures « correctes mais pas naturelles » ne comptent jamais comme des erreurs. L'emploi de la notion est **prouvé par l'application** : elle retrouve dans le texte les mots que lui indique le modèle et y reconnaît une construction de la notion (liste fermée). Une production dont l'emploi n'est pas prouvé ne compte ni pour ni contre la série (DECISIONS D-088).
+
+**Passer à l'étape 5 sur demande** (DECISIONS D-094) : après **15 réponses vérifiables** à l'étape 4 sans l'avoir passée (comptées depuis le dernier retour à l'étape 3, s'il y en a eu un), l'apprenant peut choisir de passer à l'étape 5. La notion devient « à consolider » : le Thème et les cartes la font revenir, le critère de l'étape 5 la rend acquise, et une lacune la renvoie à l'étape 3. Ce n'est jamais automatique.
 
 **Retour en arrière (échecs répétés) :**
 
@@ -100,7 +107,7 @@ Les valeurs par défaut sont les suivantes.
 - **Rappel à l'étape précédente** : une série courte de 5 exercices. 4 réussites sur 5 renvoient à l'étape d'origine, dont le compteur est remis à zéro. Une série manquée en ouvre une nouvelle, de la même étape (DECISIONS D-075).
 - Pas de retour en deçà de l'étape 2 : l'étape 1 reste accessible à tout moment, mais n'est jamais imposée. À l'étape 2, des échecs répétés font seulement proposer la leçon.
 
-**Réponse non prévue** (étapes 3 et 4) : une réponse qui ne correspond ni aux réponses acceptées ni aux erreurs anticipées n'est jamais déclarée fausse (NO-05). L'apprenant la compare à la réponse de référence et dit si elle a le même sens, avec la forme travaillée bien employée ; son jugement compte pour le critère. À partir de la phase 4, l'IA pourra vérifier ces réponses sur demande (DECISIONS D-074, D-076).
+**Réponse non prévue** (étapes 3 et 4) : une réponse qui ne correspond ni aux réponses acceptées ni aux erreurs anticipées n'est jamais déclarée fausse (NO-05). L'apprenant la compare à la réponse de référence et dit si elle a le même sens, avec la forme travaillée bien employée ; son jugement compte pour le critère. À l'étape 4, la preuve locale de la notion et les trois choix décrits plus haut s'appliquent ; l'IA peut aussi vérifier ces réponses sur demande (DECISIONS D-074, D-086, D-094).
 
 **Étape 5 en phase 3** : les phrases sont écrites et gardées sur le téléphone ; leur correction, et donc le passage à « acquise », arrivent avec la phase 4 (DECISIONS D-076).
 

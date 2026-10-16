@@ -106,6 +106,9 @@ Demandés par l'utilisateur le 2026-10-16, après usage réel, puis validés poi
 - [x] Attentes bornées des appels IA : une correction finit toujours, par la correction ou par un message clair (D-091) ; action de l'utilisateur : DEPLOYMENT.md, section 18
 - [x] Reprises : écran « Mes cartes » (état et raison de chaque carte), raisons d'une erreur sans carte dans la correction, cartes actives pour une notion sans leçon, cartes des erreurs anticipées de l'étape 4, « Revoir cette phrase dans mes Reprises », jamais deux fois la même carte (D-092)
 - [x] Erreurs anticipées de l'étape 4 classées dans ou hors notion, relues deux fois (D-093)
+- [x] Étape 4 jugée sur la notion, avec une preuve locale (squelette verbal) ; trois choix pour une réponse non prévue ; vérification par l'IA qui exige la preuve (D-094)
+- [x] Passage à l'étape 5 sur demande après 15 réponses, la notion « à consolider » (D-094)
+- [x] 9 traductions de plus par notion (260 en tout), relues deux fois, présentées par difficulté (D-094)
 
 ## Phase 5 — Qualité des corrections
 
