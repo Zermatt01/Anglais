@@ -168,6 +168,31 @@ describe('production repository', () => {
     });
   });
 
+  it('tells where a card comes from in "Mes cartes" (D-092)', async () => {
+    const { productions, cards, clock } = await setup();
+    const stored = await productions.submit(production());
+    await productions.applyCorrection(stored.id, received(), context);
+    await cards.create({
+      content: {
+        type: 'notion',
+        notionId: NOTION,
+        meaningFr: 'J’ai signé le contrat la semaine dernière.',
+        hint: null,
+        answers: { canonical: 'We signed the contract last week.', variants: [] },
+      },
+      origin: 'notion',
+    });
+    const overview = await cards.overview({ newCardsPerDay: 10, reviewsPerDay: 60 }, clock.now());
+    expect(
+      overview.map(({ card, source, standing }) => [card.origin, source, standing.kind]),
+    ).toEqual(
+      expect.arrayContaining([
+        ['error', 'journal', 'waiting'],
+        ['notion', null, 'due'],
+      ]),
+    );
+  });
+
   it('makes an active card, without a diagnosis, for a notion with no lessons yet (D-092)', async () => {
     const { productions, cards } = await setup();
     const stored = await productions.submit(production({ text: 'I studied the economics.' }));

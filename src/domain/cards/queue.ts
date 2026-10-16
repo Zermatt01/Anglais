@@ -54,7 +54,7 @@ export function effectiveCardStatus(
   return card.status;
 }
 
-type Kind = 'new' | 'review' | 'mastered';
+export type Kind = 'new' | 'review' | 'mastered';
 
 function kindOf(card: QueueCard, status: CardStatus): Kind {
   if (status === 'mastered') return 'mastered';
@@ -108,6 +108,53 @@ export function reviewQueue({
     queued.push(card);
   }
   return interleave(queued);
+}
+
+/** Where a card stands, and why it is or is not shown now ("Mes cartes", D-092). */
+export type CardStanding =
+  /** In the queue of now. */
+  | { readonly kind: 'due' }
+  /** Due, but today's cap of its kind is reached: it comes another day. */
+  | { readonly kind: 'capped'; readonly cap: Kind }
+  /** Not due yet; a mastered card waits for its maintenance review. */
+  | { readonly kind: 'later'; readonly due: number; readonly mastered: boolean }
+  /** Held back until its notion is studied (D-025). */
+  | { readonly kind: 'waiting'; readonly notionId: NotionId }
+  /** Suspended: reported, or unsolvable at the import; never shown. */
+  | { readonly kind: 'suspended'; readonly reason: SuspensionReason }
+  /** Its content cannot be solved: never shown (NO-03). */
+  | { readonly kind: 'unsolvable' };
+
+/** The standing of every card, in the same terms as `reviewQueue`. */
+export function cardStandings(input: {
+  readonly cards: readonly QueueCard[];
+  readonly now: number;
+  readonly today: ReviewsToday;
+  readonly limits: QueueLimits;
+  readonly isStudied: (notionId: NotionId) => boolean;
+}): Map<string, CardStanding> {
+  const queued = new Set(reviewQueue(input).map((card) => card.id));
+  const standings = new Map<string, CardStanding>();
+  for (const card of input.cards) {
+    const status = effectiveCardStatus(card, input.isStudied);
+    let standing: CardStanding;
+    if (status === 'suspended') {
+      standing =
+        card.suspensionReason === 'unstudied-notion' && card.notionId !== null
+          ? { kind: 'waiting', notionId: card.notionId }
+          : { kind: 'suspended', reason: card.suspensionReason ?? 'reported' };
+    } else if (!isCardSolvable(card.content).solvable) {
+      standing = { kind: 'unsolvable' };
+    } else if (queued.has(card.id)) {
+      standing = { kind: 'due' };
+    } else if (card.due <= input.now) {
+      standing = { kind: 'capped', cap: kindOf(card, status) };
+    } else {
+      standing = { kind: 'later', due: card.due, mastered: status === 'mastered' };
+    }
+    standings.set(card.id, standing);
+  }
+  return standings;
 }
 
 /** The next due time among the presentable cards that are not due yet, if any. */

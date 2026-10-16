@@ -9,9 +9,11 @@
 import type { CardContent, CardOrigin, SuspensionReason } from '../../domain/cards/content.ts';
 import { notionOfCard } from '../../domain/cards/content.ts';
 import {
+  cardStandings,
   effectiveCardStatus,
   nextDue,
   reviewQueue,
+  type CardStanding,
   type QueueLimits,
   type ReviewsToday,
 } from '../../domain/cards/queue.ts';
@@ -28,6 +30,7 @@ import { recordActivity } from '../activity.ts';
 import type { AppDatabase } from '../database.ts';
 import { parseRecord, readRecord, writeRecord, type ParsedRecord } from '../records.ts';
 import type { CardDocument } from '../schemas/cards.ts';
+import type { ProductionModule } from '../schemas/productions.ts';
 import type { ReviewLog } from '../schemas/review-logs.ts';
 import { createDraftRepository } from './draft-repository.ts';
 
@@ -67,8 +70,18 @@ export interface ReviewSession {
   readonly nextDue: number | null;
 }
 
+/** A card of "Mes cartes": where it stands and where it comes from (D-092). */
+export interface CardOverviewEntry {
+  readonly card: CardDocument;
+  readonly standing: CardStanding;
+  /** Module of the production its error comes from, when it comes from one. */
+  readonly source: ProductionModule | null;
+}
+
 export interface CardRepository {
   create(card: NewCard): Promise<CardCreation>;
+  /** Every readable card, with its standing, the newest first. */
+  overview(limits: QueueLimits, dayStart: number): Promise<CardOverviewEntry[]>;
   get(id: string): Promise<ParsedRecord<CardDocument> | undefined>;
   /** Readable cards that are not deleted. */
   all(): Promise<CardDocument[]>;
@@ -120,6 +133,33 @@ export function createCardRepository(
       .map((raw) => parseRecord('reviewLogs', raw))
       .flatMap((parsed) => (parsed.ok ? [parsed.value] : []))
       .sort((a, b) => a.at - b.at);
+  }
+
+  /** Module of the production each error card comes from, by card. */
+  async function sourcesOf(all: readonly CardDocument[]): Promise<Map<string, ProductionModule>> {
+    const errorIds = all.flatMap((card) =>
+      card.sourceErrorId === null ? [] : [card.sourceErrorId],
+    );
+    const productionOfError = new Map<string, string>();
+    for (const raw of await db.table('errors').bulkGet(errorIds)) {
+      const parsed = raw === undefined ? undefined : parseRecord('errors', raw);
+      if (parsed?.ok) productionOfError.set(parsed.value.id, parsed.value.productionId);
+    }
+    const moduleOfProduction = new Map<string, ProductionModule>();
+    for (const raw of await db
+      .table('productions')
+      .bulkGet([...new Set(productionOfError.values())])) {
+      const parsed = raw === undefined ? undefined : parseRecord('productions', raw);
+      if (parsed?.ok) moduleOfProduction.set(parsed.value.id, parsed.value.module);
+    }
+    const sources = new Map<string, ProductionModule>();
+    for (const card of all) {
+      const productionId =
+        card.sourceErrorId === null ? undefined : productionOfError.get(card.sourceErrorId);
+      const module = productionId === undefined ? undefined : moduleOfProduction.get(productionId);
+      if (module !== undefined) sources.set(card.id, module);
+    }
+    return sources;
   }
 
   function countsOf(today: readonly ReviewLog[]): ReviewsToday {
@@ -181,6 +221,28 @@ export function createCardRepository(
           .anyOf([...errorIds])
           .toArray(),
       );
+    },
+
+    async overview(limits, dayStart) {
+      const all = readable(await cards.toArray());
+      const isStudied = await readiness();
+      const today = await logsOf(logs.where('at').aboveOrEqual(dayStart).toArray());
+      const standings = cardStandings({
+        cards: all.map((card) => ({ ...card, phase: card.srs.phase })),
+        now: clock.now(),
+        today: countsOf(today),
+        limits,
+        isStudied,
+      });
+      const sources = await sourcesOf(all);
+      return all
+        .flatMap((card) => {
+          const standing = standings.get(card.id);
+          return standing === undefined
+            ? []
+            : [{ card, standing, source: sources.get(card.id) ?? null }];
+        })
+        .sort((a, b) => b.card.createdAt - a.card.createdAt);
     },
 
     async session(limits, dayStart) {

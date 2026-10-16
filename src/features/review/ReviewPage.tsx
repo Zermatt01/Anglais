@@ -90,6 +90,9 @@ export function ReviewPage() {
           }}
         />
       )}
+      <p>
+        <Link to={PATHS.cards}>Mes cartes : toutes, et pourquoi elles sont là ou pas</Link>
+      </p>
     </Page>
   );
 }

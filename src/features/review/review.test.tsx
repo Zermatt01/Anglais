@@ -98,6 +98,53 @@ describe('Reprises (MOD-03)', () => {
   });
 });
 
+describe('Mes cartes (D-092)', () => {
+  it('shows every card, grouped by where it stands, with the reason', async () => {
+    const services = await createTestServices();
+    await services.cards.create({ content: NOTION_CARD, origin: 'notion' });
+    await services.cards.create({
+      content: { ...NOTION_CARD, notionId: 'tense-future', meaningFr: 'Je t’appellerai demain.' },
+      origin: 'error',
+      suspensionReason: 'unstudied-notion',
+    });
+    await services.cards.create({
+      content: { ...NOTION_CARD, meaningFr: 'J’ai payé la facture hier.' },
+      origin: 'error',
+      suspensionReason: 'reported',
+    });
+    await renderApp('/reprises', services);
+    fireEvent.click(await screen.findByRole('link', { name: /Mes cartes/ }));
+
+    expect(await screen.findByRole('heading', { name: 'À revoir maintenant (1)' })).toBeVisible();
+    expect(screen.getByText('J’ai envoyé le contrat hier.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'En attente d’une notion (1)' })).toBeVisible();
+    expect(
+      screen.getByText('Elle s’activera quand la notion atteindra l’étape « Traduire ».'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Voir la notion/ })).toHaveAttribute(
+      'href',
+      '/parcours/tense-future',
+    );
+    expect(screen.getByRole('heading', { name: 'Mises de côté (1)' })).toBeVisible();
+    expect(screen.getByText('Signalée : elle n’est plus montrée.')).toBeInTheDocument();
+  });
+
+  it('says when a due card waits for another day, past the daily cap', async () => {
+    const services = await createTestServices();
+    await services.settings.update({ newCardsPerDay: 0 });
+    await services.cards.create({ content: NOTION_CARD, origin: 'notion' });
+    await renderApp('/reprises/cartes', services);
+    expect(
+      await screen.findByRole('heading', { name: 'Retenues par le plafond du jour (1)' }),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        'Plafond de 0 nouvelle carte par jour atteint : elle viendra un autre jour.',
+      ),
+    ).toBeInTheDocument();
+  });
+});
+
 describe('Mon lexique (MOD-09)', () => {
   it('adds an expression with its card, refuses a duplicate, and removes it', async () => {
     const services = await createTestServices();

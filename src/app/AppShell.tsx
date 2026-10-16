@@ -44,6 +44,9 @@ const ImmediatePracticePage = lazy(() =>
 const ReviewPage = lazy(() =>
   import('../features/review/ReviewPage.tsx').then((module) => ({ default: module.ReviewPage })),
 );
+const CardsPage = lazy(() =>
+  import('../features/review/CardsPage.tsx').then((module) => ({ default: module.CardsPage })),
+);
 const ThemePage = lazy(() =>
   import('../features/theme/ThemePage.tsx').then((module) => ({ default: module.ThemePage })),
 );
@@ -110,6 +113,7 @@ export function AppRoutes() {
         <Route path={`${PATHS.path}/:notionId/production`} element={<ProducePage />} />
         <Route path={`${PATHS.path}/:notionId/pratique`} element={<ImmediatePracticePage />} />
         <Route path={PATHS.review} element={<ReviewPage />} />
+        <Route path={PATHS.cards} element={<CardsPage />} />
         <Route path={PATHS.theme} element={<ThemePage />} />
         <Route path={PATHS.journal} element={<JournalPage />} />
         <Route path={PATHS.lexicon} element={<LexiconPage />} />

@@ -7,6 +7,7 @@ export const PATHS = {
   usage: '/consommation',
   path: '/parcours',
   review: '/reprises',
+  cards: '/reprises/cartes',
   theme: '/theme',
   journal: '/journal',
   lexicon: '/lexique',

@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { NotionId } from '../curriculum/notion-id.ts';
 import type { CardContent } from './content.ts';
-import { effectiveCardStatus, interleave, nextDue, reviewQueue, type QueueCard } from './queue.ts';
+import {
+  cardStandings,
+  effectiveCardStatus,
+  interleave,
+  nextDue,
+  reviewQueue,
+  type QueueCard,
+} from './queue.ts';
 
 const NOW = Date.UTC(2026, 9, 7, 9, 0, 0);
 const MINUTE = 60_000;
@@ -108,6 +115,50 @@ describe('reviewQueue (MOD-03)', () => {
     const hidden = card({ due: NOW + MINUTE, status: 'suspended', suspensionReason: 'reported' });
     expect(nextDue([later, soon, hidden], NOW, studied)).toBe(NOW + 5 * MINUTE);
     expect(nextDue([], NOW, studied)).toBeNull();
+  });
+});
+
+describe('cardStandings ("Mes cartes", D-092)', () => {
+  it('says why each card is shown now or not, in the terms of the queue', () => {
+    const due = card({ phase: 'new' });
+    const capped = card({ phase: 'new' });
+    const later = card({ due: NOW + 30 * MINUTE });
+    const mastered = card({ status: 'mastered', due: NOW + 60 * MINUTE });
+    const waiting = card({
+      status: 'suspended',
+      suspensionReason: 'unstudied-notion',
+      notionId: 'tense-future',
+    });
+    const reported = card({ status: 'suspended', suspensionReason: 'reported' });
+    const unsolvable = card({ content: { ...content, answers: { canonical: ' ', variants: [] } } });
+    const standings = cardStandings({
+      cards: [due, capped, later, mastered, waiting, reported, unsolvable],
+      now: NOW,
+      today: { newCards: 9, reviews: 0, mastered: 0 },
+      limits,
+      isStudied: studied,
+    });
+    expect(Object.fromEntries(standings)).toEqual({
+      [due.id]: { kind: 'due' },
+      [capped.id]: { kind: 'capped', cap: 'new' },
+      [later.id]: { kind: 'later', due: NOW + 30 * MINUTE, mastered: false },
+      [mastered.id]: { kind: 'later', due: NOW + 60 * MINUTE, mastered: true },
+      [waiting.id]: { kind: 'waiting', notionId: 'tense-future' },
+      [reported.id]: { kind: 'suspended', reason: 'reported' },
+      [unsolvable.id]: { kind: 'unsolvable' },
+    });
+  });
+
+  it('counts a card held back for a notion now studied as an active one', () => {
+    const back = card({ status: 'suspended', suspensionReason: 'unstudied-notion' });
+    const standings = cardStandings({
+      cards: [back],
+      now: NOW,
+      today: none,
+      limits,
+      isStudied: studied,
+    });
+    expect(standings.get(back.id)).toEqual({ kind: 'due' });
   });
 });
 
