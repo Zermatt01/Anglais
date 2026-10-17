@@ -307,13 +307,14 @@ describe('exercises (steps 2 to 4)', () => {
       await screen.findByText('Une carte reprendra cette phrase dans tes Reprises.'),
     ).toBeInTheDocument();
 
-    // s4/02: "Elle présente les résultats en ce moment." The notion is proven by the app.
+    // s4/02: "Elle présente les résultats en ce moment." A reviewed answer, its adverb moved:
+    // the notion is proven by the app (D-096).
     fireEvent.click(screen.getByRole('button', { name: 'Exercice suivant' }));
     const next = await screen.findByRole('textbox', { name: 'Ta traduction' });
     await waitFor(() => {
       expect(next).toBeEnabled();
     });
-    fireEvent.change(next, { target: { value: 'She is presenting the figures at the moment.' } });
+    fireEvent.change(next, { target: { value: 'Currently she is presenting the results.' } });
     fireEvent.click(screen.getByRole('button', { name: 'Vérifier' }));
     expect(await screen.findByText('La forme travaillée est juste')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Notion à revoir' })).not.toBeInTheDocument();

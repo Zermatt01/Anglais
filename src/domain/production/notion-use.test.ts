@@ -220,16 +220,52 @@ describe('constructionsIn (D-094)', () => {
 describe('showsNotionAsReference (D-094)', () => {
   const accepted = ['I usually take the bus.', 'I normally take the bus.'];
 
-  it('proves the notion when the translation has the constructions of a reviewed answer', () => {
+  it('proves the notion when the translation is a reviewed answer, a frequency adverb elsewhere', () => {
     expect(showsNotionAsReference('Usually I take the bus.', accepted, SIMPLE)).toBe(true);
-    expect(showsNotionAsReference('I usually take a bus', accepted, SIMPLE)).toBe(true);
+    expect(showsNotionAsReference('I take the bus normally', accepted, SIMPLE)).toBe(true);
+    expect(
+      showsNotionAsReference(
+        'Usually he works in Geneva, but this month he is working in London.',
+        ['He usually works in Geneva, but this month he’s working in London.'],
+        CONTRAST,
+      ),
+    ).toBe(true);
+  });
+
+  it('proves nothing when another word differs: it may carry an error on the notion (D-096)', () => {
+    // The closed lists cannot read a noun, an article or a time: any change is a doubt.
+    expect(showsNotionAsReference('I usually take a bus', accepted, SIMPLE)).toBe(false);
+    const CONTINUOUS: NotionUse = { groups: [PRESENT_CONTINUOUS], required: 1 };
+    expect(
+      showsNotionAsReference(
+        'My colleagues is talking on the phone.',
+        ['My colleague is talking on the phone.'],
+        CONTINUOUS,
+      ),
+    ).toBe(false);
     expect(
       showsNotionAsReference(
         'He works in Zurich, but this month he is working in Paris.',
         ['He works in Geneva, but this month he’s working in London.'],
         CONTRAST,
       ),
-    ).toBe(true);
+    ).toBe(false);
+    expect(
+      showsNotionAsReference(
+        'I have been working here since three years.',
+        ['I have been working here since 2019.'],
+        PPC,
+      ),
+    ).toBe(false);
+    // A frequency adverb added or left out is not a place: it may change the tense needed.
+    expect(
+      showsNotionAsReference(
+        'My colleague is usually talking on the phone.',
+        ['My colleague is talking on the phone.'],
+        CONTINUOUS,
+      ),
+    ).toBe(false);
+    expect(showsNotionAsReference('I take the bus.', accepted, SIMPLE)).toBe(false);
   });
 
   it('proves nothing with another tense, another verb, another subject or a missing part', () => {
@@ -270,7 +306,7 @@ describe('showsNotionAsReference (D-094)', () => {
         ['I’ll call you when I arrive.'],
         FUTURE,
       ),
-    ).toBe(true);
+    ).toBe(false);
     // Every construction of the reference: one present simple right and one wrong is not enough.
     expect(
       showsNotionAsReference(

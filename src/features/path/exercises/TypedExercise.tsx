@@ -299,7 +299,7 @@ export function TypedExercise({
           </p>
           <p>
             {phase.proven
-              ? 'Ta phrase emploie la notion comme la réponse de référence. Le reste en diffère, sans être forcément faux : l’app ne le vérifie pas.'
+              ? 'Ta phrase est une réponse de référence, avec un adverbe placé ailleurs. Cette place ne compte pas pour la notion : l’app ne la juge pas.'
               : 'Ta réponse ne figure pas parmi les réponses prévues, ce qui ne veut pas dire qu’elle est fausse. Compare-la avec la réponse de référence :'}
           </p>
           <p lang="en" className="feedback__answer">

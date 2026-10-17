@@ -168,6 +168,23 @@ describe('local proof of the notion at step 4 (D-094)', () => {
     },
   );
 
+  // Second reviews of the adjustments (D-096): a word the closed lists cannot read
+  // (the number of a subject, a time) carries the error.
+  it.each([
+    ['tense-present-continuous', 13, 'My colleagues is talking on the phone.'],
+    ['tense-for-since-ago', 2, 'She has been a teacher since three years.'],
+    ['tense-for-since-ago', 2, 'She has been a teacher for 2019 years.'],
+    ['tense-present-simple-vs-continuous', 2, 'She’s usually presenting the results right now.'],
+  ] as const)('never proves %s in translation %i: "%s"', (notionId, number, text) => {
+    const content = contents.find(([id]) => id === notionId)?.[1];
+    const use = NOTION_USES[notionId];
+    const exercise = content?.exercises.find(
+      (candidate) => candidate.id === `${notionId}/s4/${String(number).padStart(2, '0')}`,
+    );
+    if (use === undefined || exercise?.kind !== 'translate') throw new Error('No translation');
+    expect(showsNotionAsReference(text, exercise.accepted, use)).toBe(false);
+  });
+
   it('lists only translations that exist and that the lists cannot show', () => {
     const translations = new Map(
       contents.flatMap(([notionId, content]) =>

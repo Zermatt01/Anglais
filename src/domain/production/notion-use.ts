@@ -378,55 +378,44 @@ const NOTION_WORDS: ReadonlySet<string> = new Set([
   'ago',
 ]);
 
-/** Adverbs whose place is off the notion (a frequency adverb, D-093): left out. */
+/** Adverbs whose place is off the notion (a frequency adverb, D-093). */
 const IGNORED: ReadonlySet<string> = new Set(
   [...INSERTABLE].filter((word) => !SUBJECTS.has(word) && !NOTION_WORDS.has(word)),
 );
 
-function isVerbWord(word: string): boolean {
-  return AUXILIARIES.has(word) || VERB_FORM_ROLES.some((role) => isVerbForm(word, role));
-}
-
 /**
- * The verb skeleton of a reading: its subjects, auxiliaries, modals, verb
- * forms of the closed lists and words of the notions, in their order; any
- * other words (nouns, articles, prepositions…) are one gap, "…"; the adverbs
- * of `IGNORED` are left out.
+ * A reading without the adverbs of `IGNORED`, then these adverbs in
+ * alphabetical order: two readings with the same key differ only by where
+ * these adverbs are.
  */
-function skeletonOf(reading: readonly string[]): string {
-  const kept: string[] = [];
-  for (const word of reading) {
-    if (IGNORED.has(word)) continue;
-    if (SUBJECTS.has(word) || NOTION_WORDS.has(word) || isVerbWord(word)) kept.push(word);
-    else if (kept.at(-1) !== '…') kept.push('…');
-  }
-  return kept.join(' ');
+function keyOf(reading: readonly string[]): string {
+  const placed = reading.filter((word) => !IGNORED.has(word));
+  const moved = reading.filter((word) => IGNORED.has(word)).sort();
+  return `${placed.join(' ')} | ${moved.join(' ')}`;
 }
-
-const skeletonsOf = (text: string): Set<string> => new Set(readingsOf(text).map(skeletonOf));
 
 /**
  * Whether a translation of step 4 uses the notion as one of its reviewed
- * answers does (D-094), without the model: one of its readings has the verb
- * skeleton of a reviewed answer that shows the notion. The verbs, auxiliaries,
- * subjects and words of the notion must be the same, in the same order; the
- * other words may differ (a noun, a preposition, an article), and the place
- * of a frequency adverb does not count. "Usually I take the bus" is "i take …"
- * as "I usually take the bus" is; "What you are doing?" is not "What are you
- * doing?"; "I'll call you when I'll be there" has a "will" more than "I'll call
- * you when I'm there". A verb missing from the closed lists is a gap: the
- * translation must then match without it.
+ * answers does (D-094, D-096), without the model: one of its readings is a
+ * reading of a reviewed answer that shows the notion, the same words in the
+ * same order, but for the place of an adverb of `IGNORED` (a frequency
+ * adverb, D-093). "Usually I take the bus" is "I usually take the bus"; "What
+ * you are doing?" is not "What are you doing?". Any other difference leaves
+ * the notion unproven, and the learner decides: a word the closed lists cannot
+ * read may carry an error on the notion, such as the number of a subject ("My
+ * colleagues is talking") or a time ("since three years", "I have finished it
+ * yesterday").
  */
 export function showsNotionAsReference(
   translation: string,
   accepted: readonly string[],
   use: NotionUse,
 ): boolean {
-  const shown = skeletonsOf(translation);
+  const shown = new Set(readingsOf(translation).map(keyOf));
   return accepted.some(
     (reference) =>
       use.groups.some((patterns) => constructionsIn(reference, patterns).size > 0) &&
-      [...skeletonsOf(reference)].some((skeleton) => shown.has(skeleton)),
+      readingsOf(reference).some((reading) => shown.has(keyOf(reading))),
   );
 }
 
