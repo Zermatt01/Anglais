@@ -411,12 +411,16 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     sentenceFr: 'Elle étudie la finance depuis septembre.',
     hint: 'Une activité qui dure depuis un point de départ.',
     difficulty: 1,
-    accepted: ['She’s been studying finance since September.'],
+    accepted: [
+      'She’s been studying finance since September.',
+      'She’s studied finance since September.',
+    ],
     knownErrors: [
       onNotion('She studies finance since September.', 'temps_verbaux'),
       onNotion('She’s studying finance since September.', 'temps_verbaux'),
     ],
-    explanation: 'Depuis un point de départ : _since September_, avec _has been studying_.',
+    explanation:
+      'Depuis un point de départ : _since September_, avec _has been studying_ (ou _has studied_ : le français n’impose pas la forme continue).',
   }),
   translate(14, {
     sentenceFr: 'Tu es essoufflé : tu as couru ?',
@@ -425,9 +429,11 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     accepted: [
       'You’re out of breath: have you been running?',
       'You’re out of breath. Have you been running?',
+      'You’re out of breath: did you run?',
     ],
     knownErrors: [onNotion('You’re out of breath: have you been run?', 'temps_verbaux')],
-    explanation: 'Les traces d’une activité récente : _have you been running?_',
+    explanation:
+      'Les traces d’une activité récente : _have you been running?_ (_did you run?_ est juste aussi).',
   }),
   translate(15, {
     sentenceFr: 'Ça fait une heure que j’essaie de te joindre !',

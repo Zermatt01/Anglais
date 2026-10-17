@@ -498,19 +498,25 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     explanation: 'Terminé avant l’arrivée : _had run away_ (participe _run_).',
   }),
   translate(18, {
-    sentenceFr: 'J’ai compris le problème seulement après avoir relu le code.',
-    hint: 'Une action antérieure à la compréhension, dans le passé.',
+    sentenceFr: 'Quand j’ai enfin compris le problème, j’avais déjà relu le code trois fois.',
+    hint: 'Une action terminée avant un autre moment du passé.',
     difficulty: 3,
     accepted: [
-      'I only understood the problem after I had read the code again.',
-      'I understood the problem only after I had read the code again.',
-      'I only understood the problem after I had reread the code.',
-      'I only understood the problem after I had gone through the code again.',
+      'When I finally understood the problem, I had already read the code three times.',
+      'When I finally understood the problem, I had already reread the code three times.',
+      'When I finally understood the problem, I had already gone through the code three times.',
+      'By the time I finally understood the problem, I had already read the code three times.',
+      'I had already read the code three times when I finally understood the problem.',
+      'I had already reread the code three times when I finally understood the problem.',
     ],
     knownErrors: [
-      onNotion('I only understood the problem after I have read the code again.', 'temps_verbaux'),
+      onNotion(
+        'When I finally understood the problem, I have already read the code three times.',
+        'temps_verbaux',
+      ),
     ],
-    explanation: 'Antérieur à _understood_ : _after I had read_.',
+    explanation:
+      'Une action terminée avant un autre moment passé : _I had already read_ (ou _reread_), avant _I finally understood_.',
   }),
   translate(19, {
     sentenceFr: 'Elle était fatiguée parce qu’elle avait travaillé toute la nuit.',

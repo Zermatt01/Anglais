@@ -534,7 +534,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       ),
     ],
     explanation:
-      'Present perfect + _since_ suivi du moment de départ, au prétérit : _since I left the bank_.',
+      'Present perfect + _since_ + le moment de départ. Pour un événement ponctuel comme quitter la banque, le prétérit est la norme après _since_ : _since I left the bank_. Le present perfect s’y emploie pour un état qui dure jusqu’à maintenant : _since I’ve known you_.',
   }),
   translate(20, {
     sentenceFr:

@@ -443,10 +443,10 @@ export const EXERCISES: NotionContentInput['exercises'] = [
     sentenceFr: 'Il pleut encore.',
     hint: 'Une action qui continue : le mot se place juste après le verbe être.',
     difficulty: 1,
-    accepted: ['It’s still raining.'],
+    accepted: ['It’s still raining.', 'It’s raining again.'],
     knownErrors: [onNotion('It’s yet raining.', 'temps_verbaux')],
     explanation:
-      '« Encore », au sens de « toujours » : _still_, après _is_ : _It’s still raining_.',
+      '« Encore », au sens de « toujours » : _still_, après _is_ : _It’s still raining_. Au sens de « de nouveau », _It’s raining again_ est juste aussi.',
   }),
   translate(15, {
     sentenceFr: 'Nous n’avons pas encore signé le contrat.',
@@ -472,9 +472,14 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'He’s still working on that project.',
       'He still works on this project.',
       'He still works on that project.',
+      'He always works on this project.',
+      'He always works on that project.',
+      'He’s always working on this project.',
+      'He’s always working on that project.',
     ],
     knownErrors: [onNotion('He’s yet working on this project.', 'temps_verbaux')],
-    explanation: '« Toujours », au sens de « encore » : _still_, _he’s still working_.',
+    explanation:
+      '« Toujours », au sens de « encore » : _still_, _he’s still working_. Au sens de « tout le temps », _he always works_ (ou _he’s always working_) est juste aussi.',
   }),
   translate(17, {
     sentenceFr: 'Le train est déjà parti !',

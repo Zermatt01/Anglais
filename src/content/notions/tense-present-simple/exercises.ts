@@ -541,7 +541,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       ),
     ],
     explanation:
-      'Habitudes : présent simple, _hand in_ et _I mark_. _Homework_ est indénombrable : pas de _-s_, et on le reprend par _it_.',
+      'Habitudes : présent simple, _hand in_ et _I mark_. Dans l’usage courant recommandé, _homework_ est indénombrable : pas de _-s_, et on le reprend par _it_.',
   }),
   translate(20, {
     sentenceFr: 'Un client qui paie en avance reçoit une remise de cinq pour cent.',

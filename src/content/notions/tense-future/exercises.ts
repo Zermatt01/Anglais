@@ -433,9 +433,12 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'We’re going on holiday on Saturday.',
       'We’re going on vacation on Saturday.',
       'We’re going on holiday this Saturday.',
+      'We go on holiday on Saturday.',
+      'We go on vacation on Saturday.',
     ],
     knownErrors: [onNotion('We going on holiday on Saturday.', 'temps_verbaux')],
-    explanation: 'Un projet organisé : présent continu, _We’re going on holiday on Saturday_.',
+    explanation:
+      'Un projet organisé : présent continu, _We’re going on holiday on Saturday_. Le présent simple d’un départ programmé, _We go on holiday on Saturday_, est juste aussi.',
   }),
   translate(14, {
     sentenceFr: 'Le téléphone sonne : je réponds !',

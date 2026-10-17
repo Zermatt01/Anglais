@@ -475,7 +475,7 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       ),
     ],
     explanation:
-      'Le point de départ au prétérit : _since she joined_ ; ce qui s’est passé depuis : _has improved_.',
+      'Pour un événement ponctuel comme rejoindre l’équipe, le prétérit est la norme après _since_ : _since she joined_. Le present perfect s’y emploie pour un état qui dure : _since I’ve known her_. Ce qui s’est passé depuis : _has improved_.',
   }),
   translate(19, {
     sentenceFr: 'Quand j’ai ouvert la boîte, quelqu’un avait déjà pris les meilleurs chocolats.',

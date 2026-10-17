@@ -489,12 +489,16 @@ export const EXERCISES: NotionContentInput['exercises'] = [
       'Our team has won a prize for this app.',
       'Our team has won an award for this application.',
       'Our team won an award for this app.',
+      'Our team have won an award for this app.',
+      'Our team have won a prize for this app.',
     ],
     knownErrors: [
       onNotion('Our team has winned an award for this app.', 'temps_verbaux'),
       onNotion('Our team has win an award for this app.', 'temps_verbaux'),
     ],
-    explanation: 'Résultat, sans moment précisé : _has won_ (participe de _win_).' + AMERICAN_PAST,
+    explanation:
+      'Résultat, sans moment précisé : _has won_ (participe de _win_) ; en anglais britannique, _our team have won_ aussi.' +
+      AMERICAN_PAST,
   }),
   translate(18, {
     sentenceFr: 'J’ai lu ton rapport : il est clair, mais il manque des chiffres.',
