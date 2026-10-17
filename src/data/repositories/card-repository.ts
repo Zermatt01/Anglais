@@ -40,6 +40,11 @@ export interface NewCard {
   readonly sourceErrorId?: string | null;
   /** Created suspended, for example while its notion is not studied yet (D-025). */
   readonly suspensionReason?: Exclude<SuspensionReason, 'unsolvable'> | null;
+  /**
+   * Without a `suspensionReason`: held back while its notion is not studied,
+   * read from the stored progress at creation (D-025, D-096).
+   */
+  readonly waitForNotion?: boolean;
 }
 
 export type CardCreation =
@@ -103,6 +108,8 @@ export function createCardRepository(
 ): CardRepository {
   const cards = db.table('cards');
   const logs = db.table('reviewLogs');
+  const outbox = db.table('syncOutbox');
+  const progressTable = db.table('notionProgress');
   const drafts = createDraftRepository(db, clock);
 
   function readable(raws: readonly unknown[]): CardDocument[] {
@@ -117,7 +124,7 @@ export function createCardRepository(
    * or it has no lessons yet, so that it could never be studied (D-092).
    */
   async function readiness(): Promise<(notionId: NotionId) => boolean> {
-    const raws: unknown[] = await db.table('notionProgress').toArray();
+    const raws: unknown[] = await progressTable.toArray();
     const studied = new Set<NotionId>();
     for (const raw of raws) {
       const parsed = parseRecord('notionProgress', raw);
@@ -175,34 +182,52 @@ export function createCardRepository(
   }
 
   return {
-    async create({ content, origin, sourceErrorId = null, suspensionReason = null }) {
+    async create({
+      content,
+      origin,
+      sourceErrorId = null,
+      suspensionReason = null,
+      waitForNotion = false,
+    }) {
       const report = isCardSolvable(content);
       if (!report.solvable) return { ok: false, issues: report.issues };
-      // One card per question: a sentence failed again is already in the Reprises (D-092).
-      const same = readable(await cards.toArray()).find((card) =>
-        asksTheSame(card.content, content),
-      );
-      if (same !== undefined) return { ok: true, card: same, created: false };
+      const notionId = notionOfCard(content);
+      // Looking for the same card and writing this one are one transaction:
+      // two creations at once make one card (D-092, D-096).
+      const scope = waitForNotion ? [cards, outbox, progressTable] : [cards, outbox];
+      return db.dexie.transaction('rw', scope, async (): Promise<CardCreation> => {
+        // One card per question: a sentence failed again is already in the Reprises (D-092).
+        const same = readable(await cards.toArray()).find((card) =>
+          asksTheSame(card.content, content),
+        );
+        if (same !== undefined) return { ok: true, card: same, created: false };
 
-      const now = clock.now();
-      const srs = scheduler.initialState(now);
-      const card: CardDocument = {
-        id: crypto.randomUUID(),
-        createdAt: now,
-        updatedAt: now,
-        deletedAt: null,
-        schemaVersion: 1,
-        content,
-        notionId: notionOfCard(content),
-        sourceErrorId,
-        status: suspensionReason === null ? 'active' : 'suspended',
-        suspensionReason,
-        srs,
-        due: srs.due,
-        origin,
-      };
-      await writeRecord(db, 'cards', card, now);
-      return { ok: true, card, created: true };
+        const heldBack =
+          suspensionReason === null &&
+          waitForNotion &&
+          notionId !== null &&
+          !(await readiness())(notionId);
+        const reason = heldBack ? 'unstudied-notion' : suspensionReason;
+        const now = clock.now();
+        const srs = scheduler.initialState(now);
+        const card: CardDocument = {
+          id: crypto.randomUUID(),
+          createdAt: now,
+          updatedAt: now,
+          deletedAt: null,
+          schemaVersion: 1,
+          content,
+          notionId,
+          sourceErrorId,
+          status: reason === null ? 'active' : 'suspended',
+          suspensionReason: reason,
+          srs,
+          due: srs.due,
+          origin,
+        };
+        await writeRecord(db, 'cards', card, now);
+        return { ok: true, card, created: true };
+      });
     },
 
     get(id) {

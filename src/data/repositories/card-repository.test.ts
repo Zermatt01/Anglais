@@ -82,6 +82,59 @@ describe('card repository', () => {
     expect(after.ok && after.created && after.card.id !== first.card.id).toBe(true);
   });
 
+  it('makes one card of two creations at once (D-096)', async () => {
+    const { db, repository } = await setup();
+    const both = await Promise.all([
+      repository.create({ content: clozeCard, origin: 'notion' }),
+      repository.create({ content: { ...clozeCard }, origin: 'notion' }),
+    ]);
+    expect(both.map((result) => result.ok && result.created).sort()).toEqual([false, true]);
+    expect(await db.table('cards').count()).toBe(1);
+  });
+
+  it('holds a card back from the stored progress when asked to wait for its notion (D-096)', async () => {
+    const { db, clock, repository } = await setup();
+    const waiting = await repository.create({
+      content: clozeCard,
+      origin: 'notion',
+      waitForNotion: true,
+    });
+    expect(waiting.ok && waiting.card).toMatchObject({
+      status: 'suspended',
+      suspensionReason: 'unstudied-notion',
+    });
+    // A notion without lessons could never be studied: its card is active (D-092).
+    const unlessoned = await repository.create({
+      content: { ...clozeCard, notionId: 'nouns-articles', text: 'Has she sent the invoice ___?' },
+      origin: 'notion',
+      waitForNotion: true,
+    });
+    expect(unlessoned.ok && unlessoned.card).toMatchObject({
+      status: 'active',
+      suspensionReason: null,
+    });
+
+    await db.table('notionProgress').put({
+      notionId: 'tense-just-already-yet-still',
+      status: 'in_progress',
+      step: 4,
+      recall: null,
+      stepEnteredAt: clock.now(),
+      acquiredAt: null,
+      lastRegressionAt: null,
+      createdAt: clock.now(),
+      updatedAt: clock.now(),
+      deletedAt: null,
+      schemaVersion: 1,
+    });
+    const studied = await repository.create({
+      content: { ...clozeCard, text: 'Have they paid the invoice ___?' },
+      origin: 'notion',
+      waitForNotion: true,
+    });
+    expect(studied.ok && studied.card).toMatchObject({ status: 'active', suspensionReason: null });
+  });
+
   it('creates a suspended card while its notion is not studied yet (D-025)', async () => {
     const { repository } = await setup();
     const result = await repository.create({
