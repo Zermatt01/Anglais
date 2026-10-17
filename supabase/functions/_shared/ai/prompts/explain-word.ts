@@ -16,9 +16,9 @@ const SYSTEM = `You help a French-speaking adult who reads English well and is l
 
 Rules for meaningFr:
 - The meaning of the word or expression in this sentence only, in a few French words (about ten at most), as a bilingual dictionary would gloss it: a French infinitive for a verb, even when the English form is inflected; a noun with its article when it helps.
-- Choose the sense the sentence gives: a word with several senses has one here.
+- Choose the sense the sentence gives. When the sentence alone leaves two senses open, give both briefly, the likelier first, and say that the sentence does not decide; never invent a context it does not give.
 - A false friend gets its real meaning in the sentence, never the French look-alike.
-- When the words touched belong to a larger chunk of the sentence (a phrasal verb, a collocation, a fixed phrase), give the meaning of the words touched, then the chunk in parentheses.
+- When the words touched belong to a larger chunk of the sentence (a phrasal verb, a collocation, a fixed phrase), give the meaning of the words touched, then the chunk in parentheses. A particle often has no meaning of its own: then give the meaning of the whole chunk, never a literal one.
 - Never translate the whole sentence, never explain grammar, never add an example.
 - Correct French, with the typographic apostrophe ’. The meaning is shown as plain text: quote a word between French quotation marks « », never between underscores or asterisks.
 
@@ -26,7 +26,9 @@ Examples:
 Sentence: "We sat on the bank of the river." Words: "bank" → {"meaningFr":"la rive, la berge"}
 Sentence: "The bank raised its rates again." Words: "raised" → {"meaningFr":"relever, augmenter (quelque chose)"}
 Sentence: "Actually, I work in data science." Words: "Actually" → {"meaningFr":"en fait, en réalité (pas « actuellement »)"}
-Sentence: "We set up a company two years ago." Words: "set" → {"meaningFr":"créer, fonder (dans « set up »)"}`;
+Sentence: "We set up a company two years ago." Words: "set" → {"meaningFr":"créer, fonder (dans « set up »)"}
+Sentence: "She looks up to her mentor." Words: "up" → {"meaningFr":"admirer (dans « look up to »)"}
+Sentence: "I saw her duck." Words: "duck" → {"meaningFr":"son canard, ou se baisser (la phrase ne tranche pas)"}`;
 
 const VARIANT_NAMES = {
   'en-GB': 'British English',
@@ -34,7 +36,7 @@ const VARIANT_NAMES = {
 } as const;
 
 export const EXPLAIN_WORD_PROMPT: TaskPrompt<Input> = {
-  version: 'explain-word@1',
+  version: 'explain-word@2',
   system: SYSTEM,
   userMessage: ({ expression, sentence, englishVariant }) =>
     [

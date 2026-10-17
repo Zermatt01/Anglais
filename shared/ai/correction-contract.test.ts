@@ -306,7 +306,7 @@ describe('explain-word (D-095)', () => {
     expect(output.safeParse({ meaningFr: 'la rive, la berge' }).success).toBe(true);
     expect(output.safeParse({ meaningFr: 'x', note: 'y' }).success).toBe(false);
     const examples = [...wordPrompt.system.matchAll(/→ (\{.*\})$/gmu)].map((match) => match[1]);
-    expect(examples).toHaveLength(4);
+    expect(examples).toHaveLength(6);
     for (const example of examples) {
       expect(output.safeParse(JSON.parse(example ?? '')).success).toBe(true);
     }
