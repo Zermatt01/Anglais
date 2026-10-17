@@ -30,6 +30,25 @@ describe('asksTheSame (D-092)', () => {
     expect(asksTheSame(errorCard, notionCard)).toBe(true);
   });
 
+  it('matches two cards when an answer of one is a variant of the other (D-096)', () => {
+    const withVariant: CardContent = {
+      ...notionCard,
+      answers: {
+        canonical: 'The train leaves at eight o’clock.',
+        variants: ['The train leaves at eight.'],
+      },
+    };
+    expect(asksTheSame(errorCard, withVariant)).toBe(true);
+    expect(asksTheSame(withVariant, errorCard)).toBe(true);
+    // Disjoint answers stay apart, even with a variant each.
+    expect(
+      asksTheSame(withVariant, {
+        ...errorCard,
+        answers: { canonical: 'The train left at eight.', variants: ['The train went at eight.'] },
+      }),
+    ).toBe(false);
+  });
+
   it('keeps apart another sentence, another answer, or another kind of question', () => {
     expect(
       asksTheSame(errorCard, { ...errorCard, meaningFr: 'Le train part à neuf heures.' }),
