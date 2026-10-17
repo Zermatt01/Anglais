@@ -332,7 +332,8 @@ Aucune migration ni aucun secret. L'application et l'Edge Function changent tout
    - aucune ligne au moment de l'essai : la demande n'est pas arrivée à la fonction (réseau du téléphone, session) ;
    - `status = 'reserved'` qui reste : la fonction a été arrêtée pendant l'appel (limite de 150 s de Supabase) ;
    - `ok` avec une `latency_ms` élevée : le modèle a répondu, mais la réponse s'est perdue en route (réseau mobile, écran verrouillé) ; elle a été facturée ;
-   - `error` : `error_code` donne la cause (`anthropic_timeout`, `anthropic_529` pour une surcharge, etc.), et la ligne `ai_call` des journaux (**Edge Functions → ai → Logs**) l'explication.
+   - `error` : `error_code` donne la cause (`anthropic_timeout`, `anthropic_529` pour une surcharge, etc.), et la ligne `ai_call` des journaux (**Edge Functions → ai → Logs**) l'explication ;
+   - `error` avec `error_code = 'deadline'` et un coût nul : la réservation a pris trop de temps, et l'appel n'a pas été lancé, pour ne pas dépasser la limite de 150 s (D-096).
 
 ### Cartes, étape 4 et mots inconnus (DECISIONS D-092 à D-095)
 
@@ -345,3 +346,14 @@ Aucune migration ni aucun secret. L'application change, et l'Edge Function reço
    - à l'étape 4, une traduction juste sur la notion, avec une autre faute, compte comme bonne, et la faute devient une carte ;
    - sous une phrase anglaise, **Mot inconnu ?**, toucher un mot, puis **Ajouter « … »**, puis **Demander le sens à l'IA** : le sens proposé remplit le champ. Le corriger si besoin, puis **Ajouter à mon lexique** : l'entrée apparaît dans **Mon lexique**, et sa carte dans **Mes cartes** ;
    - **Consommation** : la ligne « Sens des mots ».
+
+### Revues de Codex des ajustements (DECISIONS D-096)
+
+Aucune migration ni aucun secret. L'application change, et l'Edge Function aussi (contrôle du temps après réservation, prompt `explain-word@2`).
+
+1. `git push`, puis redéployer l'Edge Function : `npx supabase@2.118.0 functions deploy ai --use-api`.
+2. Sur le téléphone, **Mettre à jour**.
+3. **Vérifier** :
+   - à l'étape 4, une réponse relue avec un adverbe déplacé (_Usually I take the bus_) affiche « La forme travaillée est juste » ; une réponse qui change un autre mot propose les trois choix ;
+   - en pratique immédiate d'une notion pas encore étudiée, **Revoir cette phrase dans mes Reprises** répond « elle attendra que tu étudies sa notion » ;
+   - dans le formulaire d'un mot inconnu, une expression modifiée et son sens se retrouvent après **Annuler** puis réouverture.

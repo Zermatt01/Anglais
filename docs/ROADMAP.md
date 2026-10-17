@@ -111,10 +111,12 @@ Demandés par l'utilisateur le 2026-10-16, après usage réel, puis validés poi
 - [x] 9 traductions de plus par notion (260 en tout), relues deux fois, présentées par difficulté (D-094)
 - [x] Mots inconnus : toucher un mot ou une expression d'une phrase de l'application pour l'ajouter à Mon lexique, avec sa phrase et sa carte (D-095)
 - [x] Sens proposé par l'IA sur demande (`explain-word`, Haiku 4.5, au plus 0,0075 USD), confirmé par l'apprenant avant l'enregistrement (D-095) ; action de l'utilisateur : DEPLOYMENT.md, section 18
+- [x] Revues de Codex des ajustements : preuve de l'étape 4 resserrée (mot pour mot, à la place d'un adverbe près), phrase gardée qui attend sa notion, brouillons du formulaire d'un mot, cartes créées dans une transaction et comparées avec leurs variantes, seconde tentative revérifiée après réservation, corrections du contenu, `explain-word@2` (D-096) ; action de l'utilisateur : DEPLOYMENT.md, section 18
 
 ## Phase 5 — Qualité des corrections
 
 - [ ] Banc d'essai (écran développeur, coût affiché avant lancement)
+- [ ] Comparer Sonnet 5 et Sonnet 5.5 sur le banc d'essai des corrections, avant de choisir le modèle des corrections (demande de l'utilisateur du 2026-10-17)
 - [ ] Signalements sur les corrections et les cartes
 - [ ] Tableau de bord
 - [ ] Estimation du niveau (locale, recalibrage sur demande)
