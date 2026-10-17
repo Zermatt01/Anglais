@@ -26,6 +26,17 @@ describe('draft repository', () => {
     expect(await repository.get('b')).toEqual({ state: 'present', text: 'second' });
   });
 
+  it('saves a text only where no draft is stored (D-096)', async () => {
+    const { repository } = await setup();
+    expect(await repository.saveIfAbsent('a', 'proposed')).toBe(true);
+    expect(await repository.get('a')).toEqual({ state: 'present', text: 'proposed' });
+    await repository.save('a', 'typed');
+    expect(await repository.saveIfAbsent('a', 'proposed again')).toBe(false);
+    expect(await repository.get('a')).toEqual({ state: 'present', text: 'typed' });
+    expect(await repository.saveIfAbsent('b', '')).toBe(false);
+    expect(await repository.get('b')).toEqual({ state: 'absent' });
+  });
+
   it('removes the draft when the text is emptied', async () => {
     const { db, repository } = await setup();
     await repository.save('a', 'text');

@@ -109,7 +109,9 @@ export function sentenceAround(text: string, first: number, last: number): strin
   let stop = text.length;
   for (const match of text.matchAll(SENTENCE_END)) {
     const boundary = match.index + match[0].length;
-    if (match[0].endsWith('.') && endsWithAbbreviation(text, boundary)) continue;
+    // The abbreviation is read before the closing marks: "(at 9 a.m.) went well" (D-096).
+    const stops = /^[.!?]+/u.exec(match[0])?.[0] ?? '';
+    if (stops.endsWith('.') && endsWithAbbreviation(text, match.index + stops.length)) continue;
     if (boundary <= from.start) start = boundary;
     else if (boundary >= end) {
       stop = boundary;
@@ -117,6 +119,31 @@ export function sentenceAround(text: string, first: number, last: number): strin
     }
   }
   return text.slice(start, stop).trim();
+}
+
+/** A 53-bit hash of a text (cyrb53), in hexadecimal: a key of fixed length, never a protection. */
+function hashOf(text: string): string {
+  let h1 = 0xdeadbeef;
+  let h2 = 0x41c6ce57;
+  for (let index = 0; index < text.length; index += 1) {
+    const code = text.charCodeAt(index);
+    h1 = Math.imul(h1 ^ code, 2654435761);
+    h2 = Math.imul(h2 ^ code, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+  h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+  h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16).padStart(14, '0');
+}
+
+/**
+ * Where the drafts of the form of a word touched are kept (D-096): from the
+ * whole sentence and the words touched, of fixed length, so that it fits in
+ * a draft key and two sentences never share it.
+ */
+export function wordDraftKey(expression: string, sentence: string): string {
+  return `lexicon-word:${hashOf(`${expression}\u0000${sentence}`)}`;
 }
 
 /** Positions of `needle` in `text`, ignoring case. */

@@ -2,11 +2,13 @@
  * Reprises (MOD-03, CARD-05), Mon lexique (MOD-09) and the rule book
  * (MOD-10), on a real in-memory database and a fake server.
  */
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import type { CardContent } from '../../domain/cards/content.ts';
+import { wordDraftKey } from '../../domain/lexicon.ts';
+import { DRAFT_SAVE_DELAY_MS } from '../drafts/use-draft.ts';
 import { createTestServices, renderApp } from '../../test/render.tsx';
-import { createFakeServer, TEST_ACCOUNT } from '../../test/server.ts';
+import { createFakeServer, TEST_ACCOUNT, type FakeServerOptions } from '../../test/server.ts';
 import { answered, correctionOf } from '../../test/corrections.ts';
 
 const NOTION_CARD: CardContent = {
@@ -421,5 +423,93 @@ describe('meaning of an unknown word, proposed by the AI (D-095)', () => {
       screen.queryByRole('button', { name: 'Demander le sens à l’IA' }),
     ).not.toBeInTheDocument();
     expect(screen.queryByText(/Sens proposé par l’IA/)).not.toBeInTheDocument();
+  });
+});
+
+describe('drafts of the form of a word touched (D-096)', () => {
+  const open = async (word: string) => {
+    const third = (await screen.findAllByRole('button', { name: 'Mot inconnu ?' }))[2];
+    if (third === undefined) throw new Error('no word picker');
+    fireEvent.click(third);
+    fireEvent.click(screen.getByRole('button', { name: word }));
+    fireEvent.click(screen.getByRole('button', { name: `Ajouter « ${word} »` }));
+    const meaning = await screen.findByRole('textbox', {
+      name: 'Sens en français, dans cette phrase',
+    });
+    await waitFor(() => {
+      expect(meaning).toBeEnabled();
+    });
+    return {
+      meaning,
+      expression: screen.getByRole('textbox', { name: 'Mot ou expression' }),
+    };
+  };
+
+  it('restores the expression as edited along with its meaning', async () => {
+    const services = await createTestServices();
+    await renderApp('/parcours/tense-present-continuous/lecon', services);
+    const first = await open('across');
+    fireEvent.change(first.expression, { target: { value: 'euro area' } });
+    fireEvent.change(first.meaning, { target: { value: 'la zone euro' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+
+    const again = await open('across');
+    await waitFor(() => {
+      expect(again.expression).toHaveValue('euro area');
+    });
+    expect(again.meaning).toHaveValue('la zone euro');
+    fireEvent.click(screen.getByRole('button', { name: 'Ajouter à mon lexique' }));
+    expect(await screen.findByText(/Ajouté à ton lexique/)).toBeInTheDocument();
+    expect(await services.lexicon.list()).toMatchObject([
+      { expression: 'euro area', meaningFr: 'la zone euro' },
+    ]);
+    // Added: the drafts are done with, and the form starts afresh.
+    fireEvent.click(screen.getByRole('button', { name: 'Fermer' }));
+    const fresh = await open('across');
+    expect(fresh.expression).toHaveValue('across');
+    expect(fresh.meaning).toHaveValue('');
+  });
+
+  it('never lets a late proposal replace a meaning typed meanwhile', async () => {
+    let answer: (value: Awaited<ReturnType<NonNullable<FakeServerOptions['run']>>>) => void = () =>
+      undefined;
+    const fake = createFakeServer({
+      account: TEST_ACCOUNT,
+      run: () =>
+        new Promise((resolve) => {
+          answer = resolve;
+        }),
+    });
+    const services = await createTestServices({ server: fake.server });
+    await renderApp('/parcours/tense-present-continuous/lecon', services);
+    await open('across');
+    fireEvent.click(screen.getByRole('button', { name: 'Demander le sens à l’IA' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+
+    const typed = await open('across');
+    fireEvent.change(typed.meaning, { target: { value: 'à travers' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+    const key = `${wordDraftKey('across', 'Inflation is falling across the euro area.')}:meaning`;
+    await waitFor(async () => {
+      expect(await services.drafts.get(key)).toEqual({ state: 'present', text: 'à travers' });
+    });
+    await act(async () => {
+      answer({
+        ok: true,
+        output: { meaningFr: 'dans tout' },
+        costUsd: 0.0012,
+        model: 'claude-haiku-4-5-20251001',
+        promptVersion: 'explain-word@1',
+      });
+      // Long enough for any save the closed form could still make.
+      await new Promise((resolve) => setTimeout(resolve, DRAFT_SAVE_DELAY_MS + 100));
+    });
+    expect(await services.drafts.get(key)).toEqual({ state: 'present', text: 'à travers' });
+
+    const after = await open('across');
+    await waitFor(() => {
+      expect(after.meaning).toHaveValue('à travers');
+    });
+    expect(fake.calls.run).toEqual(['explain-word']);
   });
 });

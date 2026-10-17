@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { collocationCardOf, expressionBetween, piecesOf, sentenceAround } from './lexicon.ts';
+import {
+  collocationCardOf,
+  expressionBetween,
+  piecesOf,
+  sentenceAround,
+  wordDraftKey,
+} from './lexicon.ts';
 
 describe('piecesOf (D-095)', () => {
   it('splits a sentence into its words and what lies between them', () => {
@@ -97,5 +103,33 @@ describe('sentenceAround (D-095)', () => {
     expect(sentenceAround('The call ended at 5 p.m. Then we left.', 9, 9)).toBe(
       'The call ended at 5 p.m. Then we left.',
     );
+  });
+
+  it('reads an abbreviation before a closing bracket or quote (D-096)', () => {
+    expect(sentenceAround('Our meeting (at 9 a.m.) went well.', 7, 7)).toBe(
+      'Our meeting (at 9 a.m.) went well.',
+    );
+    expect(sentenceAround('He said "see you at 9 a.m." Then he left.', 10, 10)).toBe(
+      'He said "see you at 9 a.m." Then he left.',
+    );
+    // A closing mark after a sentence that ends still ends it.
+    expect(sentenceAround('She said "it works." Then she left.', 6, 6)).toBe('Then she left.');
+  });
+});
+
+describe('wordDraftKey (D-096)', () => {
+  const sentence = `${'We review the figures of the quarter with the whole team, '.repeat(2)}then we decide.`;
+
+  it('fits in a draft key, whatever the length of the words and the sentence', () => {
+    const key = wordDraftKey('x'.repeat(300), 'y'.repeat(1_000));
+    expect(key.length).toBeLessThanOrEqual(200);
+    expect(key).toBe(wordDraftKey('x'.repeat(300), 'y'.repeat(1_000)));
+  });
+
+  it('never gives two sentences that begin alike, or two expressions, the same key', () => {
+    expect(wordDraftKey('decide', sentence)).not.toBe(
+      wordDraftKey('decide', sentence.replace('then we decide.', 'then we vote.')),
+    );
+    expect(wordDraftKey('figures', sentence)).not.toBe(wordDraftKey('team', sentence));
   });
 });

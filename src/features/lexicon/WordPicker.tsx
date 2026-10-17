@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { TASK_SETTINGS } from '../../../shared/ai/models.ts';
 import { maxCostOfRequest } from '../../../shared/ai/pricing.ts';
 import {
@@ -12,6 +12,7 @@ import {
   MAX_MEANING,
   piecesOf,
   sentenceAround,
+  wordDraftKey,
 } from '../../domain/lexicon.ts';
 import { DEFAULT_SETTINGS } from '../../domain/settings.ts';
 import type { AiClientError } from '../../services/ai-client/ai-client.ts';
@@ -46,9 +47,6 @@ const MESSAGES = {
   invalid: { tone: 'error', text: 'Il faut le mot et son sens en français.' },
   failed: { tone: 'error', text: 'Non ajouté : le stockage du téléphone est peut-être plein.' },
 } as const;
-
-/** Longest part of the sentence kept in a draft key (drafts keys have at most 200 characters). */
-const KEY_SENTENCE = 100;
 
 /**
  * An English sentence whose unknown word, or expression, can be touched to
@@ -163,14 +161,23 @@ function WordForm({
   const { lexicon, drafts, server } = useAppServices();
   const englishVariant = (useSettings()?.values ?? DEFAULT_SETTINGS).englishVariant;
   const online = useOnline();
-  const [expression, setExpression] = useState(picked);
-  // The meaning is a draft: typed text, or the proposed meaning, is never lost (UI-03).
-  const meaningKey = `lexicon-word:${picked}|${sentence.slice(0, KEY_SENTENCE)}`;
+  // The expression, as edited, and its meaning are drafts, restored together (UI-03, D-096).
+  const draftKey = wordDraftKey(picked, sentence);
+  const meaningKey = `${draftKey}:meaning`;
+  const edited = useDraft(`${draftKey}:expression`, picked);
   const meaning = useDraft(meaningKey, '');
+  const expression = edited.text;
   const [addition, setAddition] = useState<Addition>('idle');
   const [asking, setAsking] = useState(false);
   // A double tap must not send two requests: the state is only read at the next rendering.
   const askingNow = useRef(false);
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
   const [askError, setAskError] = useState<AiClientError | null>(null);
   const [proposalCostUsd, setProposalCostUsd] = useState<number | null>(null);
 
@@ -196,8 +203,11 @@ function WordForm({
       setAskError({ code: 'invalid_output' });
       return;
     }
-    // Stored at once, even if the form is closed meanwhile: never asked twice (D-095).
-    await drafts.save(meaningKey, proposed).catch(() => undefined);
+    // Stored at once, even if the form is closed meanwhile, so that it is not asked
+    // for twice (D-095); but never over a meaning typed meanwhile (D-096).
+    await drafts.saveIfAbsent(meaningKey, proposed).catch(() => false);
+    // Closed meanwhile: the hook of the form is gone, and must not save anything more.
+    if (!mounted.current) return;
     meaning.setText(proposed);
     setProposalCostUsd(result.costUsd);
   };
@@ -205,6 +215,7 @@ function WordForm({
   const add = async () => {
     setAddition('saving');
     try {
+      await edited.flush();
       await meaning.flush();
       const result = await lexicon.add({
         expression,
@@ -216,7 +227,8 @@ function WordForm({
         setAddition(result.reason);
         return;
       }
-      meaning.reset('');
+      // Added: the drafts of the form are done with.
+      await Promise.all([edited.discard(expression), meaning.discard('')]);
       setAddition(result.withCard ? 'added' : 'added-without-card');
     } catch {
       setAddition('failed');
@@ -229,6 +241,7 @@ function WordForm({
   const canAsk =
     server !== null &&
     !done &&
+    edited.ready &&
     meaning.ready &&
     meaning.text.trim() === '' &&
     proposalCostUsd === null &&
@@ -246,9 +259,9 @@ function WordForm({
         spellCheck={false}
         maxLength={MAX_EXPRESSION}
         value={expression}
-        disabled={done}
+        disabled={!edited.ready || done || asking}
         onChange={(event) => {
-          setExpression(event.currentTarget.value);
+          edited.setText(event.currentTarget.value);
         }}
       />
       <TextField
@@ -295,7 +308,7 @@ function WordForm({
       <div className="button-row">
         {done ? null : (
           <Button
-            disabled={addition === 'saving' || !meaning.ready || asking}
+            disabled={addition === 'saving' || !edited.ready || !meaning.ready || asking}
             onClick={() => void add()}
           >
             Ajouter à mon lexique

@@ -20,6 +20,11 @@ export interface DraftRepository {
   get(key: string): Promise<StoredDraft>;
   /** Saves the text; an empty text removes the draft. */
   save(key: string, text: string): Promise<void>;
+  /**
+   * Saves the text only where no draft is stored, readable or not: a text
+   * typed meanwhile is never replaced. True when it was saved.
+   */
+  saveIfAbsent(key: string, text: string): Promise<boolean>;
   remove(key: string): Promise<void>;
 }
 
@@ -47,6 +52,15 @@ export function createDraftRepository(db: AppDatabase, clock: Clock): DraftRepos
       return writeSafely(key, () => {
         const now = clock.now();
         return writeRecord(db, 'drafts', { key, text, updatedAt: now }, now);
+      });
+    },
+
+    saveIfAbsent(key, text) {
+      return db.dexie.transaction('rw', [table], async () => {
+        if (text.length === 0 || (await table.get(key)) !== undefined) return false;
+        const now = clock.now();
+        await writeRecord(db, 'drafts', { key, text, updatedAt: now }, now);
+        return true;
       });
     },
 
