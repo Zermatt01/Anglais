@@ -31,7 +31,7 @@ export function AnswerCard({
       {cardCreated ? (
         <p className="muted">Une carte reprendra cette phrase dans tes Reprises.</p>
       ) : null}
-      {offer ? <KeepForReview card={notionCardOf(notionId, exercise)} heldBack={false} /> : null}
+      {offer ? <KeepForReview card={notionCardOf(notionId, exercise)} /> : null}
       <WordPicker sentence={englishSentenceOf(exercise)} />
     </>
   );

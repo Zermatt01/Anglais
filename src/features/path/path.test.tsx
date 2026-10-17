@@ -15,6 +15,7 @@ import { createTestServices, renderApp, renderWithServices } from '../../test/re
 import { createFakeServer, TEST_ACCOUNT } from '../../test/server.ts';
 import { DRAFT_SAVE_DELAY_MS } from '../drafts/use-draft.ts';
 import { GenerateExercises } from './GenerateExercises.tsx';
+import { AnswerCard } from './AnswerCard.tsx';
 
 const NOTION = 'tense-present-continuous';
 
@@ -622,5 +623,32 @@ describe('reading settings (D-052)', () => {
     expect(
       await screen.findByText(/ne sait pas lire les exemples à voix haute/),
     ).toBeInTheDocument();
+  });
+});
+
+describe('sentence kept for review (D-092, D-096)', () => {
+  it('waits for its notion when the notion is not studied, as in immediate practice', async () => {
+    const services = await createTestServices();
+    const exercise = (await contentOf(NOTION)).exercises.find(
+      (entry) => entry.kind === 'translate',
+    );
+    if (exercise === undefined) throw new Error('no translation');
+    await renderWithServices(
+      <AnswerCard
+        notionId={NOTION}
+        exercise={exercise}
+        source="core"
+        result="incorrect"
+        cardCreated={false}
+      />,
+      { services },
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Revoir cette phrase dans mes Reprises' }));
+    expect(
+      await screen.findByText('Ajoutée à tes Reprises : elle attendra que tu étudies sa notion.'),
+    ).toBeInTheDocument();
+    expect(await services.cards.all()).toMatchObject([
+      { status: 'suspended', suspensionReason: 'unstudied-notion' },
+    ]);
   });
 });

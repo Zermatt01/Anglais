@@ -14,17 +14,13 @@ const MESSAGES: Readonly<Record<Exclude<State, 'idle' | 'saving'>, string>> = {
 /**
  * "Revoir cette phrase dans mes Reprises" (D-092): after a failure that made
  * no card, the learner keeps the reviewed sentence as a card, on request. It
- * is held back while its notion is not studied (D-025).
+ * is held back while its notion is not studied, as the stored progress says
+ * (D-025, D-096).
  */
-export function KeepForReview({
-  card,
-  heldBack,
-}: {
-  readonly card: NotionCardContent | null;
-  readonly heldBack: boolean;
-}) {
+export function KeepForReview({ card }: { readonly card: NotionCardContent | null }) {
   const { cards } = useAppServices();
   const [state, setState] = useState<State>('idle');
+  const [heldBack, setHeldBack] = useState(false);
   if (card === null) return null;
   if (state !== 'idle' && state !== 'saving') {
     return (
@@ -42,20 +38,19 @@ export function KeepForReview({
         disabled={state === 'saving'}
         onClick={() => {
           setState('saving');
-          cards
-            .create({
-              content: card,
-              origin: 'notion',
-              suspensionReason: heldBack ? 'unstudied-notion' : null,
-            })
-            .then(
-              (created) => {
-                setState(!created.ok ? 'failed' : created.created ? 'added' : 'present');
-              },
-              () => {
+          cards.create({ content: card, origin: 'notion', waitForNotion: true }).then(
+            (created) => {
+              if (!created.ok) {
                 setState('failed');
-              },
-            );
+                return;
+              }
+              setHeldBack(created.card.suspensionReason === 'unstudied-notion');
+              setState(created.created ? 'added' : 'present');
+            },
+            () => {
+              setState('failed');
+            },
+          );
         }}
       >
         Revoir cette phrase dans mes Reprises

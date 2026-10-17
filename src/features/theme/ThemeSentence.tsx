@@ -374,7 +374,6 @@ export function ThemeSentence({
                 hint: item.hint,
                 accepted: item.accepted,
               })}
-              heldBack={unstudied}
             />
           ) : null}
           {phase.events.map((event) => {
