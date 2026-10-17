@@ -5,8 +5,9 @@
  * CORS → user's JWT → allowed e-mail → Zod validation of the request →
  * reservation (idempotence, rate limit, monthly cap) → versioned prompt, stable
  * prefix first → model → validation of the output, one new attempt if it is
- * invalid or refused (not if it is cut off, nor if it could end after
- * `REQUEST_DEADLINE_MS`) → actual cost logged → answer.
+ * invalid or refused (not if it is cut off) → actual cost logged → answer. A
+ * call is only made if it can end before `REQUEST_DEADLINE_MS`, checked again
+ * once it is reserved (D-091, D-096).
  *
  * `GET ?timeZone=…`: the learner's spending and the cap; no model is called.
  *
@@ -135,9 +136,8 @@ async function runTask(
 ): Promise<Outcome> {
   const { config, ledger, model, now, log } = deps;
   const { task } = request;
-  // A new attempt that could outlast the platform's limit would lose its answer (D-091).
-  const hasTimeForAnotherAttempt = () =>
-    now() - receivedAt + MODEL_TIMEOUT_MS <= REQUEST_DEADLINE_MS;
+  // A call that could outlast the platform's limit would lose its answer (D-091).
+  const hasTimeForACall = () => now() - receivedAt + MODEL_TIMEOUT_MS <= REQUEST_DEADLINE_MS;
   const settings = TASK_SETTINGS[task];
   const prompt = PROMPTS[task];
   const userMessage = userMessageOf(request);
@@ -151,6 +151,8 @@ async function runTask(
 
   // Every attempt is billed: the learner is told the cost of the whole request.
   const costs: number[] = [];
+  // The failure of the last attempt, answered when no other one can be made.
+  let failure: Failure = { code: 'invalid_output' };
   for (const attempt of ATTEMPTS) {
     const reservation = await ledger.reserve({
       userId: user.id,
@@ -176,6 +178,22 @@ async function runTask(
             budget: budgetState(reservation.monthUsedUsd, config, now()),
           };
       }
+    }
+    if (!hasTimeForACall()) {
+      // The reservation took long: the call is not made, and its reservation costs nothing (D-096).
+      try {
+        await ledger.complete(reservation.callId, {
+          status: 'error',
+          usage: null,
+          costUsd: 0,
+          latencyMs: 0,
+          errorCode: 'deadline',
+        });
+      } catch {
+        log({ event: 'server_error', task, attempt, errorCode: 'complete_failed' });
+      }
+      log({ event: 'ai_refused', task, attempt, status: 'deadline' });
+      return attempt === 1 ? { code: 'server_error' } : failure;
     }
 
     const started = now();
@@ -226,9 +244,10 @@ async function runTask(
         };
       case 'invalid_output':
       case 'refusal':
+        failure = { code: result.kind === 'refusal' ? 'model_refusal' : 'invalid_output' };
         // A single new attempt (AI-07, D-016), if it can end in time.
-        if (attempt < ATTEMPTS.length && hasTimeForAnotherAttempt()) continue;
-        return { code: result.kind === 'refusal' ? 'model_refusal' : 'invalid_output' };
+        if (attempt < ATTEMPTS.length && hasTimeForACall()) continue;
+        return failure;
       case 'truncated':
         // The same request would be cut off again.
         return { code: 'output_truncated' };
@@ -236,7 +255,7 @@ async function runTask(
         return { code: 'upstream_error' };
     }
   }
-  return { code: 'invalid_output' };
+  return failure;
 }
 
 type BodyResult =

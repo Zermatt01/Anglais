@@ -88,6 +88,8 @@ interface HarnessOptions {
   readonly ledger?: AiCallLedger;
   /** How long each model call takes. */
   readonly latencyMs?: number;
+  /** How long each reservation takes, in order (none by default). */
+  readonly reserveLatenciesMs?: number[];
 }
 
 function harness(options: HarnessOptions = {}): Harness {
@@ -104,6 +106,7 @@ function harness(options: HarnessOptions = {}): Harness {
   const ledger: AiCallLedger = options.ledger ?? {
     reserve(call) {
       reserved.push(call);
+      clock += options.reserveLatenciesMs?.[reserved.length - 1] ?? 0;
       const next = reservations.shift();
       if (next instanceof Error) return Promise.reject(next);
       return Promise.resolve(
@@ -374,6 +377,39 @@ describe('a call', () => {
     expect(response.status).toBe(502);
     expect(await errorOf(response)).toEqual({ code: 'invalid_output' });
     expect(late.reserved.map((call) => call.attempt)).toEqual([1]);
+  });
+
+  it('checks the time again once the new attempt is reserved, and frees it (D-096)', async () => {
+    // 49 s of model, then 20 s of reservation: a call started at 69 s could end at 159 s.
+    const slow = harness({
+      results: [
+        { kind: 'invalid_output', usage: USAGE },
+        { kind: 'ok', output: { status: 'ok' }, usage: USAGE },
+      ],
+      latencyMs: 49_000,
+      reserveLatenciesMs: [0, 20_000],
+    });
+    const response = await handleRequest(post(CHECK), slow.deps);
+    expect(response.status).toBe(502);
+    expect(await errorOf(response)).toEqual({ code: 'invalid_output' });
+    expect(slow.reserved.map((call) => call.attempt)).toEqual([1, 2]);
+    expect(slow.modelCalls).toHaveLength(1);
+    expect(slow.completed.at(-1)).toEqual({
+      status: 'error',
+      usage: null,
+      costUsd: 0,
+      latencyMs: 0,
+      errorCode: 'deadline',
+    });
+
+    // A first reservation as slow: no call, and an error the learner can retry.
+    const stuck = harness({ reserveLatenciesMs: [REQUEST_DEADLINE_MS - MODEL_TIMEOUT_MS + 1] });
+    const refused = await handleRequest(post(CHECK), stuck.deps);
+    expect(await errorOf(refused)).toEqual({ code: 'server_error' });
+    expect(stuck.modelCalls).toEqual([]);
+    expect(stuck.completed).toEqual([
+      expect.objectContaining({ costUsd: 0, errorCode: 'deadline' }),
+    ]);
   });
 
   it('makes no new attempt after an answer cut off by max_tokens', async () => {
