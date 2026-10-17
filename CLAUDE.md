@@ -35,7 +35,7 @@ Détail : `typecheck` (`tsc -b`), `lint` (`eslint . --max-warnings=0`), `test` (
   - `src/services` : `backend/` (Supabase : compte, transport de synchronisation), `ai-client/`, stockage, parole ;
   - `shared/ai` : contrat IA (tâches, schémas, prompts versionnés, `models.ts`, `pricing.ts`), copié pour Deno dans `supabase/functions/_shared/ai` par `npm run sync:shared` ;
   - `supabase/` : `migrations/`, `functions/ai/` (Edge Function), `tests/` (PGlite).
-- **Modèles** : `claude-haiku-4-5-20251001` pour les vérifications simples, `claude-sonnet-5` pour la correction, le diagnostic et la génération. Seulement dans `shared/ai/models.ts`.
+- **Modèles** : `claude-haiku-5-5` pour les vérifications simples (D-097), `claude-sonnet-5` pour la correction, le diagnostic et la génération. Seulement dans `shared/ai/models.ts`.
 
 ## Conventions
 

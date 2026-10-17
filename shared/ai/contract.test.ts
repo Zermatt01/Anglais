@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { MODELS, TASK_SETTINGS, type TaskSettings } from './models.ts';
-import { estimateInputTokens } from './pricing.ts';
+import { estimateInputTokens, HAIKU_LONG_PROMPT_TOKENS } from './pricing.ts';
 import { NOTION_GUIDES } from './prompts/notion-guides.ts';
 import { PROMPTS } from './prompts/index.ts';
 import {
@@ -13,6 +13,7 @@ import {
   aiResponseSchema,
   aiUsageSchema,
   AI_ERROR_CODES,
+  MAX_REQUEST_BYTES,
   timeZoneSchema,
 } from './protocol.ts';
 import { REASON_SETS } from './reasons.ts';
@@ -38,14 +39,24 @@ describe('AI tasks', () => {
 
   it.each(AI_TASK_NAMES)('%s uses thinking effort and caching only where supported', (task) => {
     const settings: TaskSettings = TASK_SETTINGS[task];
-    // Haiku 4.5 rejects the effort parameter, and its prompts are shorter
-    // than its minimum cacheable prefix (D-011, D-012).
+    // The fast tasks run without thinking, whose tokens would count in their
+    // short output ceilings, and without cache (D-011, D-012, D-097).
     if (settings.model === MODELS.fast) {
       expect(settings.thinking).toBe('off');
       expect(settings.cachePrefix).toBe(false);
     }
     expect(settings.maxTokens).toBeGreaterThan(0);
   });
+
+  it.each(AI_TASK_NAMES.filter((task) => TASK_SETTINGS[task].model === MODELS.fast))(
+    '%s stays within the prices of short prompts of Haiku 5.5 (D-097)',
+    (task) => {
+      // Even one token per byte of the largest request the Edge Function accepts.
+      expect(estimateInputTokens(PROMPTS[task].system) + MAX_REQUEST_BYTES).toBeLessThan(
+        HAIKU_LONG_PROMPT_TOKENS,
+      );
+    },
+  );
 
   it.each(AI_TASK_NAMES)('%s keeps request data out of the stable prefix', (task) => {
     const { system } = PROMPTS[task];

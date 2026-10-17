@@ -494,12 +494,12 @@ Détails :
 ### 10.1 Configuration
 
 - `shared/ai/models.ts` est le **seul** fichier où l'on choisit, par tâche : le modèle, `max_tokens`, la réflexion et l'effort, et la mise en cache (ARC-09).
-- `shared/ai/pricing.ts` contient le tableau de prix (USD par million de tokens), vérifié le 2026-09-29. Les montants sont calculés en millionièmes de dollar et arrondis au-dessus :
+- `shared/ai/pricing.ts` contient le tableau de prix (USD par million de tokens), vérifié le 2026-09-29, et le 2026-10-17 pour Haiku 5.5 (D-097). Les montants sont calculés en millionièmes de dollar et arrondis au-dessus :
 
-| Modèle                      | Entrée | Sortie | Écriture en cache (TTL 5 min) | Lecture en cache | Préfixe minimum cacheable |
-| --------------------------- | ------ | ------ | ----------------------------- | ---------------- | ------------------------- |
-| `claude-haiku-4-5-20251001` | 1,00   | 5,00   | 1,25 × entrée                 | 0,10 × entrée    | 4 096 tokens              |
-| `claude-sonnet-5`           | 2,00   | 10,00  | 1,25 × entrée                 | 0,10 × entrée    | 1 024 tokens              |
+| Modèle                                             | Entrée | Sortie | Écriture en cache (TTL 5 min) | Lecture en cache | Préfixe minimum cacheable |
+| -------------------------------------------------- | ------ | ------ | ----------------------------- | ---------------- | ------------------------- |
+| `claude-haiku-5-5` (prompt jusqu'à 100 000 tokens) | 0,10   | 0,50   | 1,25 × entrée                 | 0,10 × entrée    | 512 tokens                |
+| `claude-sonnet-5`                                  | 2,00   | 10,00  | 1,25 × entrée                 | 0,10 × entrée    | 1 024 tokens              |
 
 Le coût d'un appel se calcule ainsi :
 
@@ -510,23 +510,23 @@ coût = entrée non cachée × prix_entrée
      + sortie × prix_sortie
 ```
 
-Les tokens de réflexion sont facturés comme de la sortie.
+Les tokens de réflexion sont facturés comme de la sortie. Au-delà de 100 000 tokens de prompt, Haiku 5.5 coûte cinq fois plus : aucun prompt des tâches rapides n'en approche, ce que vérifie un test du contrat (D-097).
 
 ### 10.2 Tâches prévues (valeurs initiales, calibrées en phases 2 et 5)
 
-Chaque phase ajoute à `shared/ai` les tâches dont elle a besoin. La phase 2 livre `connection-check` : Haiku 4.5, 64 tokens de sortie, sans réflexion ni cache, déclenchée par « Tester la connexion » (D-066). La phase 3 livre `generate-exercises` (D-079), la phase 4 `correct-production` et `check-card-answer` (D-083), les ajustements d'usage avant la phase 5 `explain-word` (D-095).
+Chaque phase ajoute à `shared/ai` les tâches dont elle a besoin. La phase 2 livre `connection-check` : modèle rapide, 64 tokens de sortie, sans réflexion ni cache, déclenchée par « Tester la connexion » (D-066). La phase 3 livre `generate-exercises` (D-079), la phase 4 `correct-production` et `check-card-answer` (D-083), les ajustements d'usage avant la phase 5 `explain-word` (D-095). Les tâches rapides sont passées de Haiku 4.5 à Haiku 5.5 le 2026-10-17 (D-097).
 
-| Tâche                | Modèle    | `max_tokens` | Réflexion                             | Cache du préfixe                    | Déclencheur                                                              |
-| -------------------- | --------- | ------------ | ------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------ |
-| `correct-production` | Sonnet 5  | 4 000        | Effort bas (à calibrer, D-012, D-083) | Oui                                 | « Corriger » (Thème, Journal, Produire, étape 4 inconnue ; livrée)       |
-| `check-card-answer`  | Haiku 4.5 | 300          | Désactivée                            | Non (préfixe < 4 096 tokens, D-011) | « Faire vérifier par l'IA » sur une réponse de carte inattendue (livrée) |
-| `explain-word`       | Haiku 4.5 | 150          | Désactivée                            | Non (préfixe < 4 096 tokens, D-011) | « Demander le sens à l'IA » pour un mot inconnu (livrée, D-095)          |
-| `classify-sounds`    | Haiku 4.5 | 400          | —                                     | Non                                 | Fin d'un exercice de shadowing, si des mots sont manqués                 |
-| `generate-exercises` | Sonnet 5  | 4 000        | Effort bas                            | Oui                                 | « Créer 6 exercices » quand l'étape est épuisée (livrée, D-079)          |
-| `diagnose`           | Sonnet 5  | 2 500        | Effort bas                            | Oui                                 | Fin du diagnostic initial                                                |
-| `recalibrate-level`  | Sonnet 5  | 1 200        | Effort bas                            | Oui                                 | « Recalibrer mon niveau »                                                |
-| `review-email`       | Sonnet 5  | 2 500        | Effort bas                            | Oui                                 | « Réviser mon e-mail »                                                   |
-| `interview-turn`     | Sonnet 5  | 600          | Désactivée                            | Oui                                 | Réponse de l'apprenant dans la simulation d'entretien                    |
+| Tâche                | Modèle    | `max_tokens` | Réflexion                             | Cache du préfixe   | Déclencheur                                                              |
+| -------------------- | --------- | ------------ | ------------------------------------- | ------------------ | ------------------------------------------------------------------------ |
+| `correct-production` | Sonnet 5  | 4 000        | Effort bas (à calibrer, D-012, D-083) | Oui                | « Corriger » (Thème, Journal, Produire, étape 4 inconnue ; livrée)       |
+| `check-card-answer`  | Haiku 5.5 | 300          | Désactivée                            | Non (D-011, D-097) | « Faire vérifier par l'IA » sur une réponse de carte inattendue (livrée) |
+| `explain-word`       | Haiku 5.5 | 150          | Désactivée                            | Non (D-011, D-097) | « Demander le sens à l'IA » pour un mot inconnu (livrée, D-095)          |
+| `classify-sounds`    | Haiku 5.5 | 400          | —                                     | Non                | Fin d'un exercice de shadowing, si des mots sont manqués                 |
+| `generate-exercises` | Sonnet 5  | 4 000        | Effort bas                            | Oui                | « Créer 6 exercices » quand l'étape est épuisée (livrée, D-079)          |
+| `diagnose`           | Sonnet 5  | 2 500        | Effort bas                            | Oui                | Fin du diagnostic initial                                                |
+| `recalibrate-level`  | Sonnet 5  | 1 200        | Effort bas                            | Oui                | « Recalibrer mon niveau »                                                |
+| `review-email`       | Sonnet 5  | 2 500        | Effort bas                            | Oui                | « Réviser mon e-mail »                                                   |
+| `interview-turn`     | Sonnet 5  | 600          | Désactivée                            | Oui                | Réponse de l'apprenant dans la simulation d'entretien                    |
 
 **Ordre de grandeur** d'une correction (D-083) : préfixe d'environ 6 500 tokens en cache, quelques centaines de tokens variables, 1 500 à 2 500 tokens de sortie, réflexion comprise. Elle coûte environ 0,03 à 0,04 USD au premier appel (écriture en cache), puis environ 0,02 USD dans les 5 minutes suivantes (lecture). Le plafond de 10 USD couvre donc plusieurs centaines de corrections par mois. Le maximum affiché avant « Corriger » est de 0,18 USD, nouvelle tentative comprise.
 

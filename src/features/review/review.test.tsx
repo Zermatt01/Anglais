@@ -73,7 +73,7 @@ describe('Reprises (MOD-03)', () => {
             reasonFr: 'Juste, mais _completed_ est moins naturel ici.',
           },
           costUsd: 0.0004,
-          model: 'claude-haiku-4-5-20251001',
+          model: 'claude-haiku-5-5',
           promptVersion: 'check-card-answer@1',
         }),
     });
@@ -299,7 +299,7 @@ describe('meaning of an unknown word, proposed by the AI (D-095)', () => {
           ok: true,
           output: { meaningFr: 'dans tout, à travers' },
           costUsd: 0.0012,
-          model: 'claude-haiku-4-5-20251001',
+          model: 'claude-haiku-5-5',
           promptVersion: 'explain-word@1',
         });
       },
@@ -348,7 +348,7 @@ describe('meaning of an unknown word, proposed by the AI (D-095)', () => {
           ok: true,
           output: { meaningFr: 'dans tout, à travers' },
           costUsd: 0.0012,
-          model: 'claude-haiku-4-5-20251001',
+          model: 'claude-haiku-5-5',
           promptVersion: 'explain-word@1',
         }),
     });
@@ -391,7 +391,7 @@ describe('meaning of an unknown word, proposed by the AI (D-095)', () => {
           ok: true,
           output: { meaningFr: '  ' },
           costUsd: 0.0012,
-          model: 'claude-haiku-4-5-20251001',
+          model: 'claude-haiku-5-5',
           promptVersion: 'explain-word@1',
         }),
     });
@@ -498,7 +498,7 @@ describe('drafts of the form of a word touched (D-096)', () => {
         ok: true,
         output: { meaningFr: 'dans tout' },
         costUsd: 0.0012,
-        model: 'claude-haiku-4-5-20251001',
+        model: 'claude-haiku-5-5',
         promptVersion: 'explain-word@1',
       });
       // Long enough for any save the closed form could still make.

@@ -9,7 +9,7 @@
  *   the call log; no model is called.
  */
 import { z } from 'zod';
-import { MODELS } from './models.ts';
+import { MODELS, PREVIOUS_MODEL_IDS } from './models.ts';
 import { aiTaskNameSchema, TASK_CONTRACTS } from './tasks.ts';
 
 /** Largest request body accepted by the Edge Function. */
@@ -117,7 +117,8 @@ export const aiSuccessSchema = z.strictObject({
   ok: z.literal(true),
   requestId: z.uuid(),
   task: aiTaskNameSchema,
-  model: z.enum([MODELS.fast, MODELS.capable]),
+  // A previous model too: the Edge Function may be updated after the client (D-097).
+  model: z.enum([MODELS.fast, MODELS.capable, ...PREVIOUS_MODEL_IDS]),
   promptVersion: z.string().min(1).max(100),
   /** Cost of the request, every attempt included (D-081). */
   costUsd: usdSchema,

@@ -16,7 +16,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-006 | Options TypeScript                                       | Outillage   | Actée                   |
 | D-007 | Playwright sur le build de production                    | Outillage   | Actée                   |
 | D-008 | Scan de secrets en plus d'ESLint                         | Sécurité    | Actée                   |
-| D-009 | Identifiants de modèles et prix                          | IA et coûts | Actée                   |
+| D-009 | Identifiants de modèles et prix                          | IA et coûts | Modifiée (D-097)        |
 | D-010 | Sortie JSON garantie                                     | IA et coûts | Actée                   |
 | D-011 | Cache de prompts                                         | IA et coûts | Actée                   |
 | D-012 | Réflexion de Sonnet 5 réglée par tâche                   | IA et coûts | À calibrer (P5)         |
@@ -104,6 +104,7 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
 | D-094 | Étape 4 jugée sur la notion, soupape, variété            | Pédagogie   | Précisée (D-096)        |
 | D-095 | Mots inconnus touchés, sens proposé par l'IA             | Pédagogie   | Précisée (D-096)        |
 | D-096 | Revues de Codex des ajustements d'usage                  | Transverse  | Actée                   |
+| D-097 | Tâches rapides sur Haiku 5.5                             | IA et coûts | Actée                   |
 
 ---
 
@@ -1044,3 +1045,22 @@ Format : **Contexte**, **Décision**, **Raison**, **Alternatives écartées** (l
   - **Variantes ajoutées** : _She's studied finance since September_, _You're out of breath: did you run?_, _Our team have won…_ (accord britannique d'un nom collectif), _We go on holiday (vacation) on Saturday_.
   - **`explain-word@2`** : quand la phrase laisse deux sens ouverts (_I saw her duck_), le modèle donne les deux, le plus probable d'abord, sans inventer de contexte ; une particule seule reçoit le sens de son bloc (_up_ dans _look up to_ : « admirer »).
   - Chaque changement a été relu deux fois (D-058). Les tests du contenu passent, dont la preuve de chaque réponse canonique et l'absence de preuve pour chaque erreur anticipée dans la notion.
+
+### D-097 — Tâches rapides sur Haiku 5.5 (2026-10-17, décision de l'utilisateur, modifie D-009, précise D-011 et D-012)
+
+- **Contexte.** Haiku 5.5 succède à Haiku 4.5. L'utilisateur a demandé d'y passer les tâches rapides (`connection-check`, `check-card-answer`, `explain-word`), après les revues de Codex, en vérifiant dans la documentation officielle d'Anthropic l'identifiant, les tarifs et les changements d'API.
+- **Vérifié le 2026-10-17 dans la documentation officielle** (`platform.claude.com/docs` : vue d'ensemble des modèles, tarifs, réflexion, sorties structurées, cache de prompts) :
+  - identifiant `claude-haiku-5-5` : sans date, c'est pourtant un instantané figé (« Every Claude model ID is a pinned snapshot, including the dateless IDs used from the 4.6 generation on »), ce qui garde le banc d'essai reproductible (D-009) ;
+  - tarifs : 0,10 USD par million de tokens en entrée et 0,50 en sortie pour un prompt jusqu'à 100 000 tokens, 0,50 et 2,50 au-delà ; écriture en cache 1,25 × l'entrée, lecture 0,10 ×. Haiku 4.5 coûtait 1 et 5 : dix fois plus ;
+  - réflexion adaptative, active par défaut ; `thinking: {type: "disabled"}` reste accepté jusqu'à l'effort `high`, et l'effort par défaut est `medium`. L'application l'envoie déjà (`thinking: 'off'`) et n'envoie pas d'effort pour les tâches rapides : la requête reste valide ;
+  - `temperature`, `top_p`, `top_k` non par défaut, préremplissage de la réponse et `budget_tokens` renvoient une erreur 400 : l'application n'en envoie aucun ;
+  - sorties structurées (`output_config.format`) prises en charge ; mêmes limites de schéma (24 paramètres optionnels, 16 unions) ;
+  - nouveau tokenizer : environ 30 % de tokens de plus pour le même texte. L'estimation de l'Edge Function (un token pour deux caractères, plus 1 000) reste au-dessus ; les plafonds de sortie (64, 300 et 150 tokens) gardent une large marge pour un JSON de quelques mots ;
+  - préfixe minimum cacheable : 512 tokens (4 096 pour Haiku 4.5).
+- **Décision.**
+  - `MODELS.fast = 'claude-haiku-5-5'` et son prix dans `pricing.ts`. Un test du contrat vérifie que le prompt d'une tâche rapide, plus la plus grosse requête acceptée (64 Kio, comptés à un token par octet), reste sous 100 000 tokens : seul le tarif des prompts courts s'applique.
+  - Réflexion toujours désactivée pour les tâches rapides : ses tokens compteraient dans leurs plafonds courts, et ces tâches n'en ont pas besoin. Le guide de migration conseille plutôt un effort bas ; c'est à mesurer au banc d'essai (phase 5), pas à deviner.
+  - Cache toujours désactivé pour les tâches rapides : leurs prompts dépassent à peine 512 tokens, une écriture coûte 25 % de plus, et deux demandes dans les cinq minutes sont rares. À revoir au banc d'essai.
+  - Transition : le client accepte aussi une réponse de `claude-haiku-4-5-20251001` (`PREVIOUS_MODEL_IDS`), sans quoi une Edge Function mise à jour après le client, ou l'inverse, ferait échouer les tâches rapides. L'ordre de déploiement est donc : l'application, sa mise à jour sur le téléphone, puis l'Edge Function (DEPLOYMENT.md, section 18). Les enregistrements stockés et `ai_calls` gardent le modèle en texte libre : rien à migrer. Entre la mise en ligne de l'application et le redéploiement de l'Edge Function, le coût maximal affiché est celui de Haiku 5.5 alors que Haiku 4.5 répond encore : moins d'un centime, quelques minutes ; c'est pourquoi l'Edge Function est redéployée juste après la mise à jour du téléphone.
+- **Coût maximal affiché** : par exemple « Demander le sens à l'IA » passe de 0,0075 à 0,0008 USD au plus.
+- **Raison.** Même rôle, prix dix fois plus bas, meilleur suivi des consignes selon Anthropic. Le comportement réel des trois prompts sur Haiku 5.5 reste à observer, et à mesurer au banc d'essai de la phase 5, comme la comparaison de Sonnet 5 et Sonnet 5.5.

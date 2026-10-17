@@ -357,3 +357,12 @@ Aucune migration ni aucun secret. L'application change, et l'Edge Function aussi
    - à l'étape 4, une réponse relue avec un adverbe déplacé (_Usually I take the bus_) affiche « La forme travaillée est juste » ; une réponse qui change un autre mot propose les trois choix ;
    - en pratique immédiate d'une notion pas encore étudiée, **Revoir cette phrase dans mes Reprises** répond « elle attendra que tu étudies sa notion » ;
    - dans le formulaire d'un mot inconnu, une expression modifiée et son sens se retrouvent après **Annuler** puis réouverture.
+
+### Tâches rapides sur Haiku 5.5 (DECISIONS D-097)
+
+Aucune migration ni aucun secret. **L'ordre compte** : l'application d'abord, l'Edge Function ensuite.
+
+1. `git push`, puis attendre que Vercel ait déployé.
+2. Sur le téléphone, **Mettre à jour** : la nouvelle version lit les réponses des deux modèles.
+3. Seulement ensuite, redéployer l'Edge Function : `npx supabase@2.118.0 functions deploy ai --use-api`. Une ancienne version de l'application, pas encore mise à jour, refuserait les réponses de Haiku 5.5 (« Le serveur IA n'a pas pu être joint »).
+4. **Vérifier** : **Consommation → Tester la connexion** réussit ; la requête SQL de cette section, avec la colonne `model` en plus, montre `claude-haiku-5-5` pour les appels suivants, à un coût environ dix fois plus bas.

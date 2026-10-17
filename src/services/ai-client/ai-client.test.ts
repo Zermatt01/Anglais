@@ -38,20 +38,30 @@ const SUCCESS = {
   ok: true,
   requestId: REQUEST_ID,
   task: 'connection-check',
-  model: 'claude-haiku-4-5-20251001',
+  model: 'claude-haiku-5-5',
   promptVersion: 'connection-check@1',
   costUsd: 0.00013,
   output: { status: 'ok' },
 };
 
 describe('run', () => {
+  it('still reads an answer of the previous fast model, while the Edge Function is updated (D-097)', async () => {
+    const { ai } = client({ ...SUCCESS, model: 'claude-haiku-4-5-20251001' });
+    expect(await ai.run('connection-check', {}, REQUEST_ID)).toMatchObject({
+      ok: true,
+      model: 'claude-haiku-4-5-20251001',
+    });
+    const { ai: unknown } = client({ ...SUCCESS, model: 'claude-haiku-3' });
+    expect(await unknown.run('connection-check', {}, REQUEST_ID)).toMatchObject({ ok: false });
+  });
+
   it('sends the task, its input and the request identifier, never a prompt (D-017)', async () => {
     const { ai, sent } = client(SUCCESS);
     expect(await ai.run('connection-check', {}, REQUEST_ID)).toEqual({
       ok: true,
       output: { status: 'ok' },
       costUsd: 0.00013,
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-haiku-5-5',
       promptVersion: 'connection-check@1',
     });
     const [request] = sent;

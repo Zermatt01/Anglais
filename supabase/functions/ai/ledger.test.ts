@@ -22,7 +22,7 @@ function call(userId: string, fields: Partial<CallToReserve> = {}): CallToReserv
     requestId: crypto.randomUUID(),
     attempt: 1,
     task: 'connection-check',
-    model: 'claude-haiku-4-5-20251001',
+    model: 'claude-haiku-5-5',
     promptVersion: 'connection-check@1',
     reservedCostUsd: 0.002,
     monthlyBudgetUsd: 10,

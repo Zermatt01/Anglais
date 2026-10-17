@@ -6,8 +6,11 @@
 import type { AiTaskName } from './tasks.ts';
 
 export const MODELS = {
-  /** Simple checks. Dated snapshot, so that the benchmark is reproducible (D-009). */
-  fast: 'claude-haiku-4-5-20251001',
+  /**
+   * Simple checks. A pinned snapshot, so that the benchmark is reproducible:
+   * from the 4.6 generation on, a dateless ID is a snapshot (D-009, D-097).
+   */
+  fast: 'claude-haiku-5-5',
   /** Detailed correction, diagnosis and generation. */
   capable: 'claude-sonnet-5',
 } as const;
@@ -16,10 +19,16 @@ export type ModelId = (typeof MODELS)[keyof typeof MODELS];
 export const MODEL_IDS: readonly ModelId[] = Object.values(MODELS);
 
 /**
+ * Models used before (D-097): the client still reads their answers, while the
+ * application and the Edge Function are updated one after the other.
+ */
+export const PREVIOUS_MODEL_IDS = ['claude-haiku-4-5-20251001'] as const;
+
+/**
  * - `off`: no thinking, sent explicitly (`{ type: 'disabled' }`): Sonnet 5
- *   thinks by default, and thinking tokens count in `max_tokens` (D-012);
- * - `{ effort }`: adaptive thinking at this effort. Sonnet 5 only: Haiku 4.5
- *   rejects the effort parameter.
+ *   and Haiku 5.5 think by default, and thinking tokens count in `max_tokens`
+ *   (D-012). Haiku 5.5 accepts it at its default effort, `medium` (D-097);
+ * - `{ effort }`: adaptive thinking at this effort, for the capable model.
  */
 export type ThinkingSetting = 'off' | { readonly effort: 'low' | 'medium' | 'high' };
 
@@ -29,9 +38,10 @@ export interface TaskSettings {
   readonly maxTokens: number;
   readonly thinking: ThinkingSetting;
   /**
-   * Whether the stable system prefix carries `cache_control` (D-011). Never
-   * for Haiku 4.5, whose minimum cacheable prefix (4 096 tokens) is longer
-   * than its prompts.
+   * Whether the stable system prefix carries `cache_control` (D-011). Not for
+   * the fast tasks: their prompts are barely longer than Haiku 5.5's minimum
+   * cacheable prefix (512 tokens), and seldom sent twice within five minutes;
+   * a cache write costs a quarter more (D-097).
    */
   readonly cachePrefix: boolean;
 }

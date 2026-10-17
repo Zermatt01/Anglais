@@ -112,7 +112,7 @@ export function createFakeServer(options: FakeServerOptions = {}): FakeServer {
           ok: true,
           output: { status: 'ok' },
           costUsd: 0.00013,
-          model: 'claude-haiku-4-5-20251001',
+          model: 'claude-haiku-5-5',
           promptVersion: 'connection-check@1',
         });
       // Safe in tests: each test answers with the output of the task it runs.

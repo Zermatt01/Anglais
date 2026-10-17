@@ -19,9 +19,10 @@ const noTokens = {
   cacheReadInputTokens: 0,
 };
 
-describe('model prices (D-009)', () => {
+describe('model prices (D-009, D-097)', () => {
   it('match the prices checked in the documentation', () => {
-    expect(MODEL_PRICES[MODELS.fast]).toEqual({ inputPerMillion: 1, outputPerMillion: 5 });
+    // Haiku 5.5, for prompts up to 100 000 tokens.
+    expect(MODEL_PRICES[MODELS.fast]).toEqual({ inputPerMillion: 0.1, outputPerMillion: 0.5 });
     expect(MODEL_PRICES[MODELS.capable]).toEqual({ inputPerMillion: 2, outputPerMillion: 10 });
   });
 });
@@ -54,10 +55,10 @@ describe('costOfUsage', () => {
   });
 
   it('rounds up to the millionth of a dollar, without floating-point noise', () => {
-    // 3 cache-read tokens of Haiku: 0.3 millionth, rounded up to 1.
+    // 3 cache-read tokens of Haiku: 0.03 millionth, rounded up to 1.
     expect(costOfUsage(MODELS.fast, { ...noTokens, cacheReadInputTokens: 3 })).toBe(0.000001);
-    // 0.1 × 30 = 3.0000000000000004 in floating point: still 3 millionths.
-    expect(costOfUsage(MODELS.fast, { ...noTokens, cacheReadInputTokens: 30 })).toBe(0.000003);
+    // 30 × 0.1 = 3.0000000000000004 in floating point: still 3 millionths.
+    expect(costOfUsage(MODELS.fast, { ...noTokens, inputTokens: 30 })).toBe(0.000003);
     expect(costOfUsage(MODELS.fast, noTokens)).toBe(0);
   });
 });
@@ -66,7 +67,7 @@ describe('maxCostOfCall (budget reservation, D-016)', () => {
   it('assumes the whole output ceiling is used', () => {
     expect(
       maxCostOfCall(MODELS.fast, { inputTokens: 1_000, maxTokens: 64, cachePrefix: false }),
-    ).toBe(0.00132); // 1 000 × 1 + 64 × 5
+    ).toBe(0.000132); // 1 000 × 0.1 + 64 × 0.5
   });
 
   it('prices every input token as a cache write when the prefix is cached', () => {

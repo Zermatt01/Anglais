@@ -112,6 +112,7 @@ Demandés par l'utilisateur le 2026-10-16, après usage réel, puis validés poi
 - [x] Mots inconnus : toucher un mot ou une expression d'une phrase de l'application pour l'ajouter à Mon lexique, avec sa phrase et sa carte (D-095)
 - [x] Sens proposé par l'IA sur demande (`explain-word`, Haiku 4.5, au plus 0,0075 USD), confirmé par l'apprenant avant l'enregistrement (D-095) ; action de l'utilisateur : DEPLOYMENT.md, section 18
 - [x] Revues de Codex des ajustements : preuve de l'étape 4 resserrée (mot pour mot, à la place d'un adverbe près), phrase gardée qui attend sa notion, brouillons du formulaire d'un mot, cartes créées dans une transaction et comparées avec leurs variantes, seconde tentative revérifiée après réservation, corrections du contenu, `explain-word@2` (D-096) ; action de l'utilisateur : DEPLOYMENT.md, section 18
+- [x] Tâches rapides sur Haiku 5.5, dix fois moins cher, vérifié dans la documentation officielle (D-097) ; action de l'utilisateur : DEPLOYMENT.md, section 18, dans l'ordre indiqué
 
 ## Phase 5 — Qualité des corrections
 

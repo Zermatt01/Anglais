@@ -537,7 +537,8 @@ describe('with the real SQL functions (PGlite)', () => {
       'select status, cost_usd, input_tokens from public.ai_calls where user_id = $1',
       [userId],
     );
-    expect(rows).toEqual([{ status: 'ok', cost_usd: '0.000130', input_tokens: 95 }]);
+    // 95 × 0.1 + 7 × 0.5 millionths of a dollar (Haiku 5.5).
+    expect(rows).toEqual([{ status: 'ok', cost_usd: '0.000013', input_tokens: 95 }]);
 
     const again = await handleRequest(post(CHECK), deps);
     expect(await errorOf(again)).toEqual({ code: 'duplicate_request' });

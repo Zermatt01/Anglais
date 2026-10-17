@@ -130,7 +130,7 @@ Ces choix sont faits. On ne les remet en cause qu'en cas d'obstacle bloquant, et
   - Web Speech API (reconnaissance et synthèse) dans Chrome Android, avec détection de disponibilité et repli vers la dictée du clavier.
   - L'architecture est prévue pour brancher plus tard un service d'évaluation de prononciation (par exemple Azure Speech), sans l'implémenter maintenant.
 - **ARC-09** [P2] — **Modèles Anthropic** configurables dans un seul fichier.
-  - Défauts : `claude-haiku-4-5-20251001` pour les vérifications simples (réponse libre à une carte, classification de sons), `claude-sonnet-5` pour la correction détaillée, le diagnostic et la génération d'exercices.
+  - Défauts : `claude-haiku-5-5` pour les vérifications simples (réponse libre à une carte, sens d'un mot, classification de sons ; DECISIONS D-097), `claude-sonnet-5` pour la correction détaillée, le diagnostic et la génération d'exercices.
   - Identifiants, sortie JSON structurée et cache de prompts ont été vérifiés dans la documentation officielle (DECISIONS D-009 à D-012).
 - **ARC-10** — Tout écart à ARC-01 à ARC-09 exige un obstacle bloquant, expliqué avant d'agir.
 

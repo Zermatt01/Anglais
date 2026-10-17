@@ -3,7 +3,8 @@
  * Prices and cost of an AI call (COST-05, docs/ARCHITECTURE.md §10.1).
  *
  * Prices are in USD per million tokens, checked in Anthropic's documentation
- * on 2026-09-29 (D-009). Update them here if Anthropic changes them.
+ * on 2026-09-29 (D-009), and on 2026-10-17 for Haiku 5.5 (D-097). Update them
+ * here if Anthropic changes them.
  *
  * Amounts are computed in millionths of a dollar and rounded up: the budget
  * (COST-06) may be overestimated by a millionth, never underestimated.
@@ -16,9 +17,14 @@ export interface ModelPrice {
 }
 
 export const MODEL_PRICES: Readonly<Record<ModelId, ModelPrice>> = {
-  'claude-haiku-4-5-20251001': { inputPerMillion: 1, outputPerMillion: 5 },
+  // For prompts up to `HAIKU_LONG_PROMPT_TOKENS` tokens: every prompt of the
+  // fast tasks stays far below (contract test).
+  'claude-haiku-5-5': { inputPerMillion: 0.1, outputPerMillion: 0.5 },
   'claude-sonnet-5': { inputPerMillion: 2, outputPerMillion: 10 },
 };
+
+/** Above this many input tokens, Haiku 5.5 costs five times more (D-097). */
+export const HAIKU_LONG_PROMPT_TOKENS = 100_000;
 
 /** Writing the prompt cache (5-minute TTL) costs 1.25 times the input price. */
 export const CACHE_WRITE_MULTIPLIER = 1.25;
