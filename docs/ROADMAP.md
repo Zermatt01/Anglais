@@ -101,7 +101,7 @@ Une case n'est cochée que si la fonctionnalité est livrée **et** que toutes l
 
 ## Ajustements d'usage avant la phase 5
 
-Demandés par l'utilisateur le 2026-10-16, après usage réel, puis validés point par point (Reprises, étape 4 du Parcours, mots inconnus).
+Demandés par l'utilisateur le 2026-10-16, après usage réel, puis validés point par point (Reprises, étape 4 du Parcours, mots inconnus). **Clos le 2026-10-19**, après les revues et la contre-revue de Codex (D-096).
 
 - [x] Attentes bornées des appels IA : une correction finit toujours, par la correction ou par un message clair (D-091) ; action de l'utilisateur : DEPLOYMENT.md, section 18
 - [x] Reprises : écran « Mes cartes » (état et raison de chaque carte), raisons d'une erreur sans carte dans la correction, cartes actives pour une notion sans leçon, cartes des erreurs anticipées de l'étape 4, « Revoir cette phrase dans mes Reprises », jamais deux fois la même carte (D-092)
@@ -113,6 +113,7 @@ Demandés par l'utilisateur le 2026-10-16, après usage réel, puis validés poi
 - [x] Sens proposé par l'IA sur demande (`explain-word`, Haiku 4.5, au plus 0,0075 USD), confirmé par l'apprenant avant l'enregistrement (D-095) ; action de l'utilisateur : DEPLOYMENT.md, section 18
 - [x] Revues de Codex des ajustements : preuve de l'étape 4 resserrée (mot pour mot, à la place d'un adverbe près), phrase gardée qui attend sa notion, brouillons du formulaire d'un mot, cartes créées dans une transaction et comparées avec leurs variantes, seconde tentative revérifiée après réservation, corrections du contenu, `explain-word@2` (D-096) ; action de l'utilisateur : DEPLOYMENT.md, section 18
 - [x] Tâches rapides sur Haiku 5.5, dix fois moins cher, vérifié dans la documentation officielle (D-097) ; action de l'utilisateur : DEPLOYMENT.md, section 18, dans l'ordre indiqué
+- [x] Contre-revue de Codex : les 9 corrections validées ; une réponse tardive de l'IA n'est plus associée à une autre expression que celle demandée (D-096)
 
 ## Phase 5 — Qualité des corrections
 
