@@ -16,15 +16,24 @@ export type StoredDraft =
   /** Stored but unreadable: it will be set aside, never silently overwritten. */
   | { readonly state: 'unreadable' };
 
+/** A draft that must still read a given text: what an absent draft shows is `absent`. */
+export interface DraftCondition {
+  readonly key: string;
+  readonly text: string;
+  readonly absent: string;
+}
+
 export interface DraftRepository {
   get(key: string): Promise<StoredDraft>;
   /** Saves the text; an empty text removes the draft. */
   save(key: string, text: string): Promise<void>;
   /**
    * Saves the text only where no draft is stored, readable or not: a text
-   * typed meanwhile is never replaced. True when it was saved.
+   * typed meanwhile is never replaced. With `when`, only while the draft
+   * `when.key` still reads `when.text` (spaces around left out), checked in
+   * the same transaction. True when it was saved.
    */
-  saveIfAbsent(key: string, text: string): Promise<boolean>;
+  saveIfAbsent(key: string, text: string, when?: DraftCondition): Promise<boolean>;
   remove(key: string): Promise<void>;
 }
 
@@ -55,9 +64,16 @@ export function createDraftRepository(db: AppDatabase, clock: Clock): DraftRepos
       });
     },
 
-    saveIfAbsent(key, text) {
+    saveIfAbsent(key, text, when) {
       return db.dexie.transaction('rw', [table], async () => {
         if (text.length === 0 || (await table.get(key)) !== undefined) return false;
+        if (when !== undefined) {
+          const raw: unknown = await table.get(when.key);
+          const parsed = raw === undefined ? null : parseRecord('drafts', raw);
+          // An unreadable draft reads nothing: the condition fails.
+          const current = parsed === null ? when.absent : parsed.ok ? parsed.value.text : null;
+          if (current?.trim() !== when.text.trim()) return false;
+        }
         const now = clock.now();
         await writeRecord(db, 'drafts', { key, text, updatedAt: now }, now);
         return true;

@@ -512,4 +512,54 @@ describe('drafts of the form of a word touched (D-096)', () => {
     });
     expect(fake.calls.run).toEqual(['explain-word']);
   });
+
+  it('never gives a late proposal to another expression than the one asked about', async () => {
+    let answer: (value: Awaited<ReturnType<NonNullable<FakeServerOptions['run']>>>) => void = () =>
+      undefined;
+    const inputs: unknown[] = [];
+    const fake = createFakeServer({
+      account: TEST_ACCOUNT,
+      run: (_task, input) => {
+        inputs.push(input);
+        return new Promise((resolve) => {
+          answer = resolve;
+        });
+      },
+    });
+    const services = await createTestServices({ server: fake.server });
+    await renderApp('/parcours/tense-present-continuous/lecon', services);
+    await open('across');
+    fireEvent.click(screen.getByRole('button', { name: 'Demander le sens à l’IA' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+
+    // Reopened, the expression replaced, no meaning typed.
+    const edited = await open('across');
+    fireEvent.change(edited.expression, { target: { value: 'euro area' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+    const base = wordDraftKey('across', 'Inflation is falling across the euro area.');
+    await waitFor(async () => {
+      expect(await services.drafts.get(`${base}:expression`)).toEqual({
+        state: 'present',
+        text: 'euro area',
+      });
+    });
+    await act(async () => {
+      answer({
+        ok: true,
+        output: { meaningFr: 'dans tout' },
+        costUsd: 0.0012,
+        model: 'claude-haiku-5-5',
+        promptVersion: 'explain-word@2',
+      });
+      await new Promise((resolve) => setTimeout(resolve, DRAFT_SAVE_DELAY_MS + 100));
+    });
+    expect(inputs).toMatchObject([{ expression: 'across' }]);
+    expect(await services.drafts.get(`${base}:meaning`)).toEqual({ state: 'absent' });
+
+    const after = await open('across');
+    await waitFor(() => {
+      expect(after.expression).toHaveValue('euro area');
+    });
+    expect(after.meaning).toHaveValue('');
+  });
 });

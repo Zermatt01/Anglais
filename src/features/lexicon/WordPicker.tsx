@@ -164,7 +164,8 @@ function WordForm({
   // The expression, as edited, and its meaning are drafts, restored together (UI-03, D-096).
   const draftKey = wordDraftKey(picked, sentence);
   const meaningKey = `${draftKey}:meaning`;
-  const edited = useDraft(`${draftKey}:expression`, picked);
+  const expressionKey = `${draftKey}:expression`;
+  const edited = useDraft(expressionKey, picked);
   const meaning = useDraft(meaningKey, '');
   const expression = edited.text;
   const [addition, setAddition] = useState<Addition>('idle');
@@ -187,6 +188,8 @@ function WordForm({
     askingNow.current = true;
     setAsking(true);
     setAskError(null);
+    // The expression asked about is stored before the request: its answer is checked against it.
+    await edited.flush();
     const result = await server.ai.run(
       'explain-word',
       { expression: words, sentence, englishVariant },
@@ -204,8 +207,11 @@ function WordForm({
       return;
     }
     // Stored at once, even if the form is closed meanwhile, so that it is not asked
-    // for twice (D-095); but never over a meaning typed meanwhile (D-096).
-    await drafts.saveIfAbsent(meaningKey, proposed).catch(() => false);
+    // for twice (D-095); but never over a meaning typed meanwhile, nor beside
+    // another expression than the one asked about (D-096).
+    await drafts
+      .saveIfAbsent(meaningKey, proposed, { key: expressionKey, text: words, absent: picked })
+      .catch(() => false);
     // Closed meanwhile: the hook of the form is gone, and must not save anything more.
     if (!mounted.current) return;
     meaning.setText(proposed);

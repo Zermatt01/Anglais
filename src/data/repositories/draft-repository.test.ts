@@ -37,6 +37,21 @@ describe('draft repository', () => {
     expect(await repository.get('b')).toEqual({ state: 'absent' });
   });
 
+  it('saves a text only while another draft still reads what it was saved for (D-096)', async () => {
+    const { db, repository } = await setup();
+    const when = { key: 'word:expression', text: 'across', absent: 'across' };
+    // No draft of the expression: it shows `absent`, the one asked about.
+    expect(await repository.saveIfAbsent('a', 'dans tout', when)).toBe(true);
+    await repository.save('word:expression', 'euro area');
+    expect(await repository.saveIfAbsent('b', 'dans tout', when)).toBe(false);
+    expect(await repository.get('b')).toEqual({ state: 'absent' });
+    await repository.save('word:expression', ' across ');
+    expect(await repository.saveIfAbsent('c', 'dans tout', when)).toBe(true);
+    // An unreadable draft reads nothing.
+    await db.table('drafts').put({ key: 'word:expression', text: 42 });
+    expect(await repository.saveIfAbsent('d', 'dans tout', when)).toBe(false);
+  });
+
   it('removes the draft when the text is emptied', async () => {
     const { db, repository } = await setup();
     await repository.save('a', 'text');
